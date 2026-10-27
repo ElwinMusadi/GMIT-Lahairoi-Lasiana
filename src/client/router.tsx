@@ -2,6 +2,7 @@ import type { ComponentType } from 'react'
 import { createBrowserRouter } from 'react-router'
 import PublicLayout from '@/layouts/PublicLayout'
 import RootLayout from '@/layouts/RootLayout'
+import type { UserRole } from '@shared/types'
 import { allModules, type ModuleItem } from '@/lib/navigation'
 import HomePage from '@/pages/public/HomePage'
 import NotFoundPage from '@/pages/public/NotFoundPage'
@@ -22,10 +23,21 @@ const modulePages: Record<string, PageLoader> = {
   'audit-logs': () => import('@/pages/dashboard/AuditLogsPage'),
 }
 
-// Halaman turunan sebuah modul, dengan hak akses yang sama dengan modulnya.
-const subPages: Record<string, { path: string; title: string; load: PageLoader }[]> = {
+// Halaman turunan sebuah modul. Hak aksesnya sama dengan modulnya, kecuali `roles` diisi.
+const subPages: Record<
+  string,
+  { path: string; title: string; load: PageLoader; roles?: readonly UserRole[] }[]
+> = {
   families: [
     { path: ':id', title: 'Rincian KK', load: () => import('@/pages/dashboard/FamilyDetailPage') },
+  ],
+  members: [
+    {
+      path: 'import',
+      title: 'Impor data',
+      load: () => import('@/pages/dashboard/MemberImportPage'),
+      roles: ['ADMIN'],
+    },
   ],
 }
 
@@ -125,7 +137,10 @@ export const router = createBrowserRouter([
                 ...(subPages[module.path] ?? []).map((sub) => ({
                   path: sub.path,
                   handle: { title: sub.title } satisfies RouteHandle,
-                  lazy: guardedPage(module, sub.load),
+                  lazy: guardedPage(
+                    { ...module, title: sub.title, roles: sub.roles ?? module.roles },
+                    sub.load,
+                  ),
                 })),
               ],
             })),

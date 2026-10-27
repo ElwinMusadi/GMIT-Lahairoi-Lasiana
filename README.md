@@ -36,7 +36,7 @@ Proyek ini berbentuk **full-stack dalam satu paket**. `@cloudflare/vite-plugin` 
 │   │   │   └── session-provider.tsx
 │   │   ├── layouts/            # RootLayout, PublicLayout, DashboardLayout
 │   │   ├── pages/              # public/, dashboard/, LoginPage, RouteErrorPage
-│   │   ├── lib/                # api, use-api-query, use-url-filters, upload, session, navigation, format WITA, audit-format, congregation
+│   │   ├── lib/                # api, use-api-query, use-url-filters, upload, session, navigation, format WITA, audit-format, congregation, read-spreadsheet, member-files
 │   │   ├── router.tsx          # Definisi semua rute
 │   │   ├── main.tsx
 │   │   └── index.css           # Tailwind v4 + token tema portal & dashboard
@@ -46,7 +46,7 @@ Proyek ini berbentuk **full-stack dalam satu paket**. `@cloudflare/vite-plugin` 
 │   │   ├── lib/                # Hash kata sandi, sesi, log aktivitas, pembaca request, data jemaat
 │   │   ├── types.ts            # Tipe env Hono (Bindings, Variables)
 │   │   └── index.ts            # Entry Worker, basePath /api
-│   └── shared/                 # Tipe & aturan validasi yang dipakai bersama client & worker
+│   └── shared/                 # Tipe, aturan validasi, format impor/ekspor & penulis CSV/XLSX (client & worker)
 ├── components.json             # Konfigurasi shadcn/ui
 ├── vite.config.ts
 ├── wrangler.toml               # Konfigurasi Worker + binding D1
@@ -79,7 +79,8 @@ Buka `/` untuk Portal Publik dan `/dashboard` untuk dashboard pengurus.
 | `/jadwal`, `/warta`, `/renungan`, `/persembahan`, `/tentang` | `PublicLayout` | Kerangka halaman portal (diisi modul Portal Publik) |
 | `/login`             | berdiri sendiri   | Masuk pengurus                                                    |
 | `/dashboard`         | `DashboardLayout` | Ringkasan: modul per peran, rayon, status sistem, dan aktivitas terbaru (Admin) |
-| `/dashboard/members` | `DashboardLayout` | Anggota Jemaat (Admin, Pendeta, Majelis): cari, filter kombinasi di URL, profil lengkap |
+| `/dashboard/members` | `DashboardLayout` | Anggota Jemaat (Admin, Pendeta, Majelis): cari, filter kombinasi di URL, profil lengkap, ekspor |
+| `/dashboard/members/import` | `DashboardLayout` | Impor data jemaat dari Excel/CSV dengan pratinjau validasi (Admin) |
 | `/dashboard/families` | `DashboardLayout` | Kartu Keluarga per rayon; KK baru langsung dibuka untuk diisi anggotanya |
 | `/dashboard/families/:id` | `DashboardLayout` | Rincian KK: seluruh anggota, data KK, tambah Kepala Keluarga/anggota |
 | `/dashboard/rayons`  | `DashboardLayout` | Rayon (Admin): koordinator, keterangan, jumlah KK dan jiwa |
@@ -363,6 +364,52 @@ Halaman ada di [src/client/pages/dashboard](src/client/pages/dashboard) dan komp
   - Kategori pelayanan diberi saran dari umur, jenis kelamin, dan status nikah (PAR di bawah 17 tahun, Pemuda sampai 35 tahun selama belum menikah, Lansia mulai 60 tahun). Saran hanya mengisi bila pengurus menekan "Pakai".
 - **Hak akses di layar.** Admin dan Majelis melihat tombol tambah dan ubah. Pendeta hanya membaca. Majelis tidak melihat pilihan rayon (KK baru otomatis di rayonnya). Riwayat dan hapus data khusus Admin.
 
+### Impor & ekspor Excel/CSV
+
+**Format berkas.** Kolomnya didefinisikan di [src/shared/member-import.ts](src/shared/member-import.ts). Template dan hasil ekspor memakai kolom yang sama, jadi berkas ekspor bisa diimpor ulang. Template diunduh dari halaman Impor dan dibuat langsung di browser.
+
+- **Satu baris, satu jemaat.**
+  - Baris dengan Nomor KK yang sama menjadi satu KK.
+  - Tanpa Nomor KK, baris dikelompokkan menurut Nama Kepala Keluarga dan Rayon.
+- **Kolom wajib.** Nama Lengkap, Jenis Kelamin, Hubungan Keluarga, dan Nomor KK atau Nama Kepala Keluarga. Rayon wajib untuk KK yang belum terdaftar.
+- **Judul kolom.** Judul lain juga dikenali, misalnya "No. KK", "L/P", "Tgl Lahir", "No Induk", "Kategorial", "Status Pernikahan".
+  - Kolom yang tidak dikenal diabaikan.
+  - Baris judul laporan di atas tabel dilewati.
+
+**Nilai yang dikenali** (validasi toleran untuk data Excel lama):
+
+| Isian | Contoh yang diterima |
+| --- | --- |
+| Rayon | `GETSEMANI`, `Rayon Getsemani`, `Gethsemani`, `golgotha`: huruf besar/kecil, spasi, awalan "Rayon", dan huruf h diabaikan |
+| Tanggal | `1975-03-12`, `12/03/1975`, `12-3-75`, `12 Maret 1975`, sel tanggal Excel, nomor seri Excel. Hari ditulis dulu. Tanggal yang hanya berisi tahun ditolak |
+| Jenis kelamin | `L`, `P`, `Laki-laki`, `Perempuan`, `Pria`, `Wanita` |
+| Hubungan | `Kepala Keluarga`/`KK`, `Istri`/`Suami`, `Anak`, `Tanggungan`/`Orang tua`/`Cucu` |
+| Baptis/Sidi | `Sudah`/`Belum`, `Ya`/`Tidak`, `1`/`0`. Tanggal baptis/sidi yang diisi berarti sudah |
+| Status nikah | `Belum menikah`/`Belum kawin`, `Menikah`/`Kawin`, `Cerai hidup`, `Cerai mati`/`Duda`/`Janda` |
+| Telepon | Nomor yang tersimpan sebagai angka di Excel (`81234567890`) dikembalikan menjadi `081234567890` |
+
+**Alur impor** (`/dashboard/members/import`, khusus Admin):
+
+1. **Baca.** Browser membaca berkas `.xlsx` (lembar pertama) atau `.csv`.
+   - Pemisah koma, titik koma (Excel berbahasa Indonesia), atau tab dikenali sendiri.
+   - Batasnya 2.000 baris dan 5 MB per berkas.
+2. **Pratinjau.** `POST /api/members/import` dengan `dry_run: true` memeriksa setiap baris tanpa menyimpan.
+   - **Siap**: akan disimpan; KK baru dibuat otomatis, KK yang sudah terdaftar dipakai.
+   - **Sudah ada**: dilewati, tidak dobel. Penyebabnya Nomor Induk atau NIK sudah terdaftar, nama yang sama sudah ada di KK yang sama, atau (tanpa Nomor Induk dan NIK) nama dan tanggal lahir sama. Baris yang sama di dalam berkas juga dihitung.
+   - **Perlu diperbaiki**: dilewati, dengan pesan per kolom (rayon tidak dikenal, tanggal tidak ada, sidi tanpa baptis, Kepala Keluarga aktif kedua, dan lain-lain).
+3. **Simpan.** Mengirim ulang dengan `dry_run: false`.
+   - API memeriksa ulang, lalu menyimpan semua baris "Siap" ke `families` dan `members` dalam **satu transaksi**. Data dikirim sebagai JSON ke `json_each`, jadi 1.200 baris tetap hanya belasan query.
+   - Log Aktivitas mencatat satu entri `IMPORT` berisi ringkasannya.
+4. **Perbaiki sisanya.** "Unduh baris yang belum masuk" menghasilkan `.xlsx` berisi baris yang dilewati beserta kolom Keterangan.
+   - Setelah diperbaiki, berkas itu bisa langsung diimpor lagi. Kolom Baris dan Keterangan diabaikan.
+
+**Ekspor.** Tombol Ekspor di Anggota Jemaat mengunduh `.xlsx` atau CSV sesuai pencarian dan filter yang sedang aktif.
+
+- Isinya urut per rayon dan KK, dengan anggota keluarga berdekatan.
+- Di Excel, tanggal menjadi sel tanggal, NIK dan telepon tetap teks, baris judul terkunci, dan filter kolom aktif.
+- Majelis hanya mengekspor rayonnya.
+- Setiap ekspor tercatat sebagai `EXPORT` di Log Aktivitas, karena data pribadi jemaat keluar dari sistem.
+
 ## Unggah berkas
 
 Berkas (PDF warta, kuitansi, foto, berkas sakramen) disimpan di **Cloudflare R2**, bukan sebagai base64 di D1, karena baris D1 terlalu kecil untuk PDF.
@@ -507,6 +554,8 @@ Komponen akan ditulis ke `src/client/components/ui/`. Preset yang dipakai: `radi
 | POST   | `/api/members`     | Admin, Majelis* | Tambah anggota ke KK                             |
 | PUT    | `/api/members/:id` | Admin, Majelis* | Ubah atau pindahkan anggota (PATCH juga diterima) |
 | DELETE | `/api/members/:id` | Admin       | Hapus anggota yang salah input                       |
+| POST   | `/api/members/import` | Admin    | Pratinjau (`dry_run: true`) atau simpan impor Excel/CSV |
+| GET    | `/api/members/export` | Admin, Pendeta, Majelis* | Unduh `.xlsx` (bawaan) atau `?format=csv` sesuai filter |
 | POST   | `/api/uploads`     | Login + peran folder | Unggah berkas ke R2 (`multipart`: `file`, `folder`) |
 | GET    | `/api/files/*`     | Publik / Login | Ambil berkas dari R2 (mendukung ETag / `304`)     |
 

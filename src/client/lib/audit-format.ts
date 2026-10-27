@@ -35,6 +35,7 @@ export const ACTION_LABELS: Record<string, string> = {
   UPDATE: 'Mengubah',
   DELETE: 'Menghapus',
   IMPORT: 'Mengimpor',
+  EXPORT: 'Mengekspor',
   LOGIN: 'Masuk',
   LOGOUT: 'Keluar',
   LOGIN_FAILED: 'Gagal masuk',
@@ -118,6 +119,21 @@ export function describeAudit(item: AuditLogItem): AuditDescription {
       }
     case 'LOGIN_REJECTED_INACTIVE':
       return { summary: 'Percobaan masuk dengan akun nonaktif', detail: ip, flag: 'Ditolak' }
+  }
+
+  if (item.action === 'IMPORT' || item.action === 'EXPORT') {
+    const count = (key: string) => Number(details[key] ?? 0).toLocaleString('id-ID')
+    return item.action === 'IMPORT'
+      ? {
+          summary: `Mengimpor ${entity} dari ${label}`,
+          detail: `${count('members_created')} jemaat · ${count('families_created')} KK baru · ${Number(details.duplicates ?? 0) + Number(details.errors ?? 0)} baris dilewati`,
+          flag: null,
+        }
+      : {
+          summary: `Mengekspor ${entity} (${count('rows')} baris)`,
+          detail: label,
+          flag: null,
+        }
   }
 
   if (item.action === 'UPDATE' && details.changes) {

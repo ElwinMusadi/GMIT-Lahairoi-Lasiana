@@ -1,6 +1,7 @@
 import { useRef, useState, type ReactNode } from 'react'
-import { ListFilter, Plus, Search } from 'lucide-react'
+import { Download, ListFilter, Plus, Search, Upload } from 'lucide-react'
 import { Link } from 'react-router'
+import { toast } from 'sonner'
 import {
   BLOOD_TYPES,
   CATEGORICAL_GROUPS,
@@ -15,11 +16,20 @@ import {
 import { MemberMenu } from '@/components/congregation/member-menu'
 import { useMemberActions } from '@/components/congregation/use-member-actions'
 import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
+import { errorMessage } from '@/lib/api'
 import { ageOn, categoricalLabel, familyName, sacramentSummary } from '@/lib/congregation'
-import { useCurrentUser } from '@/lib/session'
+import { downloadExport } from '@/lib/member-files'
+import { useCan, useCurrentUser } from '@/lib/session'
 import { useApiQuery } from '@/lib/use-api-query'
 import { useUrlFilters } from '@/lib/use-url-filters'
 import { cn } from '@/lib/utils'
@@ -58,13 +68,30 @@ export default function MembersPage() {
   const [showFilters, setShowFilters] = useState(false)
   const activeFilters = FILTER_KEYS.filter((key) => filters[key]).length
 
-  const members = useApiQuery<ApiPage<MemberWithFamily>>('/members', {
+  // Filter yang sama dipakai daftar dan tombol Ekspor.
+  const listQuery = {
     ...filters,
     status: filters.status === 'ALL' ? '' : filters.status || 'ACTIVE',
     q,
+  }
+  const members = useApiQuery<ApiPage<MemberWithFamily>>('/members', {
+    ...listQuery,
     page,
     per_page: PER_PAGE,
   })
+  const isAdmin = useCan(['ADMIN'])
+  const [exporting, setExporting] = useState(false)
+
+  async function exportAs(format: 'xlsx' | 'csv') {
+    setExporting(true)
+    try {
+      await downloadExport(format, listQuery)
+    } catch (err) {
+      toast.error(errorMessage(err))
+    } finally {
+      setExporting(false)
+    }
+  }
   const rayons = useApiQuery<ApiList<RayonListItem>>(isElder ? null : '/rayons')
   // Temuan di bawah judul: Pemuda aktif yang belum sidi, calon peserta katekisasi.
   const activeCount = useApiQuery<ApiPage<MemberWithFamily>>('/members', {
@@ -143,12 +170,22 @@ export default function MembersPage() {
             <Skeleton className="h-5 w-80" />
           )}
         </div>
-        {actions.canEdit && (
-          <Button size="lg" onClick={() => actions.add()}>
-            <Plus data-icon="inline-start" />
-            Tambah anggota
-          </Button>
-        )}
+        <div className="flex flex-wrap gap-2">
+          {isAdmin && (
+            <Button asChild variant="outline" size="lg">
+              <Link to="/dashboard/members/import">
+                <Upload data-icon="inline-start" />
+                Impor
+              </Link>
+            </Button>
+          )}
+          {actions.canEdit && (
+            <Button size="lg" onClick={() => actions.add()}>
+              <Plus data-icon="inline-start" />
+              Tambah anggota
+            </Button>
+          )}
+        </div>
       </header>
 
       <section aria-label="Pencarian dan filter" className="grid gap-3">
@@ -187,6 +224,25 @@ export default function MembersPage() {
             <p className="text-sm text-muted-foreground tabular-nums" aria-live="polite">
               {result ? `${total.toLocaleString('id-ID')} jiwa` : ''}
             </p>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" disabled={exporting || !result || total === 0}>
+                  <Download data-icon="inline-start" />
+                  {exporting ? 'Menyiapkan…' : 'Ekspor'}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-64">
+                <DropdownMenuLabel className="font-normal text-muted-foreground">
+                  {total.toLocaleString('id-ID')} jiwa sesuai pencarian dan filter
+                </DropdownMenuLabel>
+                <DropdownMenuItem onSelect={() => void exportAs('xlsx')}>
+                  Excel (.xlsx)
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => void exportAs('csv')}>
+                  CSV (.csv)
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 

@@ -21,6 +21,8 @@ export type ApiRequestOptions = {
   // false untuk endpoint yang tidak memakai sesi (mis. login), agar respons 401
   // tidak dianggap sebagai sesi yang berakhir.
   auth?: boolean
+  // 'blob' untuk unduhan berkas (mis. ekspor Excel).
+  responseType?: 'blob'
 }
 
 export class ApiError extends Error {
@@ -83,7 +85,7 @@ export async function apiRequest<T>(
   path: string,
   options: ApiRequestOptions = {},
 ): Promise<T> {
-  const { query, body, signal, timeoutMs = DEFAULT_TIMEOUT_MS, auth = true } = options
+  const { query, body, signal, timeoutMs = DEFAULT_TIMEOUT_MS, auth = true, responseType } = options
 
   const headers = new Headers(options.headers)
   headers.set('Accept', 'application/json')
@@ -127,6 +129,7 @@ export async function apiRequest<T>(
   }
 
   if (res.status === 204) return undefined as T
+  if (responseType === 'blob') return (await res.blob()) as T
   const isJson = res.headers.get('content-type')?.includes('application/json')
   return (isJson ? await res.json() : await res.text()) as T
 }

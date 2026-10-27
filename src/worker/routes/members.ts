@@ -6,18 +6,7 @@ import {
   validateMember,
   type MemberFields,
 } from '../../shared/congregation'
-import {
-  BLOOD_TYPES,
-  CATEGORICAL_GROUPS,
-  FAMILY_RELATIONS,
-  GENDERS,
-  MARRIAGE_STATUSES,
-  MEMBER_STATUSES,
-  type ApiErrorBody,
-  type ApiPage,
-  type MemberResponse,
-  type MemberWithFamily,
-} from '../../shared/types'
+import type { ApiErrorBody, ApiPage, MemberResponse, MemberWithFamily } from '../../shared/types'
 import { LAST_INSERT_ID, auditStatement, diffChanges } from '../lib/audit'
 import {
   MEMBER_FIELD_KEYS,
@@ -34,35 +23,26 @@ import {
   toMember,
   type StoredMember,
 } from '../lib/congregation'
-import {
-  containsPattern,
-  invalid,
-  positiveInt,
-  readJsonObject,
-  readPaging,
-  runBatch,
-  searchWords,
-  whereBuilder,
-} from '../lib/request'
+import { memberFilter } from '../lib/member-filter'
+import { invalid, positiveInt, readJsonObject, readPaging, runBatch } from '../lib/request'
 import { requireRole } from '../middleware/auth'
 import type { AppEnv } from '../types'
+import { exportMembers, importMembers } from './member-transfer'
 
 // Anggota Jemaat (PRD, Database Jemaat & KK). Admin, Pendeta, dan Majelis dapat
 // melihat; Admin dan Majelis menambah dan mengubah; menghapus khusus Admin (jemaat
 // yang pindah atau meninggal cukup diubah statusnya). Majelis hanya mencakup jemaat
 // di rayonnya sendiri.
 //
-// GET / query opsional, dapat dikombinasikan:
-//   q                  nama, NIK, Nomor Induk, atau nomor KK (setiap kata harus cocok)
-//   rayon_id, family_id
-//   categorical_group, blood_type, gender, family_relation, marriage_status, status
-//                      satu kode atau beberapa dipisah koma, mis. PAR,PEMUDA
-//   baptism_status, sidi_status
-//                      true/1 = sudah, false/0 = belum
-//   page, per_page     maks. 100 per halaman
+// GET / menerima filter di lib/member-filter.ts ditambah page dan per_page (maks. 100).
+// Impor dan ekspor ada di routes/member-transfer.ts.
 const members = new Hono<AppEnv>()
 
 members.use(requireRole('ADMIN', 'PASTOR', 'ELDER'))
+
+// Didaftarkan sebelum /:id agar "export" dan "import" tidak dibaca sebagai id.
+members.get('/export', exportMembers)
+members.post('/import', requireRole('ADMIN'), importMembers)
 
 type Ctx = Context<AppEnv>
 type TargetFamily = {
@@ -78,79 +58,11 @@ type TargetFamily = {
 const CONFLICT =
   'Data ini bentrok dengan data jemaat yang baru saja disimpan pengurus lain. Muat ulang lalu coba lagi.'
 
-const CHOICE_FILTERS = [
-  ['categorical_group', CATEGORICAL_GROUPS],
-  ['blood_type', BLOOD_TYPES],
-  ['gender', GENDERS],
-  ['family_relation', FAMILY_RELATIONS],
-  ['marriage_status', MARRIAGE_STATUSES],
-  ['status', MEMBER_STATUSES],
-] as const
-
-// Status baptis/sidi di query: sudah (1) atau belum (0).
-const SACRAMENT_QUERY = new Map([
-  ['true', 1],
-  ['1', 1],
-  ['false', 0],
-  ['0', 0],
-])
-
 members.get('/', async (c) => {
   const query = c.req.query()
-  const details: FieldErrors = {}
-  const where = whereBuilder()
-  const scope = rayonScope(c.get('user'))
+  const { where, details, outsideScope } = memberFilter(query, rayonScope(c.get('user')))
+  if (outsideScope) return outsideRayon(c)
   const { page, perPage } = readPaging(query, details)
-
-  if (query.rayon_id !== undefined) {
-    const rayonId = positiveInt(query.rayon_id)
-    if (rayonId === null) details.rayon_id = ['Rayon tidak valid.']
-    else if (!inScope(scope, rayonId)) return outsideRayon(c)
-    else where.add('f.rayon_id = ?', rayonId)
-  }
-  if (scope !== null) where.add('f.rayon_id = ?', scope)
-
-  if (query.family_id !== undefined) {
-    const familyId = positiveInt(query.family_id)
-    if (familyId === null) details.family_id = ['Kartu Keluarga tidak valid.']
-    else where.add('m.family_id = ?', familyId)
-  }
-
-  for (const [key, options] of CHOICE_FILTERS) {
-    if (query[key] === undefined) continue
-    const values = [
-      ...new Set(
-        query[key]
-          .split(',')
-          .map((value) => value.trim().toUpperCase())
-          .filter(Boolean),
-      ),
-    ]
-    const unknown = values.filter((value) => !(options as readonly string[]).includes(value))
-    if (values.length === 0 || unknown.length > 0) {
-      const prefix = unknown.length > 0 ? `Nilai tidak dikenal: ${unknown.join(', ')}. ` : ''
-      details[key] = [`${prefix}Pilihan: ${options.join(', ')}.`]
-    } else where.addIn(`m.${key}`, values)
-  }
-
-  for (const key of ['baptism_status', 'sidi_status'] as const) {
-    if (query[key] === undefined) continue
-    const value = SACRAMENT_QUERY.get(query[key].trim().toLowerCase())
-    if (value === undefined) details[key] = ['Isi true (sudah) atau false (belum).']
-    else where.add(`m.${key} = ?`, value)
-  }
-
-  if (query.q !== undefined) {
-    const words = searchWords(query.q)
-    if (words === null) details.q = ['Kata pencarian maksimal 100 karakter.']
-    for (const word of words ?? []) {
-      where.add(
-        `(m.full_name LIKE ? ESCAPE '\\' OR m.nik LIKE ? ESCAPE '\\'
-          OR m.church_member_number LIKE ? ESCAPE '\\' OR f.kk_number LIKE ? ESCAPE '\\')`,
-        containsPattern(word),
-      )
-    }
-  }
 
   if (Object.keys(details).length > 0) return invalid(c, 'Filter data jemaat tidak valid.', details)
 

@@ -183,6 +183,52 @@ export type MemberRequest = {
 
 export type MemberResponse = { member: MemberWithFamily }
 
+// POST /api/members/import (khusus Admin). Berkas dibaca di browser; setiap baris
+// dikirim dengan judul kolom yang sudah dicocokkan (lihat src/shared/member-import.ts).
+// dry_run: true hanya memeriksa (pratinjau); false menyimpan baris yang siap.
+export type MemberImportRequest = {
+  file_name: string
+  dry_run: boolean
+  // row: nomor baris di berkas, untuk pesan kesalahan.
+  rows: { row: number; values: Record<string, string> }[]
+}
+
+// new: akan/sudah disimpan; duplicate: dilewati karena sudah terdaftar; error: dilewati
+// karena isinya perlu diperbaiki.
+export type ImportRowStatus = 'new' | 'duplicate' | 'error'
+
+export type MemberImportRow = {
+  row: number
+  status: ImportRowStatus
+  // Alasan dilewati, atau catatan untuk baris yang tetap disimpan.
+  messages: string[]
+  full_name: string
+  church_member_number: string | null
+  nik: string | null
+  family_relation: FamilyRelation | null
+  family: {
+    kk_number: string | null
+    head_name: string
+    rayon_name: string | null
+    // Tulisan rayon di berkas bila berbeda dari nama rayon yang dicocokkan.
+    rayon_input: string | null
+    is_new: boolean
+  } | null
+}
+
+export type MemberImportResult = {
+  saved: boolean
+  summary: {
+    rows: number
+    new_members: number
+    duplicates: number
+    errors: number
+    new_families: number
+    existing_families: number
+  }
+  rows: MemberImportRow[]
+}
+
 export const USER_ROLES = ['ADMIN', 'TREASURER', 'PASTOR', 'ELDER'] as const
 export type UserRole = (typeof USER_ROLES)[number]
 
