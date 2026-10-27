@@ -4,8 +4,10 @@ export type ApiList<T> = {
   data: T[]
 }
 
-export type ApiError = {
+// Bentuk respons error API. `details` berisi pesan per field untuk error validasi.
+export type ApiErrorBody = {
   error: string
+  details?: Record<string, string[]>
 }
 
 export type HealthStatus = {
@@ -19,4 +21,24 @@ export type Rayon = {
   name: string
   description: string | null
   coordinator_name: string | null
+}
+
+export const USER_ROLES = ['ADMIN', 'TREASURER', 'PASTOR', 'ELDER'] as const
+export type UserRole = (typeof USER_ROLES)[number]
+
+export const ROLE_LABELS: Record<UserRole, string> = {
+  ADMIN: 'Admin',
+  TREASURER: 'Bendahara',
+  PASTOR: 'Pendeta',
+  ELDER: 'Majelis',
+}
+
+// Pengguna yang sedang masuk, sesuai kolom tabel users (tanpa password_hash).
+export type SessionUser = {
+  id: number
+  name: string
+  email: string | null
+  username: string | null
+  role: UserRole
+  rayon_id: number | null
 }

@@ -26,3 +26,11 @@ binding = "DB"
 database_name = "gmit-lahairoi-db"
 # database_id = "<uuid dari wrangler d1 create>"
 migrations_dir = "migrations"
+
+# Cloudflare R2 untuk berkas unggahan (PDF warta, kuitansi, foto, berkas sakramen).
+# Diakses di Worker melalui `c.env.FILES`. Lokal disimulasikan di .wrangler/state.
+# Sebelum deploy pertama, buat bucket:
+#   npx wrangler r2 bucket create gmit-lahairoi-files
+[[r2_buckets]]
+binding = "FILES"
+bucket_name = "gmit-lahairoi-files"

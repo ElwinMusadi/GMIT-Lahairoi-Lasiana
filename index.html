@@ -4,7 +4,19 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Portal GMIT Jemaat Lahairoi Tuak Sabu Lasiana, Kupang: jadwal ibadah, warta jemaat, renungan, dan persembahan."
+    />
+    <link rel="preload" href="/fonts/roundo/roundo-400.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/roundo/roundo-500.woff2" as="font" type="font/woff2" crossorigin />
     <title>GMIT Lahairoi Tuak Sabu Lasiana</title>
+    <script>
+      // Pasang tema portal sebelum React dimuat agar tidak ada kilatan latar terang.
+      if (!location.pathname.startsWith('/dashboard')) {
+        document.documentElement.classList.add('dark', 'theme-portal')
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

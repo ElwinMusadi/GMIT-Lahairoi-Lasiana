@@ -29,3 +29,6 @@ dist-ssr
 !.dev.vars.example
 .env*
 !.env.example
+
+# Screenshot & laporan inspector design-taste-frontend (arah desain di .taste-skill/*.json tetap dilacak)
+.taste-skill/inspect*/
