@@ -6,8 +6,10 @@ import { secureHeaders } from 'hono/secure-headers'
 import type { ApiErrorBody } from '../shared/types'
 import auditLogs from './routes/audit-logs'
 import auth from './routes/auth'
+import families from './routes/families'
 import files from './routes/files'
 import health from './routes/health'
+import members from './routes/members'
 import rayons from './routes/rayons'
 import uploads from './routes/uploads'
 import users from './routes/users'
@@ -21,7 +23,7 @@ app.use(secureHeaders())
 // cookie SameSite=Lax, ini mencegah CSRF terhadap sesi pengurus.
 app.use(csrf())
 
-// Publik
+// Publik (rayons: daftar publik, perubahan khusus Admin)
 app.route('/health', health)
 app.route('/rayons', rayons)
 app.route('/files', files)
@@ -31,6 +33,8 @@ app.route('/auth', auth)
 app.route('/uploads', uploads)
 app.route('/users', users)
 app.route('/audit-logs', auditLogs)
+app.route('/families', families)
+app.route('/members', members)
 
 app.notFound((c) => c.json<ApiErrorBody>({ error: 'Endpoint tidak ditemukan' }, 404))
 

@@ -8,6 +8,7 @@ import {
 import type { ApiErrorBody, ApiList, UserListItem, UserMutationResponse } from '../../shared/types'
 import { LAST_INSERT_ID, auditStatement, diffChanges } from '../lib/audit'
 import { generateTemporaryPassword, hashPassword } from '../lib/password'
+import { readJsonObject, runBatch } from '../lib/request'
 import { requireRole } from '../middleware/auth'
 import type { AppEnv } from '../types'
 
@@ -28,6 +29,9 @@ const USER_SELECT = `
   FROM users u
   LEFT JOIN rayons r ON r.id = u.rayon_id`
 
+// Dua Admin menyimpan email/username yang sama bersamaan.
+const TAKEN = 'Email atau username sudah dipakai akun lain.'
+
 users.get('/', async (c) => {
   const { results } = await c.env.DB.prepare(
     `${USER_SELECT} ORDER BY u.is_active DESC, u.name`,
@@ -36,7 +40,7 @@ users.get('/', async (c) => {
 })
 
 users.post('/', async (c) => {
-  const body = await readBody(c)
+  const body = await readJsonObject(c)
   if (!body) return c.json<ApiErrorBody>({ error: 'Data akun tidak valid.' }, 400)
 
   const { input, details } = parseAccountInput(body, 'create')
@@ -57,21 +61,25 @@ users.post('/', async (c) => {
   const passwordHash = await hashPassword(input.password ?? temporaryPassword ?? '')
 
   const db = c.env.DB
-  const result = await runBatch(c, [
-    db
-      .prepare(
-        `INSERT INTO users (name, email, username, password_hash, role, rayon_id)
-         VALUES (?1, ?2, ?3, ?4, ?5, ?6) RETURNING id`,
-      )
-      .bind(next.name, next.email, next.username, passwordHash, next.role, next.rayon_id),
-    auditStatement(c, {
-      action: 'CREATE',
-      entityType: 'users',
-      entityId: LAST_INSERT_ID,
-      label: next.name,
-      after: auditView(next, checked.rayonName, true),
-    }),
-  ])
+  const result = await runBatch(
+    c,
+    [
+      db
+        .prepare(
+          `INSERT INTO users (name, email, username, password_hash, role, rayon_id)
+           VALUES (?1, ?2, ?3, ?4, ?5, ?6) RETURNING id`,
+        )
+        .bind(next.name, next.email, next.username, passwordHash, next.role, next.rayon_id),
+      auditStatement(c, {
+        action: 'CREATE',
+        entityType: 'users',
+        entityId: LAST_INSERT_ID,
+        label: next.name,
+        after: auditView(next, checked.rayonName, true),
+      }),
+    ],
+    TAKEN,
+  )
   if (result instanceof Response) return result
 
   const user = await findUser(db, (result[0].results[0] as { id: number }).id)
@@ -83,7 +91,7 @@ users.post('/', async (c) => {
 
 users.patch('/:id', async (c) => {
   const id = Number(c.req.param('id'))
-  const body = await readBody(c)
+  const body = await readJsonObject(c)
   if (!body) return c.json<ApiErrorBody>({ error: 'Data akun tidak valid.' }, 400)
 
   const { input, details } = parseAccountInput(body, 'update')
@@ -197,7 +205,7 @@ users.patch('/:id', async (c) => {
     }),
   )
 
-  const result = await runBatch(c, statements)
+  const result = await runBatch(c, statements, TAKEN)
   if (result instanceof Response) return result
 
   return c.json<UserMutationResponse>({
@@ -264,18 +272,6 @@ function auditView(
   }
 }
 
-// Menjalankan batch; pelanggaran UNIQUE (dua Admin menyimpan bersamaan) menjadi 409.
-async function runBatch(c: Ctx, statements: D1PreparedStatement[]) {
-  try {
-    return await c.env.DB.batch(statements)
-  } catch (err) {
-    if (err instanceof Error && err.message.includes('UNIQUE constraint failed')) {
-      return c.json<ApiErrorBody>({ error: 'Email atau username sudah dipakai akun lain.' }, 409)
-    }
-    throw err
-  }
-}
-
 async function findUser(db: D1Database, id: number): Promise<UserListItem> {
   const row = await db.prepare(`${USER_SELECT} WHERE u.id = ?1`).bind(id).first<UserListRow>()
   if (!row) throw new Error(`User ${id} tidak ditemukan setelah disimpan`)
@@ -284,13 +280,6 @@ async function findUser(db: D1Database, id: number): Promise<UserListItem> {
 
 function toListItem(row: UserListRow): UserListItem {
   return { ...row, is_active: row.is_active === 1 }
-}
-
-async function readBody(c: Ctx): Promise<Record<string, unknown> | null> {
-  const body: unknown = await c.req.json().catch(() => null)
-  return body && typeof body === 'object' && !Array.isArray(body)
-    ? (body as Record<string, unknown>)
-    : null
 }
 
 function invalid(c: Ctx, details: FieldErrors) {

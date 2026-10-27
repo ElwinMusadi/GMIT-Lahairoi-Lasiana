@@ -1,4 +1,13 @@
-import { ROLE_LABELS, type AuditLogItem, type UserRole } from '@shared/types'
+import {
+  CATEGORICAL_GROUP_LABELS,
+  FAMILY_RELATION_LABELS,
+  GENDER_LABELS,
+  MARRIAGE_STATUS_LABELS,
+  MEMBER_STATUS_LABELS,
+  ROLE_LABELS,
+  type AuditLogItem,
+} from '@shared/types'
+import { formatDate } from './format'
 
 // Menerjemahkan baris audit_logs menjadi kalimat untuk Log Aktivitas, mis.
 // "Menonaktifkan akun Yohanis Dimu" dengan rincian "Peran: Majelis → Pendeta".
@@ -40,6 +49,46 @@ const FIELD_LABELS: Record<string, string> = {
   rayon: 'Rayon',
   is_active: 'Status',
   password_hash: 'Kata sandi',
+  description: 'Keterangan',
+  coordinator_name: 'Koordinator',
+  family: 'KK',
+  kk_number: 'Nomor KK',
+  family_head_name: 'Kepala keluarga',
+  address: 'Alamat',
+  phone: 'Telepon',
+  church_member_number: 'Nomor Induk',
+  nik: 'NIK',
+  full_name: 'Nama',
+  gender: 'Jenis kelamin',
+  birth_place: 'Tempat lahir',
+  birth_date: 'Tanggal lahir',
+  blood_type: 'Golongan darah',
+  family_relation: 'Hubungan keluarga',
+  education: 'Pendidikan',
+  occupation: 'Pekerjaan',
+  categorical_group: 'Kategorial',
+  baptism_status: 'Baptis',
+  baptism_date: 'Tanggal baptis',
+  sidi_status: 'Sidi',
+  sidi_date: 'Tanggal sidi',
+  marriage_status: 'Status nikah',
+  marriage_date: 'Tanggal nikah',
+  status: 'Status',
+}
+
+// Field yang sudah tersebut lewat label entitas di kalimat ringkasan.
+const LABEL_FIELDS = new Set(['name', 'full_name', 'kk_number', 'family_head_name'])
+
+// Kode tersimpan → sebutannya, per jenis data.
+const VALUE_LABELS: Record<string, Record<string, Record<string, string>>> = {
+  users: { role: ROLE_LABELS },
+  members: {
+    gender: GENDER_LABELS,
+    family_relation: FAMILY_RELATION_LABELS,
+    categorical_group: CATEGORICAL_GROUP_LABELS,
+    marriage_status: MARRIAGE_STATUS_LABELS,
+    status: MEMBER_STATUS_LABELS,
+  },
 }
 
 export type AuditDescription = {
@@ -86,7 +135,7 @@ export function describeAudit(item: AuditLogItem): AuditDescription {
       .map((field) =>
         field === 'password_hash'
           ? 'Kata sandi diatur ulang'
-          : `${fieldLabel(field)}: ${formatValue(field, changes[field].from)} → ${formatValue(field, changes[field].to)}`,
+          : `${fieldLabel(field)}: ${formatValue(item.entity_type, field, changes[field].from)} → ${formatValue(item.entity_type, field, changes[field].to)}`,
       )
       .join(' · ')
     return { summary: `Mengubah ${entity} ${label}`, detail, flag: null }
@@ -96,16 +145,18 @@ export function describeAudit(item: AuditLogItem): AuditDescription {
   const data = details.data
   const detail = data
     ? Object.entries(data)
-        // Nama sudah ada di kalimat, dan akun baru selalu aktif.
+        // Nama (dan nomor KK) sudah ada di kalimat, dan akun baru selalu aktif.
         .filter(
           ([field, value]) =>
-            field !== 'name' &&
+            !LABEL_FIELDS.has(field) &&
             !(field === 'is_active' && value === true) &&
             value !== null &&
             value !== '',
         )
         .slice(0, 4)
-        .map(([field, value]) => `${fieldLabel(field)} ${formatValue(field, value)}`)
+        .map(
+          ([field, value]) => `${fieldLabel(field)} ${formatValue(item.entity_type, field, value)}`,
+        )
         .join(' · ')
     : null
   return { summary: `${verb} ${entity} ${label}`.trim(), detail: detail || null, flag: null }
@@ -115,12 +166,13 @@ function fieldLabel(field: string): string {
   return FIELD_LABELS[field] ?? field.replaceAll('_', ' ')
 }
 
-function formatValue(field: string, value: unknown): string {
+function formatValue(entity: string, field: string, value: unknown): string {
   if (value === null || value === undefined || value === '') return '—'
-  if (field === 'role' && typeof value === 'string' && value in ROLE_LABELS) {
-    return ROLE_LABELS[value as UserRole]
-  }
+  const labels = VALUE_LABELS[entity]?.[field]
+  if (labels && typeof value === 'string' && Object.hasOwn(labels, value)) return labels[value]
   if (field === 'is_active') return value ? 'Aktif' : 'Nonaktif'
+  if (field === 'baptism_status' || field === 'sidi_status') return value ? 'Sudah' : 'Belum'
+  if (field.endsWith('_date') && typeof value === 'string') return formatDate(value)
   if (typeof value === 'boolean') return value ? 'Ya' : 'Tidak'
   return String(value)
 }

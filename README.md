@@ -42,7 +42,7 @@ Proyek ini berbentuk **full-stack dalam satu paket**. `@cloudflare/vite-plugin` 
 │   ├── worker/                 # API Hono (Cloudflare Worker)
 │   │   ├── routes/             # Satu file per grup endpoint
 │   │   ├── middleware/         # requireAuth, requireRole (RBAC)
-│   │   ├── lib/                # Hash kata sandi, sesi, log aktivitas
+│   │   ├── lib/                # Hash kata sandi, sesi, log aktivitas, pembaca request, data jemaat
 │   │   ├── types.ts            # Tipe env Hono (Bindings, Variables)
 │   │   └── index.ts            # Entry Worker, basePath /api
 │   └── shared/                 # Tipe & aturan validasi yang dipakai bersama client & worker
@@ -268,6 +268,83 @@ await db.batch([
 }
 ```
 
+## Database Jemaat: Rayon, KK, dan Anggota
+
+Rute: [rayons.ts](src/worker/routes/rayons.ts), [families.ts](src/worker/routes/families.ts), dan [members.ts](src/worker/routes/members.ts). Bagian bersama keduanya ada di [src/worker/lib/congregation.ts](src/worker/lib/congregation.ts).
+
+| Data            | Lihat                        | Tambah & ubah                    | Hapus                   |
+| --------------- | ---------------------------- | -------------------------------- | ----------------------- |
+| Rayon           | Publik (statistik: pengurus) | Admin                            | Admin, bila belum dipakai |
+| Kartu Keluarga  | Admin, Pendeta, Majelis      | Admin, Majelis                   | Admin, bila tanpa anggota |
+| Anggota Jemaat  | Admin, Pendeta, Majelis      | Admin, Majelis                   | Admin                   |
+
+- **Cakupan Majelis.** Majelis hanya melihat dan mengelola KK serta jemaat di rayonnya sendiri.
+  - Daftar otomatis dibatasi ke rayonnya.
+  - Membuka data, memilih `rayon_id`, atau memindahkan KK/jemaat ke rayon lain dijawab `403`.
+  - KK baru dari Majelis tanpa `rayon_id` dibuat di rayonnya.
+- **PUT atau PATCH.** Keduanya diterima dengan arti yang sama (PRD menyebut PUT): field yang tidak dikirim tidak diubah.
+- **Log Aktivitas.** Setiap tambah, ubah, dan hapus dicatat dalam transaksi yang sama.
+  - `entity_type` bernilai `rayons`, `families`, atau `members`.
+  - KK disebut dengan nomor dan kepalanya, misalnya `LHR-001 (Yakob Lado)`, dan rayon dengan namanya.
+- **Penghapusan.** Jemaat yang pindah atau meninggal cukup diubah `status`-nya. `DELETE` hanya untuk data yang salah input.
+
+### Aturan data
+
+Aturan ini ada di [src/shared/congregation.ts](src/shared/congregation.ts), dipakai bersama API dan form dashboard.
+
+- **Normalisasi.** Teks dirapikan (spasi ganda dibuang).
+  - Nomor KK dan Nomor Induk diubah ke huruf besar.
+  - NIK disimpan sebagai 16 angka tanpa spasi atau titik.
+  - Telepon disimpan tanpa spasi atau tanda hubung.
+  - Kode pilihan (`male`, `pemuda`) diterima dalam huruf kecil.
+- **Unik.** Nomor KK, NIK, dan Nomor Induk tidak boleh dipakai dua kali (`409`).
+  - Pesan menyebut nama pemiliknya, kecuali bila pemiliknya di luar cakupan rayon Majelis.
+- **Tanggal.** Format `YYYY-MM-DD`, tidak boleh melewati hari ini (WITA), dan tidak boleh sebelum tanggal lahir.
+- **Baptis dan sidi.**
+  - Mengisi `baptism_date` atau `sidi_date` tanpa statusnya berarti sudah.
+  - Sidi hanya untuk yang sudah dibaptis.
+  - Tanggal sidi tidak boleh sebelum tanggal baptis.
+  - Tanggal nikah hanya untuk yang pernah menikah.
+- **Kepala Keluarga.** Satu KK hanya punya satu Kepala Keluarga **aktif** (dijaga juga oleh index unik di migrasi 0010).
+  - Kepala yang meninggal atau pindah tetap tercatat, sehingga anggota lain bisa menggantikannya.
+  - `family_head_name` di KK otomatis mengikuti nama Kepala Keluarga aktif; perubahan itu ikut tercatat di log.
+  - Mengubah nama kepala lewat `PUT /api/families/:id` ditolak (`409`) bila KK sudah punya Kepala Keluarga aktif. Ubah lewat data anggotanya.
+- **Pindah KK.** Mengganti `family_id` memindahkan jemaat. Rayonnya ikut KK baru, karena rayon jemaat selalu mengikuti rayon KK-nya.
+
+### Mencari dan memfilter jemaat
+
+`GET /api/members` mengembalikan `{ data, meta: { page, per_page, total } }`, urut nama. Setiap item memuat data anggota beserta `kk_number`, `family_head_name`, `rayon_id`, dan `rayon_name`. Semua parameter bisa dikombinasikan:
+
+| Parameter                                     | Isi                                                                     |
+| --------------------------------------------- | ----------------------------------------------------------------------- |
+| `q`                                           | Nama, NIK, Nomor Induk, atau nomor KK. Tiap kata harus cocok (urutan bebas) |
+| `rayon_id`, `family_id`                       | Id rayon atau KK                                                        |
+| `categorical_group`                           | `PAR`, `PEMUDA`, `KAUM_IBU`, `KAUM_BAPAK`, `LANSIA`                     |
+| `blood_type`                                  | `A`, `B`, `AB`, `O`                                                     |
+| `gender`, `family_relation`, `marriage_status`, `status` | Kode sesuai kolom tabel (`status`: `ACTIVE`, `MOVED`, `DECEASED`) |
+| `baptism_status`, `sidi_status`               | `true`/`1` = sudah, `false`/`0` = belum                                 |
+| `page`, `per_page`                            | Maksimal 100 per halaman, bawaan 50                                     |
+
+- **Beberapa nilai.** Pisahkan dengan koma, misalnya `categorical_group=PAR,PEMUDA`.
+- **Status keanggotaan.** Tanpa `status`, jemaat yang pindah atau meninggal ikut tampil. Kirim `status=ACTIVE` untuk jemaat aktif saja.
+- **Filter salah.** Dijawab `400` dengan pesan per parameter.
+
+Contoh (PRD): Rayon Getsemani, Pemuda, belum sidi, masih aktif:
+
+```
+GET /api/members?rayon_id=1&categorical_group=PEMUDA&sidi_status=false&status=ACTIVE
+```
+
+### Kartu Keluarga dan Rayon
+
+- `GET /api/families?q=&rayon_id=` mencari nomor KK, nama kepala keluarga, atau nama salah satu anggotanya.
+  - `member_count` menghitung anggota berstatus Aktif.
+- `GET /api/families/:id` mengembalikan KK beserta **seluruh** anggotanya di `members`, termasuk yang pindah atau meninggal.
+  - Urutannya: Kepala Keluarga, Istri/Suami, Anak (tertua dulu), lalu Tanggungan.
+- `GET /api/rayons` tetap publik untuk portal.
+  - Bila dipanggil pengurus yang sedang masuk, tiap rayon juga memuat `family_count` dan `member_count` (jiwa aktif).
+  - `DELETE /api/rayons/:id` ditolak (`409`) selama rayon masih dipakai KK, akun Majelis, jadwal ibadah, atau peminjaman aset.
+
 ## Unggah berkas
 
 Berkas (PDF warta, kuitansi, foto, berkas sakramen) disimpan di **Cloudflare R2**, bukan sebagai base64 di D1, karena baris D1 terlalu kecil untuk PDF.
@@ -331,6 +408,7 @@ const berkas = await uploadFile(file, { folder: 'kuitansi', onProgress: setPerse
 | 0007    | `sacrament_applications`, `mail_archives`                        | Sakramen & Persuratan         |
 | 0008    | `assets`, `asset_loans`                                          | Aset & Inventaris             |
 | 0009    | `sessions` (+ trigger penghapus sesi akun nonaktif)               | Autentikasi & Hak Akses       |
+| 0010    | Index unik: satu Kepala Keluarga aktif per KK                     | Database Jemaat & KK          |
 
 Konvensi yang dipakai di semua tabel:
 
@@ -390,7 +468,10 @@ Komponen akan ditulis ke `src/client/components/ui/`. Preset yang dipakai: `radi
 | Method | Path               | Akses       | Keterangan                                           |
 | ------ | ------------------ | ----------- | ---------------------------------------------------- |
 | GET    | `/api/health`      | Publik      | Status API dan koneksi D1 (`503` jika D1 gagal)      |
-| GET    | `/api/rayons`      | Publik      | Daftar rayon pelayanan                               |
+| GET    | `/api/rayons`      | Publik      | Daftar rayon; pengurus juga mendapat jumlah KK & jiwa |
+| POST   | `/api/rayons`      | Admin       | Tambah rayon                                         |
+| PUT    | `/api/rayons/:id`  | Admin       | Ubah rayon (PATCH juga diterima)                     |
+| DELETE | `/api/rayons/:id`  | Admin       | Hapus rayon yang belum dipakai data apa pun          |
 | POST   | `/api/auth/login`  | Publik      | Masuk; mengirim cookie sesi dan profil pengguna      |
 | POST   | `/api/auth/logout` | Publik      | Keluar; menghapus sesi dan cookie                    |
 | GET    | `/api/auth/me`     | Login       | Profil pengguna yang sedang masuk                    |
@@ -398,5 +479,17 @@ Komponen akan ditulis ke `src/client/components/ui/`. Preset yang dipakai: `radi
 | POST   | `/api/users`       | Admin       | Tambah akun pengurus                                 |
 | PATCH  | `/api/users/:id`   | Admin       | Ubah data, peran/rayon, status aktif, atau kata sandi |
 | GET    | `/api/audit-logs`  | Admin       | Log Aktivitas, terbaru lebih dulu, dengan filter     |
+| GET    | `/api/families`    | Admin, Pendeta, Majelis* | Daftar KK, cari & filter rayon          |
+| GET    | `/api/families/:id`| Admin, Pendeta, Majelis* | KK beserta seluruh anggotanya           |
+| POST   | `/api/families`    | Admin, Majelis* | Tambah KK                                        |
+| PUT    | `/api/families/:id`| Admin, Majelis* | Ubah KK (PATCH juga diterima)                    |
+| DELETE | `/api/families/:id`| Admin       | Hapus KK tanpa anggota                               |
+| GET    | `/api/members`     | Admin, Pendeta, Majelis* | Daftar jemaat dengan filter kombinasi   |
+| GET    | `/api/members/:id` | Admin, Pendeta, Majelis* | Detail jemaat beserta KK & rayon        |
+| POST   | `/api/members`     | Admin, Majelis* | Tambah anggota ke KK                             |
+| PUT    | `/api/members/:id` | Admin, Majelis* | Ubah atau pindahkan anggota (PATCH juga diterima) |
+| DELETE | `/api/members/:id` | Admin       | Hapus anggota yang salah input                       |
 | POST   | `/api/uploads`     | Login + peran folder | Unggah berkas ke R2 (`multipart`: `file`, `folder`) |
 | GET    | `/api/files/*`     | Publik / Login | Ambil berkas dari R2 (mendukung ETag / `304`)     |
+
+\* Majelis hanya untuk KK dan jemaat di rayonnya sendiri.
