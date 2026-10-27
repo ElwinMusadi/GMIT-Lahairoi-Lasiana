@@ -181,7 +181,7 @@ export const moduleGroups: ModuleGroup[] = [
     items: [
       {
         title: 'Akun Pengurus',
-        path: 'pengguna',
+        path: 'users',
         icon: UserCog,
         roles: ['ADMIN'],
         phase: 1,
@@ -189,11 +189,11 @@ export const moduleGroups: ModuleGroup[] = [
       },
       {
         title: 'Log Aktivitas',
-        path: 'log-aktivitas',
+        path: 'audit-logs',
         icon: History,
         roles: ['ADMIN'],
         phase: 1,
-        description: 'Riwayat perubahan data jemaat dan keuangan: siapa, apa, dan kapan.',
+        description: 'Riwayat perubahan data penting: siapa mengubah apa, dan kapan.',
       },
     ],
   },

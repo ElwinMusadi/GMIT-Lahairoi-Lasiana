@@ -1,17 +1,26 @@
 import { useEffect, useState } from 'react'
 import { ChevronRight, RefreshCw } from 'lucide-react'
 import { Link } from 'react-router'
-import { ROLE_LABELS, type ApiList, type HealthStatus, type Rayon } from '@shared/types'
+import {
+  ROLE_LABELS,
+  type ApiList,
+  type ApiPage,
+  type AuditLogItem,
+  type HealthStatus,
+  type Rayon,
+} from '@shared/types'
+import { Can } from '@/components/session-provider'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { api, errorMessage } from '@/lib/api'
+import { describeAudit } from '@/lib/audit-format'
+import { formatRecent } from '@/lib/format'
 import { dashboardPath, modulesForRole } from '@/lib/navigation'
 import { useCurrentUser } from '@/lib/session'
+import { useApiQuery } from '@/lib/use-api-query'
 
 type Loadable<T> =
-  | { status: 'loading' }
-  | { status: 'success'; data: T }
-  | { status: 'error'; message: string }
+  { status: 'loading' } | { status: 'success'; data: T } | { status: 'error'; message: string }
 
 function settle<T>(result: PromiseSettledResult<T>): Loadable<T> {
   return result.status === 'fulfilled'
@@ -68,7 +77,9 @@ export default function OverviewPage() {
             <h2 id="judul-modul" className="text-base font-semibold">
               Modul untuk {ROLE_LABELS[user.role]}
             </h2>
-            <span className="text-sm text-muted-foreground tabular-nums">{modules.length} modul</span>
+            <span className="text-sm text-muted-foreground tabular-nums">
+              {modules.length} modul
+            </span>
           </div>
           <ul>
             {modules.map((item) => (
@@ -80,7 +91,9 @@ export default function OverviewPage() {
                   <item.icon className="mt-0.5 size-4 text-muted-foreground" aria-hidden="true" />
                   <span className="grid gap-0.5">
                     <span className="text-sm font-medium">{item.title}</span>
-                    <span className="text-[0.8125rem] text-muted-foreground">{item.description}</span>
+                    <span className="text-[0.8125rem] text-muted-foreground">
+                      {item.description}
+                    </span>
                   </span>
                   <span className="flex items-center gap-1 text-[0.8125rem] whitespace-nowrap text-muted-foreground tabular-nums">
                     Fase {item.phase}
@@ -93,6 +106,10 @@ export default function OverviewPage() {
         </section>
 
         <div className="grid gap-4">
+          <Can roles={['ADMIN']}>
+            <RecentActivity />
+          </Can>
+
           <section aria-labelledby="judul-rayon" className="grid gap-2">
             <h2 id="judul-rayon" className="text-base font-semibold">
               Rayon pelayanan
@@ -164,6 +181,75 @@ export default function OverviewPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+// Khusus Admin: lima aktivitas terakhir, dengan tautan ke Log Aktivitas lengkap.
+function RecentActivity() {
+  const logs = useApiQuery<ApiPage<AuditLogItem>>('/audit-logs', { per_page: 5 })
+
+  return (
+    <section aria-labelledby="judul-aktivitas" className="grid gap-2">
+      <div className="flex items-baseline justify-between">
+        <h2 id="judul-aktivitas" className="text-base font-semibold">
+          Aktivitas terbaru
+        </h2>
+        <Link
+          to="/dashboard/audit-logs"
+          className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+        >
+          Lihat semua
+        </Link>
+      </div>
+      <div className="rounded-lg border bg-card px-5 py-1">
+        {logs.error && !logs.data && (
+          <p className="py-3 text-sm">
+            Log Aktivitas tidak dapat dimuat: {logs.error}{' '}
+            <button type="button" onClick={logs.reload} className="font-medium underline">
+              Coba lagi
+            </button>
+          </p>
+        )}
+        {!logs.data && !logs.error && (
+          <ul aria-busy="true">
+            {Array.from({ length: 5 }, (_, i) => (
+              <li key={i} className="grid gap-1.5 border-t border-rule py-3 first:border-t-0">
+                <Skeleton className="h-4 w-48" />
+                <Skeleton className="h-3.5 w-32" />
+              </li>
+            ))}
+          </ul>
+        )}
+        {logs.data && logs.data.data.length === 0 && (
+          <p className="py-3 text-sm text-muted-foreground">Belum ada aktivitas yang tercatat.</p>
+        )}
+        {logs.data && logs.data.data.length > 0 && (
+          <ol>
+            {logs.data.data.map((item) => {
+              const { summary, flag } = describeAudit(item)
+              return (
+                <li
+                  key={item.id}
+                  className="grid gap-0.5 border-t border-rule py-3 first:border-t-0"
+                >
+                  <span className="flex items-center gap-2 text-sm">
+                    <span className="truncate">{summary}</span>
+                    {flag && (
+                      <span className="flex-none rounded-full bg-negative-soft px-2 py-0.5 text-xs font-medium text-negative-ink">
+                        {flag}
+                      </span>
+                    )}
+                  </span>
+                  <span className="truncate text-[0.8125rem] text-muted-foreground">
+                    {item.user_name ?? 'Tanpa akun'} · {formatRecent(item.created_at)}
+                  </span>
+                </li>
+              )
+            })}
+          </ol>
+        )}
+      </div>
+    </section>
   )
 }
 

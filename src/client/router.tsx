@@ -1,3 +1,4 @@
+import type { ComponentType } from 'react'
 import { createBrowserRouter } from 'react-router'
 import PublicLayout from '@/layouts/PublicLayout'
 import RootLayout from '@/layouts/RootLayout'
@@ -9,6 +10,12 @@ import RouteErrorPage from '@/pages/RouteErrorPage'
 
 // `handle.title` dipakai untuk judul tab browser dan breadcrumb dashboard.
 export type RouteHandle = { title: string }
+
+// Modul dashboard yang sudah dibangun. Modul lain memakai kerangka ModulePage.
+const modulePages: Record<string, () => Promise<{ default: ComponentType }>> = {
+  users: () => import('@/pages/dashboard/UsersPage'),
+  'audit-logs': () => import('@/pages/dashboard/AuditLogsPage'),
+}
 
 const portalPages = [
   {
@@ -82,8 +89,20 @@ export const router = createBrowserRouter([
               path: module.path,
               handle: { title: module.title } satisfies RouteHandle,
               lazy: async () => {
-                const { ModulePage } = await import('@/pages/dashboard/ModulePage')
-                return { element: <ModulePage module={module} /> }
+                const [{ RequireRole }, page] = await Promise.all([
+                  import('@/components/session-provider'),
+                  modulePages[module.path]?.() ??
+                    import('@/pages/dashboard/ModulePage').then(({ ModulePage }) => ({
+                      default: () => <ModulePage module={module} />,
+                    })),
+                ])
+                return {
+                  element: (
+                    <RequireRole roles={module.roles} title={module.title}>
+                      <page.default />
+                    </RequireRole>
+                  ),
+                }
               },
             })),
           {

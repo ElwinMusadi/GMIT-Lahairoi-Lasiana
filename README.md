@@ -31,10 +31,11 @@ Proyek ini berbentuk **full-stack dalam satu paket**. `@cloudflare/vite-plugin` 
 │   │   │   ├── brand/          # Motif cincin sumur Lahai-roi & wordmark
 │   │   │   ├── portal/         # Navbar dan footer Portal Publik
 │   │   │   ├── dashboard/      # Sidebar per peran dan menu profil
+│   │   │   ├── users/          # Dialog form akun dan kata sandi sementara
 │   │   │   └── session-provider.tsx
 │   │   ├── layouts/            # RootLayout, PublicLayout, DashboardLayout
 │   │   ├── pages/              # public/, dashboard/, LoginPage, RouteErrorPage
-│   │   ├── lib/                # api (fetch wrapper), upload, session, navigation
+│   │   ├── lib/                # api, use-api-query, upload, session, navigation, format WITA, audit-format
 │   │   ├── router.tsx          # Definisi semua rute
 │   │   ├── main.tsx
 │   │   └── index.css           # Tailwind v4 + token tema portal & dashboard
@@ -76,14 +77,31 @@ Buka `/` untuk Portal Publik dan `/dashboard` untuk dashboard pengurus.
 | `/`                  | `PublicLayout`    | Beranda portal                                                    |
 | `/jadwal`, `/warta`, `/renungan`, `/persembahan`, `/tentang` | `PublicLayout` | Kerangka halaman portal (diisi modul Portal Publik) |
 | `/login`             | berdiri sendiri   | Masuk pengurus                                                    |
-| `/dashboard`         | `DashboardLayout` | Ringkasan: modul per peran, rayon, status sistem                  |
-| `/dashboard/*`       | `DashboardLayout` | Halaman modul; ditolak bila peran tidak berhak                    |
+| `/dashboard`         | `DashboardLayout` | Ringkasan: modul per peran, rayon, status sistem, dan aktivitas terbaru (Admin) |
+| `/dashboard/users`   | `DashboardLayout` | Akun Pengurus (Admin): tambah, ubah peran/rayon, atur ulang kata sandi, nonaktifkan |
+| `/dashboard/audit-logs` | `DashboardLayout` | Log Aktivitas (Admin): riwayat per hari, filter tanggal/aksi/data/pengguna di URL |
+| `/dashboard/*`       | `DashboardLayout` | Halaman modul lain (kerangka); ditolak bila peran tidak berhak    |
 
 - **PublicLayout**: navbar (wordmark, 4 tautan, tombol Persembahan); di bawah 1024px menjadi tombol "Menu" yang membuka menu layar penuh. Footer membawa tanda Lahairoi, tautan, dan alamat.
 - **DashboardLayout**: sidebar yang bisa dibuka-tutup (tombol di header, `Ctrl/⌘+B`, atau rail di tepi sidebar) menjadi rail ikon 48px; di bawah 1024px menjadi sheet. Header berisi breadcrumb dan menu profil (nama, peran, keluar).
 - Menu sidebar dan hak akses halaman diatur di [src/client/lib/navigation.ts](src/client/lib/navigation.ts) sesuai PRD. Ini hanya mengatur tampilan; pembatasan sebenarnya harus ditegakkan API.
+- Halaman modul yang sudah dibangun didaftarkan di `modulePages` pada [src/client/router.tsx](src/client/router.tsx); modul lain memakai kerangka `ModulePage`.
 
-Dashboard hanya bisa dibuka setelah masuk di `/login` (lihat [Autentikasi & hak akses](#autentikasi--hak-akses)). Halaman yang dibuka sebelum masuk diingat, lalu dibuka kembali setelah login berhasil.
+**Guard di React** ([src/client/components/session-provider.tsx](src/client/components/session-provider.tsx)):
+
+- `RequireAuth` membungkus seluruh dashboard. Tanpa sesi, pengguna diarahkan ke `/login`, lalu setelah masuk dikembalikan ke halaman semula (termasuk query-nya).
+- `RequireRole` membungkus setiap halaman modul di router. Untuk peran lain, halaman itu tidak dirender sama sekali (datanya juga tidak diminta) dan tampil pesan "Akses dibatasi".
+- `<Can roles>` atau `useCan(roles)` menyembunyikan tombol aksi per peran:
+
+```tsx
+import { Can } from '@/components/session-provider'
+
+<Can roles={['TREASURER']}>
+  <Button>Catat transaksi</Button>  {/* Majelis hanya melihat laporan, tanpa tombol ini */}
+</Can>
+```
+
+Contoh nyata: blok "Aktivitas terbaru" di Ringkasan hanya tampil (dan hanya dimuat) untuk Admin.
 
 ## Desain
 
@@ -99,7 +117,7 @@ Periksa tampilan dengan inspector skill (butuh Chrome atau Edge):
 node .claude/skills/design-taste-frontend/scripts/inspect.mjs http://localhost:5173/
 ```
 
-Untuk dashboard tambahkan `--app` dan buka `/dashboard`. Jika Chrome gagal diluncurkan di Windows, set `CHROME_PATH` ke `msedge.exe`.
+Untuk dashboard tambahkan `--app`. Karena dashboard butuh login sedangkan inspector membuka browsernya sendiri, jalankan inspector lewat proxy lokal yang menyisipkan cookie sesi akun uji (hanya untuk database lokal). Jika Chrome gagal diluncurkan di Windows, set `CHROME_PATH` ke `msedge.exe`.
 
 ## Memanggil API dari frontend
 
@@ -192,6 +210,13 @@ Aturannya:
 - **Akun sendiri.** Admin tidak bisa menonaktifkan atau menurunkan peran akunnya sendiri (`409`), sehingga selalu tersisa minimal satu Admin aktif.
 - **Tidak ada penghapusan.** Akun hanya bisa dinonaktifkan.
 - **Satu sumber aturan.** Validasi field ada di [src/shared/accounts.ts](src/shared/accounts.ts) dan dipakai oleh API maupun form di dashboard, jadi pesan kesalahannya selalu sama.
+
+**Di dashboard** (`/dashboard/users`):
+
+- Kalimat di bawah judul menyebut akun aktif yang belum pernah masuk; biasanya kata sandi sementaranya belum diterima.
+- Kata sandi sementara ditampilkan sekali, beserta pesan siap kirim (misalnya lewat WhatsApp) berisi alamat login, username, dan kata sandinya.
+- Penonaktifan selalu dikonfirmasi lewat dialog yang menyebut nama akunnya, dan bisa diurungkan dari notifikasi.
+- Menu baris "Lihat riwayat akun" membuka Log Aktivitas yang sudah difilter ke akun tersebut.
 
 **Mencatat Log Aktivitas** dari modul lain memakai [src/worker/lib/audit.ts](src/worker/lib/audit.ts). Statement audit dijalankan dalam satu `db.batch()` bersama perubahan datanya:
 

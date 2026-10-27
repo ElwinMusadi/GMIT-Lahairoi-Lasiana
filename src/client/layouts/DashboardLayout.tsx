@@ -11,6 +11,7 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
+import { Toaster } from '@/components/ui/sonner'
 import { RequireAuth } from '@/components/session-provider'
 import type { RouteHandle } from '@/router'
 
@@ -26,6 +27,7 @@ export default function DashboardLayout() {
           </div>
         </SidebarInset>
       </SidebarProvider>
+      <Toaster position="bottom-right" closeButton />
     </RequireAuth>
   )
 }
