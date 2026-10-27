@@ -1,0 +1,28 @@
+#:schema node_modules/wrangler/config-schema.json
+# Konfigurasi Cloudflare Worker untuk Sistem Informasi GMIT Lahairoi.
+# Satu Worker melayani API Hono (/api/*) sekaligus aset statis SPA React
+# hasil build Vite (direktori aset diisi otomatis oleh @cloudflare/vite-plugin).
+
+name = "gmit-lahairoi-lasiana"
+main = "./src/worker/index.ts"
+compatibility_date = "2026-10-19"
+compatibility_flags = ["nodejs_compat"]
+upload_source_maps = true
+
+[assets]
+not_found_handling = "single-page-application"
+# Request /api/* selalu diproses Worker (Hono), bukan dicocokkan ke file statis.
+run_worker_first = ["/api/*"]
+
+[observability]
+enabled = true
+
+# Cloudflare D1 (SQLite di edge). Diakses di Worker melalui `c.env.DB`.
+# Pengembangan lokal tidak membutuhkan database_id (data disimpan di .wrangler/state).
+# Sebelum deploy pertama, buat database lalu isi database_id dari output perintah:
+#   npx wrangler d1 create gmit-lahairoi-db
+[[d1_databases]]
+binding = "DB"
+database_name = "gmit-lahairoi-db"
+# database_id = "<uuid dari wrangler d1 create>"
+migrations_dir = "migrations"
