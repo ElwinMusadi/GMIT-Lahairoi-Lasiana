@@ -4,6 +4,7 @@ import { HTTPException } from 'hono/http-exception'
 import { logger } from 'hono/logger'
 import { secureHeaders } from 'hono/secure-headers'
 import type { ApiErrorBody } from '../shared/types'
+import auditLogs from './routes/audit-logs'
 import auth from './routes/auth'
 import files from './routes/files'
 import health from './routes/health'
@@ -29,6 +30,7 @@ app.route('/auth', auth)
 // Terproteksi: setiap rute memasang requireAuth / requireRole sendiri.
 app.route('/uploads', uploads)
 app.route('/users', users)
+app.route('/audit-logs', auditLogs)
 
 app.notFound((c) => c.json<ApiErrorBody>({ error: 'Endpoint tidak ditemukan' }, 404))
 

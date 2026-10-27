@@ -44,7 +44,7 @@ Proyek ini berbentuk **full-stack dalam satu paket**. `@cloudflare/vite-plugin` 
 │   │   ├── lib/                # Hash kata sandi, sesi, log aktivitas
 │   │   ├── types.ts            # Tipe env Hono (Bindings, Variables)
 │   │   └── index.ts            # Entry Worker, basePath /api
-│   └── shared/                 # Tipe yang dipakai bersama client & worker
+│   └── shared/                 # Tipe & aturan validasi yang dipakai bersama client & worker
 ├── components.json             # Konfigurasi shadcn/ui
 ├── vite.config.ts
 ├── wrangler.toml               # Konfigurasi Worker + binding D1
@@ -168,6 +168,81 @@ Lalu masuk di `http://localhost:5173/login` memakai akun yang dicetak oleh seed.
 
 > **Catatan biaya CPU:** verifikasi kata sandi (PBKDF2-SHA256, 100.000 iterasi) memakan ±50 ms CPU per login. Batas Workers Free adalah 10 ms CPU per request, jadi login berisiko gagal di paket gratis. Gunakan Workers Paid, atau turunkan `ITERATIONS` di [src/worker/lib/password.ts](src/worker/lib/password.ts); hash lama tetap valid karena jumlah iterasi tersimpan di dalam hash.
 
+## Akun pengurus & Log Aktivitas
+
+**Mengelola akun** ([src/worker/routes/users.ts](src/worker/routes/users.ts)) hanya bisa dilakukan Admin; peran lain mendapat `403`.
+
+| Aksi                                    | Permintaan                                                                  |
+| --------------------------------------- | --------------------------------------------------------------------------- |
+| Daftar akun                             | `GET /api/users`                                                            |
+| Tambah pengurus                         | `POST /api/users` `{ name, email?, username?, role, rayon_id?, password? }` |
+| Ubah nama, email/username, peran, rayon | `PATCH /api/users/:id`, cukup field yang diubah                             |
+| Nonaktifkan / aktifkan kembali          | `PATCH /api/users/:id` `{ "is_active": false }`                             |
+| Atur ulang kata sandi                   | `PATCH /api/users/:id` `{ "reset_password": true }` atau `{ "password": "…" }` |
+
+Aturannya:
+
+- **Identitas login.** Minimal salah satu dari email atau username wajib diisi. Username 3–32 karakter (huruf kecil, angka, `.`, `_`, `-`) dan tanpa `@`. Keduanya unik tanpa membedakan huruf besar/kecil; bila sudah dipakai, respons `409`.
+- **Rayon.** Majelis wajib punya rayon. Untuk peran lain `rayon_id` selalu dikosongkan.
+- **Kata sandi.** Minimal 8 karakter. Bila tidak diisi saat membuat akun, atau saat `reset_password`, server membuat **kata sandi sementara** seperti `k7mp-4rtw-9qex`. Nilainya dikembalikan sekali di `temporary_password` untuk diserahkan Admin ke pemilik akun.
+- **Sesi.**
+  - Kata sandi baru menghentikan semua sesi akun itu.
+  - Penonaktifan juga menghentikannya, lewat trigger.
+  - Perubahan peran atau rayon langsung berlaku tanpa login ulang.
+- **Akun sendiri.** Admin tidak bisa menonaktifkan atau menurunkan peran akunnya sendiri (`409`), sehingga selalu tersisa minimal satu Admin aktif.
+- **Tidak ada penghapusan.** Akun hanya bisa dinonaktifkan.
+- **Satu sumber aturan.** Validasi field ada di [src/shared/accounts.ts](src/shared/accounts.ts) dan dipakai oleh API maupun form di dashboard, jadi pesan kesalahannya selalu sama.
+
+**Mencatat Log Aktivitas** dari modul lain memakai [src/worker/lib/audit.ts](src/worker/lib/audit.ts). Statement audit dijalankan dalam satu `db.batch()` bersama perubahan datanya:
+
+```ts
+import { LAST_INSERT_ID, auditStatement } from '../lib/audit'
+
+// UPDATE: kirim data sebelum & sesudah; hanya kolom yang berubah yang dicatat.
+await db.batch([
+  db.prepare('UPDATE members SET full_name = ?2 WHERE id = ?1').bind(id, after.full_name),
+  auditStatement(c, { action: 'UPDATE', entityType: 'members', entityId: id, label: after.full_name, before, after }),
+])
+
+// CREATE: statement audit tepat setelah INSERT; entity_id diambil dari last_insert_rowid().
+await db.batch([
+  db.prepare('INSERT INTO members (...) VALUES (...)').bind(...),
+  auditStatement(c, { action: 'CREATE', entityType: 'members', entityId: LAST_INSERT_ID, label: data.full_name, after: data }),
+])
+```
+
+- **Isi otomatis.** Pelaku (`c.get('user')`) dan alamat IP diisi sendiri oleh helper.
+- **Atomik.** Satu `db.batch()` adalah satu transaksi D1, jadi data dan lognya tersimpan bersama atau tidak sama sekali.
+- **Rahasia aman.** Nilai `password`, `password_hash`, dan token selalu dicatat sebagai `[disembunyikan]`.
+- **Aksi tanpa perubahan data.** Untuk aksi seperti `LOGIN`, pakai `recordAudit(c, entry)`.
+
+**Membaca log:** `GET /api/audit-logs` (khusus Admin).
+
+- **Respons.** Berbentuk `{ data, meta: { page, per_page, total } }`, terurut dari yang terbaru.
+- **Pelaku.** Setiap item memuat `user_name` dan `user_role` pelakunya. Nilainya `null` bila tidak ada pelaku, misalnya login gagal dengan akun tak dikenal.
+- **Query opsional:**
+  - `page`, dan `per_page` (maksimal 100, bawaan 50);
+  - `user_id`, `action`, `entity_type`, `entity_id`;
+  - `from` dan `to`: tanggal `YYYY-MM-DD` dalam waktu WITA, keduanya inklusif.
+
+```json
+{
+  "id": 42,
+  "action": "UPDATE",
+  "entity_type": "users",
+  "entity_id": 4,
+  "user_id": 1,
+  "user_name": "Administrator",
+  "user_role": "ADMIN",
+  "details": {
+    "label": "Yohanis Dimu",
+    "changes": { "is_active": { "from": true, "to": false } },
+    "ip": "203.0.113.7"
+  },
+  "created_at": "2026-10-28T03:15:00Z"
+}
+```
+
 ## Unggah berkas
 
 Berkas (PDF warta, kuitansi, foto, berkas sakramen) disimpan di **Cloudflare R2**, bukan sebagai base64 di D1, karena baris D1 terlalu kecil untuk PDF.
@@ -236,6 +311,7 @@ Konvensi yang dipakai di semua tabel:
 
 - **Nominal uang** adalah bilangan bulat Rupiah (`INTEGER`, tanpa desimal); nilai desimal ditolak oleh CHECK.
 - **Tanggal** berformat `YYYY-MM-DD`, **jam** `HH:MM`, **timestamp** `YYYY-MM-DD HH:MM:SS` (UTC, dari `datetime('now')`). Format lain (misalnya `12/04/2010` dari Excel) ditolak database, jadi impor harus menormalkan tanggal lebih dulu. CHECK tanggal ditulis `date(x) IS x` (bukan `=`) karena di SQLite CHECK yang bernilai NULL dianggap lolos.
+- **Timestamp di respons API** dikirim sebagai ISO 8601 UTC (`2026-10-28T03:15:00Z`), agar `new Date()` di browser tidak salah menafsirkannya sebagai jam lokal. Tampilkan di frontend dalam zona `Asia/Makassar` (WITA).
 - **Boolean** adalah `INTEGER` 0/1. **Enum** disimpan sebagai teks huruf besar sesuai PRD (mis. `ADMIN`, `KAUM_IBU`) dan dijaga CHECK.
 - Email, username, kode Pos Kas, kode mata anggaran, dan kode aset unik **tanpa membedakan huruf besar/kecil** (`COLLATE NOCASE`).
 - Kolom `updated_at` diisi oleh aplikasi saat mengubah data.
@@ -293,6 +369,9 @@ Komponen akan ditulis ke `src/client/components/ui/`. Preset yang dipakai: `radi
 | POST   | `/api/auth/login`  | Publik      | Masuk; mengirim cookie sesi dan profil pengguna      |
 | POST   | `/api/auth/logout` | Publik      | Keluar; menghapus sesi dan cookie                    |
 | GET    | `/api/auth/me`     | Login       | Profil pengguna yang sedang masuk                    |
-| GET    | `/api/users`       | Admin       | Daftar akun pengurus                                 |
+| GET    | `/api/users`       | Admin       | Daftar akun pengurus (+ waktu login terakhir)        |
+| POST   | `/api/users`       | Admin       | Tambah akun pengurus                                 |
+| PATCH  | `/api/users/:id`   | Admin       | Ubah data, peran/rayon, status aktif, atau kata sandi |
+| GET    | `/api/audit-logs`  | Admin       | Log Aktivitas, terbaru lebih dulu, dengan filter     |
 | POST   | `/api/uploads`     | Login + peran folder | Unggah berkas ke R2 (`multipart`: `file`, `folder`) |
 | GET    | `/api/files/*`     | Publik / Login | Ambil berkas dari R2 (mendukung ETag / `304`)     |

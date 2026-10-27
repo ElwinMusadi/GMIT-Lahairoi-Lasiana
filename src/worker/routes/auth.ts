@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import type { ApiErrorBody, AuthResponse } from '../../shared/types'
-import { logAudit } from '../lib/audit'
+import { recordAudit } from '../lib/audit'
 import { verifyPassword } from '../lib/password'
 import {
   clearSessionCookie,
@@ -45,7 +45,6 @@ auth.post('/login', async (c) => {
   }
 
   const db = c.env.DB
-  const ip = c.req.header('CF-Connecting-IP') ?? null
 
   const failed = await db
     .prepare(
@@ -78,24 +77,24 @@ auth.post('/login', async (c) => {
   const passwordMatches = await verifyPassword(password, user?.password_hash ?? DUMMY_HASH)
 
   if (!user || !passwordMatches) {
-    await logAudit(db, {
+    await recordAudit(c, {
       userId: user?.id ?? null,
       action: 'LOGIN_FAILED',
       entityType: 'users',
       entityId: user?.id ?? null,
-      details: { identifier, ip },
+      details: { identifier },
     })
     return c.json<ApiErrorBody>({ error: INVALID_CREDENTIALS }, 401)
   }
 
   // Status nonaktif baru diungkap setelah kata sandi terbukti benar.
   if (user.is_active !== 1) {
-    await logAudit(db, {
+    await recordAudit(c, {
       userId: user.id,
       action: 'LOGIN_REJECTED_INACTIVE',
       entityType: 'users',
       entityId: user.id,
-      details: { identifier, ip },
+      details: { identifier },
     })
     return c.json<ApiErrorBody>(
       { error: 'Akun Anda dinonaktifkan. Hubungi Admin jemaat bila ini keliru.' },
@@ -106,13 +105,7 @@ auth.post('/login', async (c) => {
   await db.prepare(`DELETE FROM sessions WHERE expires_at <= datetime('now')`).run()
   const token = await createSession(c, user.id)
   setSessionCookie(c, token)
-  await logAudit(db, {
-    userId: user.id,
-    action: 'LOGIN',
-    entityType: 'users',
-    entityId: user.id,
-    details: { ip },
-  })
+  await recordAudit(c, { userId: user.id, action: 'LOGIN', entityType: 'users', entityId: user.id })
 
   return c.json<AuthResponse>({ user: toSessionUser(user) })
 })
@@ -124,7 +117,7 @@ auth.post('/logout', async (c) => {
     const session = await findSession(c.env.DB, credential.token)
     await deleteSession(c.env.DB, credential.token)
     if (session) {
-      await logAudit(c.env.DB, {
+      await recordAudit(c, {
         userId: session.id,
         action: 'LOGOUT',
         entityType: 'users',

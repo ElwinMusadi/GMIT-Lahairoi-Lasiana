@@ -28,6 +28,27 @@ export async function verifyPassword(password: string, stored: string): Promise<
   return timingSafeEqual(actual, expected)
 }
 
+// Kata sandi sementara yang dibuat Admin untuk pengurus baru atau saat atur ulang.
+// Mudah dibacakan dan diketik: 12 karakter tanpa yang mirip (0/o, 1/l/i), dikelompokkan
+// per 4, mis. "k7mp-4rtw-9qex" (±59 bit acak).
+const TEMPORARY_ALPHABET = 'abcdefghjkmnpqrstuvwxyz23456789'
+const TEMPORARY_LENGTH = 12
+
+export function generateTemporaryPassword(): string {
+  // Byte di atas kelipatan terbesar panjang alfabet dibuang agar setiap karakter
+  // berpeluang sama.
+  const limit = 256 - (256 % TEMPORARY_ALPHABET.length)
+  const chars: string[] = []
+  while (chars.length < TEMPORARY_LENGTH) {
+    for (const byte of crypto.getRandomValues(new Uint8Array(TEMPORARY_LENGTH * 2))) {
+      if (byte < limit && chars.length < TEMPORARY_LENGTH) {
+        chars.push(TEMPORARY_ALPHABET[byte % TEMPORARY_ALPHABET.length])
+      }
+    }
+  }
+  return [0, 4, 8].map((start) => chars.slice(start, start + 4).join('')).join('-')
+}
+
 async function derive(
   password: string,
   salt: Uint8Array<ArrayBuffer>,
