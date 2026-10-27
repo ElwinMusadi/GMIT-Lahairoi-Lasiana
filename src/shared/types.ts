@@ -42,3 +42,21 @@ export type SessionUser = {
   role: UserRole
   rayon_id: number | null
 }
+
+export type LoginRequest = {
+  // Email atau username.
+  identifier: string
+  password: string
+}
+
+// Respons POST /api/auth/login dan GET /api/auth/me. Token sesi dikirim lewat
+// cookie HttpOnly, tidak pernah di body, agar tidak bisa dibaca JavaScript.
+export type AuthResponse = {
+  user: SessionUser
+}
+
+export type UserListItem = SessionUser & {
+  rayon_name: string | null
+  is_active: boolean
+  created_at: string
+}

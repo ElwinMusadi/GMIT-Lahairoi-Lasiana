@@ -4,6 +4,8 @@
 //
 //   npm run db:seed:local
 //   npm run db:seed:remote
+//   npm run db:seed:local -- --sample-users   (khusus lokal: + akun contoh Bendahara,
+//                                              Pendeta, dan Majelis untuk mencoba hak akses)
 //
 // Variabel lingkungan opsional:
 //   SEED_ADMIN_NAME      bawaan: Administrator
@@ -41,11 +43,20 @@ const FUNDS = [
   },
 ]
 
+// Akun contoh (bukan pengurus sebenarnya) untuk mencoba RBAC di database lokal.
+const SAMPLE_USERS = [
+  { name: 'Marthen Bire', username: 'bendahara', role: 'TREASURER', rayon: null },
+  { name: 'Pdt. Agustina Riwu Kaho', username: 'pendeta', role: 'PASTOR', rayon: null },
+  { name: 'Yohanis Dimu', username: 'majelis.golgota', role: 'ELDER', rayon: 'Golgota' },
+] as const
+
 const MIN_PASSWORD_LENGTH = 12
 
+const OWN_FLAGS = ['--local', '--remote', '--sample-users']
 const target = process.argv.includes('--remote') ? '--remote' : '--local'
+const withSampleUsers = process.argv.includes('--sample-users')
 // Argumen lain diteruskan ke `wrangler d1 execute`, contoh: --persist-to <dir>.
-const extraArgs = process.argv.slice(2).filter((arg) => arg !== '--local' && arg !== '--remote')
+const extraArgs = process.argv.slice(2).filter((arg) => !OWN_FLAGS.includes(arg))
 const root = path.resolve(import.meta.dirname, '..')
 const wranglerBin = path.join(root, 'node_modules', 'wrangler', 'bin', 'wrangler.js')
 const seedFile = path.join(root, '.wrangler', 'tmp', 'seed.sql')
@@ -92,6 +103,9 @@ function generatePassword(): string {
 if (admin.password && admin.password.length < MIN_PASSWORD_LENGTH) {
   fail(`SEED_ADMIN_PASSWORD minimal ${MIN_PASSWORD_LENGTH} karakter.`)
 }
+if (withSampleUsers && target === '--remote') {
+  fail('--sample-users hanya untuk database lokal, bukan database Cloudflare.')
+}
 
 console.log(`Seed database D1 (${target === '--remote' ? 'remote' : 'lokal'})...`)
 
@@ -120,6 +134,25 @@ if (!adminExists) {
     `INSERT INTO users (name, email, username, password_hash, role, is_active)
 VALUES (${quote(admin.name)}, ${quote(admin.email)}, ${quote(admin.username)}, ${quote(passwordHash)}, 'ADMIN', 1);`,
   )
+}
+
+const createdSampleUsers: { username: string; role: string; password: string }[] = []
+if (withSampleUsers) {
+  const existing = new Set(
+    query<{ username: string }>(
+      `SELECT username FROM users WHERE username IN (${SAMPLE_USERS.map((u) => quote(u.username)).join(', ')})`,
+    ).map((row) => row.username.toLowerCase()),
+  )
+  for (const sample of SAMPLE_USERS) {
+    if (existing.has(sample.username)) continue
+    const password = generatePassword()
+    const rayonId = sample.rayon ? `(SELECT id FROM rayons WHERE name = ${quote(sample.rayon)})` : 'NULL'
+    statements.push(
+      `INSERT INTO users (name, username, password_hash, role, rayon_id, is_active)
+VALUES (${quote(sample.name)}, ${quote(sample.username)}, ${quote(await hashPassword(password))}, '${sample.role}', ${rayonId}, 1);`,
+    )
+    createdSampleUsers.push({ username: sample.username, role: sample.role, password })
+  }
 }
 
 mkdirSync(path.dirname(seedFile), { recursive: true })
@@ -153,4 +186,15 @@ if (adminExists) {
       ? '  Password : sesuai SEED_ADMIN_PASSWORD'
       : `  Password : ${adminPassword}\n\n  Simpan kata sandi ini sekarang; tidak akan ditampilkan lagi.`,
   )
+}
+
+if (withSampleUsers) {
+  if (createdSampleUsers.length === 0) {
+    console.log('\nAkun contoh per peran sudah ada; tidak diubah.')
+  } else {
+    console.log('\nAkun contoh per peran dibuat (khusus lokal, kata sandi tampil sekali):')
+    for (const sample of createdSampleUsers) {
+      console.log(`  ${sample.username.padEnd(16)} ${sample.role.padEnd(10)} ${sample.password}`)
+    }
+  }
 }

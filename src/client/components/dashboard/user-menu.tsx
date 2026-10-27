@@ -1,6 +1,6 @@
 import { ChevronsUpDown, Globe, LogOut } from 'lucide-react'
 import { Link, useNavigate } from 'react-router'
-import { ROLE_LABELS, USER_ROLES, type UserRole } from '@shared/types'
+import { ROLE_LABELS } from '@shared/types'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -8,12 +8,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
   DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useCurrentUser, useSession } from '@/lib/session'
@@ -34,7 +29,7 @@ function initials(name: string) {
 
 export function UserMenu() {
   const user = useCurrentUser()
-  const { signOut, previewAs } = useSession()
+  const { logout } = useSession()
   const navigate = useNavigate()
 
   return (
@@ -61,23 +56,6 @@ export function UserMenu() {
           </span>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        {previewAs && (
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger>Pratinjau peran (dev)</DropdownMenuSubTrigger>
-            <DropdownMenuSubContent>
-              <DropdownMenuRadioGroup
-                value={user.role}
-                onValueChange={(role) => previewAs(role as UserRole)}
-              >
-                {USER_ROLES.map((role) => (
-                  <DropdownMenuRadioItem key={role} value={role}>
-                    {ROLE_LABELS[role]}
-                  </DropdownMenuRadioItem>
-                ))}
-              </DropdownMenuRadioGroup>
-            </DropdownMenuSubContent>
-          </DropdownMenuSub>
-        )}
         <DropdownMenuItem asChild>
           <Link to="/">
             <Globe />
@@ -87,8 +65,7 @@ export function UserMenu() {
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onSelect={() => {
-            signOut()
-            navigate('/login', { replace: true })
+            void logout().finally(() => navigate('/login', { replace: true }))
           }}
         >
           <LogOut />

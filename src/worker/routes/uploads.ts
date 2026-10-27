@@ -1,18 +1,19 @@
 import { Hono } from 'hono'
-import type { ApiErrorBody } from '../../shared/types'
+import { ROLE_LABELS, type ApiErrorBody } from '../../shared/types'
 import {
+  UPLOAD_FOLDER_ROLES,
   UPLOAD_MAX_BYTES,
   UPLOAD_TYPES,
   isUploadFolder,
   type UploadContentType,
   type UploadedFile,
 } from '../../shared/uploads'
+import { requireAuth } from '../middleware/auth'
 import type { AppEnv } from '../types'
 
-// TODO(auth): wajibkan login sebelum endpoint ini dipakai di produksi.
 const uploads = new Hono<AppEnv>()
 
-uploads.post('/', async (c) => {
+uploads.post('/', requireAuth, async (c) => {
   const form = await c.req.formData().catch(() => null)
   const file = form?.get('file')
   const folder = form?.get('folder')
@@ -22,6 +23,14 @@ uploads.post('/', async (c) => {
   }
   if (!isUploadFolder(folder)) {
     return c.json<ApiErrorBody>({ error: 'Folder unggahan tidak dikenal.' }, 400)
+  }
+  const allowedRoles = UPLOAD_FOLDER_ROLES[folder]
+  if (!allowedRoles.includes(c.get('user').role)) {
+    const allowed = allowedRoles.map((role) => ROLE_LABELS[role]).join(', ')
+    return c.json<ApiErrorBody>(
+      { error: `Akses ditolak. Unggahan ke folder ${folder} hanya untuk ${allowed}.` },
+      403,
+    )
   }
   if (file.size === 0) {
     return c.json<ApiErrorBody>({ error: 'Berkas kosong.' }, 400)

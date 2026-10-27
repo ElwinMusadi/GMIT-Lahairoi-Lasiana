@@ -57,6 +57,7 @@ export function Wordmark({ to = '/', className }: { to?: string; className?: str
   return (
     <Link
       to={to}
+      aria-label={to === '/' ? 'Lahairoi, GMIT Tuak Sabu Lasiana: beranda' : 'Lahairoi, GMIT Tuak Sabu Lasiana'}
       className={cn('group inline-flex items-center gap-2.5 rounded-full outline-offset-4', className)}
     >
       <WellMark className="size-7 shrink-0 text-brand transition-transform duration-300 group-hover:scale-110" />

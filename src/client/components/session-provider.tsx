@@ -1,48 +1,69 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { Navigate, useLocation } from 'react-router'
-import type { SessionUser } from '@shared/types'
-import { configureApi } from '@/lib/api'
+import type { AuthResponse, SessionUser } from '@shared/types'
+import { WellMark } from '@/components/brand/well'
+import { api, configureApi } from '@/lib/api'
 import {
-  PREVIEW_ENABLED,
-  PREVIEW_USERS,
   SessionContext,
-  readPreviewRole,
-  storePreviewRole,
   useSession,
   type SessionContextValue,
+  type SessionStatus,
 } from '@/lib/session'
 
-export function SessionProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<SessionUser | null>(() => {
-    const role = readPreviewRole()
-    return role ? PREVIEW_USERS[role] : null
-  })
+type SessionState = { status: SessionStatus; user: SessionUser | null }
 
-  // Respons 401 dari API berarti sesi berakhir: kosongkan pengguna agar diarahkan ke /login.
+const ANONYMOUS: SessionState = { status: 'anonymous', user: null }
+
+export function SessionProvider({ children }: { children: ReactNode }) {
+  const [state, setState] = useState<SessionState>({ status: 'loading', user: null })
+
   useEffect(() => {
-    configureApi({ onUnauthorized: () => setUser(null) })
+    // Respons 401 dari endpoint terproteksi berarti sesi berakhir atau akun dinonaktifkan.
+    configureApi({ onUnauthorized: () => setState(ANONYMOUS) })
+
+    const controller = new AbortController()
+    api
+      .get<AuthResponse>('/auth/me', { auth: false, signal: controller.signal })
+      .then(({ user }) => setState({ status: 'authenticated', user }))
+      .catch(() => {
+        if (!controller.signal.aborted) setState(ANONYMOUS)
+      })
+    return () => controller.abort()
   }, [])
 
   const value: SessionContextValue = {
-    user,
-    signOut: () => {
-      storePreviewRole('none')
-      setUser(null)
+    ...state,
+    login: async (input) => {
+      const { user } = await api.post<AuthResponse>('/auth/login', input, { auth: false })
+      setState({ status: 'authenticated', user })
+      return user
     },
-    previewAs: PREVIEW_ENABLED
-      ? (role) => {
-          storePreviewRole(role)
-          setUser(PREVIEW_USERS[role])
-        }
-      : null,
+    logout: async () => {
+      try {
+        await api.post('/auth/logout', undefined, { auth: false })
+      } finally {
+        setState(ANONYMOUS)
+      }
+    },
   }
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>
 }
 
 export function RequireAuth({ children }: { children: ReactNode }) {
-  const { user } = useSession()
+  const { status } = useSession()
   const location = useLocation()
-  if (!user) return <Navigate to="/login" replace state={{ from: location.pathname }} />
+
+  if (status === 'loading') {
+    return (
+      <div className="grid min-h-svh place-items-center" role="status">
+        <WellMark className="size-8 text-brand" />
+        <span className="sr-only">Memeriksa sesi…</span>
+      </div>
+    )
+  }
+  if (status === 'anonymous') {
+    return <Navigate to="/login" replace state={{ from: location.pathname }} />
+  }
   return children
 }
