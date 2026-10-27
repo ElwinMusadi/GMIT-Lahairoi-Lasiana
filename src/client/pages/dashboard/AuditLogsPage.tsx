@@ -1,6 +1,5 @@
 import { Fragment, useState, type ReactNode } from 'react'
 import { ListFilter, RefreshCw, X } from 'lucide-react'
-import { useSearchParams } from 'react-router'
 import {
   ROLE_LABELS,
   type ApiList,
@@ -15,6 +14,7 @@ import { ACTION_LABELS, ENTITY_LABELS, describeAudit } from '@/lib/audit-format'
 import { formatDayHeading, formatTime, witaDate } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { useApiQuery } from '@/lib/use-api-query'
+import { useUrlFilters } from '@/lib/use-url-filters'
 
 const PER_PAGE = 50
 const FILTER_KEYS = ['from', 'to', 'action', 'entity_type', 'user_id', 'entity_id'] as const
@@ -25,7 +25,7 @@ const controlClass =
 // Log Aktivitas (khusus Admin): siapa mengubah apa, dan kapan. Filter disimpan di URL
 // agar bisa dibagikan dan tombol Kembali di browser berfungsi.
 export default function AuditLogsPage() {
-  const [params, setParams] = useSearchParams()
+  const { params, setParams, update } = useUrlFilters()
   const [showFilters, setShowFilters] = useState(false)
   const filters = Object.fromEntries(FILTER_KEYS.map((key) => [key, params.get(key) ?? '']))
   const page = Math.max(1, Number(params.get('page')) || 1)
@@ -47,18 +47,6 @@ export default function AuditLogsPage() {
     from: weekStart,
     per_page: 1,
   })
-
-  function update(changes: Record<string, string>) {
-    const next = new URLSearchParams(params)
-    for (const [key, value] of Object.entries(changes)) {
-      if (value) next.set(key, value)
-      else next.delete(key)
-    }
-    if (!('page' in changes)) next.delete('page')
-    setParams(next)
-    // Halaman berikutnya dibaca dari atas, bukan dari tombol paging di bawah.
-    if ('page' in changes) window.scrollTo({ top: 0 })
-  }
 
   function reloadAll() {
     logs.reload()

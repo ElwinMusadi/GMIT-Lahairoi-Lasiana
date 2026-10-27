@@ -69,6 +69,10 @@ export function whereBuilder() {
       const placeholder = param(value)
       clauses.push(clause.replaceAll('?', placeholder))
     },
+    // Klausa tanpa nilai dari pengguna, mis. NOT EXISTS (...).
+    addClause(clause: string) {
+      clauses.push(clause)
+    },
     addIn(column: string, values: readonly unknown[]) {
       clauses.push(`${column} IN (${values.map(param).join(', ')})`)
     },

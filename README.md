@@ -32,10 +32,11 @@ Proyek ini berbentuk **full-stack dalam satu paket**. `@cloudflare/vite-plugin` 
 │   │   │   ├── portal/         # Navbar dan footer Portal Publik
 │   │   │   ├── dashboard/      # Sidebar per peran dan menu profil
 │   │   │   ├── users/          # Dialog form akun dan kata sandi sementara
+│   │   │   ├── congregation/   # Form KK, profil anggota, rayon; panel profil; pemilih KK
 │   │   │   └── session-provider.tsx
 │   │   ├── layouts/            # RootLayout, PublicLayout, DashboardLayout
 │   │   ├── pages/              # public/, dashboard/, LoginPage, RouteErrorPage
-│   │   ├── lib/                # api, use-api-query, upload, session, navigation, format WITA, audit-format
+│   │   ├── lib/                # api, use-api-query, use-url-filters, upload, session, navigation, format WITA, audit-format, congregation
 │   │   ├── router.tsx          # Definisi semua rute
 │   │   ├── main.tsx
 │   │   └── index.css           # Tailwind v4 + token tema portal & dashboard
@@ -78,6 +79,10 @@ Buka `/` untuk Portal Publik dan `/dashboard` untuk dashboard pengurus.
 | `/jadwal`, `/warta`, `/renungan`, `/persembahan`, `/tentang` | `PublicLayout` | Kerangka halaman portal (diisi modul Portal Publik) |
 | `/login`             | berdiri sendiri   | Masuk pengurus                                                    |
 | `/dashboard`         | `DashboardLayout` | Ringkasan: modul per peran, rayon, status sistem, dan aktivitas terbaru (Admin) |
+| `/dashboard/members` | `DashboardLayout` | Anggota Jemaat (Admin, Pendeta, Majelis): cari, filter kombinasi di URL, profil lengkap |
+| `/dashboard/families` | `DashboardLayout` | Kartu Keluarga per rayon; KK baru langsung dibuka untuk diisi anggotanya |
+| `/dashboard/families/:id` | `DashboardLayout` | Rincian KK: seluruh anggota, data KK, tambah Kepala Keluarga/anggota |
+| `/dashboard/rayons`  | `DashboardLayout` | Rayon (Admin): koordinator, keterangan, jumlah KK dan jiwa |
 | `/dashboard/users`   | `DashboardLayout` | Akun Pengurus (Admin): tambah, ubah peran/rayon, atur ulang kata sandi, nonaktifkan |
 | `/dashboard/audit-logs` | `DashboardLayout` | Log Aktivitas (Admin): riwayat per hari, filter tanggal/aksi/data/pengguna di URL |
 | `/dashboard/*`       | `DashboardLayout` | Halaman modul lain (kerangka); ditolak bila peran tidak berhak    |
@@ -339,11 +344,24 @@ GET /api/members?rayon_id=1&categorical_group=PEMUDA&sidi_status=false&status=AC
 
 - `GET /api/families?q=&rayon_id=` mencari nomor KK, nama kepala keluarga, atau nama salah satu anggotanya.
   - `member_count` menghitung anggota berstatus Aktif.
+  - `empty=true` hanya menampilkan KK yang belum punya anggota tercatat.
 - `GET /api/families/:id` mengembalikan KK beserta **seluruh** anggotanya di `members`, termasuk yang pindah atau meninggal.
   - Urutannya: Kepala Keluarga, Istri/Suami, Anak (tertua dulu), lalu Tanggungan.
 - `GET /api/rayons` tetap publik untuk portal.
   - Bila dipanggil pengurus yang sedang masuk, tiap rayon juga memuat `family_count` dan `member_count` (jiwa aktif).
   - `DELETE /api/rayons/:id` ditolak (`409`) selama rayon masih dipakai KK, akun Majelis, jadwal ibadah, atau peminjaman aset.
+
+### Di dashboard
+
+Halaman ada di [src/client/pages/dashboard](src/client/pages/dashboard) dan komponennya di [src/client/components/congregation](src/client/components/congregation).
+
+- **Alur KK baru.** Tambah KK (pilih 1 dari 5 rayon) lalu halaman rincian KK langsung terbuka. Di sana tombol "Tambah {nama} sebagai Kepala Keluarga" mengisi nama dan hubungan keluarga, lalu "Tambah anggota" untuk anggota lain.
+- **Kartu Keluarga.** Kelima rayon tampil sebagai pilihan di atas daftar, lengkap dengan jumlah KK dan jiwa aktif (di ponsel menjadi satu pilihan Rayon). Kalimat di bawah judul menyebut KK yang belum punya anggota tercatat.
+- **Anggota Jemaat.** Pencarian dan filter Rayon, Kategori, Golongan darah, Baptis, Sidi, dan Status keanggotaan bisa dikombinasikan; semuanya tersimpan di URL. Bawaan menampilkan jemaat Aktif. Kalimat di bawah judul menyebut Pemuda aktif yang belum sidi (calon katekisasi).
+- **Profil anggota.** Nama di daftar membuka panel profil lengkap (hanya baca). Form profil memuat seluruh atribut tabel `members`: identitas, KK dan hubungan keluarga, status keanggotaan, kategori pelayanan, pendidikan, pekerjaan, baptis, sidi, dan pernikahan.
+  - Aturan validasinya sama dengan API ([src/shared/congregation.ts](src/shared/congregation.ts)); kesalahan dari server (mis. NIK sudah dipakai) muncul di field-nya.
+  - Kategori pelayanan diberi saran dari umur, jenis kelamin, dan status nikah (PAR di bawah 17 tahun, Pemuda sampai 35 tahun selama belum menikah, Lansia mulai 60 tahun). Saran hanya mengisi bila pengurus menekan "Pakai".
+- **Hak akses di layar.** Admin dan Majelis melihat tombol tambah dan ubah. Pendeta hanya membaca. Majelis tidak melihat pilihan rayon (KK baru otomatis di rayonnya). Riwayat dan hapus data khusus Admin.
 
 ## Unggah berkas
 

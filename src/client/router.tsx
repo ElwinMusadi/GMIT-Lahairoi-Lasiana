@@ -2,7 +2,7 @@ import type { ComponentType } from 'react'
 import { createBrowserRouter } from 'react-router'
 import PublicLayout from '@/layouts/PublicLayout'
 import RootLayout from '@/layouts/RootLayout'
-import { allModules } from '@/lib/navigation'
+import { allModules, type ModuleItem } from '@/lib/navigation'
 import HomePage from '@/pages/public/HomePage'
 import NotFoundPage from '@/pages/public/NotFoundPage'
 import PortalPlaceholderPage from '@/pages/public/PortalPlaceholderPage'
@@ -11,10 +11,42 @@ import RouteErrorPage from '@/pages/RouteErrorPage'
 // `handle.title` dipakai untuk judul tab browser dan breadcrumb dashboard.
 export type RouteHandle = { title: string }
 
+type PageLoader = () => Promise<{ default: ComponentType }>
+
 // Modul dashboard yang sudah dibangun. Modul lain memakai kerangka ModulePage.
-const modulePages: Record<string, () => Promise<{ default: ComponentType }>> = {
+const modulePages: Record<string, PageLoader> = {
+  members: () => import('@/pages/dashboard/MembersPage'),
+  families: () => import('@/pages/dashboard/FamiliesPage'),
+  rayons: () => import('@/pages/dashboard/RayonsPage'),
   users: () => import('@/pages/dashboard/UsersPage'),
   'audit-logs': () => import('@/pages/dashboard/AuditLogsPage'),
+}
+
+// Halaman turunan sebuah modul, dengan hak akses yang sama dengan modulnya.
+const subPages: Record<string, { path: string; title: string; load: PageLoader }[]> = {
+  families: [
+    { path: ':id', title: 'Rincian KK', load: () => import('@/pages/dashboard/FamilyDetailPage') },
+  ],
+}
+
+// Rute lazy yang memuat halaman beserta penjaga perannya (<RequireRole>).
+function guardedPage(module: ModuleItem, load?: PageLoader) {
+  return async () => {
+    const [{ RequireRole }, page] = await Promise.all([
+      import('@/components/session-provider'),
+      load?.() ??
+        import('@/pages/dashboard/ModulePage').then(({ ModulePage }) => ({
+          default: () => <ModulePage module={module} />,
+        })),
+    ])
+    return {
+      element: (
+        <RequireRole roles={module.roles} title={module.title}>
+          <page.default />
+        </RequireRole>
+      ),
+    }
+  }
 }
 
 const portalPages = [
@@ -88,22 +120,14 @@ export const router = createBrowserRouter([
             .map((module) => ({
               path: module.path,
               handle: { title: module.title } satisfies RouteHandle,
-              lazy: async () => {
-                const [{ RequireRole }, page] = await Promise.all([
-                  import('@/components/session-provider'),
-                  modulePages[module.path]?.() ??
-                    import('@/pages/dashboard/ModulePage').then(({ ModulePage }) => ({
-                      default: () => <ModulePage module={module} />,
-                    })),
-                ])
-                return {
-                  element: (
-                    <RequireRole roles={module.roles} title={module.title}>
-                      <page.default />
-                    </RequireRole>
-                  ),
-                }
-              },
+              children: [
+                { index: true, lazy: guardedPage(module, modulePages[module.path]) },
+                ...(subPages[module.path] ?? []).map((sub) => ({
+                  path: sub.path,
+                  handle: { title: sub.title } satisfies RouteHandle,
+                  lazy: guardedPage(module, sub.load),
+                })),
+              ],
             })),
           {
             path: '*',

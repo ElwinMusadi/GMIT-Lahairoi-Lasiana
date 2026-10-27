@@ -65,7 +65,7 @@ export const moduleGroups: ModuleGroup[] = [
     items: [
       {
         title: 'Anggota Jemaat',
-        path: 'jemaat',
+        path: 'members',
         icon: Users,
         roles: ['ADMIN', 'PASTOR', 'ELDER'],
         phase: 1,
@@ -73,15 +73,15 @@ export const moduleGroups: ModuleGroup[] = [
       },
       {
         title: 'Kartu Keluarga',
-        path: 'keluarga',
+        path: 'families',
         icon: House,
-        roles: ['ADMIN', 'ELDER'],
+        roles: ['ADMIN', 'PASTOR', 'ELDER'],
         phase: 1,
-        description: 'Kartu Keluarga gereja dan penempatan rayon, termasuk impor dari Excel.',
+        description: 'Kartu Keluarga gereja, penempatan rayon, dan anggota tiap keluarga.',
       },
       {
         title: 'Rayon',
-        path: 'rayon',
+        path: 'rayons',
         icon: MapPin,
         roles: ['ADMIN'],
         phase: 1,

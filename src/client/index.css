@@ -58,6 +58,9 @@
   --color-positive-ink: var(--positive-ink);
   --color-negative-soft: var(--negative-soft);
   --color-negative-ink: var(--negative-ink);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning-border: var(--warning-border);
+  --color-warning-ink: var(--warning-ink);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
@@ -121,6 +124,9 @@
   --negative-soft: #ffedea;
   --negative-ink: #831c1e;
   --warning: #92400e;
+  --warning-soft: #fffbeb;
+  --warning-border: #fde68a;
+  --warning-ink: #92400e;
   --chart-1: #b11226;
   --chart-2: #8a8a8a;
   --chart-3: #141414;

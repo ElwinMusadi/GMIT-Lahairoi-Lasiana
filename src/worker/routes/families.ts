@@ -30,7 +30,8 @@ import type { AppEnv } from '../types'
 // Majelis hanya mencakup KK di rayonnya sendiri.
 //
 // GET / query opsional: q (nomor KK, nama kepala keluarga, atau nama anggota),
-// rayon_id, page, per_page (maks. 100).
+// rayon_id, empty=true (KK yang belum punya anggota tercatat), page, per_page
+// (maks. 100).
 const families = new Hono<AppEnv>()
 
 families.use(requireRole('ADMIN', 'PASTOR', 'ELDER'))
@@ -66,6 +67,11 @@ families.get('/', async (c) => {
         containsPattern(word),
       )
     }
+  }
+
+  if (query.empty !== undefined) {
+    if (query.empty !== 'true') details.empty = ['Isi empty=true untuk KK tanpa anggota.']
+    else where.addClause('NOT EXISTS (SELECT 1 FROM members m WHERE m.family_id = f.id)')
   }
 
   if (Object.keys(details).length > 0)
