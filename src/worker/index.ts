@@ -10,6 +10,7 @@ import families from './routes/families'
 import files from './routes/files'
 import financeBudgets from './routes/finance-budgets'
 import financeFunds from './routes/finance-funds'
+import financeReports from './routes/finance-reports'
 import financeTransactions from './routes/finance-transactions'
 import health from './routes/health'
 import members from './routes/members'
@@ -41,6 +42,7 @@ app.route('/members', members)
 app.route('/finance/funds', financeFunds)
 app.route('/finance/budgets', financeBudgets)
 app.route('/finance/transactions', financeTransactions)
+app.route('/finance/reports', financeReports)
 
 app.notFound((c) => c.json<ApiErrorBody>({ error: 'Endpoint tidak ditemukan' }, 404))
 

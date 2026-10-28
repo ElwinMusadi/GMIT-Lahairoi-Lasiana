@@ -88,6 +88,7 @@ Buka `/` untuk Portal Publik dan `/dashboard` untuk dashboard pengurus.
 | `/dashboard/rayons`  | `DashboardLayout` | Rayon (Admin): koordinator, keterangan, jumlah KK dan jiwa |
 | `/dashboard/finance/transactions` | `DashboardLayout` | Transaksi Kas: kas masuk/keluar per bulan, total, bukti kuitansi (Bendahara dan Admin mencatat; Pendeta dan Majelis membaca) |
 | `/dashboard/finance/budgets` | `DashboardLayout` | Pos Kas & RAPBJ: saldo Pos Kas, target dan realisasi tiap mata anggaran per tahun |
+| `/dashboard/finance/reports` | `DashboardLayout` | Laporan Keuangan mingguan/bulanan/tahunan per Pos Kas, siap cetak untuk Warta Jemaat (keempat peran) |
 | `/dashboard/users`   | `DashboardLayout` | Akun Pengurus (Admin): tambah, ubah peran/rayon, atur ulang kata sandi, nonaktifkan |
 | `/dashboard/audit-logs` | `DashboardLayout` | Log Aktivitas (Admin): riwayat per hari, filter tanggal/aksi/data/pengguna di URL |
 | `/dashboard/*`       | `DashboardLayout` | Halaman modul lain (kerangka); ditolak bila peran tidak berhak    |
@@ -462,6 +463,27 @@ Halaman ada di [src/client/pages/dashboard](src/client/pages/dashboard) (`Financ
   - Uraian transaksi membuka panel rincian. Foto kuitansi tampil di panel; PDF tampil di bingkai dengan tautan untuk membukanya di tab baru.
   - Konfirmasi hapus menyebut saldo Pos Kas sebelum dan sesudahnya. Notifikasi setelah menyimpan menyebut saldo terbaru.
 
+### Laporan keuangan & cetak Warta
+
+`GET /api/finance/reports/summary?from=YYYY-MM-DD&to=YYYY-MM-DD[&fund_id=]` ([finance-reports.ts](src/worker/routes/finance-reports.ts)) menyusun laporan per Pos Kas untuk rentang tanggal inklusif, paling panjang 366 hari. Keempat peran pengurus boleh membacanya.
+
+- **Saldo awal** = Σ kas masuk − Σ kas keluar sebelum `from`. **Saldo akhir** = saldo awal + kas masuk − kas keluar pada periode.
+  - Saldo dihitung dari transaksi, bukan dari `current_balance`, sehingga laporan periode lampau tetap benar.
+  - Untuk periode yang mencakup hari ini, saldo akhirnya sama dengan `current_balance`.
+- **Rincian** kas masuk dan kas keluar dikelompokkan per mata anggaran (urut kode; transaksi tanpa mata anggaran, mis. saldo awal, di akhir). Setiap kelompok memuat jumlah dan daftar transaksinya.
+- Pos Kas nonaktif tanpa saldo dan tanpa transaksi pada periode itu tidak dilaporkan, kecuali diminta lewat `fund_id`.
+- Respons: `{ from, to, funds: [{ opening_balance, income_total, expense_total, closing_balance, income, expense, … }], totals }`.
+
+**Halaman** `/dashboard/finance/reports` ([FinanceReportsPage.tsx](src/client/pages/dashboard/FinanceReportsPage.tsx)):
+
+- **Periode** Mingguan, Bulanan, atau Tahunan, dengan tombol periode sebelum/berikutnya. Semua pilihan tersimpan di URL (`?period=month&month=2026-09&fund_id=1&detail=entries`).
+  - Minggu warta dihitung **Minggu–Sabtu**, sehingga kolekte hari Minggu membuka minggunya. Ubah `weekStart` di [src/client/lib/finance.ts](src/client/lib/finance.ts) bila gereja memakai minggu lain.
+- **Rincian** per transaksi (bawaan laporan mingguan) atau per mata anggaran (bawaan bulanan dan tahunan).
+- **Lembar laporan**: kop jemaat, ringkasan seluruh Pos Kas (bila lebih dari satu), lalu tiap Pos Kas dengan saldo awal, penerimaan, pengeluaran, dan saldo akhir. Di akhir ada kolom tanda tangan Ketua Majelis Jemaat dan Bendahara (nama Bendahara terisi bila yang mencetak Bendahara) serta waktu cetak.
+  - Periode yang belum berakhir ditandai: saldo akhirnya "sementara", dihitung sampai hari ini.
+- **Cetak laporan** memanggil dialog cetak browser; pilih "Simpan sebagai PDF" untuk berkas lampiran. Judul tab diganti sementara agar nama berkasnya jelas, mis. "Laporan Keuangan Mingguan 25 Okt – 31 Okt 2026".
+  - `@media print` di [index.css](src/client/index.css) menyembunyikan sidebar dan notifikasi; topbar, judul halaman, dan kontrol memakai `print:hidden`. Kertas A4, margin 16 × 14 mm, teks 10 pt.
+
 ## Unggah berkas
 
 Berkas (PDF warta, kuitansi, foto, berkas sakramen) disimpan di **Cloudflare R2**, bukan sebagai base64 di D1, karena baris D1 terlalu kecil untuk PDF.
@@ -620,6 +642,7 @@ Komponen akan ditulis ke `src/client/components/ui/`. Preset yang dipakai: `radi
 | POST   | `/api/finance/transactions` | Bendahara, Admin | Catat kas masuk/keluar; saldo Pos Kas ikut berubah |
 | PUT    | `/api/finance/transactions/:id` | Bendahara, Admin | Ubah transaksi (PATCH juga diterima) |
 | DELETE | `/api/finance/transactions/:id` | Bendahara, Admin | Hapus transaksi; saldo dikembalikan |
+| GET    | `/api/finance/reports/summary` | Semua pengurus | Laporan per Pos Kas: saldo awal, rincian kas masuk/keluar, saldo akhir |
 | POST   | `/api/uploads`     | Login + peran folder | Unggah berkas ke R2 (`multipart`: `file`, `folder`) |
 | GET    | `/api/files/*`     | Publik / Login | Ambil berkas dari R2 (mendukung ETag / `304`)     |
 

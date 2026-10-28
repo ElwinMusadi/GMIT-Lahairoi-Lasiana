@@ -114,7 +114,8 @@ export const moduleGroups: ModuleGroup[] = [
         icon: ChartColumn,
         roles: ['TREASURER', 'ADMIN', 'PASTOR', 'ELDER'],
         phase: 1,
-        description: 'Rekap mingguan, bulanan, dan realisasi anggaran untuk Warta Jemaat.',
+        description:
+          'Saldo dan rincian kas per Pos Kas, mingguan sampai tahunan, siap cetak Warta.',
       },
     ],
   },

@@ -229,3 +229,19 @@
     @apply bg-background text-foreground antialiased;
   }
 }
+
+/* Cetak dari dashboard (mis. Laporan Keuangan untuk lampiran Warta Jemaat): hanya isi
+   halaman di kertas A4, tanpa navigasi dan notifikasi. */
+@page {
+  size: A4;
+  margin: 16mm 14mm;
+}
+@media print {
+  [data-slot='sidebar'],
+  [data-sonner-toaster] {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+  }
+}

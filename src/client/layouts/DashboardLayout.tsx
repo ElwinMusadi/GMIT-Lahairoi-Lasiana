@@ -20,9 +20,9 @@ export default function DashboardLayout() {
     <RequireAuth>
       <SidebarProvider>
         <AppSidebar />
-        <SidebarInset>
+        <SidebarInset className="print:bg-transparent">
           <DashboardTopbar />
-          <div className="flex-1 px-4 pt-4 pb-12 sm:px-6 lg:px-8 lg:pt-6">
+          <div className="flex-1 px-4 pt-4 pb-12 sm:px-6 lg:px-8 lg:pt-6 print:p-0">
             <Outlet />
           </div>
         </SidebarInset>
@@ -38,7 +38,7 @@ function DashboardTopbar() {
     .map((match) => ({ path: match.pathname, title: (match.handle as RouteHandle).title }))
 
   return (
-    <header className="flex h-14 shrink-0 items-center gap-2 px-4 sm:px-6 lg:px-8">
+    <header className="flex h-14 shrink-0 items-center gap-2 px-4 sm:px-6 lg:px-8 print:hidden">
       <SidebarTrigger className="-ml-1.5 size-9" />
       <Breadcrumb className="ml-1 min-w-0">
         <BreadcrumbList>

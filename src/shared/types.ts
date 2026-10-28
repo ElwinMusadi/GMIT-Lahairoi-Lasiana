@@ -293,6 +293,53 @@ export type FinanceTransactionPage = ApiPage<FinanceTransaction> & {
   totals: { income: number; expense: number }
 }
 
+// GET /api/finance/reports/summary?from=&to=[&fund_id=]: laporan kas per Pos Kas
+// untuk rentang tanggal (inklusif), mis. lampiran Warta Jemaat.
+export type FinanceReportEntry = {
+  id: number
+  transaction_date: string
+  description: string | null
+  amount: number
+}
+
+// Satu mata anggaran beserta transaksinya pada periode itu; budget_id null untuk
+// transaksi tanpa mata anggaran (mis. saldo awal).
+export type FinanceReportLine = {
+  budget_id: number | null
+  account_code: string | null
+  account_name: string | null
+  total: number
+  entries: FinanceReportEntry[]
+}
+
+export type FinanceReportFund = {
+  id: number
+  code: string
+  name: string
+  is_active: boolean
+  // Saldo sebelum tanggal awal = Σ kas masuk − Σ kas keluar sebelum `from`.
+  opening_balance: number
+  income_total: number
+  expense_total: number
+  // opening_balance + income_total − expense_total
+  closing_balance: number
+  income: FinanceReportLine[]
+  expense: FinanceReportLine[]
+}
+
+export type FinanceReportSummary = {
+  from: string
+  to: string
+  funds: FinanceReportFund[]
+  totals: {
+    opening_balance: number
+    income: number
+    expense: number
+    closing_balance: number
+    transaction_count: number
+  }
+}
+
 // POST /api/members/import (khusus Admin). Berkas dibaca di browser; setiap baris
 // dikirim dengan judul kolom yang sudah dicocokkan (lihat src/shared/member-import.ts).
 // dry_run: true hanya memeriksa (pratinjau); false menyimpan baris yang siap.

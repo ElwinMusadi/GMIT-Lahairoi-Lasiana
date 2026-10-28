@@ -89,3 +89,83 @@ export function monthRange(month: string) {
 export function isPdf(url: string) {
   return url.toLowerCase().endsWith('.pdf')
 }
+
+// Periode Laporan Keuangan. Nilainya: awal minggu (YYYY-MM-DD, hari Minggu), bulan
+// (YYYY-MM), atau tahun (YYYY).
+export type ReportPeriod = 'week' | 'month' | 'year'
+
+const DAY_MS = 86_400_000
+
+// "2026-10-25" + 6 → "2026-10-31"
+export function addDays(date: string, days: number): string {
+  return new Date(Date.parse(date) + days * DAY_MS).toISOString().slice(0, 10)
+}
+
+// Minggu warta dihitung Minggu–Sabtu: kolekte hari Minggu membuka minggunya, dan
+// laporannya dicetak Jumat/Sabtu untuk Warta Jemaat hari Minggu berikutnya.
+export function weekStart(date: string): string {
+  return addDays(date, -new Date(Date.parse(date)).getUTCDay())
+}
+
+// Awal minggu-minggu terakhir (terbaru dulu), mulai dari minggu `today`.
+export function recentWeeks(today: string, count = 26): string[] {
+  const start = weekStart(today)
+  return Array.from({ length: count }, (_, index) => addDays(start, -7 * index))
+}
+
+export function periodRange(period: ReportPeriod, value: string) {
+  if (period === 'week') return { from: value, to: addDays(value, 6) }
+  if (period === 'month') return monthRange(value)
+  return { from: `${value}-01-01`, to: `${value}-12-31` }
+}
+
+// Periode sebelum (-1) atau sesudah (+1) periode ini, dengan jenis yang sama.
+export function shiftPeriod(period: ReportPeriod, value: string, step: 1 | -1): string {
+  if (period === 'week') return addDays(value, 7 * step)
+  if (period === 'year') return String(Number(value) + step)
+  const [year, month] = value.split('-').map(Number)
+  const next = new Date(Date.UTC(year, month - 1 + step, 1))
+  return next.toISOString().slice(0, 7)
+}
+
+// Tanggal tanpa jam (YYYY-MM-DD) diformat apa adanya, tanpa geser zona waktu.
+const shortDay = new Intl.DateTimeFormat('id-ID', {
+  timeZone: 'UTC',
+  day: 'numeric',
+  month: 'short',
+})
+const longDate = new Intl.DateTimeFormat('id-ID', {
+  timeZone: 'UTC',
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+})
+const longDayDate = new Intl.DateTimeFormat('id-ID', {
+  timeZone: 'UTC',
+  weekday: 'long',
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+})
+
+// "25 Okt"
+export function formatShortDay(date: string): string {
+  return shortDay.format(Date.parse(date))
+}
+
+// "25 Oktober 2026", atau "Minggu, 25 Oktober 2026" dengan nama hari.
+export function formatLongDate(date: string, withWeekday = false): string {
+  return (withWeekday ? longDayDate : longDate).format(Date.parse(date))
+}
+
+// Pilihan periode: "25 Okt – 31 Okt 2026", "Oktober 2026", "Tahun 2026".
+export function periodLabel(period: ReportPeriod, value: string): string {
+  if (period === 'month') return monthLabel(value)
+  if (period === 'year') return `Tahun ${value}`
+  const end = addDays(value, 6)
+  const startYear = value.slice(0, 4)
+  const endYear = end.slice(0, 4)
+  return startYear === endYear
+    ? `${formatShortDay(value)} – ${formatShortDay(end)} ${endYear}`
+    : `${formatShortDay(value)} ${startYear} – ${formatShortDay(end)} ${endYear}`
+}
