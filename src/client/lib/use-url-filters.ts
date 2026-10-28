@@ -7,7 +7,9 @@ export function useUrlFilters() {
 
   // Perubahan dibangun dari URL saat ini, bukan dari render terakhir, sehingga dua
   // perubahan yang berdekatan (pencarian yang tertunda lalu filter) tidak saling menimpa.
-  function update(changes: Record<string, string>) {
+  // `keepScroll`: posisi gulir tidak dikembalikan ke atas, mis. saat mengetik di kolom
+  // cari yang ada di tengah halaman portal.
+  function update(changes: Record<string, string>, options?: { keepScroll?: boolean }) {
     const next = new URLSearchParams(window.location.search)
     for (const [key, value] of Object.entries(changes)) {
       if (value) next.set(key, value)
@@ -15,7 +17,7 @@ export function useUrlFilters() {
     }
     // Filter baru selalu mulai dari halaman pertama.
     if (!('page' in changes)) next.delete('page')
-    setParams(next)
+    setParams(next, { preventScrollReset: options?.keepScroll })
     // Halaman berikutnya dibaca dari atas, bukan dari tombol paging di bawah.
     if ('page' in changes) window.scrollTo({ top: 0 })
   }

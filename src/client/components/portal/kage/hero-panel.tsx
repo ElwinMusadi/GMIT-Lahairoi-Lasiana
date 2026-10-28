@@ -60,8 +60,18 @@ export function HeroPanel({
           />
           <div className="site-hero-scrim absolute inset-0" />
         </div>
-        <div ref={copy}>{display}</div>
-        {children}
+        {size === 'full' ? (
+          <>
+            <div ref={copy}>{display}</div>
+            {children}
+          </>
+        ) : (
+          // Halaman dalam: isi hero sejajar dengan kolom isi (1180 px) di bawahnya.
+          <div className="mx-auto flex w-full max-w-[1180px] flex-1 flex-col">
+            <div ref={copy}>{display}</div>
+            {children}
+          </div>
+        )}
       </section>
     </div>
   )

@@ -1,4 +1,4 @@
-import type { PublicContent, WorshipCategory } from '@shared/types'
+import type { PublicContent } from '@shared/types'
 
 // Tampilan data Portal Publik: tanggal ibadah, paragraf konten, daftar majelis, dan
 // salin ke clipboard.
@@ -66,14 +66,6 @@ const compactDate = new Intl.DateTimeFormat('id-ID', {
 // Waktu terbit ISO → "28 Okt 2026" (WITA), untuk keterangan yang sempit.
 export function compactPublishedDate(iso: string) {
   return compactDate.format(new Date(iso))
-}
-
-// Warna kartu jadwal per jenis ibadah, seperti rancangan portal (garis kiri + label).
-export const WORSHIP_TONE: Record<WorshipCategory, { bar: string; pill: string }> = {
-  SUNDAY_SERVICE: { bar: 'bg-portal-amber', pill: 'bg-portal-amber-soft text-portal-amber-ink' },
-  RAYON: { bar: 'bg-portal-navy', pill: 'bg-portal-blue-soft text-portal-blue-ink' },
-  CATEGORICAL: { bar: 'bg-portal-green', pill: 'bg-portal-green-soft text-portal-green' },
-  SPECIAL: { bar: 'bg-portal-indigo', pill: 'bg-portal-high text-portal-navy' },
 }
 
 // Isi konten (teks biasa) → paragraf; paragraf dipisah baris kosong.

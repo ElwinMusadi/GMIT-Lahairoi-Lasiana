@@ -121,8 +121,16 @@ Progres tahap:
     `PhotoBand`.
   - Lenis kini menghormati gulir dari keyboard dan bilah gulir saat sedang meluncur.
   - Inspector Beranda: 1 FAIL (baseline 10).
-- **Berikutnya: Tahap 5 (Jadwal & Warta):** `/jadwal` memakai `HeroPanel` ukuran `page` dan
-  `ScheduleBoard` dengan semua petugas; `/warta` berisi warta terbaru, PDF, dan arsip.
+- **Tahap 5 (Jadwal & Warta) selesai.**
+  - `/jadwal`: hero ringkas dengan saringan di atas foto, dan papan jadwal dengan semua petugas.
+  - `/warta`: warta terbaru dalam panel jendela dengan pratinjau PDF, serta arsip dengan
+    pencarian.
+  - Kontrol daftar kage baru di `kage/list-controls.tsx` (`PhotoFilterPill`, `SearchField`,
+    `SitePager`).
+  - `useUrlFilters().update(…, { keepScroll: true })` mencegah halaman portal meloncat ke atas
+    saat saringan diganti; dashboard tidak diubah.
+- **Berikutnya: Tahap 6 (Renungan & Berita):** daftar dan halaman baca keduanya, termasuk
+  Bagikan dan pengalihan kategori (rencana 5.4).
 
 **Bug API yang ditemukan di Tahap 0** (belum diperbaiki, diusulkan sebagai commit terpisah):
 

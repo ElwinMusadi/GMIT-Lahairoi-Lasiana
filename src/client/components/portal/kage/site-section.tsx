@@ -14,7 +14,7 @@ export function SiteSection({
   children,
 }: {
   id?: string
-  labelledBy: string
+  labelledBy?: string
   tone?: 'canvas' | 'paper'
   className?: string
   children: ReactNode

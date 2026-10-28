@@ -611,16 +611,16 @@ uji, di desktop dan di ponsel.
 
 **Jadwal Ibadah**
 
-- [ ] `?jenis=` (5 pilihan), `?rayon=` (pil ≥640 px, select di ponsel), `?page=`; nilai tidak sah diabaikan
-- [ ] Judul hitungan langsung + "Memuat jadwal…"; "Tampilkan semua jadwal"
-- [ ] Kelompok per hari ("Hari ini · …", "Besok · …"); jam atau "Jam menyusul"
-- [ ] Semua petugas berurutan, tema, bacaan, lokasi, pil jenis/rayon, unduh tata ibadah
+- [x] `?jenis=` (5 pilihan), `?rayon=` (pil ≥640 px, select di ponsel), `?page=`; nilai tidak sah diabaikan
+- [x] Judul hitungan langsung + "Memuat jadwal…"; "Tampilkan semua jadwal"
+- [x] Kelompok per hari ("Hari ini · …", "Besok · …"); jam atau "Jam menyusul"
+- [x] Semua petugas berurutan, tema, bacaan, lokasi, pil jenis/rayon, unduh tata ibadah
 - [ ] Eror/coba lagi, 6 kerangka, kosong + saran "Ibadah Rayon", daftar meredup saat memuat ulang, pager "jadwal"
 
 **Warta**
 
-- [ ] Warta terbaru (halaman 1, tanpa `q`): tanggal, judul, ringkasan, Unduh PDF, Baca di tab baru, pratinjau PDF ≥1024 px
-- [ ] Arsip: pencarian (jeda 300 ms, `?q=`), baris tanggal/judul/ringkasan/PDF, pager "warta"
+- [x] Warta terbaru (halaman 1, tanpa `q`): tanggal, judul, ringkasan, Unduh PDF, Baca di tab baru, pratinjau PDF ≥1024 px
+- [x] Arsip: pencarian (jeda 300 ms, `?q=`), baris tanggal/judul/ringkasan/PDF, pager "warta"
 - [ ] Pesan eror, belum terbit (pencarian disembunyikan), tidak cocok "{q}", belum ada warta sebelumnya
 
 **Renungan & Berita**
@@ -1126,3 +1126,85 @@ Penyesuaian terhadap peta isi 5.1, sebagian karena temuan inspector:
   - Kodenya mengikuti 08, dan diperiksa lagi di Tahap 10.
 - **Ukuran bundle utama:** 393,3 → 417,3 KB (gzip 122,4 → 129,8 KB). Beranda dimuat langsung
   (bukan lazy), sehingga komponen kage dan Radix Accordion untuk FAQ masuk bundle utama.
+
+### Tahap 5 — Jadwal & Warta (29 Oktober 2026)
+
+**Komponen kage baru**, di
+[list-controls.tsx](../src/client/components/portal/kage/list-controls.tsx), dipakai ulang di
+Renungan, Berita, dan Galeri:
+
+- `PhotoFilterPill`: pil saringan di atas foto hero. Yang aktif putih dengan titik jingga,
+  sisanya kaca.
+- `SearchField`: kolom cari berbentuk pil, jeda 300 ms, ikut berubah bila `?q=` berubah dari
+  luar. Tepinya `site-muted` (5,3:1) agar batas kolom terlihat.
+- `SitePager`: "1–12 dari 16 warta" dengan pil Sebelumnya/Berikutnya; varian gelap untuk
+  bilah bawah panel jendela.
+
+**Penyesuaian bersama:**
+
+- `HeroPanel` ukuran `page` menyejajarkan isinya dengan kolom isi 1180 px di bawahnya.
+- `SiteSection` boleh tanpa `labelledBy` (untuk pesan status).
+- `useUrlFilters().update(…, { keepScroll: true })` memakai `preventScrollReset`.
+  - Tanpa opsi ini, setiap ganti saringan atau ketikan pencarian membuat `ScrollRestoration`
+    mengembalikan halaman ke atas (600 → 0 px). Perilaku ini sudah ada di 08.
+  - Halaman portal memakai opsinya; dashboard tidak diubah.
+- `worship-card.tsx` (kartu jadwal 08) dan `WORSHIP_TONE` dihapus, karena sudah tidak dipakai
+  sejak Beranda dan Jadwal memakai `ScheduleBoard`.
+
+**Jadwal Ibadah** ([SchedulePage.tsx](../src/client/pages/public/SchedulePage.tsx)):
+
+- **Hero ringkas:** "Jadwal Ibadah / *mendatang.*" dengan pengantar 08, lalu saringan jenis dan
+  rayon (pil ≥640 px, *select* bertema gelap di ponsel) di atas foto.
+- **Judul hitungan** 08 ("24 jadwal ibadah mendatang", "2 Ibadah Rayon mendatang di Rayon
+  Golgota") berupa H2 di atas papan, bersama "Tampilkan semua jadwal". Judul ini tidak ditaruh
+  di bilah jendela, karena di ponsel akan terpotong.
+- **Papan jadwal:** `ScheduleBoard` dengan semua petugas berurutan, bilah judul rentang tanggal,
+  dan pager di bilah bawah bila lebih dari 30 jadwal.
+- **Keadaan:** 6 baris kerangka, pesan eror dengan "Coba lagi", kosong dengan saran "Ibadah
+  Rayon", dan papan meredup saat memuat ulang.
+
+**Warta Jemaat** ([WartaPage.tsx](../src/client/pages/public/WartaPage.tsx)):
+
+- **Hero ringkas:** "Warta Jemaat / *tiap Minggu.*". Usulan "tiap Minggu, dalam PDF."
+  dipendekkan agar dua baris di ponsel; kata "PDF" sudah ada di pengantar.
+- **Warta terbaru:** panel jendela dengan judul H2, "Warta terbaru · tanggal" di bawahnya,
+  ringkasan, dan pratinjau PDF putih (≥1024 px). Nama berkas `{slug}.pdf`, "Unduh PDF", dan
+  "Baca di tab baru" ada di bilah bawah.
+- **Arsip:** judul "Arsip warta" (atau "Warta Jemaat" saat mencari/halaman 2), kolom cari, baris
+  bertanah putih tulang (tanggal di kolom kiri ≥768 px, di bawah judul di ponsel), tombol PDF
+  tanpa ikon, dan pager.
+
+**Penyesuaian karena inspector:**
+
+| Temuan | Tindakan |
+| --- | --- |
+| `eyebrow` | Nama berkas dan badge "PDF" di bilah atas warta terbaru terbaca sebagai label di atas judul, jadi dipindah ke bilah bawah |
+| `icon-cards` | Ikon di tombol baris arsip dihapus |
+| `headline-lines` | Aksen judul Warta dipendekkan |
+| `still-page` | Judul daftar, papan jadwal, dan baris arsip memakai reveal |
+
+**Pemeriksaan:**
+
+| Uji | Hasil |
+| --- | --- |
+| Saringan jenis, lalu rayon | `?jenis=rayon` → "14 Ibadah Rayon mendatang"; + Golgota → "2 … di Rayon Golgota" |
+| Kombinasi kosong | "Belum ada Kebaktian Minggu di Rayon Golgota yang diumumkan. Coba pilih jenis “Ibadah Rayon”." |
+| "Tampilkan semua jadwal" | Kembali ke 24 jadwal, tombol hilang |
+| Nilai tidak sah | `?jenis=xyz&page=abc` diabaikan: 24 jadwal, "Semua jenis" aktif |
+| Tombol Kembali setelah dua saringan | `?jenis=rayon&rayon=3` → `?jenis=rayon`, pil ikut |
+| Ganti saringan / cari setelah menggulir | Posisi tidak lagi kembali ke atas; fokus tetap di kolom cari |
+| Pencarian warta | `oktober` → 4 hasil tanpa warta unggulan; `zzzz` → "Tidak ada warta yang cocok dengan “zzzz”."; dikosongkan → warta unggulan kembali |
+| Pager warta | Halaman 2: "13–16 dari 16 warta", judul "Warta Jemaat", halaman ke atas |
+| Kurangi gerak | Lenis mati; reveal 2/2 (Jadwal) dan 13/13 (Warta) terlihat |
+| Kinerja ponsel 390 px | Tidak ada frame panjang. Pengukuran kali ini dibatasi 30 fps oleh Chrome karena laptop berjalan dengan baterai (halaman kosong pun 33,3 ms); Jadwal, Warta, dan Beranda sama-sama p95 33,5 ms. Pengukuran 60 fps diulang di Tahap 10 dengan daya listrik |
+| Tema gelap | Hero, saringan, papan jadwal, warta terbaru (pratinjau PDF tetap putih), dan baris arsip terbaca |
+| Inspector | Jadwal 2 FAIL (baseline 10), Warta 1 FAIL (baseline 6) |
+
+- **FAIL yang tersisa:**
+  - `few-pictures`: satu foto saja, Keputusan K5.
+  - `off-centre` di Jadwal 390 px: inspector membandingkan tepi teks judul di luar panel
+    (24 px) dengan teks di dalam panel berbantalan (44 px). Kotak panelnya sendiri simetris.
+- **Belum diperiksa di browser:**
+  - pager papan jadwal (data uji hanya 24 jadwal, batas per halaman 30);
+  - keadaan eror kedua halaman.
+  - Kodenya mengikuti 08.

@@ -9,14 +9,20 @@ import {
   type RayonListItem,
   type WorshipCategory,
 } from '@shared/types'
-import { EmptyNote, FilterPill, PageIntro, Pager, PortalSection } from '@/components/portal/parts'
-import { WorshipCard } from '@/components/portal/worship-card'
-import { Skeleton } from '@/components/ui/skeleton'
-import { dayLabel } from '@/lib/portal'
+import { HeroPanel } from '@/components/portal/kage/hero-panel'
+import { PhotoFilterPill, SitePager } from '@/components/portal/kage/list-controls'
+import { PillButton } from '@/components/portal/kage/pill'
+import { Reveal } from '@/components/portal/kage/reveal'
+import { ScheduleBoard } from '@/components/portal/kage/schedule-board'
+import { LoadError, SiteSection } from '@/components/portal/kage/site-section'
+import { TwoToneHeading } from '@/components/portal/kage/two-tone-heading'
 import { useApiQuery } from '@/lib/use-api-query'
 import { useUrlFilters } from '@/lib/use-url-filters'
+import { cn } from '@/lib/utils'
 
 const PER_PAGE = 30
+// Saringan diganti di tempat; halaman tidak meloncat ke atas.
+const KEEP = { keepScroll: true }
 
 // Papan Jadwal Ibadah (PRD: kebaktian Minggu, ibadah rumah tangga per rayon, ibadah
 // kategorial, dan acara gerejawi mendatang). Saringan jenis ibadah (?jenis=) dan rayon
@@ -43,51 +49,75 @@ export default function SchedulePage() {
   const items = schedule.data?.data ?? []
   const total = schedule.data?.meta.total ?? 0
 
-  // Kelompok per tanggal, berurutan seperti dari API.
-  const days: { date: string; items: PublicWorshipItem[] }[] = []
-  for (const item of items) {
-    const last = days.at(-1)
-    if (last?.date === item.worship_date) last.items.push(item)
-    else days.push({ date: item.worship_date, items: [item] })
-  }
-
   // "8 jadwal ibadah mendatang", "1 Ibadah Rayon mendatang di Rayon Golgota".
   const kindLabel = category ? WORSHIP_CATEGORY_LABELS[category] : 'jadwal ibadah'
   const place = rayon ? ` di Rayon ${rayon.name}` : ''
 
+  const status =
+    schedule.error && !schedule.data ? (
+      <LoadError message="Jadwal tidak dapat dimuat." onRetry={schedule.reload} onDark />
+    ) : !schedule.data ? (
+      <div aria-hidden="true" className="grid gap-6">
+        {Array.from({ length: 6 }, (_, index) => (
+          <div key={index} className="h-20 animate-pulse rounded-xl bg-white/[0.06]" />
+        ))}
+      </div>
+    ) : items.length === 0 ? (
+      <p className="text-base text-white/80">
+        Belum ada {kindLabel}
+        {place} yang diumumkan.
+        {rayon && category !== 'RAYON' && category !== null
+          ? ' Coba pilih jenis “Ibadah Rayon”.'
+          : ''}
+      </p>
+    ) : undefined
+
   return (
     <>
-      <PageIntro
-        id="judul-jadwal"
-        eyebrow="Papan jadwal ibadah"
-        title="Jadwal Ibadah"
-        lead="Kebaktian Minggu, ibadah rumah tangga di lima rayon, ibadah kategorial, dan acara gerejawi mendatang. Semua waktu dalam WITA."
+      <HeroPanel
+        labelledBy="judul-jadwal"
+        display={
+          <div className="grid max-w-[760px] gap-5">
+            <TwoToneHeading
+              as="h1"
+              id="judul-jadwal"
+              size="page"
+              onDark
+              lead="Jadwal Ibadah"
+              accent="mendatang."
+            />
+            <p className="max-w-[60ch] text-base leading-relaxed text-white/85 md:text-lg">
+              Kebaktian Minggu, ibadah rumah tangga di lima rayon, ibadah kategorial, dan acara
+              gerejawi mendatang. Semua waktu dalam WITA.
+            </p>
+          </div>
+        }
       >
-        <div className="grid gap-3">
-          <div role="group" aria-label="Jenis ibadah" className="flex gap-2 overflow-x-auto pb-1">
-            <FilterPill active={!category} onClick={() => update({ jenis: '' })}>
+        <div className="mt-auto grid gap-4 pt-10">
+          <div role="group" aria-label="Jenis ibadah" className="flex flex-wrap gap-2">
+            <PhotoFilterPill active={!category} onClick={() => update({ jenis: '' }, KEEP)}>
               Semua jenis
-            </FilterPill>
+            </PhotoFilterPill>
             {WORSHIP_CATEGORIES.map((value) => (
-              <FilterPill
+              <PhotoFilterPill
                 key={value}
                 active={category === value}
-                onClick={() => update({ jenis: value.toLowerCase() })}
+                onClick={() => update({ jenis: value.toLowerCase() }, KEEP)}
               >
                 {WORSHIP_CATEGORY_LABELS[value]}
-              </FilterPill>
+              </PhotoFilterPill>
             ))}
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-sm font-semibold text-portal-ink" id="label-rayon">
+            <span id="label-rayon" className="mr-1 text-sm font-semibold text-white/85">
               Rayon
             </span>
             {/* Di ponsel lima rayon menjadi satu pilihan. */}
             <select
               aria-labelledby="label-rayon"
               value={rayonId}
-              onChange={(event) => update({ rayon: event.target.value })}
-              className="h-10 min-w-0 flex-1 rounded-lg border-0 bg-white px-3 text-sm font-semibold text-portal-navy shadow-sm sm:hidden"
+              onChange={(event) => update({ rayon: event.target.value }, KEEP)}
+              className="h-11 min-w-0 flex-1 rounded-full bg-white/[0.12] px-4 text-base font-semibold text-white [color-scheme:dark] outline-none focus-visible:ring-3 focus-visible:ring-site-accent sm:hidden"
             >
               <option value="">Semua rayon</option>
               {rayonList.map((item) => (
@@ -101,98 +131,68 @@ export default function SchedulePage() {
               aria-labelledby="label-rayon"
               className="hidden flex-wrap gap-2 sm:flex"
             >
-              <FilterPill active={!rayonId} onClick={() => update({ rayon: '' })}>
+              <PhotoFilterPill active={!rayonId} onClick={() => update({ rayon: '' }, KEEP)}>
                 Semua rayon
-              </FilterPill>
+              </PhotoFilterPill>
               {rayonList.map((item) => (
-                <FilterPill
+                <PhotoFilterPill
                   key={item.id}
                   active={String(item.id) === rayonId}
-                  onClick={() => update({ rayon: String(item.id) })}
+                  onClick={() => update({ rayon: String(item.id) }, KEEP)}
                 >
                   {item.name}
-                </FilterPill>
+                </PhotoFilterPill>
               ))}
             </div>
           </div>
         </div>
-      </PageIntro>
+      </HeroPanel>
 
-      <PortalSection labelledBy="judul-daftar-jadwal">
-        <div className="flex flex-wrap items-baseline justify-between gap-2">
+      <SiteSection labelledBy="judul-daftar-jadwal" className="pt-12 lg:pt-16">
+        <Reveal className="flex flex-wrap items-center justify-between gap-4">
           <h2
             id="judul-daftar-jadwal"
-            className="font-portal-heading text-xl font-semibold text-portal-navy"
+            className="font-site-display text-2xl font-bold tracking-tight md:text-[28px]"
           >
             {schedule.data
               ? `${total.toLocaleString('id-ID')} ${kindLabel} mendatang${place}`
               : 'Memuat jadwal…'}
           </h2>
           {(category || rayonId) && (
-            <button
-              type="button"
-              onClick={() => update({ jenis: '', rayon: '' })}
-              className="text-sm font-semibold text-portal-navy underline underline-offset-4"
+            <PillButton
+              tone="outline"
+              size="sm"
+              onClick={() => update({ jenis: '', rayon: '' }, KEEP)}
             >
               Tampilkan semua jadwal
-            </button>
+            </PillButton>
           )}
-        </div>
-
-        {schedule.error && !schedule.data ? (
-          <EmptyNote>
-            Jadwal tidak dapat dimuat.{' '}
-            <button
-              type="button"
-              onClick={schedule.reload}
-              className="font-semibold text-portal-navy underline"
-            >
-              Coba lagi
-            </button>
-          </EmptyNote>
-        ) : !schedule.data ? (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {Array.from({ length: 6 }, (_, index) => (
-              <Skeleton key={index} className="h-56 rounded-xl" />
-            ))}
-          </div>
-        ) : items.length === 0 ? (
-          <EmptyNote>
-            Belum ada {kindLabel}
-            {place} yang diumumkan.
-            {rayon && category !== 'RAYON' && category !== null
-              ? ' Coba pilih jenis “Ibadah Rayon”.'
-              : ''}
-          </EmptyNote>
-        ) : (
+        </Reveal>
+        <Reveal className="mt-8">
           <div
-            className={schedule.loading ? 'grid gap-8 opacity-60 transition-opacity' : 'grid gap-8'}
+            aria-busy={schedule.loading}
+            className={cn('transition-opacity', schedule.loading && schedule.data && 'opacity-60')}
           >
-            {days.map((day) => (
-              <section key={day.date} aria-label={dayLabel(day.date, today)} className="grid gap-3">
-                <h3 className="flex items-center gap-3 text-sm font-bold tracking-wide text-portal-amber uppercase">
-                  {dayLabel(day.date, today)}
-                  <span className="h-px flex-1 bg-portal-high" aria-hidden="true" />
-                </h3>
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {day.items.map((item) => (
-                    <WorshipCard key={item.id} worship={item} today={today} showDay={false} />
-                  ))}
-                </div>
-              </section>
-            ))}
+            <ScheduleBoard
+              worships={items}
+              today={today}
+              status={status}
+              footer={
+                schedule.data && total > PER_PAGE ? (
+                  <SitePager
+                    page={page}
+                    perPage={PER_PAGE}
+                    total={total}
+                    noun="jadwal"
+                    onPage={(next) => update({ page: String(next) })}
+                    onDark
+                  />
+                ) : undefined
+              }
+            />
           </div>
-        )}
-        {schedule.data && (
-          <Pager
-            page={page}
-            perPage={PER_PAGE}
-            total={total}
-            noun="jadwal"
-            onPage={(next) => update({ page: String(next) })}
-          />
-        )}
-      </PortalSection>
+        </Reveal>
+      </SiteSection>
     </>
   )
 }
