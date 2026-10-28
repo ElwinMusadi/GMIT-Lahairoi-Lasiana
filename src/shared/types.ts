@@ -452,7 +452,7 @@ export const SERVANT_ROLE_LABELS = {
   PREACHER: 'Pelayan Firman',
   LITURGIST: 'Liturgos',
   ELDER_ON_DUTY: 'Majelis bertugas',
-  SINGER: 'Pemandu pujian',
+  SINGER: 'Pemandu lagu',
   MUSICIAN: 'Pemusik',
   MULTIMEDIA: 'Multimedia',
 } as const

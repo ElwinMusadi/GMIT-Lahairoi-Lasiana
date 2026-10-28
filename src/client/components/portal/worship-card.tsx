@@ -86,8 +86,10 @@ export function WorshipCard({
         <div className="mt-3 flex justify-end border-t border-portal-high pt-3 pl-1.5">
           <a
             href={worship.liturgy_file_url}
+            download={`tata-ibadah-${worship.worship_date}.pdf`}
             target="_blank"
             rel="noreferrer"
+            aria-label={`Unduh tata ibadah ${worship.title} (PDF)`}
             className="inline-flex items-center gap-1 text-xs font-semibold text-portal-navy hover:underline"
           >
             Tata ibadah

@@ -127,7 +127,7 @@ export const moduleGroups: ModuleGroup[] = [
     items: [
       {
         title: 'Jadwal Ibadah',
-        path: 'ibadah',
+        path: 'worships',
         icon: CalendarDays,
         roles: ['ADMIN', 'PASTOR', 'ELDER'],
         phase: 2,

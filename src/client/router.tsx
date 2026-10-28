@@ -26,9 +26,11 @@ const modulePages: Record<string, PageLoader> = {
   // Pendeta menulis renungannya di halaman CMS yang sama, dibatasi ke Renungan.
   contents: () => import('@/pages/dashboard/ContentsPage'),
   renungan: () => import('@/pages/dashboard/ContentsPage'),
+  worships: () => import('@/pages/dashboard/WorshipsPage'),
 }
 
 const loadContentEditor = () => import('@/pages/dashboard/ContentEditorPage')
+const loadWorshipEditor = () => import('@/pages/dashboard/WorshipEditorPage')
 const contentEditorPages = [
   { path: 'new', title: 'Konten baru', load: loadContentEditor },
   { path: ':id', title: 'Ubah konten', load: loadContentEditor },
@@ -44,6 +46,11 @@ const subPages: Record<
   ],
   contents: contentEditorPages,
   renungan: contentEditorPages,
+  // Majelis melihat jadwal dan mencatat kehadiran; menyusun jadwal khusus Admin dan Pendeta.
+  worships: [
+    { path: 'new', title: 'Jadwal baru', load: loadWorshipEditor, roles: ['ADMIN', 'PASTOR'] },
+    { path: ':id', title: 'Ubah jadwal', load: loadWorshipEditor, roles: ['ADMIN', 'PASTOR'] },
+  ],
   members: [
     {
       path: 'import',

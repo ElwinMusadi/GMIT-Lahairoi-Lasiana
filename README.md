@@ -98,6 +98,7 @@ Buka `/` untuk Portal Publik dan `/dashboard` untuk dashboard pengurus.
 | `/dashboard/finance/reports` | `DashboardLayout` | Laporan Keuangan mingguan/bulanan/tahunan per Pos Kas, siap cetak untuk Warta Jemaat (keempat peran) |
 | `/dashboard/contents` | `DashboardLayout` | Warta & Konten (Admin): warta PDF, renungan, berita, galeri, profil, rekening & QRIS; tambah di `/new?category=…`, ubah di `/:id` |
 | `/dashboard/renungan` | `DashboardLayout` | Renungan Saya (Pendeta): halaman yang sama, hanya renungan miliknya |
+| `/dashboard/worships` | `DashboardLayout` | Jadwal Ibadah (Admin, Pendeta, Majelis): jadwal mendatang dengan tanda bentrok petugas, ibadah yang sudah berlangsung dengan absensi; tambah di `/new`, ubah jadwal & petugas di `/:id` (Admin dan Pendeta) |
 | `/dashboard/users`   | `DashboardLayout` | Akun Pengurus (Admin): tambah, ubah peran/rayon, atur ulang kata sandi, nonaktifkan |
 | `/dashboard/audit-logs` | `DashboardLayout` | Log Aktivitas (Admin): riwayat per hari, filter tanggal/aksi/data/pengguna di URL |
 | `/dashboard/*`       | `DashboardLayout` | Halaman modul lain (kerangka); ditolak bila peran tidak berhak    |
@@ -585,6 +586,29 @@ Rute: [worships.ts](src/worker/routes/worships.ts). Aturan data bersama ada di [
 - **Daftar.** `GET /api/worships` menerima `from`, `to` (inklusif), `category`, `rayon_id`, `is_public` (`true`/`false`), `attendance` (`recorded`/`missing`), `q` (nama, tema, lokasi, bacaan), `servant` (nama petugas), `sort` (`asc` bawaan, `desc`), `page`, dan `per_page`.
   - Urut tanggal lalu jam; jadwal tanpa jam di akhir harinya. Setiap jadwal membawa petugas dan tanda bentroknya.
 - Setiap perubahan jadwal, susunan petugas, dan kehadiran tercatat di Log Aktivitas.
+
+**Di dashboard** (`/dashboard/worships`; [WorshipsPage.tsx](src/client/pages/dashboard/WorshipsPage.tsx), [WorshipEditorPage.tsx](src/client/pages/dashboard/WorshipEditorPage.tsx), dan [src/client/components/worship](src/client/components/worship)):
+
+- **Daftar** dikelompokkan per tanggal, dengan dua tampilan; hari ini ada di keduanya. Filter jenis, rayon, kehadiran, dan pencarian tersimpan di URL.
+  - **Mendatang**: menampilkan jam, ibadah, Pelayan Firman beserta jumlah petugas lain, dan tautan tata ibadah. Jadwal yang petugasnya bentrok diberi tanda amber "N bentrok".
+  - **Sudah berlangsung**: total kehadiran per ibadah, atau tombol **Catat** bila belum dicatat.
+  - Baris di bawah judul merangkum jumlah ibadah, jadwal yang bentrok, dan kehadiran yang belum dicatat.
+  - Di ponsel, kolom Petugas pindah ke baris ketiga tiap ibadah.
+- **Rincian** (klik nama ibadah) berisi petugas dengan keterangan bentroknya, tata ibadah, dan kehadiran. Dari sini Admin/Pendeta membuka editor, dan semua peran dapat mencatat kehadiran.
+- **Editor jadwal** (Admin dan Pendeta):
+  - jenis ibadah, rayon (khusus Ibadah Rayon), nama, tanggal, jam, lokasi, tema, dan bacaan;
+  - nama yang dikosongkan diisi saran sesuai jenis dan jam, mis. "Kebaktian Minggu Pagi" atau "Ibadah Rayon Golgota";
+  - sakelar **Tampil di portal** dan unggah PDF **Tata ibadah** (folder `liturgi`).
+- **Petugas pelayanan** di editor:
+  - satu kotak nama per tugas (Pelayan Firman, Liturgos, Majelis bertugas, Pemandu lagu, Pemusik, Multimedia); **Tambah …** menambah orang untuk tugas yang sama;
+  - saran nama diambil dari jadwal sekitar tiga bulan terakhir, agar penulisan seragam.
+- **Peringatan bentrok langsung:** begitu nama diketik, petugas yang juga bertugas di ibadah lain pada tanggal dan jam yang sama mendapat garis amber dan kalimat "Bentrok: juga bertugas sebagai … di “…”".
+  - Ringkasan jumlah petugas yang bentrok tampil di atas daftar.
+  - Aturannya sama dengan API (`sameServant`), sehingga peringatan di form cocok dengan hasil simpan.
+  - Jadwal tetap bisa disimpan; setelah disimpan, notifikasi memuat kalimat peringatan dari API.
+- Jadwal publik yang berlampiran PDF tata ibadah tampil di Papan Jadwal portal (`/jadwal`) dengan tautan **Tata ibadah** yang mengunduh berkasnya.
+- **Absensi** (dialog; Admin, Pendeta, Majelis) untuk ibadah hari ini atau sebelumnya: kotak Pria, Wanita, dan Anak/Pemuda, dengan **Total kehadiran** yang terhitung langsung saat diketik. Kotak kosong berarti belum dihitung, bukan nol.
+- Meninggalkan editor dengan perubahan yang belum disimpan meminta konfirmasi.
 
 ```json
 POST /api/worships
