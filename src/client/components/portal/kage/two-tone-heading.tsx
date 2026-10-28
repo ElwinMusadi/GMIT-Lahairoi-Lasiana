@@ -73,3 +73,30 @@ export function TwoToneHeading({
     </Tag>
   )
 }
+
+// Baris serif miring yang menyertai judul tanpa menjadi bagian judul, mis. ayat bacaan di
+// bawah judul renungan. Ukurannya mengikuti baris kedua judul dua nada.
+export function AccentLine({
+  size = 'section',
+  onDark = false,
+  className,
+  children,
+}: {
+  size?: keyof typeof SIZES
+  onDark?: boolean
+  className?: string
+  children: ReactNode
+}) {
+  return (
+    <p
+      className={cn(
+        'font-site-serif leading-tight italic',
+        SIZES[size],
+        onDark ? 'text-white/75' : 'text-site-muted',
+        className,
+      )}
+    >
+      {children}
+    </p>
+  )
+}

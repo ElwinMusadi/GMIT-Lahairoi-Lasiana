@@ -625,11 +625,11 @@ uji, di desktop dan di ponsel.
 
 **Renungan & Berita**
 
-- [ ] Teks pengantar per jenis; pencarian selalu tampil (`?q=`, `?page=`), jeda 300 ms
+- [x] Teks pengantar per jenis; pencarian selalu tampil (`?q=`, `?page=`), jeda 300 ms
 - [ ] Unggulan: sampul, "Terbaru · tanggal", judul, ayat, cuplikan, "Baca selengkapnya"
-- [ ] Kartu: sampul, "tanggal · ayat", judul, cuplikan, "Baca"; pager
+- [x] Kartu: sampul, "tanggal · ayat", judul, cuplikan, "Baca"; pager
 - [ ] Halaman baca: kembali, label jenis + tanggal, H1, ayat, penulis, Bagikan (share/salin "Tautan disalin."), sampul, ringkasan berita, isi, lampiran, 3 artikel lainnya
-- [ ] Pengalihan kategori keliru (6 kategori); "… tidak ditemukan" + penjelasan; kerangka
+- [x] Pengalihan kategori keliru (6 kategori); "… tidak ditemukan" + penjelasan; kerangka
 
 **Galeri**
 
@@ -1207,4 +1207,63 @@ Renungan, Berita, dan Galeri:
 - **Belum diperiksa di browser:**
   - pager papan jadwal (data uji hanya 24 jadwal, batas per halaman 30);
   - keadaan eror kedua halaman.
+  - Kodenya mengikuti 08.
+
+### Tahap 6 — Renungan & Berita (29 Oktober 2026)
+
+**Daftar** (`/renungan`, `/berita`, [ArticlesPage.tsx](../src/client/pages/public/ArticlesPage.tsx)):
+
+- **Hero ringkas:** "Renungan / *harian.*" dan "Berita & / *pengumuman.*" (judul dua nada usulan
+  yang muat dua baris di ponsel), pengantar 08, dan kolom cari kaca di atas foto
+  (`SearchField onPhoto`, tepi `white/50`). Pencarian memakai `keepScroll`.
+- **Artikel unggulan** (halaman 1, tanpa pencarian): kartu lebar putih tulang dengan sampul,
+  judul, ayat, "Terbaru · tanggal", cuplikan 3 baris, dan "Baca selengkapnya →".
+  - Kartu ini tidak memakai lapisan tautan selebar kartu, karena lapisan itu menutupi baris
+    ayat (temuan `covered-text`).
+  - Judul adalah tautan utama. Sampul dan "Baca selengkapnya" juga tautan, tetapi tidak masuk
+    urutan Tab dan disembunyikan dari pembaca layar.
+- **Kartu lainnya:** putih tulang tanpa garis tepi, berisi sampul, judul, "tanggal · ayat" (di
+  bawah judul), cuplikan, dan "Baca →". Seluruh kartu bisa diklik lewat tautan judul.
+- **Keadaan:** teks 08 per jenis; daftar meredup saat memuat ulang; pager kage.
+
+**Baca** (`/renungan/:slug`, `/berita/:slug`):
+
+- **Tanpa hero foto,** agar fokus membaca. Judul H1 68 px di desktop (28 px di ponsel) dalam
+  kolom 1040 px, sehingga judul panjang tetap dua baris. Teks bacaan 18 px, maksimal 65
+  karakter.
+- **Ayat** renungan di baris serif miring tersendiri (`AccentLine`), bukan bagian dari judul.
+- **Baris keterangan** di bawah judul: "{Jenis} · tanggal · Oleh {penulis}", tombol
+  "← Semua {jenis}", dan "Bagikan".
+  - Rencana awal menaruh tombol kembali dan label jenis di atas judul. Inspector membacanya
+    sebagai label kicker.
+- **Isi:** sampul, ringkasan berita sebagai paragraf pembuka, lampiran, lalu seksi "{Jenis}
+  lainnya" (3 kartu di atas putih tulang).
+- **Perbaikan 08 #1 (judul tab):** halaman baca mengembalikan judul tab sebelumnya saat
+  ditinggalkan. Judul rute `/renungan` dan `/renungan/:slug` sama, sehingga `RootLayout`
+  tidak memasangnya ulang dan judul artikel tertinggal di tab.
+
+**Bersama:**
+
+- `AccentLine` di
+  [two-tone-heading.tsx](../src/client/components/portal/kage/two-tone-heading.tsx): baris
+  serif miring yang menyertai judul tanpa menjadi bagiannya.
+- Renungan Beranda juga memakai `AccentLine`. Dengan begitu FAIL terakhir Beranda (judul tiga
+  baris di ponsel) hilang: inspector Beranda kini 0 FAIL.
+
+**Pemeriksaan:**
+
+| Uji | Hasil |
+| --- | --- |
+| Kartu → halaman baca → "Semua renungan" | Judul tab "Pelita bagi Kakiku · …" lalu kembali menjadi "Renungan · …" |
+| `/berita/pelita-bagi-kakiku` | Dialihkan ke `/renungan/pelita-bagi-kakiku` |
+| `/renungan/tidak-ada-renungan-ini` | "Renungan tidak ditemukan" dengan penjelasan 08 |
+| Bagikan (Web Share dimatikan, klik sungguhan) | Toast "Tautan disalin." |
+| Pencarian renungan | `kasih` → 1 hasil tanpa unggulan; `qqqq` → "Tidak ada renungan yang cocok dengan “qqqq”."; dikosongkan → unggulan kembali |
+| Urutan Tab di kartu unggulan | Judul `tabIndex` 0; sampul dan "Baca selengkapnya" −1 |
+| Ponsel 390 px, tema gelap | Daftar dan halaman baca terbaca, tanpa gulir menyamping |
+| Inspector | Daftar Renungan dan Berita 0 FAIL (baseline 6); halaman baca 1 FAIL (baseline 7), yaitu `few-pictures` (K5); Beranda 0 FAIL |
+
+- **Belum terlihat di browser:**
+  - sampul pada artikel unggulan (renungan dan berita terbaru di data uji tanpa sampul);
+  - ringkasan berita sebagai paragraf pembuka, dan lampiran artikel (tidak ada di data uji).
   - Kodenya mengikuti 08.

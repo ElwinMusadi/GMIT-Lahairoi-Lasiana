@@ -129,8 +129,16 @@ Progres tahap:
     `SitePager`).
   - `useUrlFilters().update(…, { keepScroll: true })` mencegah halaman portal meloncat ke atas
     saat saringan diganti; dashboard tidak diubah.
-- **Berikutnya: Tahap 6 (Renungan & Berita):** daftar dan halaman baca keduanya, termasuk
-  Bagikan dan pengalihan kategori (rencana 5.4).
+- **Tahap 6 (Renungan & Berita) selesai.**
+  - Daftar: hero ringkas dengan cari kaca, artikel unggulan, dan kartu.
+  - Halaman baca editorial tanpa hero: judul besar, ayat serif miring, Bagikan, dan artikel
+    lainnya.
+  - Judul tab kini kembali setelah meninggalkan artikel (perbaikan 08 #1).
+  - Inspector: daftar 0 FAIL, halaman baca 1 FAIL (K5), Beranda 0 FAIL.
+- **Berikutnya: Tahap 7 (Galeri & Profil):** `/media` (kisi dokumentasi, jendela galeri,
+  YouTube) dan `/profil` (sejarah, visi-misi, lima rayon, Pendeta & Majelis), termasuk
+  perbaikan 08 #5 (lampiran Profil), #6 (Coba lagi rayon), dan gulir ulang ke jangkar
+  `/profil#rayon` setelah data tiba.
 
 **Bug API yang ditemukan di Tahap 0** (belum diperbaiki, diusulkan sebagai commit terpisah):
 

@@ -34,18 +34,20 @@ export function PhotoFilterPill({
 
 // Kolom cari berbentuk pil. Teks diketik langsung, pencarian dikirim 300 ms setelah
 // berhenti mengetik; bila nilai di URL berubah dari luar (mis. tombol Kembali), kolom
-// ikut berubah.
+// ikut berubah. `onPhoto`: kaca di atas foto hero.
 export function SearchField({
   value,
   onSearch,
   label,
   placeholder,
+  onPhoto = false,
   className,
 }: {
   value: string
   onSearch: (value: string) => void
   label: string
   placeholder: string
+  onPhoto?: boolean
   className?: string
 }) {
   const [text, setText] = useState(value)
@@ -61,7 +63,10 @@ export function SearchField({
     <div className={cn('relative w-full sm:w-80', className)}>
       <Search
         aria-hidden="true"
-        className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-site-muted"
+        className={cn(
+          'pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2',
+          onPhoto ? 'text-white/75' : 'text-site-muted',
+        )}
       />
       <input
         type="search"
@@ -74,7 +79,12 @@ export function SearchField({
         }}
         placeholder={placeholder}
         aria-label={label}
-        className="h-11 w-full rounded-full border border-site-muted bg-site-canvas pr-4 pl-11 text-base text-site-ink outline-none placeholder:text-site-muted focus-visible:ring-3 focus-visible:ring-ring"
+        className={cn(
+          'h-11 w-full rounded-full border pr-4 pl-11 text-base outline-none focus-visible:ring-3',
+          onPhoto
+            ? 'border-white/50 bg-white/[0.12] text-white [color-scheme:dark] placeholder:text-white/75 focus-visible:ring-site-accent'
+            : 'border-site-muted bg-site-canvas text-site-ink placeholder:text-site-muted focus-visible:ring-ring',
+        )}
       />
     </div>
   )

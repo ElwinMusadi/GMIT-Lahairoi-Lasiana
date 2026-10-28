@@ -19,7 +19,7 @@ import { PillButton, PillLink } from '@/components/portal/kage/pill'
 import { Reveal } from '@/components/portal/kage/reveal'
 import { ScheduleBoard } from '@/components/portal/kage/schedule-board'
 import { LoadError, SectionIntro, SiteSection } from '@/components/portal/kage/site-section'
-import { TwoToneHeading } from '@/components/portal/kage/two-tone-heading'
+import { AccentLine, TwoToneHeading } from '@/components/portal/kage/two-tone-heading'
 import { WindowPanel } from '@/components/portal/kage/window-panel'
 import { splitPaymentTitle } from '@/lib/contents'
 import {
@@ -433,8 +433,12 @@ function DevotionalArticle({ devotional }: { devotional: NonNullable<PublicHome[
                 {devotional.title}
               </Link>
             }
-            accent={devotional.summary}
           />
+          {devotional.summary && (
+            <AccentLine size="card" className="mt-3">
+              {devotional.summary}
+            </AccentLine>
+          )}
         </Reveal>
         <p className="inline-flex items-center gap-2 text-base font-medium text-site-muted">
           <span aria-hidden="true" className="size-2 rounded-full bg-site-accent" />

@@ -1,10 +1,14 @@
-import { useEffect, useRef, useState } from 'react'
-import { ArrowLeft, ArrowRight, Download, Search, Share2 } from 'lucide-react'
+import { useEffect, type ReactNode } from 'react'
+import { ArrowLeft, Download, Share2 } from 'lucide-react'
 import { Link, Navigate, useParams } from 'react-router'
 import { toast } from 'sonner'
 import type { ApiPage, ContentCategory, PublicContent } from '@shared/types'
-import { EmptyNote, PageIntro, Pager, PortalCard, PortalSection } from '@/components/portal/parts'
-import { Skeleton } from '@/components/ui/skeleton'
+import { HeroPanel } from '@/components/portal/kage/hero-panel'
+import { SearchField, SitePager } from '@/components/portal/kage/list-controls'
+import { PillButton, PillLink } from '@/components/portal/kage/pill'
+import { Reveal } from '@/components/portal/kage/reveal'
+import { LoadError, SiteSection } from '@/components/portal/kage/site-section'
+import { AccentLine, TwoToneHeading } from '@/components/portal/kage/two-tone-heading'
 import { copyText, excerpt, paragraphs, publishedDate } from '@/lib/portal'
 import { isPdf } from '@/lib/upload'
 import { useApiQuery } from '@/lib/use-api-query'
@@ -20,9 +24,11 @@ const KINDS: Record<
   ArticleKind,
   {
     base: string
-    eyebrow: string
-    title: string
+    // Judul dua nada di hero: baris pertama sans, baris kedua serif miring.
     lead: string
+    accent: string
+    title: string
+    intro: string
     noun: string
     empty: string
     more: string
@@ -30,18 +36,21 @@ const KINDS: Record<
 > = {
   DEVOTIONAL: {
     base: '/renungan',
-    eyebrow: 'Renungan harian',
+    lead: 'Renungan',
+    accent: 'harian.',
     title: 'Renungan',
-    lead: 'Renungan harian dan artikel pembinaan iman dari Pendeta dan Majelis Jemaat.',
+    intro: 'Renungan harian dan artikel pembinaan iman dari Pendeta dan Majelis Jemaat.',
     noun: 'renungan',
     empty: 'Belum ada renungan yang terbit.',
     more: 'Renungan lainnya',
   },
   NEWS: {
     base: '/berita',
-    eyebrow: 'Kabar jemaat',
+    lead: 'Berita &',
+    accent: 'pengumuman.',
     title: 'Berita & Pengumuman',
-    lead: 'Berita kegiatan jemaat, pengumuman dukacita, dan informasi pelayanan klasis dan sinode.',
+    intro:
+      'Berita kegiatan jemaat, pengumuman dukacita, dan informasi pelayanan klasis dan sinode.',
     noun: 'berita',
     empty: 'Belum ada berita atau pengumuman.',
     more: 'Berita lainnya',
@@ -58,6 +67,7 @@ const CATEGORY_PATHS: Record<ContentCategory, (slug: string) => string> = {
   PAYMENT_INFO: () => '/persembahan',
 }
 
+const SITE_NAME = 'GMIT Lahairoi Tuak Sabu Lasiana'
 const PER_PAGE = 12
 
 // Ringkasan renungan berisi ayat bacaan (CMS: "Ayat bacaan").
@@ -86,18 +96,13 @@ export function NewsPage() {
   return <ArticleDetail kind="NEWS" />
 }
 
+// ---------- Daftar
+
 function ArticleList({ kind }: { kind: ArticleKind }) {
   const config = KINDS[kind]
   const { params, update } = useUrlFilters()
   const q = params.get('q') ?? ''
   const page = Math.max(1, Number(params.get('page')) || 1)
-  const [search, setSearch] = useState(q)
-  const [syncedQ, setSyncedQ] = useState(q)
-  if (q !== syncedQ) {
-    setSyncedQ(q)
-    if (q !== search.trim()) setSearch(q)
-  }
-  const timer = useRef<number | undefined>(undefined)
 
   // Dengan isi lengkap, ringkasan tetap apa adanya: ayat renungan tidak tertukar dengan
   // cuplikan isi.
@@ -113,161 +118,206 @@ function ArticleList({ kind }: { kind: ArticleKind }) {
   const featured = page === 1 && !q ? items[0] : undefined
   const rest = featured ? items.slice(1) : items
 
+  let body: ReactNode
+  if (list.error && !list.data) {
+    body = <LoadError message={`Daftar ${config.noun} tidak dapat dimuat.`} onRetry={list.reload} />
+  } else if (!list.data) {
+    body = (
+      <div aria-hidden="true" className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {Array.from({ length: 6 }, (_, index) => (
+          <div key={index} className="h-80 animate-pulse rounded-3xl bg-site-paper" />
+        ))}
+      </div>
+    )
+  } else if (items.length === 0) {
+    body = (
+      <p className="text-lg text-site-muted">
+        {q ? `Tidak ada ${config.noun} yang cocok dengan “${q}”.` : config.empty}
+      </p>
+    )
+  } else {
+    body = (
+      <div
+        aria-busy={list.loading}
+        className={cn('grid gap-10 transition-opacity', list.loading && 'opacity-60')}
+      >
+        {featured && <FeaturedArticle item={featured} base={config.base} />}
+        {rest.length > 0 && (
+          <ul className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {rest.map((item) => (
+              <Reveal as="li" key={item.id}>
+                <ArticleCard item={item} base={config.base} />
+              </Reveal>
+            ))}
+          </ul>
+        )}
+        <SitePager
+          page={page}
+          perPage={PER_PAGE}
+          total={total}
+          noun={config.noun}
+          onPage={(next) => update({ page: String(next) })}
+        />
+      </div>
+    )
+  }
+
   return (
     <>
-      <PageIntro
-        id="judul-artikel"
-        eyebrow={config.eyebrow}
-        title={config.title}
-        lead={config.lead}
+      <HeroPanel
+        labelledBy="judul-artikel"
+        display={
+          <div className="grid max-w-[760px] gap-5">
+            <TwoToneHeading
+              as="h1"
+              id="judul-artikel"
+              size="page"
+              onDark
+              lead={config.lead}
+              accent={config.accent}
+            />
+            <p className="max-w-[60ch] text-base leading-relaxed text-white/85 md:text-lg">
+              {config.intro}
+            </p>
+          </div>
+        }
       >
-        <div className="relative w-full sm:w-80">
-          <Search
-            aria-hidden="true"
-            className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-portal-muted"
-          />
-          <input
-            type="search"
-            value={search}
-            onChange={(event) => {
-              const value = event.target.value
-              setSearch(value)
-              window.clearTimeout(timer.current)
-              timer.current = window.setTimeout(() => update({ q: value.trim() }), 300)
-            }}
+        <div className="mt-auto pt-10">
+          <SearchField
+            value={q}
+            onSearch={(value) => update({ q: value }, { keepScroll: true })}
+            label={`Cari ${config.noun}`}
             placeholder={`Cari ${config.noun}`}
-            aria-label={`Cari ${config.noun}`}
-            className="h-10 w-full rounded-lg border-0 bg-white pr-3 pl-9 text-sm text-portal-ink shadow-sm outline-none focus-visible:ring-3 focus-visible:ring-portal-blue-light"
+            onPhoto
           />
         </div>
-      </PageIntro>
-
-      <PortalSection labelledBy="judul-artikel">
-        {list.error && !list.data ? (
-          <EmptyNote>
-            Daftar {config.noun} tidak dapat dimuat.{' '}
-            <button
-              type="button"
-              onClick={list.reload}
-              className="font-semibold text-portal-navy underline"
-            >
-              Coba lagi
-            </button>
-          </EmptyNote>
-        ) : !list.data ? (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {Array.from({ length: 6 }, (_, index) => (
-              <Skeleton key={index} className="h-72 rounded-xl" />
-            ))}
-          </div>
-        ) : items.length === 0 ? (
-          <EmptyNote>
-            {q ? `Tidak ada ${config.noun} yang cocok dengan “${q}”.` : config.empty}
-          </EmptyNote>
-        ) : (
-          <>
-            {featured && <FeaturedArticle item={featured} base={config.base} />}
-            {rest.length > 0 && (
-              <ul className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {rest.map((item) => (
-                  <li key={item.id}>
-                    <ArticleCard item={item} base={config.base} />
-                  </li>
-                ))}
-              </ul>
-            )}
-            <Pager
-              page={page}
-              perPage={PER_PAGE}
-              total={total}
-              noun={config.noun}
-              onPage={(next) => update({ page: String(next) })}
-            />
-          </>
-        )}
-      </PortalSection>
+      </HeroPanel>
+      <SiteSection className="pt-12 lg:pt-16">{body}</SiteSection>
     </>
   )
 }
 
+// Artikel terbaru: kartu lebar. Judul dan "Baca selengkapnya" sama-sama tautan (tanpa
+// lapisan yang menutupi seluruh kartu, agar baris ayat tidak tertutup); sampul dan tautan
+// kedua tidak masuk urutan Tab.
 function FeaturedArticle({ item, base }: { item: PublicContent; base: string }) {
   const verse = verseOf(item)
+  const teaser = teaserOf(item)
+  const to = `${base}/${item.slug}`
   return (
-    <PortalCard
+    <Reveal
       as="article"
-      className="relative grid overflow-hidden transition-shadow hover:shadow-md lg:grid-cols-2"
+      aria-labelledby={`judul-${item.id}`}
+      className="group grid overflow-hidden rounded-3xl bg-site-paper lg:grid-cols-2"
+    >
+      {item.thumbnail_url && (
+        <Link to={to} tabIndex={-1} aria-hidden="true">
+          <img
+            src={item.thumbnail_url}
+            alt=""
+            decoding="async"
+            className="aspect-[16/10] w-full object-cover lg:aspect-auto lg:h-full lg:max-h-[30rem]"
+          />
+        </Link>
+      )}
+      <div
+        className={cn(
+          'grid content-center gap-5 p-6 md:p-10',
+          !item.thumbnail_url && 'lg:col-span-2 lg:max-w-[860px]',
+        )}
+      >
+        <TwoToneHeading
+          as="h2"
+          id={`judul-${item.id}`}
+          size="card"
+          className="text-2xl"
+          lead={
+            <Link
+              to={to}
+              className="rounded-sm decoration-2 underline-offset-8 outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring"
+            >
+              {item.title}
+            </Link>
+          }
+        />
+        {verse && (
+          <AccentLine size="card" className="text-2xl">
+            {verse}
+          </AccentLine>
+        )}
+        <p className="inline-flex items-center gap-2 text-sm font-medium text-site-muted">
+          <span aria-hidden="true" className="size-1.5 rounded-full bg-site-accent" />
+          Terbaru · {publishedDate(item.published_at)}
+        </p>
+        {teaser && (
+          <p className="line-clamp-3 max-w-[65ch] text-lg leading-relaxed text-site-ink/80">
+            {teaser}
+          </p>
+        )}
+        <Link
+          to={to}
+          tabIndex={-1}
+          aria-hidden="true"
+          className="w-fit text-base font-semibold hover:underline"
+        >
+          Baca selengkapnya <span>→</span>
+        </Link>
+      </div>
+    </Reveal>
+  )
+}
+
+// `className` mengganti latar kartu, mis. kanvas di atas seksi putih tulang.
+function ArticleCard({
+  item,
+  base,
+  className,
+}: {
+  item: PublicContent
+  base: string
+  className?: string
+}) {
+  const verse = verseOf(item)
+  const teaser = teaserOf(item)
+  return (
+    <article
+      className={cn(
+        'group relative flex h-full flex-col gap-4 rounded-3xl bg-site-paper p-4 md:p-5',
+        className,
+      )}
     >
       {item.thumbnail_url && (
         <img
           src={item.thumbnail_url}
           alt=""
-          className="h-56 w-full object-cover lg:h-full lg:max-h-[22rem]"
+          loading="lazy"
+          decoding="async"
+          className="aspect-[16/10] w-full rounded-2xl object-cover"
         />
       )}
-      <div
-        className={cn(
-          'grid content-center gap-3 p-6 lg:p-8',
-          !item.thumbnail_url && 'lg:col-span-2',
-        )}
-      >
-        <span className="text-xs font-bold tracking-wider text-portal-amber uppercase">
-          Terbaru · {publishedDate(item.published_at)}
-        </span>
-        <h2 className="font-portal-heading text-2xl leading-8 font-bold text-portal-navy sm:text-[2rem] sm:leading-10">
+      <div className="flex flex-1 flex-col gap-2 px-1 pb-1">
+        <h3 className="font-site-display text-xl leading-snug font-bold">
           <Link
             to={`${base}/${item.slug}`}
-            className="after:absolute after:inset-0 hover:underline"
-          >
-            {item.title}
-          </Link>
-        </h2>
-        {verse && <p className="font-semibold text-portal-ink">{verse}</p>}
-        {teaserOf(item) && (
-          <p className="line-clamp-3 max-w-[70ch] text-portal-muted">{teaserOf(item)}</p>
-        )}
-        <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-portal-navy">
-          Baca selengkapnya
-          <ArrowRight className="size-4" aria-hidden="true" />
-        </span>
-      </div>
-    </PortalCard>
-  )
-}
-
-function ArticleCard({ item, base }: { item: PublicContent; base: string }) {
-  const verse = verseOf(item)
-  return (
-    <PortalCard
-      as="article"
-      className="relative flex h-full flex-col overflow-hidden transition-shadow hover:shadow-md"
-    >
-      {item.thumbnail_url && (
-        <img src={item.thumbnail_url} alt="" loading="lazy" className="h-44 w-full object-cover" />
-      )}
-      <div className="flex flex-1 flex-col gap-2 p-5">
-        <span className="text-xs font-semibold text-portal-amber">
-          {publishedDate(item.published_at)}
-          {verse && ` · ${verse}`}
-        </span>
-        <h3 className="font-portal-heading text-xl leading-7 font-semibold text-portal-navy">
-          <Link
-            to={`${base}/${item.slug}`}
-            className="after:absolute after:inset-0 hover:underline"
+            className="rounded-sm underline-offset-4 outline-none group-hover:underline after:absolute after:inset-0 after:rounded-3xl focus-visible:ring-3 focus-visible:ring-ring"
           >
             {item.title}
           </Link>
         </h3>
-        {teaserOf(item) && (
-          <p className="line-clamp-3 text-sm text-portal-muted">{teaserOf(item)}</p>
-        )}
-        <span className="mt-auto inline-flex items-center gap-1.5 pt-2 text-sm font-semibold text-portal-navy">
-          Baca
-          <ArrowRight className="size-4" aria-hidden="true" />
+        <p className="text-sm font-medium text-site-muted">
+          {publishedDate(item.published_at)}
+          {verse && ` · ${verse}`}
+        </p>
+        {teaser && <p className="line-clamp-3 text-base text-site-ink/80">{teaser}</p>}
+        <span className="mt-auto pt-2 text-base font-semibold">
+          Baca <span aria-hidden="true">→</span>
         </span>
       </div>
-    </PortalCard>
+    </article>
   )
 }
+
+// ---------- Baca
 
 function ArticleDetail({ kind }: { kind: ArticleKind }) {
   const config = KINDS[kind]
@@ -282,9 +332,16 @@ function ArticleDetail({ kind }: { kind: ArticleKind }) {
   const loaded = article.data?.content
   const content = loaded && loaded.slug === slug.toLowerCase() ? loaded : undefined
 
-  // Judul tab mengikuti judul artikel.
+  // Judul tab mengikuti judul artikel, lalu kembali ke judul halaman saat artikel
+  // ditinggalkan (judul rute /renungan dan /renungan/:slug sama, jadi RootLayout tidak
+  // memasangnya ulang).
   useEffect(() => {
-    if (content) document.title = `${content.title} · GMIT Lahairoi Tuak Sabu Lasiana`
+    if (!content) return
+    const previous = document.title
+    document.title = `${content.title} · ${SITE_NAME}`
+    return () => {
+      document.title = previous
+    }
   }, [content])
 
   if (content && content.category !== kind) {
@@ -292,36 +349,40 @@ function ArticleDetail({ kind }: { kind: ArticleKind }) {
   }
 
   const back = (
-    <Link
-      to={config.base}
-      className="inline-flex w-fit items-center gap-1.5 text-sm font-semibold text-portal-navy hover:underline"
-    >
-      <ArrowLeft className="size-4" aria-hidden="true" />
+    <PillLink to={config.base} tone="outline" size="sm">
+      <ArrowLeft aria-hidden="true" />
       Semua {config.noun}
-    </Link>
+    </PillLink>
   )
 
   if (article.error && !content) {
     return (
-      <PortalSection tone="low" className="py-16">
-        {back}
-        <h1 className="font-portal-heading text-3xl font-bold text-portal-navy">
-          {config.noun.charAt(0).toUpperCase() + config.noun.slice(1)} tidak ditemukan
-        </h1>
-        <p className="text-portal-muted">
-          Tautan ini mungkin salah, atau {config.noun} ini belum atau tidak lagi diterbitkan.
-        </p>
-      </PortalSection>
+      <SiteSection labelledBy="judul-baca" className="pt-8 lg:pt-12">
+        <div className="mx-auto grid max-w-[1040px] justify-items-start gap-6">
+          <h1
+            id="judul-baca"
+            className="font-site-display text-[32px] leading-tight font-extrabold tracking-tight md:text-5xl"
+          >
+            {config.noun.charAt(0).toUpperCase() + config.noun.slice(1)} tidak ditemukan
+          </h1>
+          <p className="text-lg text-site-ink/80">
+            Tautan ini mungkin salah, atau {config.noun} ini belum atau tidak lagi diterbitkan.
+          </p>
+          {back}
+        </div>
+      </SiteSection>
     )
   }
 
   if (!content) {
     return (
-      <PortalSection tone="low" className="py-12">
-        {back}
-        <Skeleton className="h-12 w-2/3 rounded-lg" />
-        <Skeleton className="h-80 rounded-xl" />
-      </PortalSection>
+      <SiteSection className="pt-8 lg:pt-12">
+        <div aria-hidden="true" className="mx-auto grid max-w-[1040px] gap-6">
+          <div className="h-9 w-40 animate-pulse rounded-full bg-site-paper" />
+          <div className="h-14 w-2/3 animate-pulse rounded-2xl bg-site-paper" />
+          <div className="h-80 animate-pulse rounded-3xl bg-site-paper" />
+        </div>
+      </SiteSection>
     )
   }
 
@@ -343,56 +404,49 @@ function ArticleDetail({ kind }: { kind: ArticleKind }) {
   }
 
   return (
-    <article aria-labelledby="judul-baca">
-      <header className="bg-portal-low px-4 py-10 lg:px-8">
-        <div className="mx-auto grid max-w-3xl gap-4">
-          {back}
-          <span className="text-xs font-bold tracking-wider text-portal-amber uppercase">
-            {config.title} · {publishedDate(content.published_at)}
-          </span>
-          <h1
-            id="judul-baca"
-            className="font-portal-heading text-3xl leading-tight font-bold text-balance text-portal-navy sm:text-[2.5rem] sm:leading-[3rem]"
-          >
-            {content.title}
-          </h1>
-          {verse && (
-            <p className="w-fit rounded-lg bg-white px-4 py-2 font-semibold text-portal-ink shadow-sm">
-              {verse}
-            </p>
-          )}
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-sm text-portal-muted">
-              Oleh{' '}
-              <span className="font-semibold text-portal-ink">
-                {content.author_name ?? 'Majelis Jemaat'}
-              </span>
-            </p>
-            <button
-              type="button"
-              onClick={() => void share()}
-              className="inline-flex items-center gap-1.5 text-sm font-semibold text-portal-navy hover:underline"
+    <>
+      <article aria-labelledby="judul-baca" className="px-6 pt-8 pb-20 lg:pt-12 lg:pb-[120px]">
+        <div className="mx-auto grid max-w-[1040px] gap-8">
+          <header className="grid gap-6">
+            <h1
+              id="judul-baca"
+              className="font-site-display text-[28px] leading-[1.05] font-extrabold tracking-[-0.03em] text-balance sm:text-5xl lg:text-[68px]"
             >
-              <Share2 className="size-4" aria-hidden="true" />
-              Bagikan
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <div className="px-4 py-10 lg:px-8">
-        <div className="mx-auto grid max-w-3xl gap-6">
+              {content.title}
+            </h1>
+            {verse && (
+              <AccentLine size="card" className="text-[26px] sm:text-4xl lg:text-5xl">
+                {verse}
+              </AccentLine>
+            )}
+            <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
+              <p className="text-base text-site-muted">
+                {config.title} · {publishedDate(content.published_at)} · Oleh{' '}
+                <span className="font-semibold text-site-ink">
+                  {content.author_name ?? 'Majelis Jemaat'}
+                </span>
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {back}
+                <PillButton tone="dark" size="sm" onClick={() => void share()}>
+                  <Share2 aria-hidden="true" />
+                  Bagikan
+                </PillButton>
+              </div>
+            </div>
+          </header>
           {content.thumbnail_url && (
             <img
               src={content.thumbnail_url}
               alt=""
-              className="max-h-[28rem] w-full rounded-xl object-cover"
+              decoding="async"
+              className="max-h-[28rem] w-full rounded-3xl object-cover"
             />
           )}
           {!verse && content.summary && (
-            <p className="text-xl leading-8 font-medium text-portal-ink">{content.summary}</p>
+            <p className="max-w-[60ch] text-xl leading-relaxed font-medium">{content.summary}</p>
           )}
-          <div className="grid gap-5 text-lg leading-8 text-portal-ink">
+          <div className="grid max-w-[65ch] gap-6 text-lg leading-relaxed">
             {paragraphs(content.content_body).map((paragraph, index) => (
               <p key={index} className="whitespace-pre-line">
                 {paragraph}
@@ -400,44 +454,39 @@ function ArticleDetail({ kind }: { kind: ArticleKind }) {
             ))}
           </div>
           {content.attachment_url && (
-            <a
-              href={content.attachment_url}
+            <PillLink
+              to={content.attachment_url}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex w-fit items-center gap-1.5 rounded-lg bg-portal-mid px-4 py-2.5 text-sm font-semibold text-portal-navy hover:bg-portal-high"
+              tone="outline"
+              className="w-fit"
             >
-              <Download className="size-4" aria-hidden="true" />
+              <Download aria-hidden="true" />
               {isPdf(content.attachment_url) ? 'Buka lampiran PDF' : 'Buka lampiran'}
-            </a>
+            </PillLink>
           )}
         </div>
-      </div>
+      </article>
 
       {moreItems.length > 0 && (
-        <PortalSection tone="low" labelledBy="judul-lainnya">
-          <div className="flex items-end justify-between gap-3">
-            <h2
-              id="judul-lainnya"
-              className="font-portal-heading text-2xl font-bold text-portal-navy"
-            >
-              {config.more}
-            </h2>
-            <Link
-              to={config.base}
-              className="text-sm font-semibold text-portal-navy underline underline-offset-4"
-            >
+        <SiteSection tone="paper" labelledBy="judul-lainnya">
+          <div className="flex flex-wrap items-end justify-between gap-6">
+            <Reveal>
+              <TwoToneHeading id="judul-lainnya" size="card" lead={config.more} />
+            </Reveal>
+            <PillLink to={config.base} tone="outline" size="sm" arrow>
               Semua {config.noun}
-            </Link>
+            </PillLink>
           </div>
-          <ul className="grid gap-4 md:grid-cols-3">
+          <ul className="mt-10 grid gap-6 md:grid-cols-3">
             {moreItems.map((item) => (
-              <li key={item.id}>
-                <ArticleCard item={item} base={config.base} />
-              </li>
+              <Reveal as="li" key={item.id}>
+                <ArticleCard item={item} base={config.base} className="bg-site-canvas" />
+              </Reveal>
             ))}
           </ul>
-        </PortalSection>
+        </SiteSection>
       )}
-    </article>
+    </>
   )
 }
