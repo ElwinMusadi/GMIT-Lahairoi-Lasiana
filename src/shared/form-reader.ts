@@ -32,15 +32,26 @@ export function createReader(body: Body, mode: Mode) {
         required?: boolean
         normalize?: (value: string) => string
         pattern?: [RegExp, string]
+        // Teks panjang (mis. isi renungan): baris dan paragraf dipertahankan.
+        multiline?: boolean
       },
     ) {
-      const { max, required = false, normalize, pattern } = options
+      const { max, required = false, normalize, pattern, multiline = false } = options
       if (!wanted(key, required)) return
       const raw = body[key]
       if (raw !== null && raw !== undefined && typeof raw !== 'string') {
         return fail(key, `${label} harus berupa teks.`)
       }
-      const cleaned = typeof raw === 'string' ? raw.trim().replace(/\s+/g, ' ') : ''
+      const cleaned =
+        typeof raw !== 'string'
+          ? ''
+          : multiline
+            ? raw
+                .replace(/\r\n?/g, '\n')
+                .replace(/[ \t]+$/gm, '')
+                .replace(/\n{3,}/g, '\n\n')
+                .trim()
+            : raw.trim().replace(/\s+/g, ' ')
       if (!cleaned) {
         if (required) return fail(key, `${label} wajib diisi.`)
         input[key] = null

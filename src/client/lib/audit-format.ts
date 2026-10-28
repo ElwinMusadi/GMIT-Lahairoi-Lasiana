@@ -2,6 +2,7 @@ import { formatRupiah } from '@shared/finance'
 import {
   BUDGET_TYPE_LABELS,
   CATEGORICAL_GROUP_LABELS,
+  CONTENT_CATEGORY_LABELS,
   FAMILY_RELATION_LABELS,
   GENDER_LABELS,
   MARRIAGE_STATUS_LABELS,
@@ -10,7 +11,7 @@ import {
   TRANSACTION_TYPE_LABELS,
   type AuditLogItem,
 } from '@shared/types'
-import { formatDate } from './format'
+import { formatDate, formatTime } from './format'
 
 // Menerjemahkan baris audit_logs menjadi kalimat untuk Log Aktivitas, mis.
 // "Menonaktifkan akun Yohanis Dimu" dengan rincian "Peran: Majelis → Pendeta".
@@ -89,6 +90,15 @@ const FIELD_LABELS: Record<string, string> = {
   transaction_date: 'Tanggal',
   amount: 'Nominal',
   receipt_url: 'Bukti kuitansi',
+  category: 'Kategori',
+  title: 'Judul',
+  slug: 'Alamat',
+  summary: 'Ringkasan',
+  content_body: 'Isi',
+  attachment_url: 'Lampiran',
+  thumbnail_url: 'Gambar',
+  published_at: 'Waktu terbit',
+  is_published: 'Status terbit',
 }
 
 // Field yang sudah tersebut lewat label entitas di kalimat ringkasan.
@@ -102,6 +112,8 @@ const LABEL_FIELDS = new Set([
   'account_name',
   'fiscal_year',
   'amount',
+  'title',
+  'category',
 ])
 
 // Kode tersimpan → sebutannya, per jenis data.
@@ -116,6 +128,7 @@ const VALUE_LABELS: Record<string, Record<string, Record<string, string>>> = {
   },
   finance_budgets: { type: BUDGET_TYPE_LABELS },
   finance_transactions: { type: TRANSACTION_TYPE_LABELS },
+  public_contents: { category: CONTENT_CATEGORY_LABELS },
 }
 
 export type AuditDescription = {
@@ -217,7 +230,15 @@ function formatValue(entity: string, field: string, value: unknown): string {
   if ((field === 'amount' || field === 'target_amount') && typeof value === 'number') {
     return formatRupiah(value)
   }
-  if (field === 'receipt_url') return 'terlampir'
+  if (field === 'receipt_url' || field === 'attachment_url' || field === 'thumbnail_url') {
+    return 'terlampir'
+  }
+  if (field === 'is_published') return value ? 'Terbit' : 'Draf'
+  if (field === 'published_at' && typeof value === 'string') {
+    // Kolom D1 berformat UTC 'YYYY-MM-DD HH:MM:SS'.
+    const iso = `${value.replace(' ', 'T')}Z`
+    return `${formatDate(iso)} ${formatTime(iso)}`
+  }
   if (field.endsWith('_date') && typeof value === 'string') return formatDate(value)
   if (typeof value === 'boolean') return value ? 'Ya' : 'Tidak'
   return String(value)

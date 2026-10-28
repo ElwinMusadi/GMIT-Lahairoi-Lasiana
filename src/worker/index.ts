@@ -6,6 +6,7 @@ import { secureHeaders } from 'hono/secure-headers'
 import type { ApiErrorBody } from '../shared/types'
 import auditLogs from './routes/audit-logs'
 import auth from './routes/auth'
+import contents from './routes/contents'
 import families from './routes/families'
 import files from './routes/files'
 import financeBudgets from './routes/finance-budgets'
@@ -14,6 +15,7 @@ import financeReports from './routes/finance-reports'
 import financeTransactions from './routes/finance-transactions'
 import health from './routes/health'
 import members from './routes/members'
+import publicRoutes from './routes/public'
 import rayons from './routes/rayons'
 import uploads from './routes/uploads'
 import users from './routes/users'
@@ -27,8 +29,9 @@ app.use(secureHeaders())
 // cookie SameSite=Lax, ini mencegah CSRF terhadap sesi pengurus.
 app.use(csrf())
 
-// Publik (rayons: daftar publik, perubahan khusus Admin)
+// Publik (rayons: daftar publik, perubahan khusus Admin; public: Portal Publik)
 app.route('/health', health)
+app.route('/public', publicRoutes)
 app.route('/rayons', rayons)
 app.route('/files', files)
 app.route('/auth', auth)
@@ -39,6 +42,7 @@ app.route('/users', users)
 app.route('/audit-logs', auditLogs)
 app.route('/families', families)
 app.route('/members', members)
+app.route('/contents', contents)
 app.route('/finance/funds', financeFunds)
 app.route('/finance/budgets', financeBudgets)
 app.route('/finance/transactions', financeTransactions)

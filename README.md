@@ -45,7 +45,7 @@ Proyek ini berbentuk **full-stack dalam satu paket**. `@cloudflare/vite-plugin` 
 │   ├── worker/                 # API Hono (Cloudflare Worker)
 │   │   ├── routes/             # Satu file per grup endpoint
 │   │   ├── middleware/         # requireAuth, requireRole (RBAC)
-│   │   ├── lib/                # Hash kata sandi, sesi, log aktivitas, pembaca request, data jemaat, keuangan
+│   │   ├── lib/                # Hash kata sandi, sesi, log aktivitas, pembaca request, data jemaat, keuangan, konten portal
 │   │   ├── types.ts            # Tipe env Hono (Bindings, Variables)
 │   │   └── index.ts            # Entry Worker, basePath /api
 │   └── shared/                 # Tipe, aturan validasi, format impor/ekspor & penulis CSV/XLSX (client & worker)
@@ -484,6 +484,32 @@ Halaman ada di [src/client/pages/dashboard](src/client/pages/dashboard) (`Financ
 - **Cetak laporan** memanggil dialog cetak browser; pilih "Simpan sebagai PDF" untuk berkas lampiran. Judul tab diganti sementara agar nama berkasnya jelas, mis. "Laporan Keuangan Mingguan 25 Okt – 31 Okt 2026".
   - `@media print` di [index.css](src/client/index.css) menyembunyikan sidebar dan notifikasi; topbar, judul halaman, dan kontrol memakai `print:hidden`. Kertas A4, margin 16 × 14 mm, teks 10 pt.
 
+## Konten Portal Publik (CMS)
+
+Rute: [contents.ts](src/worker/routes/contents.ts) (CMS, perlu login) dan [public.ts](src/worker/routes/public.ts) (`/api/public/*`, tanpa login). Aturan data bersama ada di [src/shared/contents.ts](src/shared/contents.ts); tabelnya `public_contents` (migrasi 0005).
+
+- **Kategori**: `WARTA` (Warta Jemaat), `DEVOTIONAL` (Renungan), `NEWS` (Berita), `MEDIA`, `PROFILE` (Profil Jemaat), dan `PAYMENT_INFO` (Info Persembahan).
+- **Hak akses CMS.** Admin mengelola semua konten. Pendeta hanya menulis Renungan, dan hanya melihat, mengubah, atau menghapus renungan miliknya sendiri. Bendahara dan Majelis mendapat `403`. Setiap tambah, ubah, dan hapus tercatat di Log Aktivitas; isi artikel dicatat sebagai panjang dan sidik jarinya saja, bukan teks utuh.
+- **Status.** Konten baru berupa draf (`is_published: false`).
+  - Konten tampil di portal bila `is_published` dan `published_at` sudah lewat. `published_at` di masa depan berarti terjadwal (`status: SCHEDULED`).
+  - Menerbitkan tanpa `published_at` mengisinya dengan waktu sekarang. `published_at` menerima `YYYY-MM-DD` (pukul 00.00 WITA) atau ISO 8601 dengan zona waktu; respons selalu ISO UTC.
+  - Draf boleh belum lengkap. Saat diterbitkan: Warta wajib melampirkan PDF dari folder `warta`; Renungan, Berita, dan Profil wajib berisi; Media wajib punya foto atau tautan video; Info Persembahan wajib punya nomor rekening atau gambar QRIS.
+- **Alamat (`slug`)** dibuat dari judul bila tidak diisi; bila sudah dipakai, diberi nomor (`renungan-pagi-2`). Mengubah judul tidak mengubah alamat, agar tautan yang sudah dibagikan tetap berlaku. Kirim `slug: null` untuk membuat ulang alamat dari judul.
+- **Isi** berupa teks biasa; paragraf dipisah baris kosong. Baris dipertahankan, CRLF menjadi LF, dan baris kosong berlebih dirapikan. Maksimal 50.000 karakter.
+- **Berkas.** `attachment_url` berasal dari folder publik `warta`, `konten`, `media`, atau `liturgi` (unggah dulu lewat `POST /api/uploads`), atau tautan `https`. `thumbnail_url` adalah foto dari folder `konten` atau `media`. Menghapus konten tidak menghapus berkasnya di R2.
+- **Info Persembahan**: judul = bank dan keperluan, `summary` = nomor rekening (yang disalin pengunjung), `content_body` = atas nama dan catatan, `thumbnail_url` = gambar QRIS.
+
+**Portal (tanpa login).** Respons memakai `Cache-Control: public, max-age=60`.
+
+- `GET /api/public/home`:
+  - `upcoming_worships`: 6 jadwal ibadah publik (`is_public`) terdekat mulai hari ini (WITA), urut tanggal dan jam, beserta rayon dan Pelayan Firman.
+  - `latest_warta`: warta terbaru beserta PDF-nya.
+  - `devotional`: renungan bertanggal hari ini (`is_today: true`), atau renungan terakhir bila belum ada.
+  - `latest_news`: 3 berita terbaru.
+  - `payment_info`: seluruh rekening dan QRIS, beserta catatannya.
+- `GET /api/public/contents?category=&q=&page=&per_page=`: daftar tanpa isi lengkap. Bila ringkasan kosong, `summary` berisi cuplikan awal isi. Profil dan Info Persembahan urut sesuai waktu dibuat; kategori lain terbaru dulu.
+- `GET /api/public/contents/:slug`: satu konten lengkap; `404` untuk draf dan konten terjadwal.
+
 ## Unggah berkas
 
 Berkas (PDF warta, kuitansi, foto, berkas sakramen) disimpan di **Cloudflare R2**, bukan sebagai base64 di D1, karena baris D1 terlalu kecil untuk PDF.
@@ -643,6 +669,14 @@ Komponen akan ditulis ke `src/client/components/ui/`. Preset yang dipakai: `radi
 | PUT    | `/api/finance/transactions/:id` | Bendahara, Admin | Ubah transaksi (PATCH juga diterima) |
 | DELETE | `/api/finance/transactions/:id` | Bendahara, Admin | Hapus transaksi; saldo dikembalikan |
 | GET    | `/api/finance/reports/summary` | Semua pengurus | Laporan per Pos Kas: saldo awal, rincian kas masuk/keluar, saldo akhir |
+| GET    | `/api/public/home` | Publik | Beranda portal: jadwal ibadah terdekat, warta terbaru, renungan hari ini, berita, rekening/QRIS |
+| GET    | `/api/public/contents` | Publik | Konten terbit per kategori, dengan pencarian dan paging |
+| GET    | `/api/public/contents/:slug` | Publik | Satu konten terbit lengkap |
+| GET    | `/api/contents` | Admin, Pendeta | Daftar CMS termasuk draf dan terjadwal (Pendeta: renungannya) |
+| GET    | `/api/contents/:id` | Admin, Pendeta | Satu konten untuk diubah |
+| POST   | `/api/contents` | Admin, Pendeta | Tambah konten (Pendeta: Renungan) |
+| PUT    | `/api/contents/:id` | Admin, Pendeta | Ubah konten (PATCH juga diterima) |
+| DELETE | `/api/contents/:id` | Admin, Pendeta | Hapus konten |
 | POST   | `/api/uploads`     | Login + peran folder | Unggah berkas ke R2 (`multipart`: `file`, `folder`) |
 | GET    | `/api/files/*`     | Publik / Login | Ambil berkas dari R2 (mendukung ETag / `304`)     |
 

@@ -340,6 +340,125 @@ export type FinanceReportSummary = {
   }
 }
 
+// Konten Portal Publik (tabel public_contents).
+export const CONTENT_CATEGORIES = [
+  'WARTA',
+  'DEVOTIONAL',
+  'NEWS',
+  'MEDIA',
+  'PROFILE',
+  'PAYMENT_INFO',
+] as const
+export type ContentCategory = (typeof CONTENT_CATEGORIES)[number]
+
+export const CONTENT_CATEGORY_LABELS: Record<ContentCategory, string> = {
+  WARTA: 'Warta Jemaat',
+  DEVOTIONAL: 'Renungan',
+  NEWS: 'Berita',
+  MEDIA: 'Media',
+  PROFILE: 'Profil Jemaat',
+  PAYMENT_INFO: 'Info Persembahan',
+}
+
+// DRAFT: belum diterbitkan. SCHEDULED: diterbitkan dengan waktu terbit di masa depan,
+// tampil di portal mulai waktu itu. PUBLISHED: tampil di portal.
+export type ContentStatus = 'DRAFT' | 'SCHEDULED' | 'PUBLISHED'
+
+// Konten di CMS dashboard, termasuk draf. Waktu dalam ISO 8601 UTC.
+export type ContentItem = {
+  id: number
+  category: ContentCategory
+  title: string
+  slug: string
+  summary: string | null
+  // Teks biasa; paragraf dipisah baris kosong.
+  content_body: string | null
+  // PDF/gambar yang diunggah ke folder publik (/api/files/warta|konten|media|liturgi/…)
+  // atau tautan https (mis. video dokumentasi).
+  attachment_url: string | null
+  // Gambar sampul, foto galeri, atau gambar QRIS (/api/files/konten|media/…).
+  thumbnail_url: string | null
+  published_at: string | null
+  is_published: boolean
+  status: ContentStatus
+  author_id: number | null
+  author_name: string | null
+  created_at: string
+  updated_at: string
+}
+
+// Daftar CMS tanpa isi lengkap.
+export type ContentListItem = Omit<ContentItem, 'content_body'>
+
+export type ContentRequest = {
+  category: ContentCategory
+  title: string
+  // Kosong: dibuat dari judul. Setelah dibuat, alamat hanya berubah bila dikirim.
+  slug?: string | null
+  summary?: string | null
+  content_body?: string | null
+  attachment_url?: string | null
+  thumbnail_url?: string | null
+  // YYYY-MM-DD (pukul 00.00 WITA) atau ISO 8601 dengan zona waktu. Kosong saat
+  // diterbitkan: sekarang.
+  published_at?: string | null
+  is_published?: boolean
+}
+
+export type ContentResponse = { content: ContentItem }
+
+// Konten yang tampil di portal. content_body hanya pada GET /api/public/contents/:slug
+// (dan info persembahan di beranda).
+export type PublicContent = {
+  id: number
+  category: ContentCategory
+  title: string
+  slug: string
+  summary: string | null
+  content_body?: string | null
+  attachment_url: string | null
+  thumbnail_url: string | null
+  published_at: string
+  author_name: string | null
+}
+
+export const WORSHIP_CATEGORY_LABELS = {
+  SUNDAY_SERVICE: 'Kebaktian Minggu',
+  RAYON: 'Ibadah Rayon',
+  CATEGORICAL: 'Ibadah Kategorial',
+  SPECIAL: 'Ibadah Khusus',
+} as const
+export type WorshipCategory = keyof typeof WORSHIP_CATEGORY_LABELS
+
+// Jadwal ibadah publik (is_public = 1) untuk Papan Jadwal Ibadah.
+export type PublicWorship = {
+  id: number
+  title: string
+  category: WorshipCategory
+  rayon_name: string | null
+  worship_date: string
+  worship_time: string | null
+  location: string | null
+  theme: string | null
+  bible_reading: string | null
+  liturgy_file_url: string | null
+  // Pelayan Firman, bila sudah ditetapkan.
+  preacher: string | null
+}
+
+// GET /api/public/home: ringkasan Beranda Portal Publik.
+export type PublicHome = {
+  // Tanggal hari ini (WITA) yang dipakai untuk jadwal terdekat dan renungan.
+  today: string
+  upcoming_worships: PublicWorship[]
+  latest_warta: PublicContent | null
+  // Renungan bertanggal hari ini; bila belum ada, renungan terakhir (is_today false).
+  devotional: (PublicContent & { is_today: boolean }) | null
+  latest_news: PublicContent[]
+  // Rekening dan QRIS, dengan content_body (atas nama, catatan).
+  payment_info: PublicContent[]
+}
+
 // POST /api/members/import (khusus Admin). Berkas dibaca di browser; setiap baris
 // dikirim dengan judul kolom yang sudah dicocokkan (lihat src/shared/member-import.ts).
 // dry_run: true hanya memeriksa (pratinjau); false menyimpan baris yang siap.
