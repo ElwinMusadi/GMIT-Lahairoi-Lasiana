@@ -88,7 +88,7 @@ Buka `/` untuk Portal Publik dan `/dashboard` untuk dashboard pengurus.
 | `/media`             | `PublicLayout`    | Galeri Kegiatan: foto dan video dokumentasi, dibuka dalam jendela galeri |
 | `/layanan-sakramen`  | `PublicLayout`    | Layanan Sakramen: Cek Status dengan kode registrasi, formulir Baptisan/Sidi/Nikah bertab (`?layanan=baptis\|sidi\|nikah`) dengan unggah berkas syarat |
 | `/login`             | berdiri sendiri   | Masuk pengurus                                                    |
-| `/dashboard`         | `DashboardLayout` | Ringkasan: modul per peran, rayon, status sistem, dan aktivitas terbaru (Admin) |
+| `/dashboard`         | `DashboardLayout` | Ringkasan (Dashboard Eksekutif): 4 metrik utama, demografi per rayon & kategorial, ulang tahun minggu/bulan ini, arus kas & saldo Pos Kas, tren kehadiran; filter tahun & bulan (`?year=&month_from=&month_to=&ibadah=`); aktivitas terbaru (Admin) |
 | `/dashboard/members` | `DashboardLayout` | Anggota Jemaat (Admin, Pendeta, Majelis): cari, filter kombinasi di URL, profil lengkap, ekspor |
 | `/dashboard/members/import` | `DashboardLayout` | Impor data jemaat dari Excel/CSV dengan pratinjau validasi (Admin) |
 | `/dashboard/families` | `DashboardLayout` | Kartu Keluarga per rayon; KK baru langsung dibuka untuk diisi anggotanya |
@@ -863,6 +863,40 @@ Contoh:
 ```bash
 curl -b cookies.txt "http://localhost:5173/api/analytics/dashboard?year=2026&month_from=1&month_to=6"
 ```
+
+**Di dashboard** (`/dashboard`, [OverviewPage.tsx](src/client/pages/dashboard/OverviewPage.tsx), komponen di [src/client/components/analytics](src/client/components/analytics)):
+
+- **Header**:
+  - status sistem (API dan D1);
+  - waktu data diperbarui;
+  - tombol muat ulang.
+- **4 metrik**:
+  - Total jiwa;
+  - Total KK;
+  - Saldo kas total;
+  - Kehadiran Minggu terakhir, dengan selisihnya dari Minggu sebelumnya.
+
+  Di ponsel keempatnya menjadi daftar: label di kiri, angka di kanan.
+- **Jemaat** (keadaan hari ini):
+  - batang jiwa per rayon, dengan jumlah KK;
+  - kelompok kategorial, dengan persentasenya;
+  - meter cakupan baptis dan sidi.
+- **Ulang Tahun Jemaat Minggu Ini**:
+  - nama, rayon, tanggal lahir, hari ulang tahun, dan usia yang dicapai, dengan penanda "Hari ini";
+  - tab **Bulan ini**;
+  - tombol **Salin untuk warta**, yang menyalin daftar siap tempel.
+
+  Widget ini tidak tampil untuk Bendahara.
+- **Keuangan & kehadiran**: satu baris filter (tahun anggaran, bulan awal s.d. akhir) berlaku untuk semua blok di bawahnya. Bulan setelah bulan berjalan tidak bisa dipilih untuk tahun ini.
+  - **Kas masuk dan keluar per bulan**: kolom berpasangan. Kas masuk memakai warna utama (crimson), kas keluar abu-abu pembanding. Legendanya ikut membawa total periode dan selisih. Di bawahnya ada realisasi RAPBJ, dengan garis tegak untuk bagian tahun yang sudah berjalan.
+  - **Saldo per Pos Kas**: saldo pada akhir periode, porsinya, serta kas masuk dan keluar per Pos Kas di periode itu.
+  - **Tren kehadiran ibadah**:
+    - garis rata-rata kehadiran per ibadah per minggu (Minggu s.d. Sabtu) untuk satu jenis ibadah (bawaannya Kebaktian Minggu);
+    - minggu tanpa data memutus garis, tidak dihitung nol.
+- **Grafik**:
+  - Arahkan kursor, atau fokuskan grafik lalu tekan panah kiri/kanan, Home, atau End, untuk melihat tooltip tiap bulan atau minggu.
+  - Tombol **Tabel** menampilkan angka yang sama sebagai tabel.
+  - Saat filter diganti, grafik lama tetap tampil, sedikit pudar, sampai data baru tiba.
 
 ## Unggah berkas
 

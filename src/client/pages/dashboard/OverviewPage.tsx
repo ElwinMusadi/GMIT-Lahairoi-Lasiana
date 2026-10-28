@@ -1,185 +1,547 @@
-import { useEffect, useState } from 'react'
-import { ChevronRight, RefreshCw } from 'lucide-react'
+import { useEffect, useState, type ReactNode } from 'react'
+import { RefreshCw } from 'lucide-react'
 import { Link } from 'react-router'
+import { MIN_ANALYTICS_YEAR } from '@shared/analytics'
+import { witaToday } from '@shared/dates'
+import { formatRupiah } from '@shared/finance'
 import {
   ROLE_LABELS,
-  type ApiList,
+  WORSHIP_CATEGORIES,
+  WORSHIP_CATEGORY_LABELS,
+  type AnalyticsDashboard,
+  type AnalyticsSummary,
   type ApiPage,
   type AuditLogItem,
   type HealthStatus,
-  type Rayon,
+  type WorshipCategory,
 } from '@shared/types'
+import { AttendanceChart } from '@/components/analytics/attendance-chart'
+import { BirthdayCard } from '@/components/analytics/birthday-card'
+import { CashFlowChart, EXPENSE_COLOR, INCOME_COLOR } from '@/components/analytics/cash-flow-chart'
+import { ChartCard, DataTable, LegendItem } from '@/components/analytics/chart-card'
+import { CategoricalBars, RayonBars, SacramentCoverage } from '@/components/analytics/demographics'
+import { BudgetRealization, FundBalances } from '@/components/analytics/funds-panel'
 import { Can } from '@/components/session-provider'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { api, errorMessage } from '@/lib/api'
+import { errorMessage } from '@/lib/api'
 import { describeAudit } from '@/lib/audit-format'
-import { formatRecent } from '@/lib/format'
-import { dashboardPath, modulesForRole } from '@/lib/navigation'
+import { formatLongDate, formatShortDay, monthLabel } from '@/lib/finance'
+import { formatRecent, formatTime } from '@/lib/format'
 import { useCurrentUser } from '@/lib/session'
 import { useApiQuery } from '@/lib/use-api-query'
+import { useUrlFilters } from '@/lib/use-url-filters'
+import { cn } from '@/lib/utils'
 
-type Loadable<T> =
-  { status: 'loading' } | { status: 'success'; data: T } | { status: 'error'; message: string }
+const MONTH_NAMES = [
+  'Januari',
+  'Februari',
+  'Maret',
+  'April',
+  'Mei',
+  'Juni',
+  'Juli',
+  'Agustus',
+  'September',
+  'Oktober',
+  'November',
+  'Desember',
+]
+const YEARS_SHOWN = 6
 
-function settle<T>(result: PromiseSettledResult<T>): Loadable<T> {
-  return result.status === 'fulfilled'
-    ? { status: 'success', data: result.value }
-    : { status: 'error', message: errorMessage(result.reason) }
-}
+const controlClass =
+  'h-9 w-full rounded-lg border border-input bg-card px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50'
 
-// /api/health mengembalikan HealthStatus baik saat 200 maupun 503 (D1 bermasalah).
-async function fetchHealth(): Promise<HealthStatus> {
-  const res = await fetch('/api/health')
-  return (await res.json()) as HealthStatus
-}
-
+// Dashboard Eksekutif & Analitik (PRD Fase 3), halaman utama /dashboard: ringkasan
+// metrik, demografi jemaat, ulang tahun, arus kas, dan tren kehadiran dari
+// GET /api/analytics/dashboard. Filter tahun dan rentang bulan (di URL) hanya berlaku
+// untuk keuangan dan kehadiran.
 export default function OverviewPage() {
   const user = useCurrentUser()
-  const modules = modulesForRole(user.role)
-    .flatMap((group) => group.items)
-    .filter((item) => item.path !== '')
-
-  const [rayons, setRayons] = useState<Loadable<Rayon[]>>({ status: 'loading' })
-  const [health, setHealth] = useState<Loadable<HealthStatus>>({ status: 'loading' })
+  const { params, update } = useUrlFilters()
+  const [today] = useState(witaToday)
   const [reloadKey, setReloadKey] = useState(0)
+  const currentYear = Number(today.slice(0, 4))
+  const currentMonth = Number(today.slice(5, 7))
+  const categoryParam = (params.get('ibadah') ?? '').toUpperCase()
+  const category = (WORSHIP_CATEGORIES as string[]).includes(categoryParam)
+    ? (categoryParam as WorshipCategory)
+    : 'SUNDAY_SERVICE'
 
-  useEffect(() => {
-    const controller = new AbortController()
-    void Promise.allSettled([
-      api.get<ApiList<Rayon>>('/rayons', { signal: controller.signal }).then((res) => res.data),
-      fetchHealth(),
-    ]).then(([rayonResult, healthResult]) => {
-      if (controller.signal.aborted) return
-      setRayons(settle(rayonResult))
-      setHealth(settle(healthResult))
+  const dashboard = useApiQuery<AnalyticsDashboard>('/analytics/dashboard', {
+    year: params.get('year') ?? '',
+    month_from: params.get('month_from') ?? '',
+    month_to: params.get('month_to') ?? '',
+  })
+  const data = dashboard.data
+  const period = data?.period
+  const busy = dashboard.loading && data !== undefined
+
+  const years = Array.from({ length: YEARS_SHOWN }, (_, index) => currentYear - index).filter(
+    (year) => year >= MIN_ANALYTICS_YEAR,
+  )
+  if (period && !years.includes(period.year)) years.push(period.year)
+  const lastSelectable = period?.year === currentYear ? currentMonth : 12
+
+  function setYear(value: number) {
+    // Rentang bulan kembali ke bawaan tahun itu.
+    update({
+      year: value === currentYear ? '' : String(value),
+      month_from: '',
+      month_to: '',
     })
-    return () => controller.abort()
-  }, [reloadKey])
-
-  function recheck() {
-    setHealth({ status: 'loading' })
-    setReloadKey((key) => key + 1)
   }
+
+  function setMonths(from: number, to: number) {
+    update({ month_from: String(from), month_to: String(to) })
+  }
+
+  const periodText = period
+    ? period.month_from === period.month_to
+      ? `${MONTH_NAMES[period.month_from - 1]} ${period.year}`
+      : `${MONTH_NAMES[period.month_from - 1]} – ${MONTH_NAMES[period.month_to - 1]} ${period.year}`
+    : ''
 
   return (
     <div className="grid gap-6">
-      <header>
-        <h1 className="text-2xl font-semibold tracking-[-0.02em]">Ringkasan</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          GMIT Jemaat Lahairoi Tuak Sabu Lasiana · masuk sebagai {ROLE_LABELS[user.role]}
-        </p>
-      </header>
-
-      <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_24rem]">
-        <section aria-labelledby="judul-modul" className="rounded-lg border bg-card">
-          <div className="flex items-baseline justify-between gap-4 px-5 pt-5 pb-2">
-            <h2 id="judul-modul" className="text-base font-semibold">
-              Modul untuk {ROLE_LABELS[user.role]}
-            </h2>
-            <span className="text-sm text-muted-foreground tabular-nums">
-              {modules.length} modul
-            </span>
-          </div>
-          <ul>
-            {modules.map((item) => (
-              <li key={item.path} className="border-t border-rule first:border-t-0">
-                <Link
-                  to={dashboardPath(item)}
-                  className="group grid grid-cols-[1rem_minmax(0,1fr)_auto] items-start gap-x-3 px-5 py-3.5 outline-offset-[-2px] hover:bg-muted/60"
-                >
-                  <item.icon className="mt-0.5 size-4 text-muted-foreground" aria-hidden="true" />
-                  <span className="grid gap-0.5">
-                    <span className="text-sm font-medium">{item.title}</span>
-                    <span className="text-[0.8125rem] text-muted-foreground">
-                      {item.description}
-                    </span>
-                  </span>
-                  <span className="flex items-center gap-1 text-[0.8125rem] whitespace-nowrap text-muted-foreground tabular-nums">
-                    Fase {item.phase}
-                    <ChevronRight className="size-4 transition-transform group-hover:translate-x-0.5" />
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        <div className="grid gap-4">
-          <Can roles={['ADMIN']}>
-            <RecentActivity />
-          </Can>
-
-          <section aria-labelledby="judul-rayon" className="grid gap-2">
-            <h2 id="judul-rayon" className="text-base font-semibold">
-              Rayon pelayanan
-            </h2>
-            <div className="rounded-lg border bg-card px-5 py-2">
-              {rayons.status === 'loading' && (
-                <ul aria-busy="true">
-                  {Array.from({ length: 5 }, (_, i) => (
-                    <li key={i} className="flex h-11 items-center">
-                      <Skeleton className="h-4 w-32" />
-                    </li>
-                  ))}
-                </ul>
-              )}
-              {rayons.status === 'error' && (
-                <p className="py-3 text-sm">
-                  Data rayon tidak dapat dimuat: {rayons.message}{' '}
-                  <button type="button" onClick={recheck} className="font-medium underline">
-                    Coba lagi
-                  </button>
-                </p>
-              )}
-              {rayons.status === 'success' && (
-                <ol>
-                  {rayons.data.map((rayon) => (
-                    <li
-                      key={rayon.id}
-                      className="flex h-11 items-center justify-between gap-3 border-t border-rule first:border-t-0"
-                    >
-                      <span className="text-sm font-medium">{rayon.name}</span>
-                      <span className="truncate text-[0.8125rem] text-muted-foreground">
-                        {rayon.coordinator_name ?? 'Koordinator —'}
-                      </span>
-                    </li>
-                  ))}
-                </ol>
-              )}
-            </div>
-          </section>
-
-          <section aria-labelledby="judul-status" className="grid gap-2">
-            <div className="flex items-baseline justify-between">
-              <h2 id="judul-status" className="text-base font-semibold">
-                Status sistem
-              </h2>
+      <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-2">
+        <div className="grid gap-1">
+          <h1 className="text-2xl font-semibold tracking-[-0.02em]">Ringkasan</h1>
+          <p className="text-sm text-muted-foreground">
+            GMIT Jemaat Lahairoi Tuak Sabu Lasiana · {ROLE_LABELS[user.role]} ·{' '}
+            {formatLongDate(today, true)}
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.8125rem] text-muted-foreground">
+          <SystemStatus reloadKey={reloadKey} />
+          {dashboard.updatedAt && (
+            <span className="flex items-center gap-1">
+              Diperbarui {formatTime(new Date(dashboard.updatedAt).toISOString())}
               <Button
                 variant="ghost"
-                size="sm"
-                onClick={recheck}
-                disabled={health.status === 'loading'}
-                className="-mr-2 text-muted-foreground"
+                size="icon"
+                className="size-8"
+                onClick={() => {
+                  dashboard.reload()
+                  setReloadKey((key) => key + 1)
+                }}
+                disabled={dashboard.loading}
               >
-                <RefreshCw data-icon="inline-start" />
-                Periksa ulang
+                <RefreshCw className={cn(dashboard.loading && 'animate-spin')} />
+                <span className="sr-only">Muat ulang data dan periksa status sistem</span>
               </Button>
-            </div>
-            <dl className="rounded-lg border bg-card px-5 py-2 text-sm">
-              <StatusRow label="API (Cloudflare Worker)" state={healthState(health, 'api')} />
-              <StatusRow label="Database D1" state={healthState(health, 'database')} />
-            </dl>
-            <p className="text-xs text-muted-foreground">
-              {health.status === 'success'
-                ? `Diperiksa ${new Date(health.data.timestamp).toLocaleTimeString('id-ID')}`
-                : health.status === 'error'
-                  ? health.message
-                  : 'Memeriksa…'}
-            </p>
-          </section>
+            </span>
+          )}
         </div>
+      </header>
+
+      {dashboard.error && !busy && (
+        <div role="alert" className="rounded-lg border bg-card px-5 py-4 text-sm">
+          Data dashboard tidak dapat dimuat: {dashboard.error}{' '}
+          <button type="button" onClick={dashboard.reload} className="font-medium underline">
+            Coba lagi
+          </button>
+          {params.size > 0 && (
+            <>
+              {' '}
+              atau{' '}
+              <button
+                type="button"
+                onClick={() => update({ year: '', month_from: '', month_to: '', ibadah: '' })}
+                className="font-medium underline"
+              >
+                kembali ke periode bawaan
+              </button>
+            </>
+          )}
+        </div>
+      )}
+
+      {data ? (
+        <>
+          <KpiStrip summary={data.summary} rayons={data.demographics.by_rayon} />
+
+          <div
+            className={cn(
+              'grid items-stretch gap-4',
+              data.birthdays && 'xl:grid-cols-[minmax(0,1fr)_22rem]',
+            )}
+          >
+            <section
+              aria-labelledby="judul-jemaat"
+              className="@container grid gap-6 rounded-lg border bg-card p-5"
+            >
+              <div className="grid gap-0.5">
+                <h2 id="judul-jemaat" className="text-base font-semibold">
+                  Jemaat
+                </h2>
+                <p className="text-[0.8125rem] text-muted-foreground">Anggota aktif per hari ini</p>
+              </div>
+              <div className="grid gap-x-10 gap-y-6 @lg:grid-cols-2">
+                <SubSection title="Jiwa per rayon">
+                  <RayonBars rayons={data.demographics.by_rayon} />
+                </SubSection>
+                <SubSection title="Kelompok kategorial">
+                  <CategoricalBars
+                    groups={data.demographics.by_categorical}
+                    members={data.summary.members}
+                  />
+                </SubSection>
+              </div>
+              <div className="border-t border-rule pt-5">
+                <SubSection title="Cakupan sakramen">
+                  <SacramentCoverage sacraments={data.demographics.sacraments} />
+                </SubSection>
+              </div>
+            </section>
+            {data.birthdays && <BirthdayCard birthdays={data.birthdays} today={data.today} />}
+          </div>
+
+          <section aria-labelledby="judul-keuangan" className="grid gap-4">
+            {/* Filter periode satu baris di samping judul, berbunyi seperti kalimat:
+                Tahun [2026] · Bulan [Januari] s.d. [Oktober]. */}
+            <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+              <h2 id="judul-keuangan" className="text-lg font-semibold">
+                Keuangan & kehadiran
+              </h2>
+              <p className="sr-only" aria-live="polite">
+                Periode {periodText}
+              </p>
+              {period && (
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
+                  <label className="flex items-center gap-2">
+                    Tahun anggaran
+                    <select
+                      value={period.year}
+                      onChange={(event) => setYear(Number(event.target.value))}
+                      className={cn(controlClass, 'w-24 text-foreground')}
+                    >
+                      {years.map((year) => (
+                        <option key={year} value={year}>
+                          {year}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <span className="flex items-center gap-2">
+                    <label htmlFor="filter-dari">Bulan</label>
+                    <select
+                      id="filter-dari"
+                      aria-label="Dari bulan"
+                      value={period.month_from}
+                      onChange={(event) => {
+                        const from = Number(event.target.value)
+                        setMonths(from, Math.max(from, period.month_to))
+                      }}
+                      className={cn(controlClass, 'w-32 text-foreground')}
+                    >
+                      {MONTH_NAMES.map((name, index) => (
+                        <option key={name} value={index + 1} disabled={index + 1 > lastSelectable}>
+                          {name}
+                        </option>
+                      ))}
+                    </select>
+                    s.d.
+                    <select
+                      aria-label="Sampai bulan"
+                      value={period.month_to}
+                      onChange={(event) => {
+                        const to = Number(event.target.value)
+                        setMonths(Math.min(period.month_from, to), to)
+                      }}
+                      className={cn(controlClass, 'w-32 text-foreground')}
+                    >
+                      {MONTH_NAMES.map((name, index) => (
+                        <option key={name} value={index + 1} disabled={index + 1 > lastSelectable}>
+                          {name}
+                        </option>
+                      ))}
+                    </select>
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <div className="grid items-stretch gap-4 xl:grid-cols-[minmax(0,1fr)_22rem]">
+              <ChartCard
+                title="Kas masuk dan keluar per bulan"
+                meta="Seluruh Pos Kas"
+                busy={busy}
+                legend={
+                  <div className="flex flex-wrap gap-x-5 gap-y-1">
+                    <LegendItem
+                      swatch={<Swatch color={INCOME_COLOR} />}
+                      label="Kas masuk"
+                      value={formatRupiah(data.finance.income)}
+                    />
+                    <LegendItem
+                      swatch={<Swatch color={EXPENSE_COLOR} />}
+                      label="Kas keluar"
+                      value={formatRupiah(data.finance.expense)}
+                    />
+                    <LegendItem
+                      swatch={null}
+                      label="Selisih"
+                      value={`${data.finance.income - data.finance.expense > 0 ? '+' : ''}${formatRupiah(data.finance.income - data.finance.expense)}`}
+                    />
+                  </div>
+                }
+                table={
+                  <DataTable
+                    caption={`Kas masuk dan keluar per bulan, ${periodText}`}
+                    head={['Bulan', 'Kas masuk', 'Kas keluar', 'Selisih']}
+                    rows={data.finance.months.map((month) => ({
+                      key: month.month,
+                      cells: [
+                        monthLabel(month.month),
+                        formatRupiah(month.income),
+                        formatRupiah(month.expense),
+                        formatRupiah(month.income - month.expense),
+                      ],
+                    }))}
+                  />
+                }
+                footer={
+                  <SubSection title={`Realisasi RAPBJ ${data.period.year}`}>
+                    <BudgetRealization
+                      lines={data.finance.budget}
+                      period={data.period}
+                      today={data.today}
+                    />
+                  </SubSection>
+                }
+              >
+                <CashFlowChart months={data.finance.months} />
+              </ChartCard>
+
+              <section
+                aria-labelledby="judul-pos-kas"
+                aria-busy={busy}
+                className={cn(
+                  'flex flex-col gap-3 rounded-lg border bg-card p-5 transition-opacity xl:h-0 xl:min-h-full',
+                  busy && 'opacity-60',
+                )}
+              >
+                <div className="grid gap-0.5">
+                  <h2 id="judul-pos-kas" className="text-base font-semibold">
+                    Saldo per Pos Kas
+                  </h2>
+                  <p className="text-[0.8125rem] text-muted-foreground">
+                    {data.period.to >= data.today
+                      ? 'Saldo hari ini; arus kas pada periode terpilih'
+                      : `Saldo per ${formatLongDate(data.period.to)}; arus kas pada periode terpilih`}
+                  </p>
+                </div>
+                <FundBalances funds={data.finance.funds} total={data.finance.closing_balance} />
+              </section>
+            </div>
+
+            <ChartCard
+              title="Tren kehadiran ibadah"
+              meta={
+                <AttendanceMeta
+                  stat={data.attendance.by_category[category]}
+                  label={WORSHIP_CATEGORY_LABELS[category]}
+                />
+              }
+              busy={busy}
+              controls={
+                <label className="flex items-center gap-2 text-[0.8125rem] text-muted-foreground">
+                  <span className="sr-only sm:not-sr-only">Jenis ibadah</span>
+                  <select
+                    value={category}
+                    onChange={(event) =>
+                      update({
+                        ibadah:
+                          event.target.value === 'SUNDAY_SERVICE'
+                            ? ''
+                            : event.target.value.toLowerCase(),
+                      })
+                    }
+                    className={cn(controlClass, 'w-auto text-foreground')}
+                  >
+                    {WORSHIP_CATEGORIES.map((value) => (
+                      <option key={value} value={value}>
+                        {WORSHIP_CATEGORY_LABELS[value]}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              }
+              table={
+                <DataTable
+                  caption={`Kehadiran ${WORSHIP_CATEGORY_LABELS[category]} per minggu, ${periodText}`}
+                  head={['Minggu', 'Ibadah', 'Total hadir', 'Rata-rata']}
+                  rows={data.attendance.weeks
+                    .filter((week) => week.by_category[category].services > 0)
+                    .reverse()
+                    .map((week) => ({
+                      key: week.week_start,
+                      cells: [
+                        `${formatShortDay(week.week_start)} – ${formatShortDay(week.week_end)} ${week.week_end.slice(0, 4)}`,
+                        week.by_category[category].services.toLocaleString('id-ID'),
+                        week.by_category[category].total.toLocaleString('id-ID'),
+                        (week.by_category[category].average ?? 0).toLocaleString('id-ID'),
+                      ],
+                    }))}
+                />
+              }
+            >
+              <AttendanceChart
+                weeks={data.attendance.weeks}
+                category={category}
+                emptyText={`Belum ada kehadiran ${WORSHIP_CATEGORY_LABELS[category]} yang diinput pada ${periodText}.`}
+              />
+            </ChartCard>
+          </section>
+        </>
+      ) : (
+        !dashboard.error && <DashboardSkeleton />
+      )}
+
+      <Can roles={['ADMIN']}>
+        <RecentActivity />
+      </Can>
+    </div>
+  )
+}
+
+// Empat metrik utama dalam satu wadah bergaris pemisah.
+function KpiStrip({
+  summary,
+  rayons,
+}: {
+  summary: AnalyticsSummary
+  rayons: AnalyticsDashboard['demographics']['by_rayon']
+}) {
+  const served = rayons.filter((rayon) => rayon.families > 0).length
+  const last = summary.last_sunday
+  const previous = summary.previous_sunday
+  const change = last && previous ? last.total - previous.total : null
+  return (
+    // Garis pemisah dari celah 1px di atas warna garis, sehingga rapi di 1, 2, atau 4
+    // kolom. Di ponsel tiap metrik satu baris: label kiri, angka kanan.
+    <dl className="grid gap-px overflow-hidden rounded-lg border bg-border sm:grid-cols-2 lg:grid-cols-4">
+      <Kpi label="Total jiwa" value={summary.members.toLocaleString('id-ID')}>
+        Anggota aktif
+      </Kpi>
+      <Kpi label="Total KK" value={summary.families.toLocaleString('id-ID')}>
+        Di {served.toLocaleString('id-ID')} dari {rayons.length.toLocaleString('id-ID')} rayon
+      </Kpi>
+      <Kpi
+        label="Saldo kas total"
+        value={<span className="font-bold">{formatRupiah(summary.cash_balance)}</span>}
+      >
+        Seluruh Pos Kas, hari ini
+      </Kpi>
+      <Kpi
+        label="Kehadiran Minggu terakhir"
+        value={
+          last ? (
+            last.total.toLocaleString('id-ID')
+          ) : (
+            <span className="text-muted-foreground">—</span>
+          )
+        }
+      >
+        {last ? (
+          <>
+            {formatShortDay(last.worship_date)}
+            {last.services > 1 && ` · ${last.services} kebaktian`}
+            {change !== null && previous && (
+              <>
+                {' · '}
+                <span
+                  className={cn(
+                    'whitespace-nowrap',
+                    change > 0 && 'text-positive',
+                    change < 0 && 'text-destructive',
+                  )}
+                >
+                  {change > 0 ? '+' : change < 0 ? '−' : '±'}
+                  {Math.abs(change).toLocaleString('id-ID')}
+                </span>{' '}
+                dari {formatShortDay(previous.worship_date)}
+              </>
+            )}
+          </>
+        ) : (
+          'Belum ada kehadiran yang diinput'
+        )}
+      </Kpi>
+    </dl>
+  )
+}
+
+function Kpi({ label, value, children }: { label: string; value: ReactNode; children: ReactNode }) {
+  return (
+    <div className="grid grid-cols-[minmax(0,1fr)_auto] content-start items-center gap-x-4 gap-y-1 bg-card px-4 py-3 sm:grid-cols-1 sm:p-5">
+      <dt className="text-sm text-muted-foreground">{label}</dt>
+      <dd className="col-start-2 row-span-2 row-start-1 text-right text-[1.375rem] leading-tight font-medium tracking-[-0.01em] whitespace-nowrap sm:col-start-1 sm:row-span-1 sm:row-start-2 sm:text-left sm:text-[1.625rem]">
+        {value}
+      </dd>
+      <dd className="text-[0.8125rem] text-muted-foreground sm:row-start-3">{children}</dd>
+    </div>
+  )
+}
+
+function AttendanceMeta({
+  stat,
+  label,
+}: {
+  stat: AnalyticsDashboard['attendance']['all']
+  label: string
+}) {
+  if (stat.average === null) return <>Rata-rata kehadiran per ibadah, per minggu</>
+  return (
+    <>
+      {label}: rata-rata{' '}
+      <span className="font-medium text-foreground tabular-nums">
+        {stat.average.toLocaleString('id-ID')}
+      </span>{' '}
+      per ibadah · {stat.services.toLocaleString('id-ID')} ibadah ·{' '}
+      {stat.total.toLocaleString('id-ID')} hadir
+    </>
+  )
+}
+
+function SubSection({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <div className="grid min-w-0 content-start gap-3">
+      <h3 className="text-sm font-medium">{title}</h3>
+      {children}
+    </div>
+  )
+}
+
+function Swatch({ color }: { color: string }) {
+  return (
+    <span
+      aria-hidden="true"
+      className="size-2.5 flex-none rounded-sm"
+      style={{ background: color }}
+    />
+  )
+}
+
+// Kerangka akhir dengan batang abu-abu seukuran isinya, tanpa kilau.
+function DashboardSkeleton() {
+  return (
+    <div aria-hidden="true" className="grid gap-4">
+      <div className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border bg-card lg:grid-cols-4">
+        {Array.from({ length: 4 }, (_, index) => (
+          <div key={index} className="grid gap-2 p-5">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-8 w-28" />
+            <Skeleton className="h-4 w-32" />
+          </div>
+        ))}
       </div>
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_22rem]">
+        <Skeleton className="h-96 rounded-lg" />
+        <Skeleton className="h-96 rounded-lg" />
+      </div>
+      <Skeleton className="h-72 rounded-lg" />
     </div>
   )
 }
@@ -253,34 +615,54 @@ function RecentActivity() {
   )
 }
 
-type RowState = 'loading' | 'ok' | 'down'
+type HealthState =
+  | { status: 'loading' }
+  | { status: 'success'; data: HealthStatus }
+  | { status: 'error'; message: string }
 
-function healthState(health: Loadable<HealthStatus>, part: 'api' | 'database'): RowState {
-  if (health.status === 'loading') return 'loading'
-  if (health.status === 'error') return 'down'
-  if (part === 'api') return 'ok'
-  return health.data.database === 'ok' ? 'ok' : 'down'
-}
+// Status API dan D1 dalam satu baris di header; diperiksa ulang bersama tombol muat ulang.
+// /api/health mengembalikan HealthStatus baik saat 200 maupun 503 (D1 bermasalah).
+function SystemStatus({ reloadKey }: { reloadKey: number }) {
+  const [health, setHealth] = useState<HealthState>({ status: 'loading' })
 
-function StatusRow({ label, state }: { label: string; state: RowState }) {
+  useEffect(() => {
+    const controller = new AbortController()
+    fetch('/api/health', { signal: controller.signal })
+      .then(async (res) =>
+        setHealth({ status: 'success', data: (await res.json()) as HealthStatus }),
+      )
+      .catch((err: unknown) => {
+        if (!controller.signal.aborted) setHealth({ status: 'error', message: errorMessage(err) })
+      })
+    return () => controller.abort()
+  }, [reloadKey])
+
+  if (health.status === 'loading') return <Skeleton className="h-5 w-32" />
+  const ok = health.status === 'success' && health.data.database === 'ok'
+  const detail =
+    health.status === 'error'
+      ? `API tidak terjangkau: ${health.message}`
+      : ok
+        ? `API dan database D1 berjalan, diperiksa ${new Date(health.data.timestamp).toLocaleTimeString('id-ID')}`
+        : 'Database D1 tidak merespons'
   return (
-    <div className="flex h-11 items-center justify-between gap-3 border-t border-rule first:border-t-0">
-      <dt>{label}</dt>
-      <dd>
-        {state === 'loading' ? (
-          <Skeleton className="h-5 w-20" />
-        ) : (
-          <span
-            className={
-              state === 'ok'
-                ? 'rounded-full bg-positive-soft px-2 py-0.5 text-xs font-medium whitespace-nowrap text-positive-ink'
-                : 'rounded-full bg-negative-soft px-2 py-0.5 text-xs font-medium whitespace-nowrap text-negative-ink'
-            }
-          >
-            {state === 'ok' ? 'Berjalan' : 'Gagal'}
-          </span>
-        )}
-      </dd>
-    </div>
+    <span
+      title={detail}
+      className={cn(
+        'inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium whitespace-nowrap',
+        ok ? 'bg-positive-soft text-positive-ink' : 'bg-negative-soft text-negative-ink',
+      )}
+    >
+      <span
+        aria-hidden="true"
+        className={cn('size-1.5 rounded-full', ok ? 'bg-positive' : 'bg-destructive')}
+      />
+      {ok
+        ? 'Sistem berjalan'
+        : health.status === 'error'
+          ? 'API tidak terjangkau'
+          : 'Database bermasalah'}
+      <span className="sr-only">: {detail}</span>
+    </span>
   )
 }
