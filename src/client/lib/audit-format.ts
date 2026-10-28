@@ -8,6 +8,8 @@ import {
   MARRIAGE_STATUS_LABELS,
   MEMBER_STATUS_LABELS,
   ROLE_LABELS,
+  SACRAMENT_STATUS_LABELS,
+  SACRAMENT_TYPE_LABELS,
   TRANSACTION_TYPE_LABELS,
   WORSHIP_CATEGORY_LABELS,
   type AuditLogItem,
@@ -111,6 +113,18 @@ const FIELD_LABELS: Record<string, string> = {
   attendance_women: 'Hadir wanita',
   attendance_youth_children: 'Hadir anak/pemuda',
   servants: 'Petugas',
+  applicant_name: 'Nama',
+  registration_code: 'Kode',
+  documents: 'Dokumen',
+  notes: 'Catatan',
+  counseling_date: 'Konseling',
+  counseling_time: 'Jam konseling',
+  scheduled_date: 'Pelaksanaan',
+  scheduled_time: 'Jam pelaksanaan',
+  officiating_pastor: 'Pendeta',
+  certificate_number: 'Nomor register',
+  member: 'Anggota',
+  partner: 'Mempelai wanita',
 }
 
 // Field yang sudah tersebut lewat label entitas di kalimat ringkasan.
@@ -127,6 +141,8 @@ const LABEL_FIELDS = new Set([
   'title',
   'category',
   'worship_date',
+  'applicant_name',
+  'registration_code',
 ])
 
 // Kode tersimpan → sebutannya, per jenis data.
@@ -143,6 +159,7 @@ const VALUE_LABELS: Record<string, Record<string, Record<string, string>>> = {
   finance_transactions: { type: TRANSACTION_TYPE_LABELS },
   public_contents: { category: CONTENT_CATEGORY_LABELS },
   worship_schedules: { category: WORSHIP_CATEGORY_LABELS },
+  sacrament_applications: { status: SACRAMENT_STATUS_LABELS, type: SACRAMENT_TYPE_LABELS },
 }
 
 export type AuditDescription = {

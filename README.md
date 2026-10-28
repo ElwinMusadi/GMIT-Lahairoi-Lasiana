@@ -627,6 +627,75 @@ PATCH /api/worships/12/attendance
 { "attendance_men": 120, "attendance_women": 150, "attendance_youth_children": 80 }
 ```
 
+## Layanan sakramen
+
+Rute: [public-sacraments.ts](src/worker/routes/public-sacraments.ts) (`/api/public/sacraments`, tanpa login) dan [sacraments.ts](src/worker/routes/sacraments.ts) (`/api/sacraments`, Admin dan Pendeta). Aturan data bersama, termasuk isian dan dokumen per layanan, ada di [src/shared/sacraments.ts](src/shared/sacraments.ts). Tabelnya `sacrament_applications` (migrasi 0007 dan 0011).
+
+**Pendaftaran dari portal.** `POST /api/public/sacraments/apply` menerima `multipart/form-data`:
+
+- `type`: `BAPTISM` (Baptisan Kudus), `SIDI` (Peneguhan Sidi), atau `MARRIAGE` (Pemberkatan Nikah).
+- Isian per layanan (`SACRAMENT_FORMS`):
+  - Baptisan: nama calon baptis, jenis kelamin, tempat dan tanggal lahir, nama ayah dan ibu.
+  - Sidi: nama, jenis kelamin, tempat dan tanggal lahir, gereja tempat dibaptis (wajib), tanggal baptis, nama orang tua.
+  - Nikah: nama, tempat dan tanggal lahir, serta jemaat asal kedua mempelai; rencana tanggal pemberkatan (tidak boleh lewat).
+- Isian kontak untuk semua layanan: `contact_name`, `phone` (8–15 angka; spasi dan tanda hubung dibuang), `address`, serta yang opsional: `rayon_id`, `church_member_number`, `applicant_notes`.
+- Dokumen syarat sebagai berkas, dengan nama field sesuai jenis dokumennya:
+  - Baptisan: `birth_certificate` (wajib), `parents_marriage`, `family_card`.
+  - Sidi: `baptism_certificate` (wajib), `photo`, `family_card`.
+  - Nikah: `groom_certificates` dan `bride_certificates` (wajib), `id_cards`, `photo`.
+  - PDF/JPG/PNG/WebP sampai 10 MB, diperiksa dari isinya. Berkas yang tidak diminta layanan itu ditolak.
+- Isian dan dokumen diperiksa sekaligus; kesalahan dikirim per field (`400`).
+- Berkas disimpan di folder R2 `sakramen`, yang hanya bisa dibuka pengurus. Bila pendaftaran gagal disimpan, berkasnya dihapus lagi.
+- Respons `201`: `{ registration_code, type, status: "PENDING", submitted_at }`.
+  - Kodenya acak dan unik, mis. `BPT-K7QX-29MD`: awalan `BPT`/`SDI`/`NKH`, delapan karakter tanpa I, O, 0, 1, sehingga 32⁸ kemungkinan per layanan.
+  - Nama yang disimpan: calon baptis/sidi, atau "mempelai pria & mempelai wanita".
+- Kiriman dari situs lain ditolak middleware CSRF. Belum ada pembatas laju atau captcha.
+
+**Lacak status.** `GET /api/public/sacraments/track/:code`:
+
+- Kode boleh ditulis huruf kecil, dengan atau tanpa tanda hubung.
+- Mengembalikan status terkini, catatan verifikasi (`notes`), jadwal konseling dan pelaksanaan beserta pendetanya, dan daftar dokumen yang sudah diterima (tanpa tautan berkas).
+- Nama disamarkan (`Kezia N.`, `Yohanis D. & Ester B.`). Nomor HP, alamat, dan isian lain tidak dikirim.
+- Respons `Cache-Control: no-store`. Format kode salah → `400`; kode tidak terdaftar → `404`.
+
+**Antrean dan buku induk** (`GET /api/sacraments`):
+
+- Filter `type`, `status`, `q` (nama, kode, nomor HP, nomor register), `sort` (`newest` bawaan, `oldest` untuk antrean, `scheduled` menurut tanggal pelaksanaan), `page`, `per_page`.
+- `counts` berisi jumlah per status untuk jenis dan pencarian yang sama.
+- Buku induk = pendaftaran berstatus `COMPLETED` beserta nomor registernya.
+- `GET /api/sacraments/:id` menambahkan isian formulir, dokumen (tautan `/api/files/sakramen/…`), dan catatan.
+
+**Verifikasi** (`PATCH /api/sacraments/:id/status`, JSON). `status` wajib. Field lain bersifat opsional; yang tidak dikirim tidak diubah, `null` mengosongkan:
+
+- Field yang tersedia: `notes`, `counseling_date`/`counseling_time`, `scheduled_date`/`scheduled_time`, `officiating_pastor`, `certificate_number`, `member_id`, `partner_member_id` (khusus nikah: `member_id` = mempelai pria, `partner_member_id` = mempelai wanita).
+- Syarat per status:
+
+  | Status | Arti | Syarat |
+  | ------ | ---- | ------ |
+  | `PENDING` | Menunggu verifikasi | — |
+  | `REVISION` | Revisi berkas | `notes` berisi apa yang perlu diperbaiki (tampil di halaman lacak) |
+  | `COUNSELING` | Konseling/penggembalaan | `counseling_date` |
+  | `APPROVED` | Disetujui | `scheduled_date` |
+  | `COMPLETED` | Selesai | `scheduled_date` hari ini atau sebelumnya, `officiating_pastor` |
+
+- **Saat Selesai** pendaftaran masuk buku induk.
+  - Nomor register diisi manual (mis. `012/B/LHR/2026`) atau dibuat otomatis berurutan per layanan dan tahun pelaksanaan (`BPT-2026-001`, `SDI-2026-001`, `NKH-2026-001`). Nomor ganda per layanan → `409`.
+  - Anggota jemaat yang ditautkan diperbarui di batch yang sama, dengan Log Aktivitas masing-masing: Baptisan → baptis Sudah dan tanggalnya; Sidi → sidi Sudah dan tanggalnya; Nikah → kedua mempelai berstatus Menikah dengan tanggal pemberkatan.
+  - Respons `member_updates` merangkum perubahan itu, mis. "Baptis: Belum → Sudah (27 Oktober 2026)".
+  - Ditolak bila anggota yang ditautkan sudah pindah/meninggal, atau sudah tercatat menerima sakramen yang sama di tanggal lain.
+  - Pendaftaran tanpa anggota tertaut (mis. dari jemaat lain) tetap bisa diselesaikan.
+- Pendaftaran yang sudah Selesai terkunci (`409`).
+- Pengajuan dan setiap perubahan status tercatat di Log Aktivitas; pengajuan dari portal tercatat tanpa pengguna, dengan sumber `portal`.
+
+```bash
+curl -X POST http://localhost:5173/api/public/sacraments/apply \
+  -H "Origin: http://localhost:5173" \
+  -F type=BAPTISM -F full_name="Kezia Ndun" -F gender=FEMALE -F birth_place=Kupang \
+  -F birth_date=2026-06-30 -F father_name="Yosua Ndun" -F mother_name="Maria Lede" \
+  -F contact_name="Yosua Ndun" -F phone=081234567890 -F address="Jl. Timor Raya, Lasiana" \
+  -F birth_certificate=@akta-kelahiran.pdf
+```
+
 ## Unggah berkas
 
 Berkas (PDF warta, kuitansi, foto, berkas sakramen) disimpan di **Cloudflare R2**, bukan sebagai base64 di D1, karena baris D1 terlalu kecil untuk PDF.
@@ -648,6 +717,7 @@ const berkas = await uploadFile(file, { folder: 'kuitansi', onProgress: setPerse
 
 - Mengunggah wajib login, dan tiap folder punya peran yang boleh mengisinya: `kuitansi` untuk Bendahara dan Admin; `warta`, `media`, `surat` untuk Admin; `konten`, `liturgi`, `sakramen` untuk Admin dan Pendeta (`UPLOAD_FOLDER_ROLES`).
 - Berkas di folder portal (`warta`, `konten`, `media`, `liturgi`) bisa diunduh siapa saja. Berkas `kuitansi`, `sakramen`, dan `surat` hanya untuk pengurus yang sudah masuk.
+- Pengecualian: dokumen syarat sakramen dari portal dikirim bersama formulirnya ke `POST /api/public/sacraments/apply`, tanpa login, dan disimpan ke folder `sakramen` dengan pemeriksaan yang sama ([src/worker/lib/uploads.ts](src/worker/lib/uploads.ts)). Tidak ada endpoint unggah anonim terpisah.
 
 ## Skrip
 
@@ -691,6 +761,7 @@ const berkas = await uploadFile(file, { folder: 'kuitansi', onProgress: setPerse
 | 0008    | `assets`, `asset_loans`                                          | Aset & Inventaris             |
 | 0009    | `sessions` (+ trigger penghapus sesi akun nonaktif)               | Autentikasi & Hak Akses       |
 | 0010    | Index unik: satu Kepala Keluarga aktif per KK                     | Database Jemaat & KK          |
+| 0011    | `sacrament_applications`: jadwal konseling, jam pelaksanaan, mempelai kedua | Sakramen & Persuratan |
 
 Konvensi yang dipakai di semua tabel:
 
@@ -801,6 +872,11 @@ Komponen akan ditulis ke `src/client/components/ui/`. Preset yang dipakai: `radi
 | PUT    | `/api/worships/:id` | Admin, Pendeta | Ubah jadwal (PATCH juga diterima) |
 | POST   | `/api/worships/:id/servants` | Admin, Pendeta | Simpan susunan petugas; bentrok dilaporkan di `warnings` (PUT juga diterima) |
 | PATCH  | `/api/worships/:id/attendance` | Admin, Pendeta, Majelis | Kehadiran Pria, Wanita, Anak/Pemuda; total otomatis |
+| POST   | `/api/public/sacraments/apply` | Publik | Pendaftaran Baptis/Sidi/Nikah (multipart, dengan dokumen syarat); kode registrasi unik |
+| GET    | `/api/public/sacraments/track/:code` | Publik | Status, catatan verifikasi, jadwal konseling & pelaksanaan menurut kode |
+| GET    | `/api/sacraments` | Admin, Pendeta | Antrean pendaftaran dan buku induk, dengan hitungan per status |
+| GET    | `/api/sacraments/:id` | Admin, Pendeta | Rincian pendaftaran: isian formulir dan dokumen syarat |
+| PATCH  | `/api/sacraments/:id/status` | Admin, Pendeta | Ubah status verifikasi; Selesai mencatat nomor register dan memperbarui status sakramen anggota jemaat |
 | POST   | `/api/uploads`     | Login + peran folder | Unggah berkas ke R2 (`multipart`: `file`, `folder`) |
 | GET    | `/api/files/*`     | Publik / Login | Ambil berkas dari R2 (mendukung ETag / `304`)     |
 

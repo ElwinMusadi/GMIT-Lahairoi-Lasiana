@@ -16,7 +16,9 @@ import financeTransactions from './routes/finance-transactions'
 import health from './routes/health'
 import members from './routes/members'
 import publicRoutes from './routes/public'
+import publicSacraments from './routes/public-sacraments'
 import rayons from './routes/rayons'
+import sacraments from './routes/sacraments'
 import uploads from './routes/uploads'
 import users from './routes/users'
 import worships from './routes/worships'
@@ -32,6 +34,7 @@ app.use(csrf())
 
 // Publik (rayons: daftar publik, perubahan khusus Admin; public: Portal Publik)
 app.route('/health', health)
+app.route('/public/sacraments', publicSacraments)
 app.route('/public', publicRoutes)
 app.route('/rayons', rayons)
 app.route('/files', files)
@@ -49,6 +52,7 @@ app.route('/finance/budgets', financeBudgets)
 app.route('/finance/transactions', financeTransactions)
 app.route('/finance/reports', financeReports)
 app.route('/worships', worships)
+app.route('/sacraments', sacraments)
 
 app.notFound((c) => c.json<ApiErrorBody>({ error: 'Endpoint tidak ditemukan' }, 404))
 

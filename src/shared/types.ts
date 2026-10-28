@@ -516,6 +516,116 @@ export type WorshipResponse = {
   warnings: string[]
 }
 
+export const SACRAMENT_TYPE_LABELS = {
+  BAPTISM: 'Baptisan Kudus',
+  SIDI: 'Peneguhan Sidi',
+  MARRIAGE: 'Pemberkatan Nikah',
+} as const
+export type SacramentType = keyof typeof SACRAMENT_TYPE_LABELS
+export const SACRAMENT_TYPES = Object.keys(SACRAMENT_TYPE_LABELS) as SacramentType[]
+
+// Alur verifikasi pastoral (PRD), berurutan.
+export const SACRAMENT_STATUS_LABELS = {
+  PENDING: 'Menunggu verifikasi',
+  REVISION: 'Revisi berkas',
+  COUNSELING: 'Konseling/penggembalaan',
+  APPROVED: 'Disetujui',
+  COMPLETED: 'Selesai',
+} as const
+export type SacramentStatus = keyof typeof SACRAMENT_STATUS_LABELS
+export const SACRAMENT_STATUSES = Object.keys(SACRAMENT_STATUS_LABELS) as SacramentStatus[]
+
+// Dokumen syarat yang diunggah pendaftar; berkasnya di folder R2 `sakramen` (khusus
+// pengurus).
+export type SacramentDocument = {
+  kind: string
+  label: string
+  url: string
+  name: string
+  size: number
+  content_type: string
+}
+
+// GET /api/sacraments: antrean pendaftaran dan buku induk di dashboard.
+export type SacramentListItem = {
+  id: number
+  registration_code: string
+  type: SacramentType
+  // Calon baptis/sidi, atau "mempelai pria & mempelai wanita".
+  applicant_name: string
+  phone: string | null
+  status: SacramentStatus
+  counseling_date: string | null
+  counseling_time: string | null
+  scheduled_date: string | null
+  scheduled_time: string | null
+  officiating_pastor: string | null
+  // Nomor register buku induk, terisi saat Selesai.
+  certificate_number: string | null
+  // Anggota jemaat terkait; pada pemberkatan nikah member = mempelai pria,
+  // partner = mempelai wanita.
+  member_id: number | null
+  member_name: string | null
+  partner_member_id: number | null
+  partner_name: string | null
+  document_count: number
+  created_at: string
+  updated_at: string
+}
+
+export type SacramentDetail = SacramentListItem & {
+  // Isian formulir pendaftaran, sesuai jenis sakramen (src/shared/sacraments.ts).
+  form_data: Record<string, string | number | null>
+  documents: SacramentDocument[]
+  // Catatan verifikasi; ikut tampil di halaman lacak pendaftar.
+  notes: string | null
+}
+
+export type SacramentPage = ApiPage<SacramentListItem> & {
+  // Jumlah per status untuk filter jenis dan pencarian yang sama (tab antrean).
+  counts: Record<SacramentStatus, number>
+}
+
+// Perubahan pada data anggota jemaat saat pendaftaran Selesai.
+export type SacramentMemberUpdate = {
+  member_id: number
+  full_name: string
+  // Mis. "Baptis: Belum → Sudah (1 November 2026)".
+  change: string
+}
+
+export type SacramentResponse = {
+  application: SacramentDetail
+  member_updates: SacramentMemberUpdate[]
+}
+
+// POST /api/public/sacraments/apply
+export type SacramentApplyResponse = {
+  registration_code: string
+  type: SacramentType
+  status: SacramentStatus
+  submitted_at: string
+}
+
+// GET /api/public/sacraments/track/:code — tanpa data pribadi selain nama tersamar.
+export type PublicSacramentStatus = {
+  registration_code: string
+  type: SacramentType
+  // Mis. "Yosua N." atau "Yosua N. & Maria L.".
+  applicant_name: string
+  status: SacramentStatus
+  notes: string | null
+  counseling_date: string | null
+  counseling_time: string | null
+  scheduled_date: string | null
+  scheduled_time: string | null
+  officiating_pastor: string | null
+  // Dokumen yang sudah diterima, tanpa tautan berkas.
+  documents: { kind: string; label: string }[]
+  submitted_at: string
+  updated_at: string
+}
+
 // GET /api/public/home: ringkasan Beranda Portal Publik.
 export type PublicHome = {
   // Tanggal hari ini (WITA) yang dipakai untuk jadwal terdekat dan renungan.
