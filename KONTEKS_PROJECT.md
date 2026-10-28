@@ -96,8 +96,11 @@ Progres tahap:
 - **Tahap 0 (persiapan) selesai.** Database uji portal sudah terisi konten realistis lewat API.
   Baseline inspector portal 08 ada di `.taste-skill/inspect-portal-08-baseline/`. Catatannya di
   rencana bagian 11.
-- **Berikutnya: Tahap 1 (fondasi):** token terang/gelap, huruf, aset foto, komponen shadcn, dan
-  primitif kage.
+- **Tahap 1 (fondasi) selesai.** Isinya: token `site-*` terang/gelap, mekanisme tema
+  (`lib/portal-theme.ts` + skrip anti-kedip), tombol tema, huruf kage, foto responsif di
+  `public/images/`, `ui/navigation-menu`, dan primitif di `components/portal/kage/`. Tampilan
+  portal 08 belum berubah.
+- **Berikutnya: Tahap 2 (lapisan gerak):** Lenis, parallax, reveal, dan float.
 
 **Bug API yang ditemukan di Tahap 0** (belum diperbaiki, diusulkan sebagai commit terpisah):
 

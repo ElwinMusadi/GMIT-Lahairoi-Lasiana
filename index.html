@@ -14,13 +14,21 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=Instrument+Serif:ital@1&family=JetBrains+Mono:wght@400;500&display=swap"
     />
+    <meta name="theme-color" content="#ffffff" />
     <title>GMIT Lahairoi Tuak Sabu Lasiana</title>
     <script>
-      // Pasang tema portal sebelum React dimuat agar warna tidak berkedip.
+      // Pasang tema portal sebelum React dimuat agar warna tidak berkedip. Tema gelap
+      // hanya bila pengunjung memilihnya (lib/portal-theme.ts); dashboard selalu terang.
       if (!location.pathname.startsWith('/dashboard')) {
         document.documentElement.classList.add('theme-portal')
+        try {
+          if (localStorage.getItem('gmit-lahairoi:tema-portal') === 'dark') {
+            document.documentElement.classList.add('dark')
+            document.querySelector('meta[name="theme-color"]').content = '#0a1215'
+          }
+        } catch (e) {}
       }
     </script>
   </head>

@@ -54,6 +54,28 @@
   --color-portal-green: #004a32;
   --color-portal-green-soft: #85f8c4;
 
+  /* Portal Publik rancangan kage (design/stitch/10-portal-publik-kage). Warna yang berganti
+     antara tema terang dan gelap dibaca dari variabel di .theme-portal / .theme-portal.dark;
+     panel gelap, aksen, dan teal tetap sama di kedua tema. */
+  --font-site-display: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-site-serif: "Instrument Serif", ui-serif, Georgia, serif;
+  --font-site-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-site-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --color-site-canvas: var(--site-canvas);
+  --color-site-paper: var(--site-paper);
+  --color-site-ink: var(--site-ink);
+  --color-site-muted: var(--site-muted);
+  --color-site-rule: var(--site-rule);
+  --color-site-blue: var(--site-blue);
+  --color-site-green: var(--site-green);
+  --color-site-glass: var(--site-glass);
+  --color-site-accent: #f08a2b;
+  --color-site-night: #07151a;
+  --color-site-panel: #111113;
+  --color-site-panel-2: #1c1c1e;
+  --shadow-site-panel: 0 32px 72px -16px rgb(0 0 0 / 0.4);
+  --shadow-site-broad: 0 24px 60px -12px rgb(7 21 26 / 0.25);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -194,6 +216,57 @@
   --brand-foreground: #ffffff;
   --field: #00236f;
   --field-foreground: #ffffff;
+
+  /* Token kage, tema terang (bawaan). */
+  --site-canvas: #ffffff;
+  --site-paper: #f6f6f4;
+  --site-ink: #111113;
+  --site-muted: #6b6b6b;
+  --site-rule: #e7e7e7;
+  --site-blue: #00236f;
+  --site-green: #355a3a;
+  --site-glass: rgb(255 255 255 / 0.95);
+  color-scheme: light;
+}
+
+/*
+ * Portal Publik, tema gelap: hanya bila pengunjung memilihnya (lib/portal-theme.ts);
+ * bawaannya selalu terang. Kontras teks di kanvas: utama 16,9:1, sekunder 7,5:1, biru
+ * 10,0:1, jingga 7,5:1. Foto, QRIS, dan PDF tidak ikut digelapkan.
+ */
+.theme-portal.dark {
+  --background: #0a1215;
+  --foreground: #f2f2ee;
+  --card: #111b1f;
+  --card-foreground: #f2f2ee;
+  --popover: #111b1f;
+  --popover-foreground: #f2f2ee;
+  --primary: #f2f2ee;
+  --primary-foreground: #111113;
+  --secondary: #1a262b;
+  --secondary-foreground: #f2f2ee;
+  --muted: #111b1f;
+  --muted-foreground: #9ba5a8;
+  --accent: #1a262b;
+  --accent-foreground: #f2f2ee;
+  --destructive: #ff8a80;
+  --border: #24323a;
+  --input: #34454e;
+  --ring: #f08a2b;
+  --brand: #f2f2ee;
+  --brand-foreground: #111113;
+  --field: #f2f2ee;
+  --field-foreground: #111113;
+
+  --site-canvas: #0a1215;
+  --site-paper: #111b1f;
+  --site-ink: #f2f2ee;
+  --site-muted: #9ba5a8;
+  --site-rule: #24323a;
+  --site-blue: #a9b9ff;
+  --site-green: #6e9c76;
+  --site-glass: rgb(17 27 31 / 0.92);
+  color-scheme: dark;
 }
 .theme-portal body {
   font-family: var(--font-portal);

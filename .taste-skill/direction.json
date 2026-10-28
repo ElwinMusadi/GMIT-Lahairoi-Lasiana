@@ -20,7 +20,9 @@
   "direction": "one-motif"
  },
  "imagery": "atmosphere",
- "allow": [],
+ "allow": [
+  "shadow"
+ ],
  "direction": {
   "id": "one-motif",
   "name": "One motif",
@@ -97,49 +99,47 @@
   ]
  },
  "type": {
-  "id": "roundo-soft",
-  "name": "Roundo",
-  "class": "rounded-friendly",
+  "id": "kage-editorial",
+  "name": "Plus Jakarta Sans + Instrument Serif",
+  "source": "design/stitch/10-portal-publik-kage.html (redesign portal, docs/rencana-redesign-portal-kage.md)",
   "display": {
-   "family": "Roundo",
-   "source": "fontshare",
-   "slug": "roundo",
+   "family": "Plus Jakarta Sans",
+   "source": "google",
    "weights": [
+    600,
+    700,
+    800
+   ],
+   "italic": false,
+   "settings": "800 untuk judul, tracking -0.03em, leading 1; baris kedua judul memakai Instrument Serif italic"
+  },
+  "text": {
+   "family": "Inter",
+   "source": "google",
+   "weights": [
+    400,
     500
    ],
    "italic": false,
-   "settings": "weight 500 · tracking -0.025em · leading 1.05 · sentence case; colour the type to its section instead of black",
-   "css": "<link rel=\"preconnect\" href=\"https://api.fontshare.com\">\n<link rel=\"preconnect\" href=\"https://cdn.fontshare.com\" crossorigin>\n<link href=\"https://api.fontshare.com/v2/css?f[]=roundo@400,500,600&display=swap\" rel=\"stylesheet\">"
+   "settings": "teks bacaan 16-18px, leading 1.6"
   },
-  "text": {
-   "family": "Roundo",
-   "source": "fontshare",
-   "slug": "roundo",
+  "accent": {
+   "family": "Instrument Serif",
+   "source": "google",
+   "weights": [
+    400
+   ],
+   "italic": true
+  },
+  "mono": {
+   "family": "JetBrains Mono",
+   "source": "google",
    "weights": [
     400,
-    600
+    500
    ],
    "italic": false,
-   "settings": "400 for body, 600 for emphasis · leading 1.5 · tracking 0",
-   "css": "<link rel=\"preconnect\" href=\"https://api.fontshare.com\">\n<link rel=\"preconnect\" href=\"https://cdn.fontshare.com\" crossorigin>\n<link href=\"https://api.fontshare.com/v2/css?f[]=roundo@400,500,600&display=swap\" rel=\"stylesheet\">"
-  },
-  "standsInFor": [
-   "Ease",
-   "Open Runde"
-  ],
-  "note": "A rounded geometric sans at medium weight and a generous text size, gentle without looking childish. Suits wellness, home goods, family apps and everyday money tools.",
-  "seenIn": [
-   "opl-anidachi",
-   "opl-billow"
-  ],
-  "links": [
-   "https://api.fontshare.com/v2/css?f[]=roundo@400,500,600&display=swap"
-  ],
-  "scale": {
-   "step-small": "clamp(0.8125rem, 0.79rem + 0.1vw, 0.875rem)",
-   "step-body": "clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem)",
-   "step-lead": "clamp(1.25rem, 1.1rem + 0.7vw, 1.625rem)",
-   "step-head": "clamp(2rem, 1.3rem + 3.2vw, 4rem)"
+   "settings": "jam, tanggal ringkas, kode, nomor rekening, bilah jendela; minimal 13px"
   }
  },
  "palette": {
@@ -524,5 +524,8 @@
    ]
   }
  ],
- "scenes": []
+ "scenes": [],
+ "allowReasons": {
+  "shadow": "Rancangan kage (design/stitch/10): bayangan hanya pada pil di atas foto hero, hero panel, dan panel gelap besar (shadow-site-panel / shadow-site-broad). Kartu terang tanpa bayangan; diperiksa manual tiap tahap."
+ }
 }

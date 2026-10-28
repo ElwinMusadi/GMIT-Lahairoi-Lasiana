@@ -205,7 +205,6 @@ src/client/
 ├── lib/portal-theme.ts               # diperluas: tema terang/gelap, simpan pilihan, lepas di dashboard
 ├── lib/navigation.ts                 # + portalNavGroups (menu induk & submenu); portalLinks tetap untuk footer
 ├── components/ui/navigation-menu.tsx # baru via `npx shadcn@latest add navigation-menu` (Radix NavigationMenu)
-├── components/ui/accordion.tsx       # baru via `npx shadcn@latest add accordion`
 └── components/portal/
     ├── site-header.tsx               # ditulis ulang: pil merek, pil nav bersubmenu, tombol tema, pil Masuk; menu ponsel (Sheet)
     ├── nav-menu.tsx                  # pil navigasi desktop: menu induk + panel submenu (hover, fokus, klik)
@@ -222,7 +221,7 @@ src/client/
         ├── photo-band.tsx            # band selebar layar di atas foto + kartu tembus pandang bernomor
         ├── ledger-table.tsx          # tabel lapang bergaris tipis (rayon, arsip)
         ├── copy-bar.tsx              # bilah mono gelap + tombol salin (rekening, kode registrasi)
-        ├── accordion.tsx             # FAQ (Radix Accordion, gaya kage)
+        ├── faq-accordion.tsx         # FAQ (Radix Accordion langsung, gaya kage)
         └── reveal.tsx                # <Reveal> pembungkus data-reveal
 ```
 
@@ -807,3 +806,58 @@ di-commit), pada lebar 1440/768/390 px:
   tidak tampil pada Rabu–Sabtu. Masuk ke daftar perbaikan 5.10 butir 9.
 - **Arah desain inspector:** `.taste-skill/direction.json` masih memuat arah lama dengan huruf
   Roundo, sehingga semua halaman mendapat WARN `font-not-dealt`. Diperbarui di Tahap 1 (bagian 8).
+
+### Tahap 1 — Fondasi (28 Oktober 2026)
+
+**Yang ditambahkan (tampilan portal 08 belum berubah):**
+
+- **Token kage** di [index.css](../src/client/index.css):
+  - warna `site-*`, huruf `font-site-*`, bayangan `shadow-site-*`;
+  - nilainya dibaca dari variabel di `.theme-portal` (terang) dan `.theme-portal.dark` (gelap),
+    termasuk `color-scheme`;
+  - di tema gelap, variabel shadcn ikut dipetakan agar dialog dan sheet ikut gelap.
+- **Mekanisme tema:**
+  - [lib/portal-theme.ts](../src/client/lib/portal-theme.ts): `setPortalTheme`,
+    `usePortalThemeValue`, dan `usePortalTheme` yang melepas `theme-portal` dan `dark` saat
+    meninggalkan portal;
+  - skrip anti-kedip di `index.html`;
+  - `meta theme-color`;
+  - kunci penyimpanan `gmit-lahairoi:tema-portal`.
+- **Tombol tema:** [theme-toggle.tsx](../src/client/components/portal/theme-toggle.tsx), dibuat
+  lebih awal dari rencana. Pemasangannya di header tetap di Tahap 3.
+- **Huruf:** Instrument Serif *italic*, JetBrains Mono 400/500, dan Plus Jakarta Sans 800
+  ditambahkan ke tautan Google Fonts.
+- **Foto:** `public/images/gereja-gmit-lahairoi-{640,960,1254}.webp` (45/82/121 KB) untuk
+  `srcset`.
+- **Komponen shadcn:** `navigation-menu` (Radix NavigationMenu).
+- **Primitif** di `components/portal/kage/`:
+  - `TwoToneHeading`: hero/page/section/card, `onDark`, `inline`;
+  - `PillLink` dan `PillButton`: light/dark/glass/outline/panel;
+  - `WindowPanel`: penuh/compact, judul, badge, kaki;
+  - `CopyBar`;
+  - `FaqAccordion`;
+  - `Reveal`.
+- **[.taste-skill/direction.json](../.taste-skill/direction.json):**
+  - huruf diganti huruf kage, sehingga `font-not-dealt` kini memeriksa Plus Jakarta Sans dan
+    Inter;
+  - `allow: ["shadow"]` beserta `allowReasons`.
+
+**Penyimpangan dari rencana:**
+
+- **Pemetaan variabel shadcn tema terang ke nilai kage diundur ke Tahap 3.** Kalau dipetakan
+  sekarang, tombol dan input di halaman 08 langsung berubah warna sebelum halamannya dirombak.
+- **`FaqAccordion` memakai Radix Accordion langsung.** Pemicu dan ikon +/− kage berbeda sama
+  sekali dari pembungkus shadcn, jadi `ui/accordion.tsx` tidak disimpan.
+
+**Pemeriksaan:**
+
+- `typecheck`, `lint`, dan `build` bersih.
+- Primitif diperiksa di halaman uji sementara (tidak di-commit), di tema terang dan gelap, pada
+  1280 dan 375 px:
+  - tombol tema mengganti kelas, penyimpanan, `theme-color`, dan `color-scheme`; pilihan bertahan
+    setelah muat ulang (kelas sudah terpasang sebelum React dimuat);
+  - `CopyBar` menyalin, menampilkan toast, dan menampilkan "Tersalin";
+  - `FaqAccordion` hanya membuka satu butir.
+- **Perbaikan yang ditemukan saat uji:** judul mono panjang di `WindowPanel` sempat melebarkan
+  kolom grid di ponsel (gulir menyamping 52 px). Judulnya kini `w-0 flex-1 truncate`, dan
+  tidak ada lagi gulir menyamping di 375 px.
