@@ -27,6 +27,11 @@ export type UploadOptions = {
 // Nilai untuk atribut `accept` pada <input type="file">.
 export const UPLOAD_ACCEPT = Object.keys(UPLOAD_TYPES).join(',')
 
+// Berkas PDF ditampilkan berbeda dari gambar (tautan, bukan pratinjau foto).
+export function isPdf(url: string) {
+  return url.toLowerCase().endsWith('.pdf')
+}
+
 const EXTENSION_TYPES: Record<string, UploadContentType> = {
   jpg: 'image/jpeg',
   jpeg: 'image/jpeg',
@@ -72,7 +77,9 @@ export function uploadFile(file: File, options: UploadOptions): Promise<Uploaded
       }
       const body = xhr.response as ApiErrorBody | null
       if (xhr.status === 401) notifyUnauthorized()
-      reject(new ApiError(xhr.status, body?.error ?? defaultErrorMessage(xhr.status), body?.details))
+      reject(
+        new ApiError(xhr.status, body?.error ?? defaultErrorMessage(xhr.status), body?.details),
+      )
     }
     xhr.onerror = () => reject(new ApiError(0, NETWORK_ERROR_MESSAGE))
     xhr.onabort = () => reject(new DOMException('Unggahan dibatalkan.', 'AbortError'))

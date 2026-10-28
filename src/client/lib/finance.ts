@@ -85,11 +85,6 @@ export function monthRange(month: string) {
   return { from: `${month}-01`, to: `${month}-${String(last).padStart(2, '0')}` }
 }
 
-// Berkas kuitansi PDF ditampilkan berbeda dari gambar.
-export function isPdf(url: string) {
-  return url.toLowerCase().endsWith('.pdf')
-}
-
 // Periode Laporan Keuangan. Nilainya: awal minggu (YYYY-MM-DD, hari Minggu), bulan
 // (YYYY-MM), atau tahun (YYYY).
 export type ReportPeriod = 'week' | 'month' | 'year'

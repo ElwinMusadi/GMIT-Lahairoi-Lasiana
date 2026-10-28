@@ -161,11 +161,11 @@ export const moduleGroups: ModuleGroup[] = [
     items: [
       {
         title: 'Warta & Konten',
-        path: 'konten',
+        path: 'contents',
         icon: FileText,
         roles: ['ADMIN'],
         phase: 1,
-        description: 'Warta Jemaat, renungan, berita, galeri, dan info persembahan.',
+        description: 'Warta Jemaat, renungan, berita, galeri, profil, serta rekening dan QRIS.',
       },
       {
         title: 'Renungan Saya',

@@ -24,7 +24,16 @@ const modulePages: Record<string, PageLoader> = {
   'finance/transactions': () => import('@/pages/dashboard/FinanceTransactionsPage'),
   'finance/budgets': () => import('@/pages/dashboard/FinanceBudgetsPage'),
   'finance/reports': () => import('@/pages/dashboard/FinanceReportsPage'),
+  // Pendeta menulis renungannya di halaman CMS yang sama, dibatasi ke Renungan.
+  contents: () => import('@/pages/dashboard/ContentsPage'),
+  renungan: () => import('@/pages/dashboard/ContentsPage'),
 }
+
+const loadContentEditor = () => import('@/pages/dashboard/ContentEditorPage')
+const contentEditorPages = [
+  { path: 'new', title: 'Konten baru', load: loadContentEditor },
+  { path: ':id', title: 'Ubah konten', load: loadContentEditor },
+]
 
 // Halaman turunan sebuah modul. Hak aksesnya sama dengan modulnya, kecuali `roles` diisi.
 const subPages: Record<
@@ -34,6 +43,8 @@ const subPages: Record<
   families: [
     { path: ':id', title: 'Rincian KK', load: () => import('@/pages/dashboard/FamilyDetailPage') },
   ],
+  contents: contentEditorPages,
+  renungan: contentEditorPages,
   members: [
     {
       path: 'import',

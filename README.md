@@ -35,10 +35,11 @@ Proyek ini berbentuk **full-stack dalam satu paket**. `@cloudflare/vite-plugin` 
 │   │   │   ├── congregation/   # Form KK, profil anggota, rayon; panel profil; pemilih KK
 │   │   │   ├── finance/        # Form Pos Kas, mata anggaran, transaksi; kuitansi; panel rincian
 │   │   │   ├── form-parts.tsx  # Pesan error, petunjuk, dan bagian form dashboard
+│   │   │   ├── upload-field.tsx # Field unggah berkas (PDF warta, gambar, QRIS, kuitansi) ke R2
 │   │   │   └── session-provider.tsx
 │   │   ├── layouts/            # RootLayout, PublicLayout, DashboardLayout
 │   │   ├── pages/              # public/, dashboard/, LoginPage, RouteErrorPage
-│   │   ├── lib/                # api, use-api-query, use-url-filters, upload, session, navigation, format WITA, audit-format, congregation, finance, use-live-reload, read-spreadsheet, member-files
+│   │   ├── lib/                # api, use-api-query, use-url-filters, upload, session, navigation, format WITA, audit-format, congregation, finance, contents, use-live-reload, read-spreadsheet, member-files
 │   │   ├── router.tsx          # Definisi semua rute
 │   │   ├── main.tsx
 │   │   └── index.css           # Tailwind v4 + token tema portal & dashboard
@@ -89,6 +90,8 @@ Buka `/` untuk Portal Publik dan `/dashboard` untuk dashboard pengurus.
 | `/dashboard/finance/transactions` | `DashboardLayout` | Transaksi Kas: kas masuk/keluar per bulan, total, bukti kuitansi (Bendahara dan Admin mencatat; Pendeta dan Majelis membaca) |
 | `/dashboard/finance/budgets` | `DashboardLayout` | Pos Kas & RAPBJ: saldo Pos Kas, target dan realisasi tiap mata anggaran per tahun |
 | `/dashboard/finance/reports` | `DashboardLayout` | Laporan Keuangan mingguan/bulanan/tahunan per Pos Kas, siap cetak untuk Warta Jemaat (keempat peran) |
+| `/dashboard/contents` | `DashboardLayout` | Warta & Konten (Admin): warta PDF, renungan, berita, galeri, profil, rekening & QRIS; tambah di `/new?category=…`, ubah di `/:id` |
+| `/dashboard/renungan` | `DashboardLayout` | Renungan Saya (Pendeta): halaman yang sama, hanya renungan miliknya |
 | `/dashboard/users`   | `DashboardLayout` | Akun Pengurus (Admin): tambah, ubah peran/rayon, atur ulang kata sandi, nonaktifkan |
 | `/dashboard/audit-logs` | `DashboardLayout` | Log Aktivitas (Admin): riwayat per hari, filter tanggal/aksi/data/pengguna di URL |
 | `/dashboard/*`       | `DashboardLayout` | Halaman modul lain (kerangka); ditolak bila peran tidak berhak    |
@@ -498,6 +501,24 @@ Rute: [contents.ts](src/worker/routes/contents.ts) (CMS, perlu login) dan [publi
 - **Isi** berupa teks biasa; paragraf dipisah baris kosong. Baris dipertahankan, CRLF menjadi LF, dan baris kosong berlebih dirapikan. Maksimal 50.000 karakter.
 - **Berkas.** `attachment_url` berasal dari folder publik `warta`, `konten`, `media`, atau `liturgi` (unggah dulu lewat `POST /api/uploads`), atau tautan `https`. `thumbnail_url` adalah foto dari folder `konten` atau `media`. Menghapus konten tidak menghapus berkasnya di R2.
 - **Info Persembahan**: judul = bank dan keperluan, `summary` = nomor rekening (yang disalin pengunjung), `content_body` = atas nama dan catatan, `thumbnail_url` = gambar QRIS.
+
+**Di dashboard** (`/dashboard/contents` untuk Admin, `/dashboard/renungan` untuk Pendeta; [ContentsPage.tsx](src/client/pages/dashboard/ContentsPage.tsx) dan [ContentEditorPage.tsx](src/client/pages/dashboard/ContentEditorPage.tsx)):
+
+- **Daftar** per kategori (tab Warta, Renungan, Berita, Galeri, Profil, Rekening & QRIS; di ponsel menjadi satu pilihan). Ada filter status dan pencarian di URL, serta status Draf/Terjadwal/Terbit beserta waktunya.
+  - **Sakelar Terbit** di tiap baris menerbitkan atau menjadikan draf tanpa membuka editor. Bila konten belum lengkap, notifikasi menyebut alasannya (mis. warta tanpa PDF) dan sakelar tetap mati.
+  - Kalimat di bawah judul menyebut warta terakhir, apakah renungan hari ini sudah terbit, dan jumlah draf.
+- **Editor** menampilkan field sesuai kategori ([src/client/lib/contents.ts](src/client/lib/contents.ts)):
+  - **Warta**: judul terisi "Warta Jemaat Minggu, {Minggu terdekat}", lalu unggah PDF (hanya PDF), ringkasan pengumuman, dan pengumuman singkat.
+  - **Renungan**: judul, ayat bacaan (ringkasan), isi, dan gambar sampul.
+  - **Berita** dan **Profil**: judul, ringkasan, isi, foto, dan lampiran opsional.
+  - **Galeri**: foto dokumentasi (folder `media`), keterangan, cerita kegiatan, dan tautan video.
+  - **Rekening & QRIS**: bank, untuk (Pos Kas atau keperluan, dengan saran nama Pos Kas aktif), nomor rekening, atas nama, dan gambar QRIS. Bank dan keperluan disimpan sebagai judul "Bank NTT · Kas Pembangunan" dan diurai kembali saat diubah.
+- **Editor teks**: teks biasa dengan mode Tulis/Pratinjau. Pratinjau memisahkan paragraf seperti di portal; ada hitungan karakter.
+- **Terbit di portal**: sakelar dan waktu terbit (tanggal + jam WITA). Tanggal yang akan datang menjadikan konten terjadwal; tombol simpan menyesuaikan ("Simpan draf", "Simpan & terbitkan", "Simpan & jadwalkan").
+  - Kelengkapan saat terbit diperiksa di browser dengan aturan yang sama dengan API.
+  - Draf yang disimpan tetap di editor; konten yang terbit kembali ke daftar.
+  - Meninggalkan halaman dengan perubahan yang belum disimpan meminta konfirmasi.
+- **Unggahan** memakai [upload-field.tsx](src/client/components/upload-field.tsx) (juga dipakai bukti kuitansi transaksi): berkas langsung diunggah ke R2 dengan progres dan tombol Batal, dibatasi jenisnya (PDF atau gambar), dan bisa diganti atau dilepas.
 
 **Portal (tanpa login).** Respons memakai `Cache-Control: public, max-age=60`.
 
