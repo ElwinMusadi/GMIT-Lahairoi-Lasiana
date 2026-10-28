@@ -32,7 +32,7 @@ export function FaqAccordion({
           className="group rounded-2xl border border-site-rule bg-site-canvas transition-colors hover:border-site-ink data-[state=open]:hover:border-site-rule"
         >
           <AccordionPrimitive.Header>
-            <AccordionPrimitive.Trigger className="flex w-full items-center justify-between gap-4 rounded-2xl p-5 text-left outline-none focus-visible:ring-3 focus-visible:ring-site-accent/60 md:p-6">
+            <AccordionPrimitive.Trigger className="flex w-full items-center justify-between gap-4 rounded-2xl p-5 text-left outline-none focus-visible:ring-3 focus-visible:ring-ring md:p-6">
               <span className="font-site-display text-base font-bold text-site-ink md:text-lg">
                 {item.question}
               </span>

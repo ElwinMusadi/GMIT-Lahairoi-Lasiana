@@ -1,146 +1,193 @@
-import { useState } from 'react'
-import { LayoutDashboard, Menu, X } from 'lucide-react'
-import { Link, NavLink } from 'react-router'
+import { useState, useSyncExternalStore } from 'react'
+import { Menu, X } from 'lucide-react'
+import { Link, useLocation } from 'react-router'
 import { WellMark } from '@/components/brand/well'
-import { Button } from '@/components/ui/button'
+import { PillLink } from '@/components/portal/kage/pill'
+import { PortalNavMenu } from '@/components/portal/nav-menu'
+import { ThemeToggle } from '@/components/portal/theme-toggle'
 import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
-import { portalLinks } from '@/lib/navigation'
+import { activePortalLink, portalNav, type PortalLink } from '@/lib/navigation'
 import { cn } from '@/lib/utils'
 
 // Tombol besar membulat, dipakai halaman masuk pengurus.
 export const portalButton = 'h-12 rounded-full px-6 text-base font-medium'
 
-// Header Portal Publik (rancangan design/stitch/08): putih tembus pandang, menempel di
-// atas, tautan berbentuk pil dalam satu wadah. Di bawah xl menjadi menu lembar.
+// Pil kaca bahasa kage: putih tembus pandang di tema terang, gelap di tema gelap.
+const glassPill =
+  'inline-flex h-11 flex-none items-center gap-2 rounded-full border border-site-rule bg-site-glass px-4 text-sm font-semibold text-site-ink shadow-sm transition-colors outline-none hover:border-site-ink/40 focus-visible:ring-3 focus-visible:ring-ring'
+
+function subscribeScroll(onChange: () => void) {
+  window.addEventListener('scroll', onChange, { passive: true })
+  return () => window.removeEventListener('scroll', onChange)
+}
+
+// Header Portal Publik rancangan kage: pil-pil yang melayang di atas hero (merek,
+// navigasi, tema, Masuk Pengurus). Header selalu menempel; begitu halaman digulir, pil
+// naik merapat ke tepi atas agar tidak menutupi isi. Di bawah 1024 px navigasi pindah ke
+// menu layar penuh.
 export function SiteHeader() {
+  const scrolled = useSyncExternalStore(
+    subscribeScroll,
+    () => window.scrollY > 8,
+    () => false,
+  )
+
   return (
-    <header className="sticky top-0 z-40 bg-white/95 shadow-[0_1px_8px_rgba(0,0,0,0.06)] backdrop-blur-xl">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:h-20 lg:px-8">
-        <Brand />
-        <nav
-          aria-label="Navigasi utama"
-          className="hidden items-center gap-1 rounded-xl bg-portal-low p-1 xl:flex"
-        >
-          {portalLinks.map((link) => (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              end={link.to === '/'}
-              className={({ isActive }) =>
-                cn(
-                  'rounded-lg px-3 py-2 text-sm font-semibold transition-colors',
-                  isActive
-                    ? 'bg-portal-indigo text-white'
-                    : 'text-portal-muted hover:bg-portal-high hover:text-portal-ink',
-                )
-              }
-            >
-              {link.short}
-            </NavLink>
-          ))}
-        </nav>
+    <header
+      data-scrolled={scrolled || undefined}
+      className="pointer-events-none fixed inset-x-0 top-0 z-40 px-(--site-inset) pt-(--site-inset) transition-transform duration-300 ease-out data-scrolled:-translate-y-[calc(var(--site-inset)_-_12px)] motion-reduce:transition-none"
+    >
+      <div className="flex items-center justify-between gap-2 *:pointer-events-auto">
+        <BrandPill />
+        <PortalNavMenu className="hidden lg:block" />
         <div className="flex flex-none items-center gap-2">
-          <Link
+          <ThemeToggle />
+          <PillLink
             to="/login"
-            className="hidden items-center gap-1.5 rounded-lg bg-portal-high px-4 py-2 text-xs font-semibold text-portal-ink transition-colors hover:bg-portal-highest md:inline-flex"
+            tone="dark"
+            arrow
+            aria-label="Masuk Pengurus"
+            className="hidden lg:inline-flex"
           >
-            <LayoutDashboard className="size-4" aria-hidden="true" />
-            Masuk Pengurus
-          </Link>
-          <MobileMenu />
+            Masuk<span className="hidden xl:inline"> Pengurus</span>
+          </PillLink>
+          <MobileMenu scrolled={scrolled} />
         </div>
       </div>
     </header>
   )
 }
 
-function Brand() {
+function BrandPill({ onClick }: { onClick?: () => void }) {
   return (
     <Link
       to="/"
+      onClick={onClick}
       aria-label="GMIT Lahairoi Tuak Sabu Lasiana: beranda"
-      className="flex min-w-0 items-center gap-3 rounded-lg outline-offset-4"
+      className={glassPill}
     >
-      <span className="flex size-10 flex-none items-center justify-center rounded-xl bg-portal-navy text-white">
-        <WellMark className="size-5" />
-      </span>
-      <span className="flex min-w-0 flex-col">
-        <span className="truncate font-portal-heading text-lg leading-tight font-semibold tracking-tight text-portal-navy sm:text-xl">
-          GMIT Lahairoi Tuak Sabu
-        </span>
-        <span className="truncate text-xs font-medium text-portal-muted">
-          Portal Informasi Jemaat
-          <span className="hidden sm:inline"> · Lasiana, Kupang</span>
-        </span>
-      </span>
+      <WellMark className="size-4 text-site-accent" />
+      <span className="font-site-display font-bold tracking-tight">GMIT Lahairoi</span>
     </Link>
   )
 }
 
-function MobileMenu() {
+// Menu layar penuh untuk ponsel dan tablet, dikelompokkan seperti navigasi desktop.
+function MobileMenu({ scrolled }: { scrolled: boolean }) {
   const [open, setOpen] = useState(false)
+  const { pathname, hash } = useLocation()
+  const active = activePortalLink(pathname, hash)
+  const close = () => setOpen(false)
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button
-          variant="ghost"
-          className="h-11 gap-2 rounded-lg px-3 text-sm font-semibold text-portal-navy xl:hidden"
-        >
-          <Menu className="size-5" aria-hidden="true" />
+        <button type="button" className={cn(glassPill, 'lg:hidden')}>
+          <Menu className="size-4" aria-hidden="true" />
           Menu
-        </Button>
+        </button>
       </SheetTrigger>
       <SheetContent
         side="top"
         showCloseButton={false}
-        className="gap-0 border-0 bg-portal-surface p-0 shadow-none data-[side=top]:h-svh"
+        aria-describedby={undefined}
+        className="gap-0 border-0 bg-site-canvas p-0 text-site-ink shadow-none data-[side=top]:h-svh"
       >
-        <div className="flex h-16 items-center justify-between gap-4 bg-white px-4 shadow-[0_1px_8px_rgba(0,0,0,0.06)] sm:h-20">
-          <Brand />
-          <SheetClose asChild>
-            <Button
-              variant="ghost"
-              className="h-11 gap-2 rounded-lg px-3 text-sm font-semibold text-portal-navy"
-            >
-              <X className="size-5" aria-hidden="true" />
-              Tutup
-            </Button>
-          </SheetClose>
+        {/* Bilah atas di posisi yang sama dengan header agar menu terasa terbuka di tempat. */}
+        <div
+          className={cn(
+            'flex items-center justify-between gap-3 px-(--site-inset)',
+            scrolled ? 'pt-3' : 'pt-(--site-inset)',
+          )}
+        >
+          <BrandPill onClick={close} />
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <SheetClose asChild>
+              <button type="button" className={glassPill}>
+                <X className="size-4" aria-hidden="true" />
+                Tutup
+              </button>
+            </SheetClose>
+          </div>
         </div>
         <SheetTitle className="sr-only">Menu navigasi</SheetTitle>
-        <nav aria-label="Navigasi utama" className="flex flex-1 flex-col gap-6 px-4 pt-6 pb-8">
-          <ul className="grid gap-1.5">
-            {portalLinks.map((link) => (
-              <li key={link.to}>
-                <NavLink
-                  to={link.to}
-                  end={link.to === '/'}
-                  onClick={() => setOpen(false)}
-                  className={({ isActive }) =>
-                    cn(
-                      'flex rounded-xl px-4 py-3 font-portal-heading text-lg font-semibold',
-                      isActive
-                        ? 'bg-portal-indigo text-white'
-                        : 'bg-white text-portal-navy hover:bg-portal-high',
-                    )
-                  }
-                >
-                  {link.title}
-                </NavLink>
-              </li>
-            ))}
+        <nav
+          aria-label="Navigasi utama"
+          data-lenis-prevent
+          className="flex flex-1 flex-col gap-8 overflow-y-auto overscroll-contain px-(--site-inset) pt-8 pb-10"
+        >
+          <ul className="grid gap-1 sm:grid-cols-2 sm:gap-x-6">
+            {portalNav.map(
+              (entry) =>
+                !('links' in entry) && (
+                  <li key={entry.to}>
+                    <MenuLink link={entry} active={entry.to === active} onClick={close} />
+                  </li>
+                ),
+            )}
           </ul>
-          <Link
+          <div className="grid gap-8 sm:grid-cols-2 sm:gap-x-6">
+            {portalNav.map(
+              (entry) =>
+                'links' in entry && (
+                  <div key={entry.title}>
+                    <h2 className="px-4 font-site-display text-sm font-bold text-site-muted">
+                      {entry.title}
+                    </h2>
+                    <ul className="mt-2 grid gap-1">
+                      {entry.links.map((link) => (
+                        <li key={link.to}>
+                          <MenuLink link={link} active={link.to === active} onClick={close} />
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ),
+            )}
+          </div>
+          <PillLink
             to="/login"
-            onClick={() => setOpen(false)}
-            className="mt-auto inline-flex items-center justify-center gap-2 rounded-xl bg-portal-high px-4 py-3 text-sm font-semibold text-portal-ink"
+            tone="dark"
+            size="lg"
+            arrow
+            onClick={close}
+            className="mt-auto w-full sm:w-auto sm:self-start"
           >
-            <LayoutDashboard className="size-4" aria-hidden="true" />
             Masuk Pengurus
-          </Link>
+          </PillLink>
         </nav>
       </SheetContent>
     </Sheet>
+  )
+}
+
+function MenuLink({
+  link,
+  active,
+  onClick,
+}: {
+  link: PortalLink
+  active: boolean
+  onClick: () => void
+}) {
+  return (
+    <Link
+      to={link.to}
+      onClick={onClick}
+      aria-current={active ? 'page' : undefined}
+      className={cn(
+        'grid gap-0.5 rounded-2xl px-4 py-3 transition-colors outline-none hover:bg-site-paper focus-visible:ring-3 focus-visible:ring-ring',
+        active && 'bg-site-paper',
+      )}
+    >
+      <span className="flex items-center gap-2 font-site-display text-lg font-bold">
+        {link.title}
+        {active && <span aria-hidden="true" className="size-2 rounded-full bg-site-accent" />}
+      </span>
+      {link.description && (
+        <span className="text-sm leading-snug text-site-muted">{link.description}</span>
+      )}
+    </Link>
   )
 }

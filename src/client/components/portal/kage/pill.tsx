@@ -3,11 +3,11 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { Link } from 'react-router'
 import { cn } from '@/lib/utils'
 
-// Tombol dan tautan berbentuk pil, bahasa tombol rancangan kage. Panah "→" ditulis
-// dengan huruf mono seperti di rancangan, dan disembunyikan dari pembaca layar.
+// Tombol dan tautan berbentuk pil, bahasa tombol rancangan kage. Panah "→" hanya hiasan
+// dan disembunyikan dari pembaca layar.
 
 const pillVariants = cva(
-  'inline-flex shrink-0 items-center justify-center gap-2 rounded-full font-site-body font-semibold whitespace-nowrap transition-[color,background-color,border-color,box-shadow] outline-none focus-visible:ring-3 focus-visible:ring-site-accent/60 disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0',
+  'inline-flex shrink-0 items-center justify-center gap-2 rounded-full font-site-body font-semibold whitespace-nowrap transition-[color,background-color,border-color,box-shadow] outline-none focus-visible:ring-3 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0',
   {
     variants: {
       tone: {
@@ -37,11 +37,7 @@ const pillVariants = cva(
 type PillStyle = VariantProps<typeof pillVariants> & { arrow?: boolean; className?: string }
 
 function Arrow() {
-  return (
-    <span aria-hidden="true" className="font-site-mono text-xs">
-      →
-    </span>
-  )
+  return <span aria-hidden="true">→</span>
 }
 
 export function PillLink({

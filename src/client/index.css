@@ -189,33 +189,39 @@
 }
 
 /*
- * Portal Publik: rancangan design/stitch/08-portal-publik-warta (terang, biru tua dan
- * amber). Dipasang di <html> oleh PublicLayout agar konten Radix di luar layout (sheet
- * menu) ikut memakai token yang sama.
+ * Portal Publik, rancangan kage (design/stitch/10-portal-publik-kage), tema terang.
+ * Dipasang di <html> oleh PublicLayout agar konten Radix di luar layout (sheet menu,
+ * dialog) ikut memakai token yang sama. Komponen shadcn mengikuti warna kage: tombol
+ * utama hitam, garis abu tipis. Cincin fokus jingga tua (4,2:1 di putih), karena jingga
+ * kage (2,5:1) terlalu pucat untuk penanda fokus di kanvas terang.
  */
 .theme-portal {
-  --background: #faf8ff;
-  --foreground: #131b2e;
+  --background: #ffffff;
+  --foreground: #111113;
   --card: #ffffff;
-  --card-foreground: #131b2e;
+  --card-foreground: #111113;
   --popover: #ffffff;
-  --popover-foreground: #131b2e;
-  --primary: #00236f;
+  --popover-foreground: #111113;
+  --primary: #111113;
   --primary-foreground: #ffffff;
-  --secondary: #eaedff;
-  --secondary-foreground: #00236f;
-  --muted: #f2f3ff;
-  --muted-foreground: #444651;
-  --accent: #e2e7ff;
-  --accent-foreground: #131b2e;
+  --secondary: #f6f6f4;
+  --secondary-foreground: #111113;
+  --muted: #f6f6f4;
+  --muted-foreground: #6b6b6b;
+  --accent: #efefec;
+  --accent-foreground: #111113;
   --destructive: #ba1a1a;
-  --border: #e2e7ff;
-  --input: #c5c5d3;
-  --ring: #4059aa;
-  --brand: #00236f;
+  --border: #e7e7e7;
+  --input: #c9c9c4;
+  --ring: #c2620a;
+  --brand: #111113;
   --brand-foreground: #ffffff;
-  --field: #00236f;
+  --field: #111113;
   --field-foreground: #ffffff;
+
+  /* Jarak header dan isi hero dari tepi layar; panel hero berjarak 12–16 px dari tepi,
+     sisanya bantalan di dalam panel. Header dan hero memakai nilai yang sama agar sejajar. */
+  --site-inset: 32px;
 
   /* Token kage, tema terang (bawaan). */
   --site-canvas: #ffffff;
@@ -267,6 +273,35 @@
   --site-green: #6e9c76;
   --site-glass: rgb(17 27 31 / 0.92);
   color-scheme: dark;
+}
+@media (width >= 48rem) {
+  .theme-portal {
+    --site-inset: 48px;
+  }
+}
+@media (width >= 80rem) {
+  .theme-portal {
+    --site-inset: 64px;
+  }
+}
+
+/* Scrim foto footer: teal sangat gelap yang nyaris netral. Pita teratas lebih terang agar
+   foto gereja terlihat; mulai baris teks pertama (±88 px) cukup gelap untuk teks putih di
+   atas dinding gereja yang putih. */
+.site-footer-scrim {
+  background: linear-gradient(
+    to bottom,
+    rgb(8 18 21 / 0.45),
+    rgb(8 18 21 / 0.78) 88px,
+    rgb(8 18 21 / 0.82) 60%,
+    rgb(8 18 21 / 0.92)
+  );
+}
+
+/* Tepi gerigi di atas footer kage: gigi segitiga berwarna kanvas, berulang mendatar. */
+.site-sawtooth {
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='16'%3E%3Cpath d='M0 16 14 0l14 16z'/%3E%3C/svg%3E")
+    0 0 / 28px 16px repeat-x;
 }
 .theme-portal body {
   font-family: var(--font-portal);

@@ -98,14 +98,23 @@ Progres tahap:
   rencana bagian 11.
 - **Tahap 1 (fondasi) selesai.** Isinya: token `site-*` terang/gelap, mekanisme tema
   (`lib/portal-theme.ts` + skrip anti-kedip), tombol tema, huruf kage, foto responsif di
-  `public/images/`, `ui/navigation-menu`, dan primitif di `components/portal/kage/`. Tampilan
-  portal 08 belum berubah.
+  `public/images/`, dan primitif di `components/portal/kage/`. Tampilan portal 08 belum
+  berubah.
 - **Tahap 2 (lapisan gerak) selesai.** `lib/portal-motion.ts` berisi Lenis, parallax hero dan
   foto latar, reveal, dan float. Semuanya dipasang di `PublicLayout`, rukun dengan Radix dan
   tombol Kembali, dan mati saat reduced-motion. Uji kinerja dengan CPU 4× menghasilkan frame
   median 16,7ms.
-- **Berikutnya: Tahap 3 (kerangka):** header dengan navigasi bersubmenu dan tombol tema, serta
-  footer foto.
+- **Tahap 3 (kerangka) selesai.** Semua halaman portal memakai header dan footer kage:
+  - **Header:** pil melayang yang merapat ke atas saat digulir. Navigasi lima menu induk
+    (`portalNav`, Radix NavigationMenu langsung) dengan submenu hover/fokus/ketuk, tombol tema,
+    dan menu ponsel bergrup.
+  - **Footer:** foto dengan parallax ±420, scrim, dan tepi gerigi.
+  - **Variabel shadcn terang** dipetakan ke kage; `--ring` `#C2620A`.
+  - Halaman 08 tanpa hero diberi ruang atas lewat `main:not(:has([data-hero]))`. Hero kage
+    nanti memasang `data-hero`.
+  - Di tema gelap, seksi halaman 08 masih terang sampai halamannya dirombak.
+- **Berikutnya: Tahap 4 (Beranda):** hero penuh kage dan semua isi Beranda 08 (rencana bagian
+  5.1).
 
 **Bug API yang ditemukan di Tahap 0** (belum diperbaiki, diusulkan sebagai commit terpisah):
 

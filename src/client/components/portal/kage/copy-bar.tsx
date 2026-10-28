@@ -61,7 +61,7 @@ export function CopyBar({
         onClick={() => void copy()}
         aria-label={ariaLabel}
         className={cn(
-          'inline-flex h-10 flex-none items-center gap-1.5 rounded-full px-4 font-site-mono text-[13px] font-semibold transition-colors outline-none focus-visible:ring-3 focus-visible:ring-site-accent/60',
+          'inline-flex h-10 flex-none items-center gap-1.5 rounded-full px-4 font-site-mono text-[13px] font-semibold transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring',
           copied ? 'bg-site-green text-white' : 'bg-white text-site-panel hover:bg-site-paper',
         )}
       >

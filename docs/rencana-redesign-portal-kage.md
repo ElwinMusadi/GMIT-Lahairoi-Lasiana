@@ -92,7 +92,8 @@ Selesai berarti:
 
 Variabel shadcn di `.theme-portal` (`--primary`, `--ring`, `--border`, …) dipetakan ulang ke nilai
 di atas agar dialog, sheet, input, dan tombol shadcn ikut gaya kage. Contohnya `--primary` menjadi
-`#111113`, dan `--ring` menjadi `#F08A2B`.
+`#111113`. `--ring` menjadi jingga tua `#C2620A` (4,2:1 di putih), karena jingga kage `#F08A2B`
+hanya 2,5:1 di putih, terlalu pucat untuk penanda fokus. Di tema gelap `--ring` tetap `#F08A2B`.
 
 Kontras dihitung dengan rumus WCAG:
 
@@ -203,11 +204,10 @@ src/client/
 ├── layouts/PublicLayout.tsx          # + SmoothScroll provider, header varian overlay/solid
 ├── lib/portal-motion.ts              # useLenis, useReveal, useParallax, useFloat (rAF, satu listener)
 ├── lib/portal-theme.ts               # diperluas: tema terang/gelap, simpan pilihan, lepas di dashboard
-├── lib/navigation.ts                 # + portalNavGroups (menu induk & submenu); portalLinks tetap untuk footer
-├── components/ui/navigation-menu.tsx # baru via `npx shadcn@latest add navigation-menu` (Radix NavigationMenu)
+├── lib/navigation.ts                 # portalNav (menu induk & submenu), portalNavLinks, activePortalLink; dipakai header dan footer
 └── components/portal/
     ├── site-header.tsx               # ditulis ulang: pil merek, pil nav bersubmenu, tombol tema, pil Masuk; menu ponsel (Sheet)
-    ├── nav-menu.tsx                  # pil navigasi desktop: menu induk + panel submenu (hover, fokus, klik)
+    ├── nav-menu.tsx                  # pil navigasi desktop: Radix NavigationMenu langsung, menu induk + panel submenu (hover, fokus, klik)
     ├── theme-toggle.tsx              # tombol ☼/☾ terang–gelap
     ├── site-footer.tsx               # ditulis ulang: foto + tepi gergaji, kolom tautan, legal
     ├── parts.tsx                     # diganti primitif kage (di bawah); bagian 08 dihapus di tahap akhir
@@ -292,8 +292,8 @@ dan tombol 08 dibawa utuh; rinciannya di daftar periksa (bagian 6).
   - **Lebar <1024 px:** pil merek, tombol tema, dan tombol "Menu" yang membuka menu layar
     penuh. Menu ini dikelompokkan dengan judul grup yang sama (Kabar Jemaat, Pelayanan, Tentang
     Jemaat) dan berisi semua tautan, "Tutup", serta "Masuk Pengurus".
-  - **Sumber data:** grup didefinisikan sekali di `portalNavGroups` (`lib/navigation.ts`).
-    `portalLinks` tetap dipakai footer.
+  - **Sumber data:** grup didefinisikan sekali di `portalNav` (`lib/navigation.ts`). Footer
+    memakai judul tautan yang sama.
 - **Hero halaman dalam** (`HeroPanel` ringkas):
   - Panel membulat 24 px setinggi ±44 vh di desktop, tinggi otomatis di ponsel.
   - Latarnya foto gereja dengan scrim lebih pekat. Galeri memakai foto dokumentasi terbaru,
@@ -307,8 +307,9 @@ dan tombol 08 dibawa utuh; rinciannya di daftar periksa (bagian 6).
     Lasiana.", dan "Lasiana, Kota Kupang, Nusa Tenggara Timur".
   - Kolom tautan memuat kesembilan tautan portal ditambah "Cek status pendaftaran"
     (`/layanan-sakramen#cek-status`). Susunannya:
-    - **Jemaat:** Beranda, Jadwal Ibadah, Warta Jemaat, Renungan, Berita & Pengumuman.
-    - **Pelayanan:** Layanan Sakramen, Cek status pendaftaran, Persembahan, Galeri Kegiatan.
+    - **Jemaat:** Beranda, Jadwal Ibadah, Warta Jemaat, Renungan, Berita & Pengumuman, Galeri
+      Kegiatan (Galeri dipindah dari Pelayanan agar sama dengan grup Kabar Jemaat di header).
+    - **Pelayanan:** Layanan Sakramen, Cek status pendaftaran, Persembahan.
     - **Gereja:** Profil & Sejarah, Lima rayon pelayanan (`/profil#rayon`), Pendeta & Majelis
       (`/profil#majelis`), Masuk pengurus.
     - **Kontak:** hanya bila K1 disetujui.
@@ -924,3 +925,84 @@ Catatan pemeriksaan:
   dengan dan tanpa Lenis. Penyebabnya isi Profil yang dimuat setelah gulir; perilaku ini sudah
   ada di 08 dan diperbaiki saat halaman Profil dirombak (Tahap 7): gulir ulang ke jangkar
   setelah data tiba.
+
+### Tahap 3 — Kerangka (29 Oktober 2026)
+
+**Yang dibangun:**
+
+- **Navigasi bergrup** di [lib/navigation.ts](../src/client/lib/navigation.ts):
+  - `portalNav` berisi lima menu induk, tiga di antaranya bersubmenu dengan keterangan
+    singkat;
+  - `portalNavLinks` adalah daftar datarnya;
+  - `activePortalLink(pathname, hash)` memilih satu tautan aktif: `/` hanya persis,
+    `/renungan/x` menandai Renungan, dan tautan berjangkar hanya bila jangkarnya sama.
+  - `portalLinks` lama dihapus.
+- **[site-header.tsx](../src/client/components/portal/site-header.tsx):**
+  - Satu header `fixed` berisi pil-pil yang melayang: pil merek (cincin sumur + "GMIT
+    Lahairoi"), pil navigasi, tombol tema, dan "Masuk Pengurus →" (di 1024–1279 px tertulis
+    "Masuk", dengan nama aksesibel tetap "Masuk Pengurus").
+  - Celah antarpil tidak menangkap klik (`pointer-events-none`).
+  - Saat diam, header berjarak `--site-inset` dari tepi (32/48/64 px di ponsel/tablet/desktop
+    lebar), nilai yang sama dengan bantalan hero kage. Begitu halaman digulir, header naik
+    merapat ke 12 px dari atas (transform, tanpa transisi saat kurangi gerak).
+- **[nav-menu.tsx](../src/client/components/portal/nav-menu.tsx):**
+  - Memakai Radix NavigationMenu langsung (tanpa pembungkus shadcn), agar gaya fokus dan panel
+    tidak bertabrakan dengan kelas bawaan shadcn. `components/ui/navigation-menu.tsx` dari
+    Tahap 1 dihapus.
+  - Submenu terbuka saat kursor diarahkan (jeda buka 120 ms, jeda tutup bawaan Radix 150 ms),
+    saat Enter/Spasi, dan saat diketuk.
+  - Panel: kartu kanvas membulat 16 px, satu baris per tautan (judul tebal + keterangan),
+    penanda aktif berupa titik jingga. Panel terakhir dirapatkan ke kanan.
+  - Menu induk yang memuat halaman aktif berwarna gelap dan diberi `aria-current="true"`.
+- **Menu ponsel (<1024 px):**
+  - Sheet layar penuh. Bilah atasnya berada di posisi yang sama dengan header (diam atau
+    merapat), dan berisi pil merek, tombol tema, serta "Tutup".
+  - Beranda dan Jadwal Ibadah di atas, lalu tiga grup berjudul. Di ≥640 px tampil dua kolom.
+  - "Masuk Pengurus" di bawah. Isinya bisa digulir (`data-lenis-prevent`).
+- **[site-footer.tsx](../src/client/components/portal/site-footer.tsx):**
+  - Foto gereja (`srcset` 640/960/1254, `loading="lazy"`, `decoding="async"`) dengan
+    parallax ±420 px, scrim, dan tepi gerigi berwarna kanvas (gigi 28×16 px lewat `mask`,
+    jadi ukurannya tetap di semua lebar).
+  - Kolom merek, tiga kolom tautan (Jemaat, Pelayanan, Gereja), baris hak cipta dan WITA.
+- **[PublicLayout.tsx](../src/client/layouts/PublicLayout.tsx):**
+  - Kanvas `site-canvas`, huruf Inter, tautan "Lewati ke konten" bergaya pil.
+  - `main` diberi ruang atas hanya bila halaman belum punya hero (`:not(:has([data-hero]))`),
+    jadi halaman 08 tidak tertutup header. Hero kage di tahap berikutnya memasang
+    `data-hero`.
+  - Toaster mengikuti tema portal.
+- **Variabel shadcn tema terang** dipetakan ke kage: `--primary` `#111113`, garis `#E7E7E7`,
+  permukaan `#F6F6F4`, `--ring` `#C2620A`. Tombol shadcn di halaman 08 (formulir sakramen,
+  login) kini hitam.
+- **Primitif kage:** cincin fokus memakai `ring-ring` (sebelumnya jingga 60 % yang hanya
+  ±1,8:1 di putih), dan panah "→" tidak lagi memakai huruf mono.
+
+**Penyesuaian setelah inspector:**
+
+| Temuan | Tindakan |
+| --- | --- |
+| `gradient` (scrim footer) | Scrim teal `#07151A` dianggap gradien hias karena selisih kanalnya 19 (batas scrim netral 14). Diganti `rgb(8 18 21)`, teal sangat gelap yang nyaris netral |
+| Kontras teks footer | Scrim manifest 90/70/40 hanya ±50 % di baris teks pertama, sehingga teks putih jatuh di atas dinding gereja putih. Scrim kini 45 % di pita teratas, 78 % mulai 88 px, 82 % di tengah, 92 % di bawah; tautan memakai `white/85` |
+| `mono` | Baris hak cipta dan panah pil memakai Inter. Mono tetap untuk jam, kode, dan nomor rekening |
+| `hairline` | Garis di atas baris hak cipta dihapus; pemisahnya jarak |
+| `glass` | Blur hanya pada pil navigasi. Pil lain sudah 95 % pekat, jadi blur tidak menambah keterbacaan |
+
+**Pemeriksaan:**
+
+| Uji | Hasil |
+| --- | --- |
+| Lebar 1024 px | Pil merek 144 + navigasi 586 + aksi 152 px muat dalam 913 px |
+| Submenu dengan tetikus | Terbuka saat disorot; kursor bisa pindah ke panel; klik "Renungan" membuka halaman, panel menutup, "Kabar Jemaat" menjadi gelap |
+| Submenu dengan keyboard | Enter membuka; panah bawah masuk ke tautan pertama; Tab berpindah tautan; Esc menutup dan fokus kembali ke menu induk; panah kanan pindah ke menu induk berikutnya |
+| Jangkar dari submenu di halaman yang sama (`/layanan-sakramen#cek-status`) | Meluncur halus lewat Lenis (0→320px) dan berhenti di 96px; panel menutup |
+| Menu ponsel | Bisa digulir dengan roda tetikus (433px) sementara halaman tetap di 0 dan Lenis berhenti; "Cek Status Pendaftaran" menutup menu, lalu halaman lompat ke `#cek-status` di 96px dan fokus kembali ke "Menu" |
+| Tema gelap | Tombol di header dan di menu ponsel berfungsi, dan pilihan tersimpan. Header, menu, dan footer gelap; seksi halaman 08 masih terang sampai dirombak |
+| Footer | Foto menutupi bingkai di posisi paling bawah halaman (desktop dan ponsel); tidak ada gulir menyamping di 390px |
+| Kurangi gerak | Lenis mati, foto footer diam di tengah dan tetap menutupi bingkai, header tetap merapat ke atas |
+| Login | Tetap tampil benar; tombol utama hitam |
+| Inspector | Tidak ada temuan dari header dan footer. Beranda 8 FAIL (baseline 10), Sakramen 6 FAIL (baseline 8); sisanya berasal dari isi halaman 08 |
+
+- **Ukuran bundle utama:** 402,0 → 393,3 KB (gzip 125,3 → 122,4 KB), diukur dengan build
+  commit Tahap 2 dan build Tahap 3.
+- **Tautan berjangkar dari menu ponsel lompat tanpa animasi.** Saat menu terbuka, Lenis
+  berhenti, sehingga yang bekerja `ScrollRestoration`. Ini disengaja: halaman tertutup menu
+  saat lompatan terjadi.

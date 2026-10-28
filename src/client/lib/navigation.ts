@@ -18,19 +18,77 @@ import {
 } from 'lucide-react'
 import type { UserRole } from '@shared/types'
 
-// Tautan Portal Publik, berurutan seperti di navbar. `short` dipakai di navbar desktop
-// agar sembilan tautan muat dalam satu baris.
-export const portalLinks = [
-  { title: 'Beranda', short: 'Beranda', to: '/' },
-  { title: 'Jadwal Ibadah', short: 'Jadwal', to: '/jadwal' },
-  { title: 'Warta Jemaat', short: 'Warta', to: '/warta' },
-  { title: 'Renungan', short: 'Renungan', to: '/renungan' },
-  { title: 'Berita & Pengumuman', short: 'Berita', to: '/berita' },
-  { title: 'Galeri Kegiatan', short: 'Galeri', to: '/media' },
-  { title: 'Profil & Sejarah', short: 'Profil', to: '/profil' },
-  { title: 'Layanan Sakramen', short: 'Sakramen', to: '/layanan-sakramen' },
-  { title: 'Persembahan', short: 'Persembahan', to: '/persembahan' },
-] as const
+export type PortalLink = { title: string; to: string; description?: string }
+export type PortalNavGroup = { title: string; links: PortalLink[] }
+export type PortalNavItem = PortalLink | PortalNavGroup
+
+// Navigasi Portal Publik: lima menu induk. Halaman yang serumpun dikelompokkan dalam
+// submenu yang terbuka saat kursor diarahkan, difokus, atau diketuk. Kesembilan halaman
+// tetap terjangkau, ditambah tiga jangkar yang sering dicari.
+export const portalNav: PortalNavItem[] = [
+  { title: 'Beranda', to: '/' },
+  { title: 'Jadwal Ibadah', to: '/jadwal' },
+  {
+    title: 'Kabar Jemaat',
+    links: [
+      { title: 'Warta Jemaat', to: '/warta', description: 'Warta mingguan lengkap dalam PDF' },
+      { title: 'Renungan', to: '/renungan', description: 'Renungan harian dan pembinaan iman' },
+      {
+        title: 'Berita & Pengumuman',
+        to: '/berita',
+        description: 'Kegiatan, dukacita, informasi pelayanan',
+      },
+      { title: 'Galeri Kegiatan', to: '/media', description: 'Foto dan video dokumentasi' },
+    ],
+  },
+  {
+    title: 'Pelayanan',
+    links: [
+      {
+        title: 'Layanan Sakramen',
+        to: '/layanan-sakramen',
+        description: 'Daftar baptis, sidi, dan nikah tanpa akun',
+      },
+      {
+        title: 'Cek Status Pendaftaran',
+        to: '/layanan-sakramen#cek-status',
+        description: 'Lacak berkas dengan kode registrasi',
+      },
+      { title: 'Persembahan', to: '/persembahan', description: 'QRIS dan rekening tiap pos kas' },
+    ],
+  },
+  {
+    title: 'Tentang Jemaat',
+    links: [
+      { title: 'Profil & Sejarah', to: '/profil', description: 'Sejarah, visi dan misi' },
+      {
+        title: 'Lima Rayon Pelayanan',
+        to: '/profil#rayon',
+        description: 'Wilayah dan koordinator rayon',
+      },
+      {
+        title: 'Pendeta & Majelis',
+        to: '/profil#majelis',
+        description: 'Pelayan jemaat periode berjalan',
+      },
+    ],
+  },
+]
+
+export const portalNavLinks = portalNav.flatMap((item) => ('links' in item ? item.links : [item]))
+
+// Tautan navigasi untuk halaman yang sedang dibuka: path-nya cocok (`/` hanya persis,
+// `/renungan/x` menandai Renungan), dan tautan berjangkar hanya bila jangkarnya juga sama.
+export function activePortalLink(pathname: string, hash: string) {
+  const matches = portalNavLinks.filter(({ to }) => {
+    const path = to.split('#')[0]
+    return path === '/' ? pathname === '/' : pathname === path || pathname.startsWith(`${path}/`)
+  })
+  return (
+    matches.find(({ to }) => hash !== '' && to.endsWith(hash)) ??
+    matches.find(({ to }) => !to.includes('#'))
+  )?.to
+}
 
 export type ModuleItem = {
   title: string
