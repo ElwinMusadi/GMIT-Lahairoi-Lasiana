@@ -47,9 +47,10 @@ import type { AppEnv } from '../types'
 // dalam transaksi yang sama: baptis/sidi menjadi Sudah dengan tanggalnya, atau status
 // nikah menjadi Menikah untuk kedua mempelai. Pendaftaran yang sudah Selesai terkunci.
 //
-// GET / query opsional: type, status, q (nama, kode, nomor HP, nomor register),
-// sort (newest bawaan, oldest, scheduled), page, per_page. Respons menyertakan counts:
-// jumlah per status untuk jenis dan pencarian yang sama.
+// GET / query opsional: type, status (atau active = semua yang belum Selesai), q (nama,
+// kode, nomor HP, nomor register), sort (newest bawaan, oldest, scheduled, latest =
+// pelaksanaan terbaru dulu untuk buku induk), page, per_page. Respons menyertakan
+// counts: jumlah per status untuk jenis dan pencarian yang sama.
 const sacraments = new Hono<AppEnv>()
 
 sacraments.use(requireRole('ADMIN', 'PASTOR'))
@@ -63,6 +64,8 @@ const ORDERS: Record<string, string> = {
   oldest: 'a.created_at, a.id',
   // Pelaksanaan terdekat dulu; yang belum dijadwalkan di akhir.
   scheduled: 'a.scheduled_date IS NULL, a.scheduled_date, a.scheduled_time, a.id',
+  // Buku induk: pelaksanaan terbaru dulu.
+  latest: 'a.scheduled_date IS NULL, a.scheduled_date DESC, a.scheduled_time DESC, a.id DESC',
 }
 
 sacraments.get('/', async (c) => {
@@ -90,11 +93,14 @@ sacraments.get('/', async (c) => {
   }
   // Hitungan per status mengikuti jenis dan pencarian, bukan filter status.
   const countWhere = { sql: where.sql, params: [...where.params] }
-  let status: SacramentStatus | null = null
+  let status: SacramentStatus | 'ACTIVE' | null = null
   if (query.status !== undefined) {
     const value = query.status.trim().toUpperCase()
-    if (!(SACRAMENT_STATUSES as string[]).includes(value)) {
-      details.status = [`Pilih salah satu: ${SACRAMENT_STATUSES.join(', ')}.`]
+    if (value === 'ACTIVE') {
+      status = 'ACTIVE'
+      where.addClause("a.status <> 'COMPLETED'")
+    } else if (!(SACRAMENT_STATUSES as string[]).includes(value)) {
+      details.status = [`Pilih salah satu: ${SACRAMENT_STATUSES.join(', ')}, atau ACTIVE.`]
     } else {
       status = value as SacramentStatus
       where.add('a.status = ?', status)
@@ -102,7 +108,7 @@ sacraments.get('/', async (c) => {
   }
   const sort = query.sort ?? 'newest'
   const order = Object.hasOwn(ORDERS, sort) ? ORDERS[sort] : null
-  if (!order) details.sort = ['Isi newest, oldest, atau scheduled.']
+  if (!order) details.sort = ['Isi newest, oldest, scheduled, atau latest.']
   if (Object.keys(details).length > 0) return invalid(c, 'Filter pendaftaran tidak valid.', details)
 
   const db = c.env.DB
@@ -129,9 +135,8 @@ sacraments.get('/', async (c) => {
   for (const row of counts.results as { status: SacramentStatus; n: number }[]) {
     byStatus[row.status] = row.n
   }
-  const total = status
-    ? byStatus[status]
-    : Object.values(byStatus).reduce((sum, value) => sum + value, 0)
+  const all = Object.values(byStatus).reduce((sum, value) => sum + value, 0)
+  const total = status === 'ACTIVE' ? all - byStatus.COMPLETED : status ? byStatus[status] : all
   return c.json<SacramentPage>({
     data: list.results as SacramentListItem[],
     meta: { page, per_page: perPage, total },

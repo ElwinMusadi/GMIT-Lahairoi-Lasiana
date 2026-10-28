@@ -27,6 +27,7 @@ const modulePages: Record<string, PageLoader> = {
   contents: () => import('@/pages/dashboard/ContentsPage'),
   renungan: () => import('@/pages/dashboard/ContentsPage'),
   worships: () => import('@/pages/dashboard/WorshipsPage'),
+  sacraments: () => import('@/pages/dashboard/SacramentsPage'),
 }
 
 const loadContentEditor = () => import('@/pages/dashboard/ContentEditorPage')
@@ -46,6 +47,18 @@ const subPages: Record<
   ],
   contents: contentEditorPages,
   renungan: contentEditorPages,
+  sacraments: [
+    {
+      path: ':id',
+      title: 'Rincian pendaftaran',
+      load: () => import('@/pages/dashboard/SacramentDetailPage'),
+    },
+    {
+      path: ':id/cetak',
+      title: 'Cetak sertifikat',
+      load: () => import('@/pages/dashboard/SacramentCertificatePage'),
+    },
+  ],
   // Majelis melihat jadwal dan mencatat kehadiran; menyusun jadwal khusus Admin dan Pendeta.
   worships: [
     { path: 'new', title: 'Jadwal baru', load: loadWorshipEditor, roles: ['ADMIN', 'PASTOR'] },

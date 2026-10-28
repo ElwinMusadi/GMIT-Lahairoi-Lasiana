@@ -136,7 +136,7 @@ export const moduleGroups: ModuleGroup[] = [
       },
       {
         title: 'Layanan Sakramen',
-        path: 'sakramen',
+        path: 'sacraments',
         icon: Droplets,
         roles: ['ADMIN', 'PASTOR'],
         phase: 2,

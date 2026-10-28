@@ -100,6 +100,7 @@ Buka `/` untuk Portal Publik dan `/dashboard` untuk dashboard pengurus.
 | `/dashboard/contents` | `DashboardLayout` | Warta & Konten (Admin): warta PDF, renungan, berita, galeri, profil, rekening & QRIS; tambah di `/new?category=…`, ubah di `/:id` |
 | `/dashboard/renungan` | `DashboardLayout` | Renungan Saya (Pendeta): halaman yang sama, hanya renungan miliknya |
 | `/dashboard/worships` | `DashboardLayout` | Jadwal Ibadah (Admin, Pendeta, Majelis): jadwal mendatang dengan tanda bentrok petugas, ibadah yang sudah berlangsung dengan absensi; tambah di `/new`, ubah jadwal & petugas di `/:id` (Admin dan Pendeta) |
+| `/dashboard/sacraments` | `DashboardLayout` | Layanan Sakramen (Admin, Pendeta): antrean verifikasi dan Buku Induk per jenis; rincian & verifikasi di `/:id`, cetak sertifikat 2 mode di `/:id/cetak` |
 | `/dashboard/users`   | `DashboardLayout` | Akun Pengurus (Admin): tambah, ubah peran/rayon, atur ulang kata sandi, nonaktifkan |
 | `/dashboard/audit-logs` | `DashboardLayout` | Log Aktivitas (Admin): riwayat per hari, filter tanggal/aksi/data/pengguna di URL |
 | `/dashboard/*`       | `DashboardLayout` | Halaman modul lain (kerangka); ditolak bila peran tidak berhak    |
@@ -682,7 +683,7 @@ Rute: [public-sacraments.ts](src/worker/routes/public-sacraments.ts) (`/api/publ
 
 **Antrean dan buku induk** (`GET /api/sacraments`):
 
-- Filter `type`, `status`, `q` (nama, kode, nomor HP, nomor register), `sort` (`newest` bawaan, `oldest` untuk antrean, `scheduled` menurut tanggal pelaksanaan), `page`, `per_page`.
+- Filter `type`, `status` (atau `active` = semua yang belum Selesai), `q` (nama, kode, nomor HP, nomor register), `sort` (`newest` bawaan, `oldest` untuk antrean, `scheduled` menurut tanggal pelaksanaan, `latest` pelaksanaan terbaru dulu untuk buku induk), `page`, `per_page`.
 - `counts` berisi jumlah per status untuk jenis dan pencarian yang sama.
 - Buku induk = pendaftaran berstatus `COMPLETED` beserta nomor registernya.
 - `GET /api/sacraments/:id` menambahkan isian formulir, dokumen (tautan `/api/files/sakramen/…`), dan catatan.
@@ -708,6 +709,27 @@ Rute: [public-sacraments.ts](src/worker/routes/public-sacraments.ts) (`/api/publ
   - Pendaftaran tanpa anggota tertaut (mis. dari jemaat lain) tetap bisa diselesaikan.
 - Pendaftaran yang sudah Selesai terkunci (`409`).
 - Pengajuan dan setiap perubahan status tercatat di Log Aktivitas; pengajuan dari portal tercatat tanpa pengguna, dengan sumber `portal`.
+
+**Di dashboard** (`/dashboard/sacraments`, Admin dan Pendeta; [SacramentsPage.tsx](src/client/pages/dashboard/SacramentsPage.tsx), [SacramentDetailPage.tsx](src/client/pages/dashboard/SacramentDetailPage.tsx), [SacramentCertificatePage.tsx](src/client/pages/dashboard/SacramentCertificatePage.tsx), [src/client/components/sacrament](src/client/components/sacrament)):
+
+- **Antrean verifikasi**: semua pendaftaran yang belum Selesai, terlama dulu.
+  - Chip status beserta jumlahnya (Semua aktif, Menunggu verifikasi, Revisi berkas, Konseling, Disetujui), filter layanan, dan pencarian, semuanya tersimpan di URL.
+  - Kolom: pendaftar dan kodenya, tanggal masuk, jadwal konseling atau pelaksanaan, jumlah berkas, dan status.
+- **Buku Induk**: tab per jenis (Baptisan, Sidi, Nikah), berisi pendaftaran Selesai dengan nomor register, tanggal pelaksanaan, pendeta, dan anggota jemaat tertaut. Pelaksanaan terbaru di atas; tiap baris punya tombol **Cetak**.
+- **Rincian pendaftaran** (`/:id`):
+  - Isian formulir per bagian, catatan pendaftar, dan berkas persyaratan. Tiap berkas punya tombol **Buka** di tab baru, foto tampil sebagai gambar kecil, dan dokumen wajib yang tidak ada ditandai.
+  - Panel **Verifikasi** berisi pilihan status dengan penjelasannya dan catatan untuk pendaftar (tampil di Cek Status).
+  - Isian lain muncul sesuai status: jadwal konseling, jadwal pelaksanaan dan pendeta, pemilih anggota jemaat (dua untuk nikah), serta nomor register saat Selesai. Pemilih anggota mencari anggota aktif dan menampilkan status baptis/sidi/nikahnya.
+  - Isian diperiksa dengan aturan yang sama dengan API. Sebelum Selesai, konfirmasi menjelaskan akibatnya, dan notifikasi merangkum perubahan data jemaat.
+  - Setelah Selesai, panel berganti ringkasan buku induk dengan tombol **Cetak sertifikat**.
+- **Cetak sertifikat** (`/:id/cetak`, hanya untuk pendaftaran Selesai): Surat Baptisan Kudus, Surat Peneguhan Sidi, atau Surat Nikah Gerejawi, pada A4 tegak dengan semua posisi dalam milimeter ([certificate.tsx](src/client/components/sacrament/certificate.tsx)).
+  - **Format Desain Lengkap (Kop & Bingkai)**: kop GMIT Jemaat Lahairoi dengan tanda sumur, bingkai ganda, judul, nomor register, kalimat keterangan, label dan isian, ayat, serta blok tanda tangan (Ketua Majelis Jemaat dan pendeta yang melayani).
+  - **Format Blangko (Hanya Teks Isian)**: hanya isian yang tercetak (nomor register, data, tanggal pelaksanaan, tempat dan tanggal tanda tangan, nama pendeta), tanpa kop, bingkai, atau label.
+    - Label dan bingkai tampil samar di layar sebagai panduan, tidak ikut tercetak.
+    - **Margin atas/kiri** (mm, langkah 0,5, −30 sampai 30) menggeser semua isian untuk menyesuaikan printer dan blangko fisik. Nilainya disimpan per jenis sertifikat di peramban.
+  - Format tersimpan di URL (`?format=blangko`).
+  - Halaman cetak memakai `@page { size: A4; margin: 0 }`, sehingga yang tercetak hanya satu lembar sertifikat. Di dialog cetak pilih skala 100% dan matikan header/footer peramban.
+  - Isi sertifikat diambil dari isian formulir pendaftaran. Koreksi salah ketik belum bisa dilakukan dari dashboard.
 
 ```bash
 curl -X POST http://localhost:5173/api/public/sacraments/apply \
