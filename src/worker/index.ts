@@ -4,6 +4,7 @@ import { HTTPException } from 'hono/http-exception'
 import { logger } from 'hono/logger'
 import { secureHeaders } from 'hono/secure-headers'
 import type { ApiErrorBody } from '../shared/types'
+import analytics from './routes/analytics'
 import assetLoans from './routes/asset-loans'
 import assets from './routes/assets'
 import auditLogs from './routes/audit-logs'
@@ -59,6 +60,7 @@ app.route('/sacraments', sacraments)
 app.route('/mails', mails)
 app.route('/assets', assets)
 app.route('/asset-loans', assetLoans)
+app.route('/analytics', analytics)
 
 app.notFound((c) => c.json<ApiErrorBody>({ error: 'Endpoint tidak ditemukan' }, 404))
 

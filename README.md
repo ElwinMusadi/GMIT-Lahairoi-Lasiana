@@ -821,6 +821,49 @@ curl -b cookies.txt -H "Content-Type: application/json" -X PATCH http://localhos
   - Barang dipilih per kategori, dengan sisa unit terkini. Jumlah dibatasi sisa unit. Rayon peminjam (untuk Majelis bawaannya rayonnya sendiri), nama peminjam, tanggal pinjam, batas kembali, dan keperluan.
   - Bila stok habis didahului peminjaman lain, dialog menampilkan sisa terbaru.
 
+## Dashboard Eksekutif & Analitik
+
+Rute: [analytics.ts](src/worker/routes/analytics.ts). Aturan periode dan tanggal ulang tahun ada di [src/shared/analytics.ts](src/shared/analytics.ts); bentuk responsnya `AnalyticsDashboard` di [types.ts](src/shared/types.ts).
+
+`GET /api/analytics/dashboard` mengagregasi data riil dari `members`, `families`, `rayons`, `finance_funds`, `finance_budgets`, `finance_transactions`, dan `worship_schedules` dalam satu batch D1.
+
+- **Akses**: keempat peran pengurus dapat membaca angka agregat. `birthdays` (nama dan tanggal lahir) hanya untuk Admin, Pendeta, dan Majelis, sama dengan hak baca data jemaat; Bendahara menerima `null`.
+- **Filter** (opsional) untuk keuangan dan kehadiran:
+  - `year`: tahun anggaran, 2000 s.d. tahun berjalan; bawaannya tahun berjalan.
+  - `month_from`, `month_to`: bulan 1–12, inklusif. Bawaannya Januari s.d. bulan berjalan untuk tahun ini, atau seluruh tahun untuk tahun lampau.
+- Bagian yang selalu keadaan hari ini (WITA), tidak terpengaruh filter:
+  - **`summary`**:
+    - jiwa: anggota berstatus `ACTIVE`;
+    - KK: yang masih punya anggota aktif;
+    - saldo kas: jumlah `current_balance` seluruh Pos Kas;
+    - `last_sunday` dan `previous_sunday`: kehadiran Kebaktian Minggu pada dua hari Minggu terakhir yang sudah diinput, dijumlahkan bila ada lebih dari satu kebaktian (pagi dan sore).
+  - **`demographics`**:
+    - per rayon: KK, jiwa, laki-laki, perempuan; kelima rayon selalu tampil;
+    - jenis kelamin;
+    - kelompok kategorial, beserta `unassigned` untuk yang belum diisi;
+    - cakupan sakramen: baptis, sidi, menikah, dan persentase dari anggota aktif.
+  - **`birthdays`**: ulang tahun anggota aktif pada minggu berjalan (Minggu s.d. Sabtu) dan bulan berjalan.
+    - Setiap entri memuat tanggal lahir, tanggal ulang tahunnya, usia yang dicapai, dan nama rayon. Urutannya menurut tanggal.
+    - Yang lahir 29 Februari berulang tahun pada 28 Februari di tahun bukan kabisat.
+    - Bayi yang lahir pada periode itu (usia 0) tidak dihitung.
+    - Minggu yang melintasi pergantian tahun dihitung dengan benar.
+- Bagian yang mengikuti filter:
+  - **`finance`**:
+    - kas masuk dan keluar per bulan, termasuk bulan tanpa transaksi;
+    - total periode;
+    - saldo tiap Pos Kas pada akhir periode, dihitung dari transaksi sehingga tahun lampau tetap benar. Pos nonaktif hanya tampil bila masih bersaldo atau ada transaksinya;
+    - `budget`: realisasi RAPBJ per jenis, berupa target seluruh mata anggaran tahun itu dibanding transaksi pada mata anggaran tersebut dalam rentang bulan, dengan persen satu desimal.
+  - **`attendance`**:
+    - setiap minggu dalam periode s.d. minggu ini (Minggu s.d. Sabtu, termasuk minggu tanpa data): jumlah ibadah, total, dan rata-rata kehadiran per ibadah, keseluruhan dan per jenis ibadah;
+    - total periode per jenis ibadah.
+  - Hanya ibadah yang kehadirannya sudah diinput yang dihitung.
+
+Contoh:
+
+```bash
+curl -b cookies.txt "http://localhost:5173/api/analytics/dashboard?year=2026&month_from=1&month_to=6"
+```
+
 ## Unggah berkas
 
 Berkas (PDF warta, kuitansi, foto, berkas sakramen) disimpan di **Cloudflare R2**, bukan sebagai base64 di D1, karena baris D1 terlalu kecil untuk PDF.
@@ -1013,6 +1056,7 @@ Komponen akan ditulis ke `src/client/components/ui/`. Preset yang dipakai: `radi
 | GET    | `/api/asset-loans` | Admin, Majelis | Log peminjaman dengan status terlambat (`OVERDUE`), filter, dan hitungan per status |
 | POST   | `/api/asset-loans` | Admin, Majelis | Catat peminjaman; stok tersedia berkurang, ditolak bila tidak cukup |
 | PATCH  | `/api/asset-loans/:id/return` | Admin, Majelis | Catat pengembalian; stok tersedia bertambah lagi |
+| GET    | `/api/analytics/dashboard` | Semua pengurus | Agregasi demografi, ulang tahun (bukan untuk Bendahara), arus kas & saldo Pos Kas, dan tren kehadiran; filter `year`, `month_from`, `month_to` |
 | POST   | `/api/uploads`     | Login + peran folder | Unggah berkas ke R2 (`multipart`: `file`, `folder`) |
 | GET    | `/api/files/*`     | Publik / Login | Ambil berkas dari R2 (mendukung ETag / `304`)     |
 

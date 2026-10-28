@@ -751,6 +751,161 @@ export type AssetResponse = {
 
 export type AssetLoanResponse = { loan: AssetLoan; asset: Asset }
 
+// GET /api/analytics/dashboard: ringkasan Dashboard Eksekutif & Analitik (PRD Fase 3).
+// Demografi, ulang tahun, dan `summary` selalu keadaan hari ini; keuangan dan
+// kehadiran mengikuti `period`.
+export type AnalyticsPeriod = {
+  year: number
+  month_from: number
+  month_to: number
+  // Tanggal pertama dan terakhir rentang bulan (YYYY-MM-DD, inklusif).
+  from: string
+  to: string
+}
+
+export type AnalyticsSummary = {
+  // Anggota berstatus aktif.
+  members: number
+  // KK yang masih punya anggota aktif.
+  families: number
+  // Jumlah saldo seluruh Pos Kas saat ini.
+  cash_balance: number
+  // Hari Minggu terakhir (s.d. hari ini) yang kehadiran Kebaktian Minggunya sudah diinput.
+  last_sunday: AnalyticsSundayAttendance | null
+  // Hari Minggu sebelumnya, sebagai pembanding.
+  previous_sunday: AnalyticsSundayAttendance | null
+}
+
+// Kehadiran seluruh Kebaktian Minggu pada satu tanggal (mis. pagi dan sore).
+export type AnalyticsSundayAttendance = {
+  worship_date: string
+  services: number
+  men: number
+  women: number
+  youth_children: number
+  total: number
+}
+
+export type AnalyticsRayon = {
+  rayon_id: number
+  rayon_name: string
+  families: number
+  members: number
+  men: number
+  women: number
+}
+
+export type AnalyticsDemographics = {
+  by_rayon: AnalyticsRayon[]
+  by_gender: Record<Gender, number>
+  // Jumlah per kelompok kategorial; `unassigned` untuk yang belum diisi.
+  by_categorical: Record<CategoricalGroup, number> & { unassigned: number }
+  sacraments: {
+    members: number
+    baptized: number
+    confirmed: number
+    married: number
+    // Persentase dari anggota aktif, satu desimal.
+    baptized_percent: number
+    confirmed_percent: number
+  }
+}
+
+export type AnalyticsBirthday = {
+  member_id: number
+  family_id: number
+  full_name: string
+  gender: Gender
+  birth_date: string
+  // Tanggal ulang tahun pada periode ini. Lahir 29 Februari: 28 Februari di tahun
+  // bukan kabisat.
+  birthday: string
+  // Usia yang dicapai pada tanggal itu.
+  age: number
+  rayon_id: number
+  rayon_name: string
+}
+
+export type AnalyticsBirthdays = {
+  // Minggu berjalan, Minggu s.d. Sabtu (WITA).
+  week: { from: string; to: string; members: AnalyticsBirthday[] }
+  // Bulan berjalan (YYYY-MM).
+  month: { month: string; members: AnalyticsBirthday[] }
+}
+
+export type AnalyticsCashMonth = {
+  // YYYY-MM
+  month: string
+  income: number
+  expense: number
+}
+
+export type AnalyticsFund = {
+  fund_id: number
+  code: string
+  name: string
+  is_active: boolean
+  // Saldo pada akhir periode (dihitung dari transaksi).
+  balance: number
+  income: number
+  expense: number
+}
+
+export type AnalyticsBudgetLine = {
+  type: FinanceType
+  // Jumlah target mata anggaran RAPBJ tahun ini.
+  target: number
+  // Transaksi pada mata anggaran tahun ini, dalam rentang bulan.
+  realized: number
+  // realized / target dalam persen, satu desimal; null bila target 0.
+  percent: number | null
+}
+
+export type AnalyticsFinance = {
+  months: AnalyticsCashMonth[]
+  income: number
+  expense: number
+  // Jumlah saldo seluruh Pos Kas pada akhir periode.
+  closing_balance: number
+  funds: AnalyticsFund[]
+  budget: AnalyticsBudgetLine[]
+}
+
+export type AnalyticsAttendanceStat = {
+  // Ibadah yang kehadirannya sudah diinput.
+  services: number
+  total: number
+  // Rata-rata kehadiran per ibadah (dibulatkan), null bila belum ada data.
+  average: number | null
+}
+
+export type AnalyticsAttendanceWeek = {
+  // Minggu s.d. Sabtu.
+  week_start: string
+  week_end: string
+  all: AnalyticsAttendanceStat
+  by_category: Record<WorshipCategory, AnalyticsAttendanceStat>
+}
+
+export type AnalyticsAttendance = {
+  // Setiap minggu dalam periode (s.d. hari ini), termasuk yang belum ada datanya.
+  weeks: AnalyticsAttendanceWeek[]
+  all: AnalyticsAttendanceStat
+  by_category: Record<WorshipCategory, AnalyticsAttendanceStat>
+}
+
+export type AnalyticsDashboard = {
+  // Tanggal hari ini (WITA) yang menjadi acuan.
+  today: string
+  period: AnalyticsPeriod
+  summary: AnalyticsSummary
+  demographics: AnalyticsDemographics
+  // null untuk Bendahara: daftar nama dan tanggal lahir mengikuti hak baca data jemaat.
+  birthdays: AnalyticsBirthdays | null
+  finance: AnalyticsFinance
+  attendance: AnalyticsAttendance
+}
+
 // GET /api/public/home: ringkasan Beranda Portal Publik.
 export type PublicHome = {
   // Tanggal hari ini (WITA) yang dipakai untuk jadwal terdekat dan renungan.
