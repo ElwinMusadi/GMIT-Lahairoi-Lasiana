@@ -59,6 +59,7 @@
     .js [data-reveal]{opacity:0;transform:translateY(25px);transition:opacity .6s ease,transform .6s ease}
     .js [data-reveal].is-visible{opacity:1;transform:none}
     [data-parallax="hero-media"],[data-parallax="bg"],[data-float]{will-change:transform}
+    [data-parallax="bg"]{top:50%;height:auto;min-height:100%;object-fit:cover;transform:translate3d(0,-50%,0)}
     [data-parallax="hero-copy"]{will-change:transform,opacity}
     @media (prefers-reduced-motion: reduce){
       .js [data-reveal]{opacity:1;transform:none;transition:none}
@@ -374,8 +375,8 @@
 <!-- ========================================================================= -->
 <section class="relative w-full h-auto min-h-[760px] py-[100px] overflow-hidden flex items-center" id="fitur">
 <!-- Full-width Background Image -->
-<img data-parallax="bg" data-parallax-range="-12,12" data-parallax-scale="1.25" alt="Gedung Gereja GMIT Lahairoi Tuak Sabu" class="absolute inset-0 w-full h-full object-cover pointer-events-none" style="object-position: center 38%; transform: scale(1.25);" src="assets/gereja-gmit-lahairoi.webp"/>
-<div class="absolute inset-0 bg-[#07151A]/75 backdrop-blur-[2px] pointer-events-none"></div>
+<img data-parallax="bg" data-parallax-travel="340" alt="Gedung Gereja GMIT Lahairoi Tuak Sabu" class="absolute left-0 w-full pointer-events-none" src="assets/gereja-gmit-lahairoi.webp"/>
+<div class="absolute inset-0 bg-[#07151A]/60 pointer-events-none"></div>
 <div class="relative z-10 max-w-[1180px] mx-auto px-6 w-full">
 <!-- Header on imagery -->
 <div class="text-left mb-12">
@@ -675,8 +676,8 @@
 <!-- White decorative sawtooth/zigzag top transition edge -->
 <div class="sawtooth-top w-full h-4 bg-white absolute top-0 left-0 z-20"></div>
 <!-- Full-width photograph at full opacity with soft dark scrim from bottom (~50% bottom to 10% top) -->
-<img data-parallax="bg" data-parallax-range="-12,6" data-parallax-scale="1.25" alt="Gedung Gereja GMIT Lahairoi Tuak Sabu" class="absolute inset-0 w-full h-full object-cover pointer-events-none select-none" style="object-position: center 45%; transform: scale(1.25);" src="assets/gereja-gmit-lahairoi.webp"/>
-<div class="absolute inset-0 bg-gradient-to-t from-[#07151A]/95 via-[#07151A]/75 to-[#07151A]/55 pointer-events-none"></div>
+<img data-parallax="bg" data-parallax-travel="420" alt="Gedung Gereja GMIT Lahairoi Tuak Sabu" class="absolute left-0 w-full pointer-events-none select-none" src="assets/gereja-gmit-lahairoi.webp"/>
+<div class="absolute inset-0 bg-gradient-to-t from-[#07151A]/90 via-[#07151A]/70 to-[#07151A]/40 pointer-events-none"></div>
 <div class="relative z-10 max-w-[1180px] mx-auto px-6 pt-24 pb-12 flex flex-col justify-between min-h-[520px]">
 <!-- Main Content Grid -->
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
@@ -760,6 +761,9 @@
   var media = document.querySelector('[data-parallax="hero-media"]');
   var copy = document.querySelector('[data-parallax="hero-copy"]');
   var bgs = Array.prototype.slice.call(document.querySelectorAll('[data-parallax="bg"]'));
+  bgs.forEach(function (el) {                                   /* room to pan without exposing the box edges */
+    el.style.minHeight = 'calc(100% + ' + (2 * parseFloat(el.getAttribute('data-parallax-travel') || '300')) + 'px)';
+  });
   var floats = Array.prototype.slice.call(document.querySelectorAll('[data-float]'));
   var floatScope = document.querySelector('[data-float-scope]');
   function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
@@ -788,9 +792,8 @@
     bgs.forEach(function (el) {
       var r = el.parentElement.getBoundingClientRect();
       var p = clamp((vh - r.top) / (vh + r.height), 0, 1);   /* offset: ["start end", "end start"] */
-      var rg = range(el, 'data-parallax-range', '-8,8');
-      var sc = el.getAttribute('data-parallax-scale') || '1.15';
-      el.style.transform = 'translate3d(0,' + lerp(rg[0], rg[1], p).toFixed(2) + '%,0) scale(' + sc + ')';
+      var travel = parseFloat(el.getAttribute('data-parallax-travel') || '300');
+      el.style.transform = 'translate3d(0, calc(-50% + ' + lerp(-travel, travel, p).toFixed(1) + 'px), 0)';
     });
     if (floatScope && floats.length) {
       var r2 = floatScope.getBoundingClientRect();

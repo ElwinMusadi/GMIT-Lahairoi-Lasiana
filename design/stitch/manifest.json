@@ -61,10 +61,10 @@
     "screen": "projects/7339613156149599295/screens/f9830eb4fdbd485791362f7f91972c7a",
     "width": 1440,
     "height": 8160,
-    "note": "Redesign portal publik, bahasa desain kage.design Nova CLI; menggantikan 08. Screen Stitch final (f9830eb4). HTML lokal = HTML Stitch + patch: grid kolom nav footer, dan hero, band fitur, dan footer memakai foto asli gedung gereja (assets/gereja-gmit-lahairoi.webp); hero object-position atas scrim 75/45/85, band 38% overlay 75% blur, footer 45% scrim 95/75/55. Canvas Stitch masih memakai foto senja buatan Stitch. PNG = render Chrome 1440px dari HTML lokal.",
+    "note": "Redesign portal publik, bahasa desain kage.design Nova CLI; menggantikan 08. Screen Stitch final (f9830eb4). HTML lokal = HTML Stitch + patch: grid kolom nav footer, dan hero, band fitur, dan footer memakai foto asli gedung gereja (assets/gereja-gmit-lahairoi.webp); hero object-position atas scrim 75/45/85, band overlay 60% tanpa blur, footer scrim 90/70/40 (pengubah opasitas Tailwind CDN harus kelipatan 5). Canvas Stitch masih memakai foto senja buatan Stitch. PNG = render Chrome 1440px dari HTML lokal.",
     "assets": [
       "assets/gereja-gmit-lahairoi.webp"
     ],
-    "motion": "Parallax ala runnova.ai (framer-motion useScroll/useTransform ditiru dengan vanilla JS + rAF): hero media translateY 0→28% & scale 1.02→1.15, judul hero translateY 0→10% & opacity 1→0.15, chip kartu Tanpa portal melayang ±25–35px, foto band fitur −12→12% & footer −12→6% (scale 1.25), fade-up [data-reveal] saat masuk viewport (0.6s, sekali, margin -80px). Nonaktif di prefers-reduced-motion."
+    "motion": "Parallax ala runnova.ai (framer-motion useScroll/useTransform ditiru dengan vanilla JS + rAF): hero media translateY 0→28% & scale 1.02→1.15, judul hero translateY 0→10% & opacity 1→0.15, chip kartu Tanpa portal melayang ±25–35px, foto band fitur & footer di-pan setinggi aslinya tanpa zoom: band ±340px, footer ±420px (kecepatan relatif ≈0,4), min-height = 100% + 2×travel agar tak ada celah, fade-up [data-reveal] saat masuk viewport (0.6s, sekali, margin -80px). Nonaktif di prefers-reduced-motion."
   }
 ]
