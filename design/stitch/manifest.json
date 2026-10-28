@@ -65,6 +65,7 @@
     "assets": [
       "assets/gereja-gmit-lahairoi.webp"
     ],
-    "motion": "Parallax ala runnova.ai (framer-motion useScroll/useTransform ditiru dengan vanilla JS + rAF): hero media translateY 0→28% & scale 1.02→1.15, judul hero translateY 0→10% & opacity 1→0.15, chip kartu Tanpa portal melayang ±25–35px, foto band fitur & footer di-pan setinggi aslinya tanpa zoom: band ±340px, footer ±420px (kecepatan relatif ≈0,4), min-height = 100% + 2×travel agar tak ada celah, fade-up [data-reveal] saat masuk viewport (0.6s, sekali, margin -80px). Nonaktif di prefers-reduced-motion."
+    "motion": "Parallax ala runnova.ai (framer-motion useScroll/useTransform ditiru dengan vanilla JS + rAF): hero media translateY 0→28% & scale 1.02→1.15, judul hero translateY 0→10% & opacity 1→0.15, chip kartu Tanpa portal melayang ±25–35px, foto band fitur & footer di-pan setinggi aslinya tanpa zoom: band ±340px, footer ±420px (kecepatan relatif ≈0,4), min-height = 100% + 2×travel agar tak ada celah, fade-up [data-reveal] saat masuk viewport (0.6s, sekali, margin -80px). Nonaktif di prefers-reduced-motion.",
+    "smoothScroll": "Lenis 1.3.11 via jsDelivr dengan konfigurasi persis runnova.ai: duration 1.1, easing t=>min(1, 1.001-2^(-10t)), smoothWheel, wheelMultiplier 1, touchMultiplier 1.5, anchors true, loop rAF manual; dilewati bila prefers-reduced-motion. Parallax tetap digerakkan event scroll native yang dipancarkan Lenis."
   }
 ]
