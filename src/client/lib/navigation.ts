@@ -144,7 +144,7 @@ export const moduleGroups: ModuleGroup[] = [
       },
       {
         title: 'Arsip Surat',
-        path: 'surat',
+        path: 'mails',
         icon: Archive,
         roles: ['ADMIN'],
         phase: 2,

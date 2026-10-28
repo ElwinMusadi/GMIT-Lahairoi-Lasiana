@@ -5,6 +5,8 @@ import {
   CONTENT_CATEGORY_LABELS,
   FAMILY_RELATION_LABELS,
   GENDER_LABELS,
+  MAIL_CATEGORY_LABELS,
+  MAIL_DIRECTION_LABELS,
   MARRIAGE_STATUS_LABELS,
   MEMBER_STATUS_LABELS,
   ROLE_LABELS,
@@ -125,6 +127,11 @@ const FIELD_LABELS: Record<string, string> = {
   certificate_number: 'Nomor register',
   member: 'Anggota',
   partner: 'Mempelai wanita',
+  direction: 'Arah',
+  reference_number: 'Nomor surat',
+  mail_date: 'Tanggal surat',
+  sender_or_recipient: 'Pengirim/penerima',
+  subject: 'Perihal',
 }
 
 // Field yang sudah tersebut lewat label entitas di kalimat ringkasan.
@@ -143,6 +150,8 @@ const LABEL_FIELDS = new Set([
   'worship_date',
   'applicant_name',
   'registration_code',
+  'reference_number',
+  'subject',
 ])
 
 // Kode tersimpan → sebutannya, per jenis data.
@@ -160,6 +169,7 @@ const VALUE_LABELS: Record<string, Record<string, Record<string, string>>> = {
   public_contents: { category: CONTENT_CATEGORY_LABELS },
   worship_schedules: { category: WORSHIP_CATEGORY_LABELS },
   sacrament_applications: { status: SACRAMENT_STATUS_LABELS, type: SACRAMENT_TYPE_LABELS },
+  mail_archives: { direction: MAIL_DIRECTION_LABELS, category: MAIL_CATEGORY_LABELS },
 }
 
 export type AuditDescription = {
@@ -267,7 +277,8 @@ function formatValue(entity: string, field: string, value: unknown): string {
     field === 'receipt_url' ||
     field === 'attachment_url' ||
     field === 'thumbnail_url' ||
-    field === 'liturgy_file_url'
+    field === 'liturgy_file_url' ||
+    field === 'file_url'
   ) {
     return 'terlampir'
   }

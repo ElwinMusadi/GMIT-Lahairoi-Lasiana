@@ -626,6 +626,48 @@ export type PublicSacramentStatus = {
   updated_at: string
 }
 
+export const MAIL_DIRECTION_LABELS = {
+  INCOMING: 'Surat masuk',
+  OUTGOING: 'Surat keluar',
+} as const
+export type MailDirection = keyof typeof MAIL_DIRECTION_LABELS
+export const MAIL_DIRECTIONS = Object.keys(MAIL_DIRECTION_LABELS) as MailDirection[]
+
+// Kategori Buku Agenda (PRD): atestasi/surat pindah jemaat, surat tugas pelayanan,
+// undangan klasis/sinode, dan surat lain (mis. surat keputusan).
+export const MAIL_CATEGORY_LABELS = {
+  ATESTASI: 'Atestasi',
+  TUGAS: 'Surat tugas',
+  UNDANGAN: 'Undangan',
+  UMUM: 'Umum',
+} as const
+export type MailCategory = keyof typeof MAIL_CATEGORY_LABELS
+export const MAIL_CATEGORIES = Object.keys(MAIL_CATEGORY_LABELS) as MailCategory[]
+
+// GET /api/mails: satu catatan Buku Agenda Surat.
+export type MailArchive = {
+  id: number
+  direction: MailDirection
+  // Nomor surat resmi; boleh kosong untuk surat tanpa nomor.
+  reference_number: string | null
+  mail_date: string
+  // Pengirim untuk surat masuk, penerima/tujuan untuk surat keluar.
+  sender_or_recipient: string
+  subject: string
+  category: MailCategory
+  // Salinan digital di folder R2 `surat` (khusus pengurus).
+  file_url: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type MailPage = ApiPage<MailArchive> & {
+  // Jumlah per arah untuk filter kategori, tahun, dan pencarian yang sama (tab).
+  counts: Record<MailDirection, number>
+}
+
+export type MailResponse = { mail: MailArchive }
+
 // GET /api/public/home: ringkasan Beranda Portal Publik.
 export type PublicHome = {
   // Tanggal hari ini (WITA) yang dipakai untuk jadwal terdekat dan renungan.

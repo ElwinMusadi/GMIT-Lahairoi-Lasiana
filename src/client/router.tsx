@@ -28,6 +28,7 @@ const modulePages: Record<string, PageLoader> = {
   renungan: () => import('@/pages/dashboard/ContentsPage'),
   worships: () => import('@/pages/dashboard/WorshipsPage'),
   sacraments: () => import('@/pages/dashboard/SacramentsPage'),
+  mails: () => import('@/pages/dashboard/MailsPage'),
 }
 
 const loadContentEditor = () => import('@/pages/dashboard/ContentEditorPage')

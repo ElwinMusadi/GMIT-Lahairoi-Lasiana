@@ -14,6 +14,7 @@ import financeFunds from './routes/finance-funds'
 import financeReports from './routes/finance-reports'
 import financeTransactions from './routes/finance-transactions'
 import health from './routes/health'
+import mails from './routes/mails'
 import members from './routes/members'
 import publicRoutes from './routes/public'
 import publicSacraments from './routes/public-sacraments'
@@ -53,6 +54,7 @@ app.route('/finance/transactions', financeTransactions)
 app.route('/finance/reports', financeReports)
 app.route('/worships', worships)
 app.route('/sacraments', sacraments)
+app.route('/mails', mails)
 
 app.notFound((c) => c.json<ApiErrorBody>({ error: 'Endpoint tidak ditemukan' }, 404))
 

@@ -101,6 +101,7 @@ Buka `/` untuk Portal Publik dan `/dashboard` untuk dashboard pengurus.
 | `/dashboard/renungan` | `DashboardLayout` | Renungan Saya (Pendeta): halaman yang sama, hanya renungan miliknya |
 | `/dashboard/worships` | `DashboardLayout` | Jadwal Ibadah (Admin, Pendeta, Majelis): jadwal mendatang dengan tanda bentrok petugas, ibadah yang sudah berlangsung dengan absensi; tambah di `/new`, ubah jadwal & petugas di `/:id` (Admin dan Pendeta) |
 | `/dashboard/sacraments` | `DashboardLayout` | Layanan Sakramen (Admin, Pendeta): antrean verifikasi dan Buku Induk per jenis; rincian & verifikasi di `/:id`, cetak sertifikat 2 mode di `/:id/cetak` |
+| `/dashboard/mails`   | `DashboardLayout` | Buku Agenda Surat (Admin): surat masuk/keluar dengan filter arah, tahun, kategori, pencarian; catat dan unggah salinan, buka/unduh, hapus |
 | `/dashboard/users`   | `DashboardLayout` | Akun Pengurus (Admin): tambah, ubah peran/rayon, atur ulang kata sandi, nonaktifkan |
 | `/dashboard/audit-logs` | `DashboardLayout` | Log Aktivitas (Admin): riwayat per hari, filter tanggal/aksi/data/pengguna di URL |
 | `/dashboard/*`       | `DashboardLayout` | Halaman modul lain (kerangka); ditolak bila peran tidak berhak    |
@@ -740,6 +741,27 @@ curl -X POST http://localhost:5173/api/public/sacraments/apply \
   -F birth_certificate=@akta-kelahiran.pdf
 ```
 
+## Buku Agenda Surat
+
+Rute: [mails.ts](src/worker/routes/mails.ts), khusus Admin (sama dengan folder unggahan `surat`). Aturan data bersama ada di [src/shared/mails.ts](src/shared/mails.ts); tabelnya `mail_archives` (migrasi 0007).
+
+- **Mencatat** (`POST /api/mails`):
+  - Isian wajib: `direction` (`INCOMING` surat masuk / `OUTGOING` surat keluar), `mail_date` (hari ini atau sebelumnya, WITA), `sender_or_recipient` (pengirim untuk surat masuk, penerima/tujuan untuk surat keluar), dan `subject` (perihal).
+  - Isian opsional: `reference_number` (nomor surat; kosong untuk surat tanpa nomor) dan `category` (`ATESTASI`, `TUGAS`, `UNDANGAN`, `UMUM`; bawaannya `UMUM`).
+  - Salinan surat diunggah dulu ke `POST /api/uploads` (folder `surat`, PDF atau foto), lalu URL-nya dikirim sebagai `file_url`. Berkas dari folder lain atau tautan luar ditolak.
+- **Daftar** (`GET /api/mails`):
+  - Filter `direction`, `category`, `q` (nomor, pengirim/penerima, perihal; setiap kata harus cocok), `from`/`to` (tanggal surat, inklusif), `page`, `per_page`.
+  - Urut tanggal surat terbaru dulu. `counts` berisi jumlah surat masuk dan keluar untuk filter lain yang sama.
+- **Hapus** (`DELETE /api/mails/:id`): untuk catatan yang salah input; berkas salinannya tetap di R2.
+- Pencatatan dan penghapusan tercatat di Log Aktivitas.
+
+**Di dashboard** (`/dashboard/mails`, [MailsPage.tsx](src/client/pages/dashboard/MailsPage.tsx)):
+
+- Tab arah (Semua, Surat masuk, Surat keluar) beserta jumlahnya, serta filter tahun surat (bawaan tahun berjalan; bisa semua tahun), kategori, dan pencarian. Semua filter tersimpan di URL.
+- Kolom tabel: tanggal, perihal dengan "Dari …/Kepada …", arah dan kategori, serta nomor surat. Kolom **Salinan** punya tombol **Buka** (tab baru) dan **Unduh**, dengan nama berkas dari tanggal dan nomor surat, mis. `2026-10-28-016-mj-lhr-x-2026.pdf`.
+- **Catat surat** (dialog): arah, tanggal, kategori, nomor, pengirim/penerima (labelnya mengikuti arah), perihal, dan unggah salinan. Arah awal mengikuti tab yang sedang dibuka.
+- Hapus catatan lewat menu tiap baris, dengan konfirmasi.
+
 ## Unggah berkas
 
 Berkas (PDF warta, kuitansi, foto, berkas sakramen) disimpan di **Cloudflare R2**, bukan sebagai base64 di D1, karena baris D1 terlalu kecil untuk PDF.
@@ -921,6 +943,9 @@ Komponen akan ditulis ke `src/client/components/ui/`. Preset yang dipakai: `radi
 | GET    | `/api/sacraments` | Admin, Pendeta | Antrean pendaftaran dan buku induk, dengan hitungan per status |
 | GET    | `/api/sacraments/:id` | Admin, Pendeta | Rincian pendaftaran: isian formulir dan dokumen syarat |
 | PATCH  | `/api/sacraments/:id/status` | Admin, Pendeta | Ubah status verifikasi; Selesai mencatat nomor register dan memperbarui status sakramen anggota jemaat |
+| GET    | `/api/mails` | Admin | Buku Agenda Surat dengan filter arah, kategori, kata kunci, tanggal, dan hitungan per arah |
+| POST   | `/api/mails` | Admin | Catat surat masuk/keluar beserta URL salinannya |
+| DELETE | `/api/mails/:id` | Admin | Hapus catatan surat yang salah input |
 | POST   | `/api/uploads`     | Login + peran folder | Unggah berkas ke R2 (`multipart`: `file`, `folder`) |
 | GET    | `/api/files/*`     | Publik / Login | Ambil berkas dari R2 (mendukung ETag / `304`)     |
 
