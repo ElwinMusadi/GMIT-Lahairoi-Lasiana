@@ -446,6 +446,24 @@ export type PublicWorship = {
   preacher: string | null
 }
 
+export const WORSHIP_CATEGORIES = Object.keys(WORSHIP_CATEGORY_LABELS) as WorshipCategory[]
+
+export const SERVANT_ROLE_LABELS = {
+  PREACHER: 'Pelayan Firman',
+  LITURGIST: 'Liturgos',
+  ELDER_ON_DUTY: 'Majelis bertugas',
+  SINGER: 'Pemandu pujian',
+  MUSICIAN: 'Pemusik',
+  MULTIMEDIA: 'Multimedia',
+} as const
+export type ServantRole = keyof typeof SERVANT_ROLE_LABELS
+
+// GET /api/public/worships: Papan Jadwal Ibadah, dengan seluruh petugas pelayanan.
+export type PublicWorshipItem = PublicWorship & {
+  rayon_id: number | null
+  servants: { role: ServantRole; name: string }[]
+}
+
 // GET /api/public/home: ringkasan Beranda Portal Publik.
 export type PublicHome = {
   // Tanggal hari ini (WITA) yang dipakai untuk jadwal terdekat dan renungan.

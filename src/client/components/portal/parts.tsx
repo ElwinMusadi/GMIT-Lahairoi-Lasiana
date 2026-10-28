@@ -107,3 +107,105 @@ export function EmptyNote({ children }: { children: ReactNode }) {
     </p>
   )
 }
+
+// Pembuka halaman portal: pita terang berisi label, judul halaman, dan kalimat pengantar,
+// dengan tempat untuk saringan di bawahnya.
+export function PageIntro({
+  id,
+  eyebrow,
+  title,
+  lead,
+  children,
+}: {
+  id: string
+  eyebrow: string
+  title: ReactNode
+  lead: ReactNode
+  children?: ReactNode
+}) {
+  return (
+    <section aria-labelledby={id} className="bg-portal-low px-4 py-10 lg:px-8">
+      <div className="mx-auto grid max-w-7xl gap-5">
+        <SectionHeading id={id} level={1} eyebrow={eyebrow} title={title} lead={lead} />
+        {children}
+      </div>
+    </section>
+  )
+}
+
+// Halaman sebelum/berikutnya untuk daftar portal.
+export function Pager({
+  page,
+  perPage,
+  total,
+  noun,
+  onPage,
+}: {
+  page: number
+  perPage: number
+  total: number
+  noun: string
+  onPage: (page: number) => void
+}) {
+  if (total <= perPage) return null
+  const first = (page - 1) * perPage + 1
+  const last = Math.min(page * perPage, total)
+  const button =
+    'rounded-lg bg-white px-4 py-2 text-sm font-semibold text-portal-navy shadow-sm hover:bg-portal-high disabled:opacity-40 disabled:hover:bg-white'
+  return (
+    <nav
+      aria-label={`Halaman ${noun}`}
+      className="flex flex-wrap items-center justify-between gap-3 pt-2"
+    >
+      <p className="text-sm text-portal-muted tabular-nums">
+        {first.toLocaleString('id-ID')}–{last.toLocaleString('id-ID')} dari{' '}
+        {total.toLocaleString('id-ID')} {noun}
+      </p>
+      <div className="flex gap-2">
+        <button
+          type="button"
+          className={button}
+          disabled={page <= 1}
+          onClick={() => onPage(page - 1)}
+        >
+          Sebelumnya
+        </button>
+        <button
+          type="button"
+          className={button}
+          disabled={last >= total}
+          onClick={() => onPage(page + 1)}
+        >
+          Berikutnya
+        </button>
+      </div>
+    </nav>
+  )
+}
+
+// Tombol pil saringan (jenis ibadah, rayon).
+export function FilterPill({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean
+  onClick: () => void
+  children: ReactNode
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={active}
+      onClick={onClick}
+      className={cn(
+        'flex-none rounded-lg px-4 py-2 text-sm font-semibold transition-colors',
+        active
+          ? 'bg-portal-indigo text-white'
+          : 'bg-white text-portal-muted shadow-sm hover:bg-portal-high hover:text-portal-ink',
+      )}
+    >
+      {children}
+    </button>
+  )
+}

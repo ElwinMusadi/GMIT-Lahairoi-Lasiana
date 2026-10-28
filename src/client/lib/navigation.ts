@@ -18,14 +18,17 @@ import {
 } from 'lucide-react'
 import type { UserRole } from '@shared/types'
 
-// Tautan Portal Publik, berurutan seperti di navbar.
+// Tautan Portal Publik, berurutan seperti di navbar. `short` dipakai di navbar desktop
+// agar delapan tautan muat dalam satu baris.
 export const portalLinks = [
-  { title: 'Beranda', to: '/' },
-  { title: 'Jadwal Ibadah', to: '/jadwal' },
-  { title: 'Warta Jemaat', to: '/warta' },
-  { title: 'Renungan', to: '/renungan' },
-  { title: 'Profil & Sejarah', to: '/profil' },
-  { title: 'Persembahan', to: '/persembahan' },
+  { title: 'Beranda', short: 'Beranda', to: '/' },
+  { title: 'Jadwal Ibadah', short: 'Jadwal', to: '/jadwal' },
+  { title: 'Warta Jemaat', short: 'Warta', to: '/warta' },
+  { title: 'Renungan', short: 'Renungan', to: '/renungan' },
+  { title: 'Berita & Pengumuman', short: 'Berita', to: '/berita' },
+  { title: 'Galeri Kegiatan', short: 'Galeri', to: '/media' },
+  { title: 'Profil & Sejarah', short: 'Profil', to: '/profil' },
+  { title: 'Persembahan', short: 'Persembahan', to: '/persembahan' },
 ] as const
 
 export type ModuleItem = {

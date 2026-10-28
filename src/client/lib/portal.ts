@@ -119,3 +119,48 @@ export async function copyText(text: string): Promise<boolean> {
   area.remove()
   return ok
 }
+
+const dayHeading = new Intl.DateTimeFormat('id-ID', {
+  timeZone: 'UTC',
+  weekday: 'long',
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+})
+
+// Judul kelompok Papan Jadwal: "Hari ini · Rabu, 28 Oktober 2026".
+export function dayLabel(date: string, today: string) {
+  const days = Math.round((Date.parse(date) - Date.parse(today)) / DAY_MS)
+  const label = dayHeading.format(Date.parse(date))
+  return days === 0 ? `Hari ini · ${label}` : days === 1 ? `Besok · ${label}` : label
+}
+
+// ID video YouTube dari tautan watch, youtu.be, shorts, atau embed; null bila bukan.
+export function youTubeId(url: string | null | undefined): string | null {
+  if (!url) return null
+  try {
+    const parsed = new URL(url)
+    const host = parsed.hostname.replace(/^www\.|^m\./, '')
+    let id: string | null = null
+    if (host === 'youtu.be') id = parsed.pathname.slice(1)
+    else if (host === 'youtube.com' || host === 'youtube-nocookie.com') {
+      id =
+        parsed.searchParams.get('v') ??
+        parsed.pathname.match(/^\/(?:shorts|embed|live)\/([^/]+)/)?.[1] ??
+        null
+    }
+    return id && /^[\w-]{6,20}$/.test(id) ? id : null
+  } catch {
+    return null
+  }
+}
+
+// Cuplikan awal isi untuk kartu artikel (±200 karakter, dipotong di batas kata).
+export function excerpt(text: string | null | undefined, max = 200): string | null {
+  const flat = (text ?? '').replace(/\s+/g, ' ').trim()
+  if (!flat) return null
+  if (flat.length <= max) return flat
+  const cut = flat.slice(0, max)
+  const space = cut.lastIndexOf(' ')
+  return `${(space > max * 0.6 ? cut.slice(0, space) : cut).replace(/[.,;:!?-]+$/, '')}…`
+}

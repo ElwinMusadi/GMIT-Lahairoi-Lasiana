@@ -6,7 +6,6 @@ import type { UserRole } from '@shared/types'
 import { allModules, type ModuleItem } from '@/lib/navigation'
 import HomePage from '@/pages/public/HomePage'
 import NotFoundPage from '@/pages/public/NotFoundPage'
-import PortalPlaceholderPage from '@/pages/public/PortalPlaceholderPage'
 import RouteErrorPage from '@/pages/RouteErrorPage'
 
 // `handle.title` dipakai untuk judul tab browser dan breadcrumb dashboard.
@@ -75,23 +74,37 @@ function guardedPage(module: ModuleItem, load?: PageLoader) {
   }
 }
 
-const portalPages = [
-  {
-    path: 'jadwal',
-    title: 'Jadwal Ibadah',
-    description:
-      'Kebaktian Minggu, ibadah rumah tangga di lima rayon, ibadah kategorial, dan acara gerejawi mendatang.',
-  },
-  {
-    path: 'warta',
-    title: 'Warta Jemaat',
-    description: 'Pengumuman mingguan dan berkas PDF Warta Jemaat yang dapat diunduh.',
-  },
+// Halaman Portal Publik yang dimuat terpisah dari Beranda.
+type PortalPage = { path: string; title: string; load: () => Promise<{ default: ComponentType }> }
+
+const portalPages: PortalPage[] = [
+  { path: 'jadwal', title: 'Jadwal Ibadah', load: () => import('@/pages/public/SchedulePage') },
+  { path: 'warta', title: 'Warta Jemaat', load: () => import('@/pages/public/WartaPage') },
   {
     path: 'renungan',
     title: 'Renungan',
-    description: 'Renungan harian dan artikel pembinaan iman dari Pendeta dan Majelis.',
+    load: async () => ({
+      default: (await import('@/pages/public/ArticlesPage')).DevotionalListPage,
+    }),
   },
+  {
+    path: 'renungan/:slug',
+    title: 'Renungan',
+    load: async () => ({ default: (await import('@/pages/public/ArticlesPage')).DevotionalPage }),
+  },
+  {
+    path: 'berita',
+    title: 'Berita & Pengumuman',
+    load: async () => ({ default: (await import('@/pages/public/ArticlesPage')).NewsListPage }),
+  },
+  {
+    path: 'berita/:slug',
+    title: 'Berita',
+    load: async () => ({ default: (await import('@/pages/public/ArticlesPage')).NewsPage }),
+  },
+  { path: 'media', title: 'Galeri Kegiatan', load: () => import('@/pages/public/MediaPage') },
+  { path: 'profil', title: 'Profil & Sejarah', load: () => import('@/pages/public/ProfilePage') },
+  { path: 'persembahan', title: 'Persembahan', load: () => import('@/pages/public/OfferingPage') },
 ]
 
 export const router = createBrowserRouter([
@@ -104,27 +117,13 @@ export const router = createBrowserRouter([
         Component: PublicLayout,
         children: [
           { index: true, Component: HomePage },
-          {
-            path: 'profil',
-            handle: { title: 'Profil & Sejarah' } satisfies RouteHandle,
-            lazy: async () => ({
-              Component: (await import('@/pages/public/ProfilePage')).default,
-            }),
-          },
-          {
-            path: 'persembahan',
-            handle: { title: 'Persembahan' } satisfies RouteHandle,
-            lazy: async () => ({
-              Component: (await import('@/pages/public/OfferingPage')).default,
-            }),
-          },
-          // Alamat lama halaman profil.
-          { path: 'tentang', element: <Navigate to="/profil" replace /> },
           ...portalPages.map((page) => ({
             path: page.path,
             handle: { title: page.title } satisfies RouteHandle,
-            element: <PortalPlaceholderPage title={page.title} description={page.description} />,
+            lazy: async () => ({ Component: (await page.load()).default }),
           })),
+          // Alamat lama halaman profil.
+          { path: 'tentang', element: <Navigate to="/profil" replace /> },
           { path: '*', handle: { title: 'Halaman tidak ditemukan' }, Component: NotFoundPage },
         ],
       },

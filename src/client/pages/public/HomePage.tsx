@@ -7,7 +7,6 @@ import {
   FileText,
   HandHeart,
   Landmark,
-  MapPin,
   Megaphone,
   Newspaper,
   QrCode,
@@ -16,13 +15,7 @@ import {
 } from 'lucide-react'
 import { Link } from 'react-router'
 import { toast } from 'sonner'
-import {
-  WORSHIP_CATEGORY_LABELS,
-  type PublicContent,
-  type PublicHome,
-  type PublicWorship,
-  type WorshipCategory,
-} from '@shared/types'
+import type { PublicContent, PublicHome, PublicWorship, WorshipCategory } from '@shared/types'
 import { WellMark } from '@/components/brand/well'
 import {
   EmptyNote,
@@ -31,8 +24,9 @@ import {
   PortalSection,
   SectionHeading,
 } from '@/components/portal/parts'
+import { WorshipCard } from '@/components/portal/worship-card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { WORSHIP_TONE, copyText, paragraphs, publishedDate, worshipWhen } from '@/lib/portal'
+import { copyText, paragraphs, publishedDate, worshipWhen } from '@/lib/portal'
 import { useApiQuery } from '@/lib/use-api-query'
 import { cn } from '@/lib/utils'
 
@@ -263,13 +257,17 @@ function HeroVisual({ media, loading }: { media: PublicContent | null; loading: 
   if (loading) return <Skeleton className="h-64 w-full rounded-xl" />
   if (media?.thumbnail_url) {
     return (
-      <figure className="relative overflow-hidden rounded-xl bg-white shadow-md">
+      <Link
+        to="/media"
+        aria-label={`Galeri kegiatan: ${media.title}`}
+        className="relative block overflow-hidden rounded-xl bg-white shadow-md"
+      >
         <img
           src={media.thumbnail_url}
           alt={media.summary ?? media.title}
           className="h-64 w-full object-cover"
         />
-        <figcaption className="absolute inset-0 flex flex-col justify-end gap-0.5 bg-gradient-to-t from-portal-navy/90 via-portal-navy/30 to-transparent p-4 text-white">
+        <span className="absolute inset-0 flex flex-col justify-end gap-0.5 bg-gradient-to-t from-portal-navy/90 via-portal-navy/30 to-transparent p-4 text-white">
           <span className="text-xs font-bold tracking-wider text-portal-amber-soft uppercase">
             Dokumentasi terbaru
           </span>
@@ -277,8 +275,8 @@ function HeroVisual({ media, loading }: { media: PublicContent | null; loading: 
           {media.summary && (
             <span className="line-clamp-2 text-sm text-white/80">{media.summary}</span>
           )}
-        </figcaption>
-      </figure>
+        </span>
+      </Link>
     )
   }
   return (
@@ -401,78 +399,6 @@ function Agenda({
   )
 }
 
-function WorshipCard({ worship, today }: { worship: PublicWorship; today: string }) {
-  const tone = WORSHIP_TONE[worship.category]
-  const label =
-    worship.category === 'RAYON' && worship.rayon_name
-      ? `Rayon ${worship.rayon_name}`
-      : WORSHIP_CATEGORY_LABELS[worship.category]
-  const rows = [
-    ['Pelayan Firman', worship.preacher],
-    ['Tema', worship.theme],
-    ['Bacaan', worship.bible_reading],
-  ].filter((row): row is [string, string] => Boolean(row[1]))
-  return (
-    <PortalCard
-      as="article"
-      className="relative flex flex-col justify-between overflow-hidden p-4 transition-shadow hover:shadow-md"
-    >
-      <span className={cn('absolute inset-y-0 left-0 w-1.5', tone.bar)} aria-hidden="true" />
-      <div className="grid gap-3 pl-1.5">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <span className={cn('rounded-full px-2.5 py-0.5 text-xs font-bold uppercase', tone.pill)}>
-            {label}
-          </span>
-          <span className="text-xs font-medium text-portal-muted">
-            {worshipWhen(worship.worship_date, worship.worship_time, today)}
-          </span>
-        </div>
-        <div className="grid gap-1">
-          <h3 className="font-portal-heading text-xl leading-7 font-semibold text-portal-navy">
-            {worship.title}
-          </h3>
-          {worship.location && (
-            <p className="flex items-center gap-1.5 text-sm text-portal-muted">
-              <MapPin className="size-3.5 flex-none text-portal-navy" aria-hidden="true" />
-              {worship.location}
-            </p>
-          )}
-        </div>
-        {rows.length > 0 && (
-          <dl className="grid gap-1 rounded-lg bg-portal-low p-3 text-sm">
-            {rows.map(([term, value]) => (
-              <div key={term} className="flex items-baseline justify-between gap-3">
-                <dt className="flex-none text-xs text-portal-muted">{term}</dt>
-                <dd
-                  className={cn(
-                    'text-right',
-                    term === 'Pelayan Firman' ? 'font-bold text-portal-navy' : 'text-portal-ink',
-                  )}
-                >
-                  {value}
-                </dd>
-              </div>
-            ))}
-          </dl>
-        )}
-      </div>
-      {worship.liturgy_file_url && (
-        <div className="mt-3 flex justify-end border-t border-portal-high pt-3 pl-1.5">
-          <a
-            href={worship.liturgy_file_url}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-1 text-xs font-semibold text-portal-navy hover:underline"
-          >
-            Tata ibadah
-            <Download className="size-3.5" aria-hidden="true" />
-          </a>
-        </div>
-      )}
-    </PortalCard>
-  )
-}
-
 function Publications({ home }: { home: PublicHome | undefined }) {
   return (
     <PortalSection id="warta" tone="low" labelledBy="judul-publikasi">
@@ -520,7 +446,7 @@ function DevotionalCard({ devotional }: { devotional: PublicHome['devotional'] }
   async function share() {
     if (!devotional) return
     const text = `${devotional.title}${devotional.summary ? ` (${devotional.summary})` : ''}`
-    const url = `${window.location.origin}/#renungan`
+    const url = `${window.location.origin}/renungan/${devotional.slug}`
     if (navigator.share) {
       try {
         await navigator.share({ title: devotional.title, text, url })
@@ -550,7 +476,9 @@ function DevotionalCard({ devotional }: { devotional: PublicHome['devotional'] }
           </span>
         )}
         <h3 className="font-portal-heading text-xl leading-7 font-semibold text-portal-ink">
-          {devotional.title}
+          <Link to={`/renungan/${devotional.slug}`} className="hover:underline">
+            {devotional.title}
+          </Link>
         </h3>
       </div>
       {devotional.thumbnail_url && (
@@ -584,6 +512,12 @@ function DevotionalCard({ devotional }: { devotional: PublicHome['devotional'] }
           </span>
           <span className="text-xs text-portal-muted">Penulis renungan</span>
         </span>
+        <Link
+          to="/renungan"
+          className="ml-auto text-sm font-semibold text-portal-navy hover:underline"
+        >
+          Renungan lainnya
+        </Link>
         <button
           type="button"
           onClick={() => void share()}
@@ -613,17 +547,21 @@ function WartaBox({ warta }: { warta: PublicContent | null }) {
           </span>
         </div>
       </div>
-      {warta?.attachment_url && (
-        <a
-          href={warta.attachment_url}
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex flex-none items-center gap-1.5 rounded-lg bg-portal-amber px-4 py-2 text-sm font-bold text-white transition-colors hover:opacity-90"
-        >
-          <Download className="size-4" aria-hidden="true" />
-          Unduh PDF
-        </a>
-      )}
+      <div className="flex flex-none flex-wrap items-center gap-3">
+        <Link to="/warta" className="text-sm font-semibold text-white underline underline-offset-4">
+          Arsip warta
+        </Link>
+        {warta?.attachment_url && (
+          <a
+            href={warta.attachment_url}
+            download={`${warta.slug}.pdf`}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-portal-amber px-4 py-2 text-sm font-bold text-white transition-colors hover:opacity-90"
+          >
+            <Download className="size-4" aria-hidden="true" />
+            Unduh PDF
+          </a>
+        )}
+      </div>
     </div>
   )
 }
@@ -631,10 +569,15 @@ function WartaBox({ warta }: { warta: PublicContent | null }) {
 function NewsCard({ news }: { news: PublicContent[] }) {
   return (
     <PortalCard className="grid h-full content-start gap-4 p-5">
-      <p className="flex items-center gap-2 text-sm font-bold text-portal-navy">
-        <FileText className="size-5 text-portal-amber" aria-hidden="true" />
-        Berita & Pengumuman
-      </p>
+      <div className="flex items-center justify-between gap-3">
+        <p className="flex items-center gap-2 text-sm font-bold text-portal-navy">
+          <FileText className="size-5 text-portal-amber" aria-hidden="true" />
+          Berita & Pengumuman
+        </p>
+        <Link to="/berita" className="text-sm font-semibold text-portal-navy hover:underline">
+          Semua berita
+        </Link>
+      </div>
       {news.length === 0 ? (
         <p className="text-sm text-portal-muted">Belum ada berita atau pengumuman.</p>
       ) : (
@@ -647,7 +590,11 @@ function NewsCard({ news }: { news: PublicContent[] }) {
               <p className="text-xs font-semibold text-portal-amber">
                 {publishedDate(item.published_at)}
               </p>
-              <p className="mt-0.5 font-bold text-portal-ink">{item.title}</p>
+              <p className="mt-0.5 font-bold text-portal-ink">
+                <Link to={`/berita/${item.slug}`} className="hover:underline">
+                  {item.title}
+                </Link>
+              </p>
               {item.summary && (
                 <p className="mt-1 line-clamp-3 text-sm text-portal-muted">{item.summary}</p>
               )}

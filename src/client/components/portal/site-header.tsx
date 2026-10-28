@@ -28,14 +28,14 @@ export function SiteHeader() {
               end={link.to === '/'}
               className={({ isActive }) =>
                 cn(
-                  'rounded-lg px-4 py-2 text-sm font-semibold transition-colors',
+                  'rounded-lg px-3 py-2 text-sm font-semibold transition-colors',
                   isActive
                     ? 'bg-portal-indigo text-white'
                     : 'text-portal-muted hover:bg-portal-high hover:text-portal-ink',
                 )
               }
             >
-              {link.title}
+              {link.short}
             </NavLink>
           ))}
         </nav>

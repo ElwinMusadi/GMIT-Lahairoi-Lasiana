@@ -81,7 +81,11 @@ Buka `/` untuk Portal Publik dan `/dashboard` untuk dashboard pengurus.
 | `/`                  | `PublicLayout`    | Beranda: pengumuman terkini, hero, jadwal ibadah terdekat, renungan hari ini, unduh warta PDF, berita |
 | `/profil`            | `PublicLayout`    | Profil & Sejarah: sejarah, visi misi, 5 rayon pelayanan, Pendeta & Majelis (`/tentang` dialihkan ke sini) |
 | `/persembahan`       | `PublicLayout`    | Persembahan: gambar QRIS dan rekening per pos kas dengan tombol salin |
-| `/jadwal`, `/warta`, `/renungan` | `PublicLayout` | Kerangka halaman portal (diisi modul Portal Publik) |
+| `/jadwal`            | `PublicLayout`    | Papan Jadwal Ibadah dengan saringan jenis ibadah (`?jenis=`) dan rayon (`?rayon=`) |
+| `/warta`             | `PublicLayout`    | Warta Jemaat: warta terbaru dengan pratinjau PDF, arsip yang bisa dicari, tombol unduh |
+| `/renungan`, `/renungan/:slug` | `PublicLayout` | Daftar Renungan Rohani dan halaman baca satu renungan |
+| `/berita`, `/berita/:slug` | `PublicLayout` | Daftar Berita & Pengumuman dan halaman baca satu berita |
+| `/media`             | `PublicLayout`    | Galeri Kegiatan: foto dan video dokumentasi, dibuka dalam jendela galeri |
 | `/login`             | berdiri sendiri   | Masuk pengurus                                                    |
 | `/dashboard`         | `DashboardLayout` | Ringkasan: modul per peran, rayon, status sistem, dan aktivitas terbaru (Admin) |
 | `/dashboard/members` | `DashboardLayout` | Anggota Jemaat (Admin, Pendeta, Majelis): cari, filter kombinasi di URL, profil lengkap, ekspor |
@@ -535,10 +539,20 @@ Rute: [contents.ts](src/worker/routes/contents.ts) (CMS, perlu login) dan [publi
 - `GET /api/public/contents?category=&q=&page=&per_page=`: daftar tanpa isi lengkap. Bila ringkasan kosong, `summary` berisi cuplikan awal isi. Profil dan Info Persembahan urut sesuai waktu dibuat; kategori lain terbaru dulu.
   - `with_body=true` menyertakan isi lengkap (maks. 50 per halaman), dipakai halaman Profil dan Persembahan. Bersama isi lengkap, `summary` tetap apa adanya (tanpa cuplikan otomatis).
 - `GET /api/public/contents/:slug`: satu konten lengkap; `404` untuk draf dan konten terjadwal.
+- `GET /api/public/worships?category=&rayon_id=&from=&to=&page=&per_page=`: jadwal ibadah publik untuk Papan Jadwal.
+  - Bawaan mulai hari ini (WITA), urut tanggal lalu jam; jadwal tanpa jam di akhir harinya. `from`/`to` (YYYY-MM-DD) bisa menampilkan rentang lain, termasuk yang lampau.
+  - `category` salah satu `SUNDAY_SERVICE`, `RAYON`, `CATEGORICAL`, `SPECIAL` (huruf kecil diterima); `rayon_id` id rayon. Keduanya bisa digabung.
+  - Setiap jadwal membawa `rayon_id`, `rayon_name`, `preacher`, dan `servants` (peran dan nama petugas, urut seperti tata ibadah).
+  - Saringan yang tidak sah → `400` dengan `details` per kolom.
 
 **Halaman portal** ([src/client/pages/public](src/client/pages/public)), semuanya tanpa login dan responsif:
 
 - **Beranda** (`/`): pita pengumuman terkini, hero dengan tema Kebaktian Minggu terdekat dan empat tautan cepat (unduh warta PDF terbaru, jadwal, persembahan, profil), foto Galeri terbaru (tanpa foto: makna nama Lahai-roi), kartu jadwal ibadah terdekat dengan saringan jenis, renungan hari ini (dibaca utuh, tombol Bagikan), kotak unduh warta, berita & pengumuman, dan ajakan persembahan.
+- **Jadwal Ibadah** (`/jadwal`): jadwal publik mendatang dikelompokkan per hari (Hari ini, Besok, lalu tanggal), dengan petugas, tema, bacaan, dan tautan tata ibadah bila ada.
+  - Saringan jenis ibadah (Kebaktian Minggu, Ibadah Rayon, Ibadah Kategorial, Ibadah Khusus) dan lima rayon; di ponsel rayon menjadi satu pilihan. Saringan tersimpan di URL, mis. `/jadwal?jenis=rayon&rayon=2`, agar tautannya bisa dibagikan.
+- **Warta Jemaat** (`/warta`): warta terbaru ditonjolkan dengan **Unduh PDF**, **Baca di tab baru**, dan pratinjau PDF di layar lebar (di ponsel cukup kedua tombol, karena peramban ponsel umumnya tidak menampilkan PDF dalam bingkai). Di bawahnya arsip warta dengan pencarian judul dan paging.
+- **Renungan** (`/renungan`) dan **Berita & Pengumuman** (`/berita`): artikel terbaru ditonjolkan, sisanya kartu dengan paging. Halaman baca (`/renungan/:slug`, `/berita/:slug`) menampilkan ayat atau ringkasan, penulis, isi, lampiran, tombol Bagikan, dan artikel lainnya. Alamat dengan kategori yang keliru dialihkan ke rute yang benar.
+- **Galeri Kegiatan** (`/media`): kartu foto; konten dengan tautan video bertanda "Video" dan memakai gambar pratinjau YouTube bila tak ada foto. Kartu dibuka dalam jendela galeri: video YouTube diputar di tempat (youtube-nocookie), tautan video lain dibuka di tab baru.
 - **Profil & Sejarah** (`/profil`): konten Profil di CMS masuk ke bagiannya menurut judul atau alamat: memuat "Sejarah" → Sejarah, "Visi"/"Misi" → Visi & Misi, "Majelis"/"Pendeta" → Pendeta & Majelis; lainnya di bagian akhir. Lima rayon dari `GET /api/rayons` (nama, koordinator, wilayah).
   - Daftar Pendeta & Majelis ditulis satu baris per orang, `Jabatan: Nama` (mis. `Ketua Majelis Jemaat: Pdt. …`), dan tampil sebagai kartu; baris lain menjadi catatan. Foto konten itu menjadi foto bersama majelis.
 - **Persembahan** (`/persembahan`): gambar QRIS (konten Rekening & QRIS bergambar) dengan tombol simpan gambar, dan kartu rekening per pos kas (bank, keperluan, nomor, atas nama). **Salin No. Rek** menyalin angka nomor rekening saja, menampilkan notifikasi, dan berubah menjadi "Tersalin" sebentar; tanpa Clipboard API (mis. bukan HTTPS) memakai cara salin lama.
@@ -705,6 +719,7 @@ Komponen akan ditulis ke `src/client/components/ui/`. Preset yang dipakai: `radi
 | GET    | `/api/public/home` | Publik | Beranda portal: jadwal ibadah terdekat, warta terbaru, renungan hari ini, berita, rekening/QRIS |
 | GET    | `/api/public/contents` | Publik | Konten terbit per kategori, dengan pencarian dan paging |
 | GET    | `/api/public/contents/:slug` | Publik | Satu konten terbit lengkap |
+| GET    | `/api/public/worships` | Publik | Papan Jadwal: jadwal ibadah publik dengan saringan jenis dan rayon, beserta petugas |
 | GET    | `/api/contents` | Admin, Pendeta | Daftar CMS termasuk draf dan terjadwal (Pendeta: renungannya) |
 | GET    | `/api/contents/:id` | Admin, Pendeta | Satu konten untuk diubah |
 | POST   | `/api/contents` | Admin, Pendeta | Tambah konten (Pendeta: Renungan) |

@@ -1,16 +1,26 @@
 import { Hono } from 'hono'
 import type { FieldErrors } from '../../shared/accounts'
-import { witaToday } from '../../shared/dates'
+import { isCalendarDate, witaToday } from '../../shared/dates'
 import {
   CONTENT_CATEGORIES,
+  SERVANT_ROLE_LABELS,
+  WORSHIP_CATEGORIES,
   type ApiErrorBody,
   type ApiPage,
   type PublicContent,
   type PublicHome,
   type PublicWorship,
+  type PublicWorshipItem,
 } from '../../shared/types'
 import { PUBLIC_VISIBLE, publicSelect, toPublicContent } from '../lib/contents'
-import { containsPattern, invalid, readPaging, searchWords, whereBuilder } from '../lib/request'
+import {
+  containsPattern,
+  invalid,
+  positiveInt,
+  readPaging,
+  searchWords,
+  whereBuilder,
+} from '../lib/request'
 import type { AppEnv } from '../types'
 
 // Portal Publik (PRD: Portal Informasi Publik & Warta). Tanpa login: semua rute di sini
@@ -25,6 +35,9 @@ import type { AppEnv } from '../types'
 //                          lengkap, maks. 50 per halaman; untuk halaman Profil dan
 //                          Persembahan yang memuat seluruh isinya sekaligus)
 // GET /contents/:slug      satu konten lengkap
+// GET /worships            Papan Jadwal Ibadah: jadwal publik mulai `from` (bawaan hari
+//                          ini, WITA), beserta seluruh petugas; query opsional category,
+//                          rayon_id, from, to, page, per_page
 const publicRoutes = new Hono<AppEnv>()
 
 // Isi portal boleh disimpan browser sebentar; konten baru tampil paling lambat semenit.
@@ -41,6 +54,17 @@ const ORDERED_CATEGORIES = new Set(['PROFILE', 'PAYMENT_INFO'])
 
 type PublicRow = Parameters<typeof toPublicContent>[0]
 
+// Jadwal ibadah publik; preacher = Pelayan Firman pertama.
+const WORSHIP_SELECT = `
+  SELECT w.id, w.title, w.category, w.rayon_id, r.name AS rayon_name, w.worship_date,
+         w.worship_time, w.location, w.theme, w.bible_reading, w.liturgy_file_url,
+         (SELECT s.servant_name FROM worship_servants s
+          WHERE s.schedule_id = w.id AND s.role = 'PREACHER'
+          ORDER BY s.id LIMIT 1) AS preacher
+  FROM worship_schedules w
+  LEFT JOIN rayons r ON r.id = w.rayon_id`
+const WORSHIP_ORDER = 'ORDER BY w.worship_date, w.worship_time IS NULL, w.worship_time, w.id'
+
 publicRoutes.get('/home', async (c) => {
   const db = c.env.DB
   const today = witaToday()
@@ -55,15 +79,7 @@ publicRoutes.get('/home', async (c) => {
   const [worships, warta, devotional, news, media, payment] = await db.batch([
     db
       .prepare(
-        `SELECT w.id, w.title, w.category, r.name AS rayon_name, w.worship_date,
-                w.worship_time, w.location, w.theme, w.bible_reading, w.liturgy_file_url,
-                (SELECT s.servant_name FROM worship_servants s
-                 WHERE s.schedule_id = w.id AND s.role = 'PREACHER'
-                 ORDER BY s.id LIMIT 1) AS preacher
-         FROM worship_schedules w
-         LEFT JOIN rayons r ON r.id = w.rayon_id
-         WHERE w.is_public = 1 AND w.worship_date >= ?1
-         ORDER BY w.worship_date, w.worship_time IS NULL, w.worship_time, w.id
+        `${WORSHIP_SELECT} WHERE w.is_public = 1 AND w.worship_date >= ?1 ${WORSHIP_ORDER}
          LIMIT ?2`,
       )
       .bind(today, UPCOMING_LIMIT),
@@ -159,6 +175,66 @@ publicRoutes.get('/contents/:slug', async (c) => {
     .first<PublicRow>()
   if (!row) return c.json<ApiErrorBody>({ error: 'Konten tidak ditemukan.' }, 404)
   return c.json<{ content: PublicContent }>({ content: toPublicContent(row, true) })
+})
+
+const ROLE_ORDER = Object.keys(SERVANT_ROLE_LABELS)
+
+publicRoutes.get('/worships', async (c) => {
+  const query = c.req.query()
+  const details: FieldErrors = {}
+  const where = whereBuilder()
+  where.addClause('w.is_public = 1')
+  const { page, perPage } = readPaging(query, details)
+
+  const from = query.from ?? witaToday()
+  if (!isCalendarDate(from)) details.from = ['Tanggal awal harus YYYY-MM-DD.']
+  else where.add('w.worship_date >= ?', from)
+  if (query.to !== undefined) {
+    if (!isCalendarDate(query.to)) details.to = ['Tanggal akhir harus YYYY-MM-DD.']
+    else if (!details.from && query.to < from) {
+      details.to = ['Tanggal akhir tidak boleh sebelum tanggal awal.']
+    } else where.add('w.worship_date <= ?', query.to)
+  }
+  if (query.category !== undefined) {
+    const category = query.category.trim().toUpperCase()
+    if (!(WORSHIP_CATEGORIES as string[]).includes(category)) {
+      details.category = [`Pilih salah satu: ${WORSHIP_CATEGORIES.join(', ')}.`]
+    } else where.add('w.category = ?', category)
+  }
+  if (query.rayon_id !== undefined) {
+    const rayonId = positiveInt(query.rayon_id)
+    if (rayonId === null) details.rayon_id = ['Rayon tidak valid.']
+    else where.add('w.rayon_id = ?', rayonId)
+  }
+  if (Object.keys(details).length > 0) return invalid(c, 'Filter jadwal tidak valid.', details)
+
+  const db = c.env.DB
+  const count = where.params.length
+  const [total, list] = await db.batch([
+    db.prepare(`SELECT COUNT(*) AS n FROM worship_schedules w ${where.sql}`).bind(...where.params),
+    db
+      .prepare(
+        `SELECT j.*, (SELECT json_group_array(json_object('role', s.role, 'name', s.servant_name))
+                      FROM worship_servants s WHERE s.schedule_id = j.id) AS servants_json
+         FROM (${WORSHIP_SELECT} ${where.sql} ${WORSHIP_ORDER}
+               LIMIT ?${count + 1} OFFSET ?${count + 2}) j
+         ORDER BY j.worship_date, j.worship_time IS NULL, j.worship_time, j.id`,
+      )
+      .bind(...where.params, perPage, (page - 1) * perPage),
+  ])
+
+  type Row = Omit<PublicWorshipItem, 'servants'> & { servants_json: string }
+  const data = (list.results as Row[]).map(({ servants_json, ...worship }) => ({
+    ...worship,
+    // Urut seperti tata ibadah: Pelayan Firman, Liturgos, Majelis bertugas, dan seterusnya.
+    servants: (JSON.parse(servants_json) as PublicWorshipItem['servants']).sort(
+      (a, b) => ROLE_ORDER.indexOf(a.role) - ROLE_ORDER.indexOf(b.role),
+    ),
+  }))
+  return c.json<ApiPage<PublicWorshipItem>>({
+    data,
+    meta: { page, per_page: perPage, total: (total.results[0] as { n: number }).n },
+  })
 })
 
 export default publicRoutes
