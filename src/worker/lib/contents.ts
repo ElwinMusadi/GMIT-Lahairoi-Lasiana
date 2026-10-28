@@ -113,12 +113,13 @@ export const publicSelect = (fullBody: boolean) => `
 
 type PublicRow = Omit<PublicContent, 'content_body'> & { content_body: string | null }
 
-// Tanpa ringkasan, kartu portal memakai awal isi (±280 karakter, dipotong di batas kata).
+// Daftar tanpa isi lengkap: bila ringkasan kosong, kartu portal memakai awal isi (±280
+// karakter, dipotong di batas kata). Bersama isi lengkap, ringkasan tetap apa adanya agar
+// tidak tampil dua kali.
 export function toPublicContent(row: PublicRow, withBody: boolean): PublicContent {
   const { content_body, ...rest } = row
-  const item: PublicContent = { ...rest, summary: row.summary ?? excerpt(content_body) }
-  if (withBody) item.content_body = content_body
-  return item
+  if (withBody) return { ...rest, content_body }
+  return { ...rest, summary: row.summary ?? excerpt(content_body) }
 }
 
 function excerpt(text: string | null, max = 280): string | null {

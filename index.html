@@ -10,11 +10,17 @@
     />
     <link rel="preload" href="/fonts/roundo/roundo-400.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/roundo/roundo-500.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700&display=swap"
+    />
     <title>GMIT Lahairoi Tuak Sabu Lasiana</title>
     <script>
-      // Pasang tema portal sebelum React dimuat agar tidak ada kilatan latar terang.
+      // Pasang tema portal sebelum React dimuat agar warna tidak berkedip.
       if (!location.pathname.startsWith('/dashboard')) {
-        document.documentElement.classList.add('dark', 'theme-portal')
+        document.documentElement.classList.add('theme-portal')
       }
     </script>
   </head>

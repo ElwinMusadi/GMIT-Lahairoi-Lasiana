@@ -453,8 +453,11 @@ export type PublicHome = {
   upcoming_worships: PublicWorship[]
   latest_warta: PublicContent | null
   // Renungan bertanggal hari ini; bila belum ada, renungan terakhir (is_today false).
+  // Dengan content_body: renungan dibaca utuh di beranda.
   devotional: (PublicContent & { is_today: boolean }) | null
   latest_news: PublicContent[]
+  // Foto dokumentasi (Galeri) terbaru untuk kartu gambar di hero.
+  latest_media: PublicContent | null
   // Rekening dan QRIS, dengan content_body (atas nama, catatan).
   payment_info: PublicContent[]
 }

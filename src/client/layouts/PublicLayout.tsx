@@ -1,16 +1,17 @@
 import { Outlet } from 'react-router'
 import { SiteFooter } from '@/components/portal/site-footer'
 import { SiteHeader } from '@/components/portal/site-header'
+import { Toaster } from '@/components/ui/sonner'
 import { usePortalTheme } from '@/lib/portal-theme'
 
 export default function PublicLayout() {
   usePortalTheme()
 
   return (
-    <div className="flex min-h-svh flex-col">
+    <div className="flex min-h-svh flex-col bg-portal-surface text-portal-ink">
       <a
         href="#konten"
-        className="sr-only z-50 rounded-full bg-foreground px-4 py-2 text-background focus:not-sr-only focus:fixed focus:top-4 focus:left-4"
+        className="sr-only z-50 rounded-lg bg-portal-navy px-4 py-2 text-white focus:not-sr-only focus:fixed focus:top-4 focus:left-4"
       >
         Lewati ke konten
       </a>
@@ -19,6 +20,8 @@ export default function PublicLayout() {
         <Outlet />
       </main>
       <SiteFooter />
+      {/* Notifikasi portal, mis. nomor rekening tersalin. */}
+      <Toaster position="bottom-center" />
     </div>
   )
 }

@@ -29,7 +29,7 @@ Proyek ini berbentuk **full-stack dalam satu paket**. `@cloudflare/vite-plugin` 
 │   │   ├── components/
 │   │   │   ├── ui/             # Komponen shadcn/ui (dikelola via CLI shadcn)
 │   │   │   ├── brand/          # Motif cincin sumur Lahai-roi & wordmark
-│   │   │   ├── portal/         # Navbar dan footer Portal Publik
+│   │   │   ├── portal/         # Header, footer, dan potongan tata letak Portal Publik
 │   │   │   ├── dashboard/      # Sidebar per peran dan menu profil
 │   │   │   ├── users/          # Dialog form akun dan kata sandi sementara
 │   │   │   ├── congregation/   # Form KK, profil anggota, rayon; panel profil; pemilih KK
@@ -39,7 +39,7 @@ Proyek ini berbentuk **full-stack dalam satu paket**. `@cloudflare/vite-plugin` 
 │   │   │   └── session-provider.tsx
 │   │   ├── layouts/            # RootLayout, PublicLayout, DashboardLayout
 │   │   ├── pages/              # public/, dashboard/, LoginPage, RouteErrorPage
-│   │   ├── lib/                # api, use-api-query, use-url-filters, upload, session, navigation, format WITA, audit-format, congregation, finance, contents, use-live-reload, read-spreadsheet, member-files
+│   │   ├── lib/                # api, use-api-query, use-url-filters, upload, session, navigation, format WITA, audit-format, congregation, finance, contents, portal, use-live-reload, read-spreadsheet, member-files
 │   │   ├── router.tsx          # Definisi semua rute
 │   │   ├── main.tsx
 │   │   └── index.css           # Tailwind v4 + token tema portal & dashboard
@@ -78,8 +78,10 @@ Buka `/` untuk Portal Publik dan `/dashboard` untuk dashboard pengurus.
 
 | Rute                 | Layout            | Isi                                                               |
 | -------------------- | ----------------- | ----------------------------------------------------------------- |
-| `/`                  | `PublicLayout`    | Beranda portal                                                    |
-| `/jadwal`, `/warta`, `/renungan`, `/persembahan`, `/tentang` | `PublicLayout` | Kerangka halaman portal (diisi modul Portal Publik) |
+| `/`                  | `PublicLayout`    | Beranda: pengumuman terkini, hero, jadwal ibadah terdekat, renungan hari ini, unduh warta PDF, berita |
+| `/profil`            | `PublicLayout`    | Profil & Sejarah: sejarah, visi misi, 5 rayon pelayanan, Pendeta & Majelis (`/tentang` dialihkan ke sini) |
+| `/persembahan`       | `PublicLayout`    | Persembahan: gambar QRIS dan rekening per pos kas dengan tombol salin |
+| `/jadwal`, `/warta`, `/renungan` | `PublicLayout` | Kerangka halaman portal (diisi modul Portal Publik) |
 | `/login`             | berdiri sendiri   | Masuk pengurus                                                    |
 | `/dashboard`         | `DashboardLayout` | Ringkasan: modul per peran, rayon, status sistem, dan aktivitas terbaru (Admin) |
 | `/dashboard/members` | `DashboardLayout` | Anggota Jemaat (Admin, Pendeta, Majelis): cari, filter kombinasi di URL, profil lengkap, ekspor |
@@ -121,7 +123,7 @@ Contoh nyata: blok "Aktivitas terbaru" di Ringkasan hanya tampil (dan hanya dimu
 
 Desain dibuat dengan skill `design-taste-frontend` dan `ui-ux-pro-max` di `.claude/skills/`. Arah desain tersimpan di `.taste-skill/` dan dipakai lagi untuk halaman berikutnya.
 
-- **Portal Publik**, arah *one motif* (seed 1525544793): satu-satunya motif adalah **sumur Lahai-roi** (Kejadian 16:13–14) dilihat dari atas, yaitu sebuah cincin. Cincin itu muncul sebagai tanda merek, penanda tautan aktif, bentuk raksasa di hero, dan bibir sumur dari sepuluh batu di footer. Palet hitam & crimson diambil dari warna tenun ikat Sabu. Huruf: Roundo (di-host sendiri di `public/fonts`).
+- **Portal Publik** mengikuti rancangan [design/stitch/08-portal-publik-warta.html](design/stitch/08-portal-publik-warta.html): terang, biru tua `#00236f` dengan aksen amber `#904d00` di permukaan kebiruan `#faf8ff`, kartu putih berbayang halus, label kecil amber di atas judul, dan header putih yang menempel. Huruf: Plus Jakarta Sans untuk judul dan Inter untuk teks (Google Fonts). Token `portal-*` (mis. `bg-portal-navy`, `text-portal-amber`) ada di `@theme` [index.css](src/client/index.css); potongan tata letaknya di [components/portal/parts.tsx](src/client/components/portal/parts.tsx). Cincin sumur Lahai-roi tetap dipakai sebagai tanda merek. Inspector dan lint skill menandai label kecil, bayangan, dan garis sebagai pelanggaran gaya bawaannya; itu ciri rancangan 08 yang dipilih.
 - **Dashboard**, gaya *achromatic ledger* (seed 442642274): chrome tanpa warna, dasar batu karang `#f4f3f1`, tombol utama hampir hitam, dan crimson hanya untuk elemen data utama.
 - Token warna ada di [src/client/index.css](src/client/index.css): `:root` untuk dashboard, `.theme-portal` untuk portal. Pakai token (`bg-background`, `text-muted-foreground`, `text-brand`, …), bukan kode warna langsung.
 
@@ -527,9 +529,19 @@ Rute: [contents.ts](src/worker/routes/contents.ts) (CMS, perlu login) dan [publi
   - `latest_warta`: warta terbaru beserta PDF-nya.
   - `devotional`: renungan bertanggal hari ini (`is_today: true`), atau renungan terakhir bila belum ada.
   - `latest_news`: 3 berita terbaru.
+  - `latest_media`: foto dokumentasi (Galeri) terbaru, untuk kartu gambar di hero beranda.
   - `payment_info`: seluruh rekening dan QRIS, beserta catatannya.
+  - Renungan dikirim beserta isinya (`content_body`) karena dibaca utuh di beranda.
 - `GET /api/public/contents?category=&q=&page=&per_page=`: daftar tanpa isi lengkap. Bila ringkasan kosong, `summary` berisi cuplikan awal isi. Profil dan Info Persembahan urut sesuai waktu dibuat; kategori lain terbaru dulu.
+  - `with_body=true` menyertakan isi lengkap (maks. 50 per halaman), dipakai halaman Profil dan Persembahan. Bersama isi lengkap, `summary` tetap apa adanya (tanpa cuplikan otomatis).
 - `GET /api/public/contents/:slug`: satu konten lengkap; `404` untuk draf dan konten terjadwal.
+
+**Halaman portal** ([src/client/pages/public](src/client/pages/public)), semuanya tanpa login dan responsif:
+
+- **Beranda** (`/`): pita pengumuman terkini, hero dengan tema Kebaktian Minggu terdekat dan empat tautan cepat (unduh warta PDF terbaru, jadwal, persembahan, profil), foto Galeri terbaru (tanpa foto: makna nama Lahai-roi), kartu jadwal ibadah terdekat dengan saringan jenis, renungan hari ini (dibaca utuh, tombol Bagikan), kotak unduh warta, berita & pengumuman, dan ajakan persembahan.
+- **Profil & Sejarah** (`/profil`): konten Profil di CMS masuk ke bagiannya menurut judul atau alamat: memuat "Sejarah" → Sejarah, "Visi"/"Misi" → Visi & Misi, "Majelis"/"Pendeta" → Pendeta & Majelis; lainnya di bagian akhir. Lima rayon dari `GET /api/rayons` (nama, koordinator, wilayah).
+  - Daftar Pendeta & Majelis ditulis satu baris per orang, `Jabatan: Nama` (mis. `Ketua Majelis Jemaat: Pdt. …`), dan tampil sebagai kartu; baris lain menjadi catatan. Foto konten itu menjadi foto bersama majelis.
+- **Persembahan** (`/persembahan`): gambar QRIS (konten Rekening & QRIS bergambar) dengan tombol simpan gambar, dan kartu rekening per pos kas (bank, keperluan, nomor, atas nama). **Salin No. Rek** menyalin angka nomor rekening saja, menampilkan notifikasi, dan berubah menjadi "Tersalin" sebentar; tanpa Clipboard API (mis. bukan HTTPS) memakai cara salin lama.
 
 ## Unggah berkas
 

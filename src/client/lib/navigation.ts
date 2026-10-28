@@ -18,15 +18,15 @@ import {
 } from 'lucide-react'
 import type { UserRole } from '@shared/types'
 
-// Tautan Portal Publik. `action` tampil sebagai satu tombol di navbar.
+// Tautan Portal Publik, berurutan seperti di navbar.
 export const portalLinks = [
+  { title: 'Beranda', to: '/' },
   { title: 'Jadwal Ibadah', to: '/jadwal' },
   { title: 'Warta Jemaat', to: '/warta' },
   { title: 'Renungan', to: '/renungan' },
-  { title: 'Tentang Jemaat', to: '/tentang' },
+  { title: 'Profil & Sejarah', to: '/profil' },
+  { title: 'Persembahan', to: '/persembahan' },
 ] as const
-
-export const portalAction = { title: 'Persembahan', to: '/persembahan' } as const
 
 export type ModuleItem = {
   title: string

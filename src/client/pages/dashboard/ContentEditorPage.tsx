@@ -445,6 +445,7 @@ function ContentForm({
               {config.body !== 'hidden' && (
                 <BodyEditor
                   label={config.bodyLabel}
+                  hint={config.bodyHint}
                   required={config.body === 'required'}
                   value={state.content_body}
                   onChange={(value) => set('content_body', value)}
@@ -793,12 +794,14 @@ function PublishFields({
 // Editor teks biasa dengan pratinjau seperti di portal: paragraf dipisah baris kosong.
 function BodyEditor({
   label,
+  hint,
   required,
   value,
   onChange,
   error,
 }: {
   label: string
+  hint?: string
   required: boolean
   value: string
   onChange: (value: string) => void
@@ -864,6 +867,7 @@ function BodyEditor({
         />
       )}
       <FieldHint id="content_body-hint">
+        {hint && <>{hint} </>}
         Pisahkan paragraf dengan satu baris kosong. {value.length.toLocaleString('id-ID')} /{' '}
         {CONTENT_BODY_MAX.toLocaleString('id-ID')} karakter.
       </FieldHint>

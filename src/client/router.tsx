@@ -1,5 +1,5 @@
 import type { ComponentType } from 'react'
-import { createBrowserRouter } from 'react-router'
+import { Navigate, createBrowserRouter } from 'react-router'
 import PublicLayout from '@/layouts/PublicLayout'
 import RootLayout from '@/layouts/RootLayout'
 import type { UserRole } from '@shared/types'
@@ -92,17 +92,6 @@ const portalPages = [
     title: 'Renungan',
     description: 'Renungan harian dan artikel pembinaan iman dari Pendeta dan Majelis.',
   },
-  {
-    path: 'persembahan',
-    title: 'Persembahan',
-    description: 'Rekening resmi gereja dan kode QRIS untuk persembahan syukur dan persepuluhan.',
-  },
-  {
-    path: 'tentang',
-    title: 'Tentang Jemaat',
-    description:
-      'Sejarah Jemaat Lahairoi, visi dan misi, lima rayon pelayanan, serta Pendeta dan Majelis Jemaat.',
-  },
 ]
 
 export const router = createBrowserRouter([
@@ -115,6 +104,22 @@ export const router = createBrowserRouter([
         Component: PublicLayout,
         children: [
           { index: true, Component: HomePage },
+          {
+            path: 'profil',
+            handle: { title: 'Profil & Sejarah' } satisfies RouteHandle,
+            lazy: async () => ({
+              Component: (await import('@/pages/public/ProfilePage')).default,
+            }),
+          },
+          {
+            path: 'persembahan',
+            handle: { title: 'Persembahan' } satisfies RouteHandle,
+            lazy: async () => ({
+              Component: (await import('@/pages/public/OfferingPage')).default,
+            }),
+          },
+          // Alamat lama halaman profil.
+          { path: 'tentang', element: <Navigate to="/profil" replace /> },
           ...portalPages.map((page) => ({
             path: page.path,
             handle: { title: page.title } satisfies RouteHandle,

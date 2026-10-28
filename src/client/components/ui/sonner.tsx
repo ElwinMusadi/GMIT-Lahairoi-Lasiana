@@ -3,8 +3,8 @@
 import { Toaster as Sonner, type ToasterProps } from "sonner"
 import { CircleCheckIcon, InfoIcon, TriangleAlertIcon, OctagonXIcon, Loader2Icon } from "lucide-react"
 
-// Disesuaikan untuk proyek ini: tanpa next-themes. Toast hanya dipakai di dashboard,
-// yang selalu bertema terang.
+// Disesuaikan untuk proyek ini: tanpa next-themes. Dashboard dan Portal Publik sama-sama
+// bertema terang.
 const Toaster = ({ ...props }: ToasterProps) => {
   return (
     <Sonner

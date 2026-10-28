@@ -18,9 +18,12 @@ import type { AppEnv } from '../types'
 // serta jadwal ibadah bertanda is_public.
 //
 // GET /home                beranda: jadwal ibadah terdekat, warta terbaru, renungan hari
-//                          ini, berita terbaru, rekening/QRIS persembahan
+//                          ini (beserta isinya), berita terbaru, foto dokumentasi
+//                          terbaru, rekening/QRIS persembahan
 // GET /contents            daftar konten (tanpa isi lengkap); query opsional category,
-//                          q (judul/ringkasan), page, per_page
+//                          q (judul/ringkasan), page, per_page, with_body=true (isi
+//                          lengkap, maks. 50 per halaman; untuk halaman Profil dan
+//                          Persembahan yang memuat seluruh isinya sekaligus)
 // GET /contents/:slug      satu konten lengkap
 const publicRoutes = new Hono<AppEnv>()
 
@@ -32,6 +35,7 @@ publicRoutes.use(async (c, next) => {
 
 const UPCOMING_LIMIT = 6
 const NEWS_LIMIT = 3
+const WITH_BODY_MAX = 50
 // Profil dan info persembahan dibaca berurutan seperti dibuat; lainnya terbaru dulu.
 const ORDERED_CATEGORIES = new Set(['PROFILE', 'PAYMENT_INFO'])
 
@@ -40,15 +44,15 @@ type PublicRow = Parameters<typeof toPublicContent>[0]
 publicRoutes.get('/home', async (c) => {
   const db = c.env.DB
   const today = witaToday()
-  const latest = (category: string, limit: number) =>
+  const latest = (category: string, limit: number, fullBody = false) =>
     db
       .prepare(
-        `${publicSelect(false)} WHERE ${PUBLIC_VISIBLE} AND c.category = ?1
+        `${publicSelect(fullBody)} WHERE ${PUBLIC_VISIBLE} AND c.category = ?1
          ORDER BY c.published_at DESC, c.id DESC LIMIT ?2`,
       )
       .bind(category, limit)
 
-  const [worships, warta, devotional, news, payment] = await db.batch([
+  const [worships, warta, devotional, news, media, payment] = await db.batch([
     db
       .prepare(
         `SELECT w.id, w.title, w.category, r.name AS rayon_name, w.worship_date,
@@ -64,16 +68,19 @@ publicRoutes.get('/home', async (c) => {
       )
       .bind(today, UPCOMING_LIMIT),
     latest('WARTA', 1),
-    latest('DEVOTIONAL', 1),
+    // Renungan pendek dibaca utuh di beranda.
+    latest('DEVOTIONAL', 1, true),
     latest('NEWS', NEWS_LIMIT),
+    latest('MEDIA', 1),
     db.prepare(
       `${publicSelect(true)} WHERE ${PUBLIC_VISIBLE} AND c.category = 'PAYMENT_INFO'
        ORDER BY c.published_at, c.id`,
     ),
   ])
 
-  const first = (rows: unknown[]) => (rows[0] ? toPublicContent(rows[0] as PublicRow, false) : null)
-  const todayDevotional = first(devotional.results)
+  const first = (rows: unknown[], withBody = false) =>
+    rows[0] ? toPublicContent(rows[0] as PublicRow, withBody) : null
+  const todayDevotional = first(devotional.results, true)
   return c.json<PublicHome>({
     today,
     upcoming_worships: worships.results as PublicWorship[],
@@ -83,6 +90,7 @@ publicRoutes.get('/home', async (c) => {
       is_today: witaToday(Date.parse(todayDevotional.published_at)) === today,
     },
     latest_news: (news.results as PublicRow[]).map((row) => toPublicContent(row, false)),
+    latest_media: first(media.results),
     payment_info: (payment.results as PublicRow[]).map((row) => toPublicContent(row, true)),
   })
 })
@@ -111,6 +119,15 @@ publicRoutes.get('/contents', async (c) => {
       )
     }
   }
+  let withBody = false
+  if (query.with_body !== undefined) {
+    if (query.with_body !== 'true' && query.with_body !== 'false') {
+      details.with_body = ['Isi true atau false.']
+    } else withBody = query.with_body === 'true'
+  }
+  if (withBody && perPage > WITH_BODY_MAX) {
+    details.per_page = [`Dengan isi lengkap, paling banyak ${WITH_BODY_MAX} per halaman.`]
+  }
   if (Object.keys(details).length > 0) return invalid(c, 'Filter konten tidak valid.', details)
 
   const order =
@@ -123,13 +140,13 @@ publicRoutes.get('/contents', async (c) => {
     db.prepare(`SELECT COUNT(*) AS n FROM public_contents c ${where.sql}`).bind(...where.params),
     db
       .prepare(
-        `${publicSelect(false)} ${where.sql} ORDER BY ${order}
+        `${publicSelect(withBody)} ${where.sql} ORDER BY ${order}
          LIMIT ?${count + 1} OFFSET ?${count + 2}`,
       )
       .bind(...where.params, perPage, (page - 1) * perPage),
   ])
   return c.json<ApiPage<PublicContent>>({
-    data: (list.results as PublicRow[]).map((row) => toPublicContent(row, false)),
+    data: (list.results as PublicRow[]).map((row) => toPublicContent(row, withBody)),
     meta: { page, per_page: perPage, total: (total.results[0] as { n: number }).n },
   })
 })

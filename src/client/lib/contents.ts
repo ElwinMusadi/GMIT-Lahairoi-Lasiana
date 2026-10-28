@@ -17,6 +17,8 @@ export type CategoryConfig = {
   // Isi artikel: wajib saat terbit, opsional, atau tidak dipakai.
   body: 'required' | 'optional' | 'hidden'
   bodyLabel: string
+  // Petunjuk tambahan di bawah editor isi.
+  bodyHint?: string
   thumbnail: { label: string; folder: UploadFolder } | null
   // Lampiran: berkas yang diunggah, atau tautan https (video Media).
   attachment:
@@ -87,6 +89,8 @@ export const CATEGORY_CONFIG: Record<ContentCategory, CategoryConfig> = {
     summaryLabel: 'Ringkasan',
     body: 'required',
     bodyLabel: 'Isi',
+    bodyHint:
+      'Di halaman Profil, judul yang memuat “Sejarah”, “Visi”/“Misi”, atau “Majelis”/“Pendeta” tampil di bagiannya. Daftar Pendeta & Majelis: satu baris per orang, “Jabatan: Nama”.',
     thumbnail: { label: 'Foto', folder: 'konten' },
     attachment: { type: 'file', label: 'Lampiran (opsional)', folder: 'konten', kind: 'any' },
     empty: 'Belum ada halaman profil (sejarah, visi misi, struktur majelis).',
