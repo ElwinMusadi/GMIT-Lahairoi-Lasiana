@@ -9,6 +9,7 @@ import {
   MEMBER_STATUS_LABELS,
   ROLE_LABELS,
   TRANSACTION_TYPE_LABELS,
+  WORSHIP_CATEGORY_LABELS,
   type AuditLogItem,
 } from '@shared/types'
 import { formatDate, formatTime } from './format'
@@ -99,6 +100,17 @@ const FIELD_LABELS: Record<string, string> = {
   thumbnail_url: 'Gambar',
   published_at: 'Waktu terbit',
   is_published: 'Status terbit',
+  worship_date: 'Tanggal',
+  worship_time: 'Jam',
+  location: 'Lokasi',
+  theme: 'Tema',
+  bible_reading: 'Bacaan',
+  liturgy_file_url: 'Tata ibadah',
+  is_public: 'Papan jadwal',
+  attendance_men: 'Hadir pria',
+  attendance_women: 'Hadir wanita',
+  attendance_youth_children: 'Hadir anak/pemuda',
+  servants: 'Petugas',
 }
 
 // Field yang sudah tersebut lewat label entitas di kalimat ringkasan.
@@ -114,6 +126,7 @@ const LABEL_FIELDS = new Set([
   'amount',
   'title',
   'category',
+  'worship_date',
 ])
 
 // Kode tersimpan → sebutannya, per jenis data.
@@ -129,6 +142,7 @@ const VALUE_LABELS: Record<string, Record<string, Record<string, string>>> = {
   finance_budgets: { type: BUDGET_TYPE_LABELS },
   finance_transactions: { type: TRANSACTION_TYPE_LABELS },
   public_contents: { category: CONTENT_CATEGORY_LABELS },
+  worship_schedules: { category: WORSHIP_CATEGORY_LABELS },
 }
 
 export type AuditDescription = {
@@ -200,11 +214,13 @@ export function describeAudit(item: AuditLogItem): AuditDescription {
   const data = details.data
   const detail = data
     ? Object.entries(data)
-        // Nama, kode, dan nominal sudah ada di kalimat, dan data baru selalu aktif.
+        // Nama, kode, nominal, dan tanggal ibadah sudah ada di kalimat; data baru selalu
+        // aktif, dan jadwal baru tidak tampil di portal kecuali disebut.
         .filter(
           ([field, value]) =>
             !LABEL_FIELDS.has(field) &&
             !(field === 'is_active' && value === true) &&
+            !(field === 'is_public' && value === false) &&
             value !== null &&
             value !== '',
         )
@@ -230,10 +246,16 @@ function formatValue(entity: string, field: string, value: unknown): string {
   if ((field === 'amount' || field === 'target_amount') && typeof value === 'number') {
     return formatRupiah(value)
   }
-  if (field === 'receipt_url' || field === 'attachment_url' || field === 'thumbnail_url') {
+  if (
+    field === 'receipt_url' ||
+    field === 'attachment_url' ||
+    field === 'thumbnail_url' ||
+    field === 'liturgy_file_url'
+  ) {
     return 'terlampir'
   }
   if (field === 'is_published') return value ? 'Terbit' : 'Draf'
+  if (field === 'is_public') return value ? 'Publik' : 'Internal'
   if (field === 'published_at' && typeof value === 'string') {
     // Kolom D1 berformat UTC 'YYYY-MM-DD HH:MM:SS'.
     const iso = `${value.replace(' ', 'T')}Z`

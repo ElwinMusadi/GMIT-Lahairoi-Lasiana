@@ -557,6 +557,52 @@ Rute: [contents.ts](src/worker/routes/contents.ts) (CMS, perlu login) dan [publi
   - Daftar Pendeta & Majelis ditulis satu baris per orang, `Jabatan: Nama` (mis. `Ketua Majelis Jemaat: Pdt. …`), dan tampil sebagai kartu; baris lain menjadi catatan. Foto konten itu menjadi foto bersama majelis.
 - **Persembahan** (`/persembahan`): gambar QRIS (konten Rekening & QRIS bergambar) dengan tombol simpan gambar, dan kartu rekening per pos kas (bank, keperluan, nomor, atas nama). **Salin No. Rek** menyalin angka nomor rekening saja, menampilkan notifikasi, dan berubah menjadi "Tersalin" sebentar; tanpa Clipboard API (mis. bukan HTTPS) memakai cara salin lama.
 
+## Jadwal ibadah, petugas & kehadiran
+
+Rute: [worships.ts](src/worker/routes/worships.ts). Aturan data bersama ada di [src/shared/worship.ts](src/shared/worship.ts); tabelnya `worship_schedules` dan `worship_servants` (migrasi 0006).
+
+- **Hak akses.** Admin, Pendeta, dan Majelis boleh melihat; Bendahara mendapat `403`.
+  - Menyimpan dan mengubah jadwal serta menyusun petugas: Admin dan Pendeta.
+  - Mencatat kehadiran: Admin, Pendeta, dan Majelis.
+- **Jadwal.** Kolom: `title`, `category` (`SUNDAY_SERVICE`, `RAYON`, `CATEGORICAL`, `SPECIAL`), `rayon_id` (wajib untuk Ibadah Rayon), `worship_date`, dan `worship_time` (`HH:MM` WITA; `7.00` diterima, kosong berarti jam menyusul).
+  - Kolom lain: `location`, `theme`, `bible_reading`, `liturgy_file_url`, dan `is_public` (tampil di Papan Jadwal portal; bawaan `false`).
+  - PDF tata ibadah diunggah dulu ke `POST /api/uploads` (folder `liturgi`), lalu URL-nya dikirim sebagai `liturgy_file_url`; tautan https juga diterima.
+  - `PUT` mengubah sebagian kolom (PATCH juga diterima); field yang tidak dikirim tidak diubah.
+- **Petugas.** `POST /api/worships/:id/servants` (PUT juga diterima) menyimpan susunan petugas lengkap satu ibadah, menggantikan susunan sebelumnya; `{ "servants": [] }` mengosongkannya.
+  - Tiap petugas: `role` (`PREACHER`, `LITURGIST`, `ELDER_ON_DUTY`, `SINGER`, `MUSICIAN`, `MULTIMEDIA`), `servant_name`, dan `member_id` opsional.
+  - Bila `member_id` diisi, `servant_name` boleh kosong; namanya diambil dari data jemaat.
+  - Maksimal 30 petugas per ibadah. Satu orang boleh memegang dua tugas berbeda di ibadah yang sama, tetapi tidak dua kali untuk tugas yang sama.
+  - Kesalahan dicatat per baris, mis. `details["servants.2.role"]`.
+- **Deteksi bentrok.** Bentrok terjadi bila orang yang sama bertugas di dua ibadah berbeda pada tanggal dan jam yang sama.
+  - Orang yang sama: `member_id` sama bila keduanya terhubung ke data jemaat; selain itu nama yang sama tanpa membedakan huruf besar/kecil, spasi, sapaan di depan (Pdt., Pnt., Dkn., Bpk., Ibu, …), dan gelar setelah koma (mis. `Pdt. Agustina Riwu Kaho, S.Th.` = `agustina riwu kaho`).
+  - Jadwal tanpa jam tidak dibandingkan.
+  - Bentrok tidak menolak penyimpanan (PRD: peringatan visual). Setiap respons jadwal berisi `worship.has_conflict`, rincian per petugas di `servants[].conflicts` (`worship_id`, `title`, `role`), dan `warnings` berupa kalimat siap tampil.
+  - Bentrok dihitung saat dibaca, sehingga terlihat dari kedua jadwal dan ikut berubah bila tanggal, jam, atau petugas diubah.
+- **Kehadiran.** `PATCH /api/worships/:id/attendance` menyimpan `attendance_men` (Pria), `attendance_women` (Wanita), dan `attendance_youth_children` (Anak/Pemuda).
+  - Bilangan bulat 0–10.000. Angka yang tidak dikirim tidak diubah; `null` mengosongkan.
+  - `attendance_total` dihitung database (kolom generated); `null` selama ketiganya kosong.
+  - Hanya untuk ibadah hari ini atau sebelumnya (WITA); ibadah mendatang mendapat `409`. Jadwal yang sudah dicatat kehadirannya tidak bisa dipindah ke tanggal mendatang.
+- **Daftar.** `GET /api/worships` menerima `from`, `to` (inklusif), `category`, `rayon_id`, `is_public` (`true`/`false`), `attendance` (`recorded`/`missing`), `q` (nama, tema, lokasi, bacaan), `servant` (nama petugas), `sort` (`asc` bawaan, `desc`), `page`, dan `per_page`.
+  - Urut tanggal lalu jam; jadwal tanpa jam di akhir harinya. Setiap jadwal membawa petugas dan tanda bentroknya.
+- Setiap perubahan jadwal, susunan petugas, dan kehadiran tercatat di Log Aktivitas.
+
+```json
+POST /api/worships
+{ "title": "Kebaktian Minggu Pagi", "category": "SUNDAY_SERVICE", "worship_date": "2026-11-01",
+  "worship_time": "07:00", "location": "Gedung Kebaktian Lahairoi",
+  "theme": "Kasih yang Memulihkan", "bible_reading": "Kolose 3:12–14",
+  "liturgy_file_url": "/api/files/liturgi/2026/10/<uuid>.pdf", "is_public": true }
+
+POST /api/worships/12/servants
+{ "servants": [
+  { "role": "PREACHER", "servant_name": "Pdt. Agustina Riwu Kaho, S.Th." },
+  { "role": "LITURGIST", "servant_name": "Pnt. Maria Lede" },
+  { "role": "MUSICIAN", "member_id": 87 } ] }
+
+PATCH /api/worships/12/attendance
+{ "attendance_men": 120, "attendance_women": 150, "attendance_youth_children": 80 }
+```
+
 ## Unggah berkas
 
 Berkas (PDF warta, kuitansi, foto, berkas sakramen) disimpan di **Cloudflare R2**, bukan sebagai base64 di D1, karena baris D1 terlalu kecil untuk PDF.
@@ -725,6 +771,12 @@ Komponen akan ditulis ke `src/client/components/ui/`. Preset yang dipakai: `radi
 | POST   | `/api/contents` | Admin, Pendeta | Tambah konten (Pendeta: Renungan) |
 | PUT    | `/api/contents/:id` | Admin, Pendeta | Ubah konten (PATCH juga diterima) |
 | DELETE | `/api/contents/:id` | Admin, Pendeta | Hapus konten |
+| GET    | `/api/worships` | Admin, Pendeta, Majelis | Jadwal ibadah dengan petugas, kehadiran, tanda bentrok, filter, dan paging |
+| GET    | `/api/worships/:id` | Admin, Pendeta, Majelis | Satu jadwal beserta peringatan bentrok |
+| POST   | `/api/worships` | Admin, Pendeta | Tambah jadwal (lokasi, tema, bacaan, PDF liturgi) |
+| PUT    | `/api/worships/:id` | Admin, Pendeta | Ubah jadwal (PATCH juga diterima) |
+| POST   | `/api/worships/:id/servants` | Admin, Pendeta | Simpan susunan petugas; bentrok dilaporkan di `warnings` (PUT juga diterima) |
+| PATCH  | `/api/worships/:id/attendance` | Admin, Pendeta, Majelis | Kehadiran Pria, Wanita, Anak/Pemuda; total otomatis |
 | POST   | `/api/uploads`     | Login + peran folder | Unggah berkas ke R2 (`multipart`: `file`, `folder`) |
 | GET    | `/api/files/*`     | Publik / Login | Ambil berkas dari R2 (mendukung ETag / `304`)     |
 

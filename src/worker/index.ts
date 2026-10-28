@@ -19,6 +19,7 @@ import publicRoutes from './routes/public'
 import rayons from './routes/rayons'
 import uploads from './routes/uploads'
 import users from './routes/users'
+import worships from './routes/worships'
 import type { AppEnv } from './types'
 
 const app = new Hono<AppEnv>().basePath('/api')
@@ -47,6 +48,7 @@ app.route('/finance/funds', financeFunds)
 app.route('/finance/budgets', financeBudgets)
 app.route('/finance/transactions', financeTransactions)
 app.route('/finance/reports', financeReports)
+app.route('/worships', worships)
 
 app.notFound((c) => c.json<ApiErrorBody>({ error: 'Endpoint tidak ditemukan' }, 404))
 

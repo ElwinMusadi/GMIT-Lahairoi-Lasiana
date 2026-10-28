@@ -457,11 +457,63 @@ export const SERVANT_ROLE_LABELS = {
   MULTIMEDIA: 'Multimedia',
 } as const
 export type ServantRole = keyof typeof SERVANT_ROLE_LABELS
+// Urutan ini juga urutan petugas dalam tata ibadah.
+export const SERVANT_ROLES = Object.keys(SERVANT_ROLE_LABELS) as ServantRole[]
 
 // GET /api/public/worships: Papan Jadwal Ibadah, dengan seluruh petugas pelayanan.
 export type PublicWorshipItem = PublicWorship & {
   rayon_id: number | null
   servants: { role: ServantRole; name: string }[]
+}
+
+// Orang yang sama juga bertugas di ibadah lain pada tanggal dan jam yang sama.
+export type WorshipServantConflict = {
+  worship_id: number
+  title: string
+  role: ServantRole
+}
+
+export type WorshipServant = {
+  id: number
+  role: ServantRole
+  servant_name: string
+  // Diisi bila petugas adalah anggota jemaat terdaftar.
+  member_id: number | null
+  conflicts: WorshipServantConflict[]
+}
+
+// Jadwal ibadah di dashboard (GET /api/worships), lengkap dengan petugas dan kehadiran.
+export type WorshipItem = {
+  id: number
+  title: string
+  category: WorshipCategory
+  rayon_id: number | null
+  rayon_name: string | null
+  worship_date: string
+  // HH:MM WITA; null bila jamnya belum ditetapkan.
+  worship_time: string | null
+  location: string | null
+  theme: string | null
+  bible_reading: string | null
+  liturgy_file_url: string | null
+  // Tampil di Papan Jadwal Ibadah Portal Publik.
+  is_public: boolean
+  // null selama belum diinput; total dihitung database dari ketiganya.
+  attendance_men: number | null
+  attendance_women: number | null
+  attendance_youth_children: number | null
+  attendance_total: number | null
+  servants: WorshipServant[]
+  // Ada petugas yang juga bertugas di ibadah lain pada tanggal dan jam yang sama.
+  has_conflict: boolean
+  created_at: string
+  updated_at: string
+}
+
+export type WorshipResponse = {
+  worship: WorshipItem
+  // Peringatan bentrok jadwal petugas, satu kalimat per tugas yang bentrok.
+  warnings: string[]
 }
 
 // GET /api/public/home: ringkasan Beranda Portal Publik.

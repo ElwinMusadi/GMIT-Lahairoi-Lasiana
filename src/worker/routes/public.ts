@@ -3,7 +3,7 @@ import type { FieldErrors } from '../../shared/accounts'
 import { isCalendarDate, witaToday } from '../../shared/dates'
 import {
   CONTENT_CATEGORIES,
-  SERVANT_ROLE_LABELS,
+  SERVANT_ROLES,
   WORSHIP_CATEGORIES,
   type ApiErrorBody,
   type ApiPage,
@@ -177,8 +177,6 @@ publicRoutes.get('/contents/:slug', async (c) => {
   return c.json<{ content: PublicContent }>({ content: toPublicContent(row, true) })
 })
 
-const ROLE_ORDER = Object.keys(SERVANT_ROLE_LABELS)
-
 publicRoutes.get('/worships', async (c) => {
   const query = c.req.query()
   const details: FieldErrors = {}
@@ -228,7 +226,7 @@ publicRoutes.get('/worships', async (c) => {
     ...worship,
     // Urut seperti tata ibadah: Pelayan Firman, Liturgos, Majelis bertugas, dan seterusnya.
     servants: (JSON.parse(servants_json) as PublicWorshipItem['servants']).sort(
-      (a, b) => ROLE_ORDER.indexOf(a.role) - ROLE_ORDER.indexOf(b.role),
+      (a, b) => SERVANT_ROLES.indexOf(a.role) - SERVANT_ROLES.indexOf(b.role),
     ),
   }))
   return c.json<ApiPage<PublicWorshipItem>>({
