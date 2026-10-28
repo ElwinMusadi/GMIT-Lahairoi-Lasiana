@@ -61,6 +61,10 @@
     "screen": "projects/7339613156149599295/screens/f9830eb4fdbd485791362f7f91972c7a",
     "width": 1440,
     "height": 8160,
-    "note": "Redesign portal publik, bahasa desain kage.design Nova CLI; menggantikan 08. Screen Stitch final (f9830eb4). HTML lokal = HTML Stitch + patch kecil kolom nav footer (tidak tumpang tindih); PNG = render Chrome 1440px dari HTML lokal."
+    "note": "Redesign portal publik, bahasa desain kage.design Nova CLI; menggantikan 08. Screen Stitch final (f9830eb4). HTML lokal = HTML Stitch + patch: grid kolom nav footer, dan hero memakai foto asli gedung gereja (assets/gereja-gmit-lahairoi.webp, object-position atas, scrim 75/45/85). Canvas Stitch masih memakai foto senja buatan Stitch. PNG = render Chrome 1440px dari HTML lokal.",
+    "assets": [
+      "assets/gereja-gmit-lahairoi.webp"
+    ],
+    "motion": "Parallax ala runnova.ai (framer-motion useScroll/useTransform ditiru dengan vanilla JS + rAF): hero media translateY 0→28% & scale 1.02→1.15, judul hero translateY 0→10% & opacity 1→0.15, chip kartu Tanpa portal melayang ±25–35px, foto band fitur/footer ±8–10%, fade-up [data-reveal] saat masuk viewport (0.6s, sekali, margin -80px). Nonaktif di prefers-reduced-motion."
   }
 ]

@@ -55,6 +55,14 @@
         100% 100%, 0% 100%
       );
     }
+    /* Parallax & reveal (Nova-style): transform/opacity only, off under reduced motion */
+    .js [data-reveal]{opacity:0;transform:translateY(25px);transition:opacity .6s ease,transform .6s ease}
+    .js [data-reveal].is-visible{opacity:1;transform:none}
+    [data-parallax="hero-media"],[data-parallax="bg"],[data-float]{will-change:transform}
+    [data-parallax="hero-copy"]{will-change:transform,opacity}
+    @media (prefers-reduced-motion: reduce){
+      .js [data-reveal]{opacity:1;transform:none;transition:none}
+    }
   </style>
 </head>
 <body class="bg-white text-panelDark font-body antialiased selection:bg-orangeAccent selection:text-white">
@@ -62,10 +70,12 @@
 <!-- 1) CINEMATIC HERO -->
 <!-- ========================================================================= -->
 <div class="p-4 bg-white">
-<section class="relative w-full h-[92vh] min-h-[640px] max-h-[880px] rounded-[24px] overflow-hidden shadow-panel flex flex-col justify-between p-8 md:p-12">
+<section data-parallax="hero" class="relative w-full h-[92vh] min-h-[640px] max-h-[880px] rounded-[24px] overflow-hidden shadow-panel bg-[#07151A] flex flex-col justify-between p-8 md:p-12">
 <!-- Background Image with Overlay -->
-<img alt="Senja Pantai Lasiana Kupang GMIT Lahairoi" class="absolute inset-0 w-full h-full object-cover object-center pointer-events-none select-none" src="https://lh3.googleusercontent.com/aida/AEtjO1XuOESeOUpBb6jPe1-0BwgBkTowTVvANO9bn2D6t2UqJ5j2LP5sXljDEEo1unhOCKd2TVUl8UOS6Oh0vWvOmSQOahebL8t2CiAgj8WV_iy_YOehRpyIzFqakJEwtuZ19VvCbi3FirV_sItVh7tlB7lfrRp6eQcyinfm2zA6yfV69mn3MMPcvKmvPW9NJTnImAXMpHKKMlx4g0rdIKD1zKXZ_WEa6E8RSIjaXDMj7gN2PXqwy4po4jBJSSc"/>
-<div class="absolute inset-0 bg-gradient-to-b from-[#07151A]/70 via-[#07151A]/20 to-[#07151A]/85 pointer-events-none"></div>
+<div data-parallax="hero-media" class="absolute inset-0 w-full h-full" style="transform: scale(1.02);">
+<img alt="Gedung Gereja GMIT Lahairoi Tuak Sabu, Lasiana" class="absolute inset-0 w-full h-full object-cover pointer-events-none select-none" style="object-position: center 0%;" src="assets/gereja-gmit-lahairoi.webp"/>
+<div class="absolute inset-0 bg-gradient-to-b from-[#07151A]/75 via-[#07151A]/45 to-[#07151A]/85 pointer-events-none"></div>
+</div>
 <!-- Top Nav Overlay -->
 <header class="relative z-10 w-full flex items-center justify-between">
 <!-- Brand Wordmark Pill -->
@@ -95,7 +105,7 @@
 </div>
 </header>
 <!-- Centre Upper Headline -->
-<div class="relative z-10 text-center my-auto flex flex-col items-center justify-center">
+<div data-parallax="hero-copy" class="relative z-10 text-center mt-10 mb-auto flex flex-col items-center justify-center">
 <h1 class="text-white tracking-[-0.03em] leading-none">
 <span class="block font-display font-extrabold text-5xl md:text-7xl lg:text-[84px] drop-shadow-md">Allah yang hidup</span>
 <span class="block font-serif italic text-5xl md:text-7xl lg:text-[84px] text-white mt-1 md:mt-2 drop-shadow-md">melihat kita.</span>
@@ -119,7 +129,7 @@
 <section class="py-[140px] px-6 max-w-[1180px] mx-auto text-center" id="jadwal">
 <!-- Section Header -->
 <div class="max-w-[720px] mx-auto">
-<h2 class="tracking-[-0.03em] leading-none">
+<h2 data-reveal class="tracking-[-0.03em] leading-none">
 <span class="font-display font-extrabold text-4xl md:text-[60px] text-panelDark">Jadwal ibadah</span>
 <span class="font-serif italic text-4xl md:text-[60px] text-mutedText block mt-1">minggu ini.</span>
 </h2>
@@ -280,7 +290,7 @@
 <!-- ========================================================================= -->
 <section class="py-[140px] px-6 max-w-[1180px] mx-auto text-center border-t border-borderLight">
 <div class="max-w-[760px] mx-auto">
-<h2 class="tracking-[-0.03em] leading-none">
+<h2 data-reveal class="tracking-[-0.03em] leading-none">
 <span class="font-display font-extrabold text-4xl md:text-[56px] text-panelDark">Jemaat tidak lambat.</span>
 <span class="font-serif italic text-4xl md:text-[56px] text-mutedText block mt-1">Urusannya yang berbelit.</span>
 </h2>
@@ -295,10 +305,10 @@
 <!-- ========================================================================= -->
 <!-- 4) BEFORE/AFTER COMPARISON CARDS -->
 <!-- ========================================================================= -->
-<section class="pb-[140px] px-6 max-w-[1180px] mx-auto">
+<section data-float-scope class="pb-[140px] px-6 max-w-[1180px] mx-auto">
 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
 <!-- Left Card: Tanpa Portal (Pale #F6F6F4) -->
-<div class="bg-offWhite border border-borderLight rounded-[24px] p-8 md:p-10 flex flex-col justify-between min-h-[420px]">
+<div data-reveal class="bg-offWhite border border-borderLight rounded-[24px] p-8 md:p-10 flex flex-col justify-between min-h-[420px]">
 <div>
 <h3 class="font-display font-bold text-[22px] text-panelDark">Tanpa portal</h3>
 <p class="text-mutedText text-[15px] mt-1">Berkas tercecer. Antre berulang. Kabar terlambat.</p>
@@ -307,11 +317,11 @@
 <div class="relative my-8 py-10 flex items-center justify-center">
 <div class="relative w-full max-w-[320px] h-[160px]">
 <!-- Chip 1 Top Left -->
-<div class="absolute top-0 left-0 bg-white border border-borderLight px-3 py-1.5 rounded-full font-mono text-xs text-panelDark shadow-sm">
+<div data-float="-25,25" class="absolute top-0 left-0 bg-white border border-borderLight px-3 py-1.5 rounded-full font-mono text-xs text-panelDark shadow-sm">
               Grup WA
             </div>
 <!-- Chip 2 Top Right -->
-<div class="absolute top-2 right-2 bg-white border border-borderLight px-3 py-1.5 rounded-full font-mono text-xs text-panelDark shadow-sm">
+<div data-float="35,-35" class="absolute top-2 right-2 bg-white border border-borderLight px-3 py-1.5 rounded-full font-mono text-xs text-panelDark shadow-sm">
               Formulir kertas
             </div>
 <!-- Center Dotted Pinkish Cycle Indicator -->
@@ -321,11 +331,11 @@
               </span>
 </div>
 <!-- Chip 3 Bottom Left -->
-<div class="absolute bottom-2 left-4 bg-white border border-borderLight px-3 py-1.5 rounded-full font-mono text-xs text-panelDark shadow-sm">
+<div data-float="-30,30" class="absolute bottom-2 left-4 bg-white border border-borderLight px-3 py-1.5 rounded-full font-mono text-xs text-panelDark shadow-sm">
               Loket TU
             </div>
 <!-- Chip 4 Bottom Right -->
-<div class="absolute bottom-0 right-0 bg-white border border-borderLight px-3 py-1.5 rounded-full font-mono text-xs text-panelDark shadow-sm">
+<div data-float="25,-25" class="absolute bottom-0 right-0 bg-white border border-borderLight px-3 py-1.5 rounded-full font-mono text-xs text-panelDark shadow-sm">
               Telepon rayon
             </div>
 </div>
@@ -335,7 +345,7 @@
         </div>
 </div>
 <!-- Right Card: Dengan Portal (Dark #07151A) -->
-<div class="bg-tealDark text-white rounded-[24px] p-8 md:p-10 flex flex-col justify-between min-h-[420px] shadow-broad border border-white/10">
+<div data-reveal class="bg-tealDark text-white rounded-[24px] p-8 md:p-10 flex flex-col justify-between min-h-[420px] shadow-broad border border-white/10">
 <div>
 <h3 class="font-display font-bold text-[22px] text-white">Dengan portal</h3>
 <p class="text-white/60 text-[15px] mt-1">Satu nomor berkas. Satu alur. Satu kabar.</p>
@@ -364,12 +374,12 @@
 <!-- ========================================================================= -->
 <section class="relative w-full h-auto min-h-[760px] py-[100px] overflow-hidden flex items-center" id="fitur">
 <!-- Full-width Background Image -->
-<img alt="Latar Lasiana GMIT Lahairoi" class="absolute inset-0 w-full h-full object-cover object-center pointer-events-none" src="https://lh3.googleusercontent.com/aida/AEtjO1XuOESeOUpBb6jPe1-0BwgBkTowTVvANO9bn2D6t2UqJ5j2LP5sXljDEEo1unhOCKd2TVUl8UOS6Oh0vWvOmSQOahebL8t2CiAgj8WV_iy_YOehRpyIzFqakJEwtuZ19VvCbi3FirV_sItVh7tlB7lfrRp6eQcyinfm2zA6yfV69mn3MMPcvKmvPW9NJTnImAXMpHKKMlx4g0rdIKD1zKXZ_WEa6E8RSIjaXDMj7gN2PXqwy4po4jBJSSc"/>
+<img data-parallax="bg" data-parallax-range="-8,8" alt="Latar Lasiana GMIT Lahairoi" class="absolute inset-0 w-full h-full object-cover object-center pointer-events-none" style="transform: scale(1.15);" src="https://lh3.googleusercontent.com/aida/AEtjO1XuOESeOUpBb6jPe1-0BwgBkTowTVvANO9bn2D6t2UqJ5j2LP5sXljDEEo1unhOCKd2TVUl8UOS6Oh0vWvOmSQOahebL8t2CiAgj8WV_iy_YOehRpyIzFqakJEwtuZ19VvCbi3FirV_sItVh7tlB7lfrRp6eQcyinfm2zA6yfV69mn3MMPcvKmvPW9NJTnImAXMpHKKMlx4g0rdIKD1zKXZ_WEa6E8RSIjaXDMj7gN2PXqwy4po4jBJSSc"/>
 <div class="absolute inset-0 bg-[#07151A]/75 backdrop-blur-[2px] pointer-events-none"></div>
 <div class="relative z-10 max-w-[1180px] mx-auto px-6 w-full">
 <!-- Header on imagery -->
 <div class="text-left mb-12">
-<h2 class="text-white tracking-[-0.03em] leading-tight">
+<h2 data-reveal class="text-white tracking-[-0.03em] leading-tight">
 <span class="font-display font-extrabold text-3xl md:text-[48px] block">Semua yang jemaat perlukan.</span>
 <span class="font-serif italic text-3xl md:text-[48px] text-white block mt-1">Dalam satu gerakan.</span>
 </h2>
@@ -377,7 +387,7 @@
 <!-- 3 Dark Translucent Cards -->
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 <!-- Card 1 -->
-<div class="bg-[rgba(7,21,26,0.72)] backdrop-blur-md border border-white/15 rounded-[24px] p-8 flex flex-col justify-between min-h-[340px] text-left hover:border-white/30 transition">
+<div data-reveal class="bg-[rgba(7,21,26,0.72)] backdrop-blur-md border border-white/15 rounded-[24px] p-8 flex flex-col justify-between min-h-[340px] text-left hover:border-white/30 transition">
 <div class="font-serif italic text-[96px] leading-none text-white/25 select-none -mt-4">01</div>
 <div class="mt-4">
 <h3 class="font-display font-bold text-2xl text-white">Warta Jemaat digital</h3>
@@ -390,7 +400,7 @@
           </div>
 </div>
 <!-- Card 2 -->
-<div class="bg-[rgba(7,21,26,0.72)] backdrop-blur-md border border-white/15 rounded-[24px] p-8 flex flex-col justify-between min-h-[340px] text-left hover:border-white/30 transition">
+<div data-reveal class="bg-[rgba(7,21,26,0.72)] backdrop-blur-md border border-white/15 rounded-[24px] p-8 flex flex-col justify-between min-h-[340px] text-left hover:border-white/30 transition">
 <div class="font-serif italic text-[96px] leading-none text-white/25 select-none -mt-4">02</div>
 <div class="mt-4">
 <h3 class="font-display font-bold text-2xl text-white">Pendaftaran sakramen</h3>
@@ -403,7 +413,7 @@
           </div>
 </div>
 <!-- Card 3 -->
-<div class="bg-[rgba(7,21,26,0.72)] backdrop-blur-md border border-white/15 rounded-[24px] p-8 flex flex-col justify-between min-h-[340px] text-left hover:border-white/30 transition">
+<div data-reveal class="bg-[rgba(7,21,26,0.72)] backdrop-blur-md border border-white/15 rounded-[24px] p-8 flex flex-col justify-between min-h-[340px] text-left hover:border-white/30 transition">
 <div class="font-serif italic text-[96px] leading-none text-white/25 select-none -mt-4">03</div>
 <div class="mt-4">
 <h3 class="font-display font-bold text-2xl text-white">Persembahan QRIS</h3>
@@ -423,7 +433,7 @@
 <!-- ========================================================================= -->
 <section class="py-[140px] px-6 max-w-[1180px] mx-auto text-center" id="perbandingan">
 <div class="max-w-[760px] mx-auto mb-16 text-center">
-<h2 class="tracking-[-0.03em] leading-none whitespace-nowrap font-display font-extrabold text-[36px] sm:text-[46px] md:text-[52px] text-panelDark">
+<h2 data-reveal class="tracking-[-0.03em] leading-none whitespace-nowrap font-display font-extrabold text-[36px] sm:text-[46px] md:text-[52px] text-panelDark">
         Bukan sekadar pengumuman.
       </h2>
 <div class="font-serif italic text-[36px] sm:text-[46px] md:text-[52px] text-editorialBlue mt-2">
@@ -475,13 +485,13 @@
 <!-- ========================================================================= -->
 <section class="py-[140px] px-6 bg-offWhite border-y border-borderLight">
 <div class="max-w-[1180px] mx-auto text-center">
-<h2 class="font-display font-extrabold text-3xl md:text-[48px] text-panelDark tracking-[-0.03em]">Suara jemaat</h2>
+<h2 data-reveal class="font-display font-extrabold text-3xl md:text-[48px] text-panelDark tracking-[-0.03em]">Suara jemaat</h2>
 <p class="text-mutedText text-base mt-2">Pengalaman warga jemaat dari lima rayon menggunakan portal.</p>
 <!-- 3-Column Testimonial Cards (#F6F6F4 background, pastel corner wash) -->
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 text-left">
 <!-- Testimonial 1 -->
 <div class="relative bg-white border border-borderLight rounded-[20px] p-6 shadow-sm overflow-hidden flex flex-col justify-between">
-<div class="absolute -top-10 -right-10 w-28 h-28 bg-amber-100/70 rounded-full blur-2xl pointer-events-none"></div>
+<div data-reveal class="absolute -top-10 -right-10 w-28 h-28 bg-amber-100/70 rounded-full blur-2xl pointer-events-none"></div>
 <div>
 <div class="flex items-center justify-between mb-4">
 <span class="font-mono text-xs bg-panelDark text-white px-2.5 py-1 rounded-full">Baptisan anak</span>
@@ -498,7 +508,7 @@
 </div>
 <!-- Testimonial 2 -->
 <div class="relative bg-white border border-borderLight rounded-[20px] p-6 shadow-sm overflow-hidden flex flex-col justify-between">
-<div class="absolute -top-10 -right-10 w-28 h-28 bg-sky-100/70 rounded-full blur-2xl pointer-events-none"></div>
+<div data-reveal class="absolute -top-10 -right-10 w-28 h-28 bg-sky-100/70 rounded-full blur-2xl pointer-events-none"></div>
 <div>
 <div class="flex items-center justify-between mb-4">
 <span class="font-mono text-xs bg-panelDark text-white px-2.5 py-1 rounded-full">Jadwal rayon</span>
@@ -515,7 +525,7 @@
 </div>
 <!-- Testimonial 3 -->
 <div class="relative bg-white border border-borderLight rounded-[20px] p-6 shadow-sm overflow-hidden flex flex-col justify-between">
-<div class="absolute -top-10 -right-10 w-28 h-28 bg-rose-100/70 rounded-full blur-2xl pointer-events-none"></div>
+<div data-reveal class="absolute -top-10 -right-10 w-28 h-28 bg-rose-100/70 rounded-full blur-2xl pointer-events-none"></div>
 <div>
 <div class="flex items-center justify-between mb-4">
 <span class="font-mono text-xs bg-panelDark text-white px-2.5 py-1 rounded-full">Persembahan</span>
@@ -604,7 +614,7 @@
 <section class="py-[140px] px-6 max-w-[1180px] mx-auto text-center">
 <div class="max-w-[760px] mx-auto mb-12">
 <div class="font-mono text-xs text-mutedText uppercase tracking-widest mb-3">TANYA JAWAB</div>
-<h2 class="tracking-[-0.03em] leading-tight">
+<h2 data-reveal class="tracking-[-0.03em] leading-tight">
 <span class="font-display font-extrabold text-3xl md:text-[48px] text-panelDark">Pertanyaan yang sering</span>
 <span class="font-serif italic text-3xl md:text-[48px] text-mutedText block md:inline md:ml-2">ditanyakan</span>
 </h2>
@@ -665,7 +675,7 @@
 <!-- White decorative sawtooth/zigzag top transition edge -->
 <div class="sawtooth-top w-full h-4 bg-white absolute top-0 left-0 z-20"></div>
 <!-- Full-width photograph at full opacity with soft dark scrim from bottom (~50% bottom to 10% top) -->
-<img alt="Senja Lasiana Kupang GMIT Lahairoi" class="absolute inset-0 w-full h-full object-cover object-bottom pointer-events-none select-none" src="https://lh3.googleusercontent.com/aida/AEtjO1XuOESeOUpBb6jPe1-0BwgBkTowTVvANO9bn2D6t2UqJ5j2LP5sXljDEEo1unhOCKd2TVUl8UOS6Oh0vWvOmSQOahebL8t2CiAgj8WV_iy_YOehRpyIzFqakJEwtuZ19VvCbi3FirV_sItVh7tlB7lfrRp6eQcyinfm2zA6yfV69mn3MMPcvKmvPW9NJTnImAXMpHKKMlx4g0rdIKD1zKXZ_WEa6E8RSIjaXDMj7gN2PXqwy4po4jBJSSc"/>
+<img data-parallax="bg" data-parallax-range="-10,4" alt="Senja Lasiana Kupang GMIT Lahairoi" class="absolute inset-0 w-full h-full object-cover object-bottom pointer-events-none select-none" style="transform: scale(1.15);" src="https://lh3.googleusercontent.com/aida/AEtjO1XuOESeOUpBb6jPe1-0BwgBkTowTVvANO9bn2D6t2UqJ5j2LP5sXljDEEo1unhOCKd2TVUl8UOS6Oh0vWvOmSQOahebL8t2CiAgj8WV_iy_YOehRpyIzFqakJEwtuZ19VvCbi3FirV_sItVh7tlB7lfrRp6eQcyinfm2zA6yfV69mn3MMPcvKmvPW9NJTnImAXMpHKKMlx4g0rdIKD1zKXZ_WEa6E8RSIjaXDMj7gN2PXqwy4po4jBJSSc"/>
 <div class="absolute inset-0 bg-gradient-to-t from-tealDark via-[#07151A]/50 to-[#07151A]/10 pointer-events-none"></div>
 <div class="relative z-10 max-w-[1180px] mx-auto px-6 pt-24 pb-12 flex flex-col justify-between min-h-[520px]">
 <!-- Main Content Grid -->
@@ -732,4 +742,68 @@
       </div>
 </div>
 </footer>
+<script>
+(function () {
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.documentElement.classList.add('js');
+  var reveals = document.querySelectorAll('[data-reveal]');
+  if ('IntersectionObserver' in window && !reduce) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('is-visible'); io.unobserve(e.target); } });
+    }, { rootMargin: '-80px 0px' });
+    reveals.forEach(function (el) { io.observe(el); });
+  } else {
+    reveals.forEach(function (el) { el.classList.add('is-visible'); });
+  }
+  if (reduce) return;
+  var hero = document.querySelector('[data-parallax="hero"]');
+  var media = document.querySelector('[data-parallax="hero-media"]');
+  var copy = document.querySelector('[data-parallax="hero-copy"]');
+  var bgs = Array.prototype.slice.call(document.querySelectorAll('[data-parallax="bg"]'));
+  var floats = Array.prototype.slice.call(document.querySelectorAll('[data-float]'));
+  var floatScope = document.querySelector('[data-float-scope]');
+  function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+  function lerp(a, b, t) { return a + (b - a) * t; }
+  function range(el, attr, fallback) { return (el.getAttribute(attr) || fallback).split(',').map(Number); }
+  var pending = Array.prototype.slice.call(reveals);
+  var ticking = false;
+  function update() {
+    ticking = false;
+    var vh = window.innerHeight;
+    /* anything already scrolled past (anchor jumps) is shown without waiting for an intersection */
+    pending = pending.filter(function (el) {
+      if (el.classList.contains('is-visible')) return false;
+      if (el.getBoundingClientRect().bottom < 0) { el.classList.add('is-visible'); return false; }
+      return true;
+    });
+    if (hero && media) {
+      var r = hero.getBoundingClientRect();
+      var p = clamp(-r.top / r.height, 0, 1);               /* offset: ["start start", "end start"] */
+      media.style.transform = 'translate3d(0,' + (p * 28).toFixed(2) + '%,0) scale(' + lerp(1.02, 1.15, p).toFixed(4) + ')';
+      if (copy) {
+        copy.style.transform = 'translate3d(0,' + (clamp(p / 0.8, 0, 1) * 10).toFixed(2) + '%,0)';
+        copy.style.opacity = lerp(1, 0.15, clamp(p / 0.65, 0, 1)).toFixed(3);
+      }
+    }
+    bgs.forEach(function (el) {
+      var r = el.parentElement.getBoundingClientRect();
+      var p = clamp((vh - r.top) / (vh + r.height), 0, 1);   /* offset: ["start end", "end start"] */
+      var rg = range(el, 'data-parallax-range', '-8,8');
+      el.style.transform = 'translate3d(0,' + lerp(rg[0], rg[1], p).toFixed(2) + '%,0) scale(1.15)';
+    });
+    if (floatScope && floats.length) {
+      var r2 = floatScope.getBoundingClientRect();
+      var p2 = clamp((vh - r2.top) / (vh + r2.height), 0, 1);
+      floats.forEach(function (el) {
+        var rg = range(el, 'data-float', '0,0');
+        el.style.transform = 'translate3d(0,' + lerp(rg[0], rg[1], p2).toFixed(2) + 'px,0)';
+      });
+    }
+  }
+  function onScroll() { if (!ticking) { ticking = true; window.requestAnimationFrame(update); } }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+  update();
+})();
+</script>
 </body></html>
