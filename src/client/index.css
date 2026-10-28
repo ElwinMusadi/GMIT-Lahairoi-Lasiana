@@ -272,6 +272,38 @@
   font-family: var(--font-portal);
 }
 
+/* Lapisan gerak kage (lib/portal-motion.ts). Elemen "muncul" hanya disembunyikan selama
+   html.portal-motion aktif, yaitu saat JavaScript gerak berjalan dan pengguna tidak
+   meminta kurangi gerak; selain itu langsung tampil. */
+@media (prefers-reduced-motion: no-preference) {
+  .portal-motion [data-reveal] {
+    opacity: 0;
+    transform: translate3d(0, 25px, 0);
+    transition:
+      opacity 0.6s ease,
+      transform 0.6s ease;
+  }
+  .portal-motion [data-reveal].is-visible {
+    opacity: 1;
+    transform: none;
+  }
+}
+/* Foto latar parallax: posisi diamnya tepat di tengah bingkai (bingkai: relative +
+   overflow-hidden). Saat bergerak, tinggi minimum dan transform diatur portal-motion. */
+[data-parallax-bg] {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  height: auto;
+  min-height: 100%;
+  object-fit: cover;
+  transform: translate3d(0, -50%, 0);
+  will-change: transform;
+  pointer-events: none;
+  user-select: none;
+}
+
 /* Lapisan gerak Portal Publik: hanya transform dan opacity. Konten tetap terlihat bila
    animasi tidak didukung, dan gerak dimatikan bila pengguna memintanya. */
 @keyframes rise-in {

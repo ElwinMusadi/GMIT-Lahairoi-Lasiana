@@ -861,3 +861,66 @@ di-commit), pada lebar 1440/768/390 px:
 - **Perbaikan yang ditemukan saat uji:** judul mono panjang di `WindowPanel` sempat melebarkan
   kolom grid di ponsel (gulir menyamping 52 px). Judulnya kini `w-0 flex-1 truncate`, dan
   tidak ada lagi gulir menyamping di 375 px.
+
+### Tahap 2 — Lapisan gerak (29 Oktober 2026)
+
+**Yang ditambahkan:**
+
+- `lenis` 1.3.27 (npm).
+- [lib/portal-motion.ts](../src/client/lib/portal-motion.ts), dipasang di `PublicLayout`, berisi:
+  - **Lenis** dengan konfigurasi persis manifest (`duration 1.1`, easing ekspo, `smoothWheel`,
+    `touchMultiplier 1.5`, `anchors`) dan loop rAF manual;
+  - **satu loop** baca-lalu-tulis untuk semua elemen bergerak;
+  - **`useHeroParallax`**: foto 0→28 % dan 1,02→1,15; judul 0→10 % dan opacity 1→0,15;
+  - **`useBackgroundParallax`**: travel ±px; tinggi minimum 100 % + 2×travel;
+  - **`useFloat`**;
+  - **`registerReveal`**: IntersectionObserver dengan margin −80px; elemen yang sudah
+    terlewati langsung tampil;
+  - **`scrollToElement`**: gulir halus lewat Lenis bila aktif.
+- **Integrasi:**
+  - Radix mengunci gulir (`body[data-scroll-locked]`) → Lenis berhenti.
+  - Isi `role=dialog`/`menu` dan popover Radix dikecualikan dari Lenis (opsi `prevent`).
+  - Setiap pindah rute, Lenis disamakan dengan posisi dari `ScrollRestoration`.
+  - Semuanya mati saat `prefers-reduced-motion`.
+- **CSS:** `html.portal-motion [data-reveal]` hanya tersembunyi selama lapisan gerak aktif, dan
+  `[data-parallax-bg]` mengatur posisi diam foto latar. `Reveal` kini mendaftarkan diri lewat
+  ref.
+- **Ukuran bundle utama:** 381,5 → 402,0 KB (gzip 119,7 → 125,3 KB, +5,6 KB).
+
+**Pemeriksaan di portal 08 dengan data uji:**
+
+| Uji | Hasil |
+| --- | --- |
+| Gulir roda tetikus | Halus: 300px dalam ±1 detik mengikuti kurva easing |
+| Jangkar di halaman yang sama (`#jadwal`, `#formulir`, `#cek-status`) | Meluncur halus tanpa loncatan awal, berhenti tepat di `scroll-margin-top` (96px) |
+| Tombol Kembali | Posisi dipulihkan; Lenis langsung selaras |
+| Menu ponsel (Sheet) | Lenis berhenti; roda tetikus tidak menggulir halaman; posisi tetap; gulir kembali normal setelah ditutup |
+| Jendela galeri | Roda tetikus sungguhan menggulir isi dialog (42px), halaman tetap |
+| Halaman uji sementara (tidak di-commit): hero, 3 seksi reveal, chip float, band ±340, footer ±420 | Semua bergerak sesuai nilai manifest; foto latar tidak pernah memperlihatkan tepinya saat masuk, tengah, dan keluar layar |
+
+Catatan pemeriksaan:
+
+- **Pemulihan posisi saat Kembali:** sesudah dipulihkan, posisi bergeser +176px karena isi
+  Beranda selesai dimuat di atas layar (*scroll anchoring* browser). Perilaku ini sudah ada di
+  08.
+- **Loncatan saat menu ponsel dibuka:** loncatan ke 226px yang sempat terlihat ternyata
+  berasal dari alat klik pengujian. Dengan klik JavaScript, posisinya tetap 600px.
+
+**Kinerja** (Chrome headless lewat DevTools Protocol, roda tetikus sungguhan 24 kali):
+
+| Skenario | Median frame | p95 | Frame > 33ms |
+| --- | --- | --- | --- |
+| Desktop 1440, CPU 1× | 16,7ms | 17,1ms | 0 |
+| Desktop 1440, CPU 4× | 16,7ms | 16,8ms | 0 |
+| Ponsel 390 (DPR 3), CPU 4×, halaman uji | 16,7ms | 16,8ms | 1 (366ms, sekali) |
+| Ponsel 390, CPU 4×, Beranda 08 | 16,7ms | 16,8ms | 0 |
+| `prefers-reduced-motion` | Lenis dan gerak mati; 7/7 elemen reveal langsung terlihat | | |
+
+- **Satu frame lambat di ponsel** kemungkinan besar berasal dari dekode foto 1254px saat band
+  pertama kali masuk layar. Komponen foto di Tahap 3 memakai `decoding="async"` dan
+  `loading="lazy"` (kecuali hero).
+- **Nilai parallax tidak diubah untuk ponsel**, karena tidak ada patah-patah yang terukur.
+- **Jangkar lintas halaman** (`/profil#rayon` dari Beranda) berhenti di 110px, sama persis
+  dengan dan tanpa Lenis. Penyebabnya isi Profil yang dimuat setelah gulir; perilaku ini sudah
+  ada di 08 dan diperbaiki saat halaman Profil dirombak (Tahap 7): gulir ulang ke jangkar
+  setelah data tiba.
