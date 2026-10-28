@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+
+<html lang="id"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "background": "#faf8ff", "primary": "#00236f", "tertiary-fixed": "#85f8c4", "on-surface": "#131b2e", "tertiary-fixed-dim": "#68dba9", "outline-variant": "#c5c5d3", "surface-bright": "#faf8ff", "error-container": "#ffdad6", "tertiary": "#003120", "surface-container-highest": "#dae2fd", "secondary-fixed-dim": "#ffb77d", "on-primary-container": "#90a8ff", "inverse-on-surface": "#eef0ff", "on-error": "#ffffff", "on-tertiary-container": "#4ac08f", "on-secondary-fixed-variant": "#6e3900", "on-error-container": "#93000a", "on-primary-fixed": "#00164e", "surface-container-high": "#e2e7ff", "on-tertiary-fixed": "#002114", "on-primary-fixed-variant": "#264191", "primary-fixed-dim": "#b6c4ff", "surface-dim": "#d2d9f4", "secondary-container": "#fe932c", "error": "#ba1a1a", "secondary-fixed": "#ffdcc3", "surface-tint": "#4059aa", "surface-container": "#eaedff", "on-secondary": "#ffffff", "secondary": "#904d00", "on-tertiary": "#ffffff", "on-background": "#131b2e", "surface-container-low": "#f2f3ff", "on-secondary-fixed": "#2f1500", "tertiary-container": "#004a32", "outline": "#757682", "inverse-surface": "#283044", "on-secondary-container": "#663500", "primary-fixed": "#dce1ff", "surface-variant": "#dae2fd", "on-surface-variant": "#444651", "surface-container-lowest": "#ffffff", "inverse-primary": "#b6c4ff", "surface": "#faf8ff", "on-tertiary-fixed-variant": "#005137", "on-primary": "#ffffff", "primary-container": "#1e3a8a" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "margin-mobile": "1rem", "space-md": "1rem", "space-xs": "0.25rem", "space-xl": "2.5rem", "space-lg": "1.5rem", "space-sm": "0.5rem", "gutter-mobile": "1rem", "gutter": "1.5rem", "margin": "2rem" }, "fontFamily": { "headline-md": ["Plus Jakarta Sans"], "body-sm": ["Inter"], "headline-lg-mobile": ["Plus Jakarta Sans"], "headline-sm": ["Plus Jakarta Sans"], "body-lg": ["Inter"], "label-lg": ["Inter"], "headline-lg": ["Plus Jakarta Sans"], "body-md": ["Inter"], "headline-xl": ["Plus Jakarta Sans"], "headline-xl-mobile": ["Plus Jakarta Sans"], "label-sm": ["Inter"], "label-md": ["Inter"] }, "fontSize": { "headline-md": ["1.5rem", { "lineHeight": "2rem", "fontWeight": "600" }], "body-sm": ["0.875rem", { "lineHeight": "1.25rem", "fontWeight": "400" }], "headline-lg-mobile": ["1.5rem", { "lineHeight": "2rem", "fontWeight": "700" }], "headline-sm": ["1.25rem", { "lineHeight": "1.75rem", "fontWeight": "600" }], "body-lg": ["1.125rem", { "lineHeight": "1.75rem", "fontWeight": "400" }], "label-lg": ["0.875rem", { "lineHeight": "1.25rem", "fontWeight": "600" }], "headline-lg": ["2rem", { "lineHeight": "2.5rem", "fontWeight": "700" }], "body-md": ["1rem", { "lineHeight": "1.5rem", "fontWeight": "400" }], "headline-xl": ["2.5rem", { "lineHeight": "3rem", "fontWeight": "700" }], "headline-xl-mobile": ["1.875rem", { "lineHeight": "2.25rem", "fontWeight": "700" }], "label-sm": ["0.6875rem", { "lineHeight": "0.875rem", "fontWeight": "500" }], "label-md": ["0.75rem", { "lineHeight": "1rem", "fontWeight": "600" }] } } } };</script></head><body class="bg-surface font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-72 bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.06)] z-50 flex flex-col justify-between overflow-y-auto"><div class="flex flex-col"><div class="h-20 px-space-lg flex items-center gap-space-md"><img alt="Logo GMIT Lahairoi Tuak Sabu Lasiana" class="h-10 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_2NKInYOlABEPJCeaYJYKeicxL4tn_Sv6DREx13oCGKkK_f3btN94_Yf4O5i7WTQDR4ri26lpJ7dNQMBMCZoq_se96r0LipOE-vLlDWQ6bh2swxhPUujmMY4VrJyuE6_L33_4PE4ORPWkT0hKv71LrkqUoTucL0PzWG7zHUUjgIaJ_S5Go7xNCoV9RjnxzH8W8iDWE2A__HNjJMqBdU0u2vVc4M-PnEbilngcI6s"/><div class="flex flex-col min-w-0"><span class="font-headline-sm text-headline-sm text-primary leading-tight truncate">GMIT Lahairoi</span><span class="font-label-sm text-label-sm text-on-surface-variant truncate">Tuak Sabu Lasiana</span></div></div><div class="px-space-lg py-space-sm"><div class="px-space-md py-space-xs rounded-lg bg-surface-container-low flex items-center justify-between"><span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Basis Wilayah</span><span class="font-label-md text-label-md text-secondary font-bold">5 Rayon Pelayanan</span></div></div><nav class="px-space-md py-space-sm flex flex-col gap-1" data-active-classes="bg-primary-container text-on-primary font-bold shadow-sm"><a class="flex items-center px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-label-lg text-label-lg transition-colors" data-path="dashboard-eksekutif" href="#">Dashboard Eksekutif</a><a class="flex items-center px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-label-lg text-label-lg transition-colors" data-path="database-jemaat" href="#">Database Jemaat</a><a class="flex items-center px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-label-lg text-label-lg transition-colors" data-path="keuangan-multi-pos" href="#">Keuangan Multi-Pos</a><a class="flex items-center px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-label-lg text-label-lg transition-colors" data-path="jadwal-pelayan-ibadah" href="#">Jadwal &amp; Pelayan Ibadah</a><a class="flex items-center px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-label-lg text-label-lg transition-colors" data-path="verifikasi-sakramen-arsip" href="#">Verifikasi Sakramen &amp; Arsip</a><a class="flex items-center px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-label-lg text-label-lg transition-colors" data-path="inventaris-aset" href="#">Inventaris &amp; Aset</a><a class="flex items-center px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-label-lg text-label-lg transition-colors" data-path="pengaturan" href="#">Pengaturan</a></nav></div><div class="p-space-lg"><div class="p-space-md rounded-xl bg-surface-container-low flex flex-col gap-space-xs"><span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Status Data Jemaat</span><div class="flex items-center gap-space-xs font-label-md text-label-md text-on-tertiary-container"><span class="w-2 h-2 rounded-full bg-on-tertiary-container"></span><span>1.200 Jiwa / 5 Rayon</span></div><span class="font-label-sm text-label-sm text-on-surface-variant">Sistem GMIT Terpadu</span></div></div></aside><div class="pl-72"><header class="fixed top-0 left-72 right-0 h-20 bg-surface-container-lowest/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 px-space-lg flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-md min-w-0"><div class="hidden sm:flex items-center gap-space-xs px-space-md py-space-xs bg-surface-container-low rounded-lg text-on-surface-variant font-label-md text-label-md"><span class="material-symbols-outlined text-base">church</span><span>Klasis Kota Kupang Timur</span></div><span class="hidden lg:inline text-on-surface-variant font-label-md text-label-md font-medium">GMIT Lahairoi Tuak Sabu Lasiana</span></div><div class="flex items-center gap-space-md"><nav class="hidden xl:flex items-center gap-space-xs p-1 rounded-xl bg-surface-container-low" data-active-classes="bg-primary-container text-on-primary font-bold shadow-sm"><a class="px-space-md py-1 rounded-lg font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="dashboard-eksekutif" href="#">Dashboard Eksekutif</a><a class="px-space-md py-1 rounded-lg font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="database-jemaat" href="#">Database Jemaat</a><a class="px-space-md py-1 rounded-lg font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="keuangan-multi-pos" href="#">Keuangan Multi-Pos</a><a class="px-space-md py-1 rounded-lg font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="jadwal-pelayan-ibadah" href="#">Jadwal Ibadah</a><a class="px-space-md py-1 rounded-lg font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="verifikasi-sakramen-arsip" href="#">Sakramen</a><a class="px-space-md py-1 rounded-lg font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="inventaris-aset" href="#">Inventaris</a></nav><button class="relative p-space-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded-lg transition-colors"><span class="material-symbols-outlined">notifications</span><span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span></button><div class="flex items-center gap-space-sm pl-space-sm"><div class="text-right"><div class="font-label-md text-label-md text-on-surface font-semibold">Pdt. E. Messakh, M.Th</div><span class="inline-block px-space-xs py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-semibold">Pendeta / Admin Presbiter</span></div><img alt="Pdt. E. Messakh, M.Th" class="w-9 h-9 rounded-full object-cover shadow-[0_1px_4px_rgba(0,0,0,0.12)]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBegQMGqstP98D4QBr1bZq0f2syBjUJ4gFYd4fLFtvUyjQyAW0K6797O1fY_iRchHmngDuMIlgNA46s2wrMPCBwrPFUlZFuX6DLvlRb4hoRe2AnYngBgE3J2GS86vjD0T56bafX8Gbubj5EWGWk6e2A-WoehRAu3tpALr9yNlw3iJ6oWKhUb95PNKQbWsicq7uoPDq3x8KcQ5vSu8QBW8ff8WrvxdZb8yBq0lL6FFM"/></div></div></header><main class="w-full pt-20 px-space-lg py-space-lg bg-surface min-h-screen"><div class="flex flex-col w-full">
+<!-- Banner Liturgis / Header Ecclesiastical -->
+<div class="relative w-full rounded-2xl bg-surface-container-lowest p-space-lg shadow-sm overflow-hidden mb-space-lg">
+<!-- Aksen Garis Liturgis Emas GMIT -->
+<div class="absolute top-0 left-0 right-0 h-1.5 bg-secondary-container"></div>
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md mt-1">
+<div class="flex flex-col gap-1 max-w-3xl">
+<div class="flex items-center gap-space-xs text-on-surface-variant font-label-md text-label-md">
+<span class="material-symbols-outlined text-base text-secondary">inventory_2</span>
+<span>Sistem Presbiterial Sinodal</span>
+<span>•</span>
+<span class="text-primary font-semibold">Sub-Seksi Urusan Rumah Tangga &amp; Perlengkapan</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-primary tracking-tight">
+          Manajemen Inventaris, Aset &amp; Peminjaman Barang
+        </h1>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+          Pengelolaan aset gereja, pemantauan kondisi kelayakan perabotan dan perlengkapan ibadah di gedung gereja serta 5 Rayon pelayanan GMIT Lahairoi Tuak Sabu Lasiana.
+        </p>
+</div>
+<!-- Quick Action Buttons -->
+<div class="flex flex-wrap items-center gap-space-sm self-start lg:self-center">
+<button class="px-space-md py-2.5 rounded-lg bg-secondary text-on-secondary font-label-lg text-label-lg flex items-center gap-2 shadow-sm hover:opacity-95 transition-opacity" onclick="document.getElementById('modal-pinjam').classList.remove('hidden')">
+<span class="material-symbols-outlined text-lg">assignment_return</span>
+<span>+ Catat Peminjaman Barang</span>
+</button>
+<button class="px-space-md py-2.5 rounded-lg bg-primary-container text-on-primary font-label-lg text-label-lg flex items-center gap-2 shadow-sm hover:opacity-95 transition-opacity">
+<span class="material-symbols-outlined text-lg">add_circle</span>
+<span>+ Tambah Barang Baru</span>
+</button>
+<button class="p-2.5 rounded-lg bg-surface-container-high text-on-surface hover:bg-surface-container-highest transition-colors" title="Scan Barcode / QR Aset">
+<span class="material-symbols-outlined text-xl">qr_code_scanner</span>
+</button>
+<button class="p-2.5 rounded-lg bg-surface-container-high text-on-surface hover:bg-surface-container-highest transition-colors" title="Unduh Laporan Aset (PDF)">
+<span class="material-symbols-outlined text-xl">picture_as_pdf</span>
+</button>
+</div>
+</div>
+</div>
+<!-- KPI & Visual Metric Cards (Bento Style) -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-space-md mb-space-lg">
+<!-- Card 1: Nilai Aset -->
+<div class="rounded-xl bg-surface-container-lowest p-space-md shadow-sm flex flex-col justify-between relative overflow-hidden">
+<div class="flex items-start justify-between">
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-semibold">Total Nilai Aset Terdata</span>
+<div class="font-headline-md text-headline-md text-primary mt-1 font-bold">Rp 468.500.000</div>
+</div>
+<div class="p-2.5 rounded-xl bg-surface-container-high text-primary">
+<span class="material-symbols-outlined text-2xl">account_balance_wallet</span>
+</div>
+</div>
+<div class="mt-4 pt-3 flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm bg-surface-container-low rounded-lg px-2.5 py-1.5">
+<span class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+          148 Item Fisik Terdaftar
+        </span>
+<span class="text-secondary font-semibold">Revaluasi TW-I 2025</span>
+</div>
+</div>
+<!-- Card 2: Kondisi Kelayakan Aset & Chart Ring -->
+<div class="rounded-xl bg-surface-container-lowest p-space-md shadow-sm flex flex-col justify-between">
+<div class="flex items-start justify-between">
+<div class="flex-1">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-semibold">Status Kondisi Fisik</span>
+<div class="font-headline-md text-headline-md text-tertiary-container mt-1 font-bold">88% <span class="font-label-md text-label-md text-on-surface-variant font-normal">Siap Pakai</span></div>
+</div>
+<!-- Inline Mini Donut SVG Chart -->
+<div class="relative w-12 h-12 flex items-center justify-center">
+<svg class="w-12 h-12 -rotate-90" viewbox="0 0 36 36">
+<path class="text-surface-container-high" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="4"></path>
+<path class="text-tertiary-container" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="88, 100" stroke-linecap="round" stroke-width="4"></path>
+</svg>
+<span class="absolute font-label-sm text-label-sm font-bold text-on-surface">130</span>
+</div>
+</div>
+<div class="mt-3 flex items-center gap-2 font-label-sm text-label-sm text-on-surface-variant">
+<span class="inline-flex items-center gap-1 text-tertiary-container font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary-container"></span> 130 Baik
+        </span>
+<span>•</span>
+<span class="inline-flex items-center gap-1 text-secondary font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> 12 Rusak Ringan
+        </span>
+<span>•</span>
+<span class="inline-flex items-center gap-1 text-error font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span> 6 Servis
+        </span>
+</div>
+</div>
+<!-- Card 3: Peminjaman Aktif Rayon & Panitia -->
+<div class="rounded-xl bg-surface-container-lowest p-space-md shadow-sm flex flex-col justify-between">
+<div class="flex items-start justify-between">
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-semibold">Peminjaman Aktif</span>
+<div class="font-headline-md text-headline-md text-primary mt-1 font-bold">4 Lembaga / Rayon</div>
+</div>
+<div class="p-2.5 rounded-xl bg-secondary-fixed text-on-secondary-fixed">
+<span class="material-symbols-outlined text-2xl">pending_actions</span>
+</div>
+</div>
+<div class="mt-4 pt-3 flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm bg-surface-container-low rounded-lg px-2.5 py-1.5">
+<span class="text-on-surface font-medium">185 Unit Barang Keluar</span>
+<span class="px-2 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-bold">0 Terlambat</span>
+</div>
+</div>
+<!-- Card 4: Distribusi Alokasi Lokasi Aset -->
+<div class="rounded-xl bg-surface-container-lowest p-space-md shadow-sm flex flex-col justify-between">
+<div class="flex items-start justify-between">
+<div class="w-full">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-semibold">Distribusi Alokasi Aset</span>
+<div class="flex items-baseline gap-2 mt-1">
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold">Gedung &amp; Pastori</span>
+<span class="font-label-sm text-label-sm font-semibold text-primary">65%</span>
+</div>
+</div>
+<div class="p-2.5 rounded-xl bg-surface-container-high text-on-surface-variant">
+<span class="material-symbols-outlined text-2xl">apartment</span>
+</div>
+</div>
+<!-- Stacked Distribution Bar -->
+<div class="mt-3 flex flex-col gap-1.5">
+<div class="w-full h-2 rounded-full bg-surface-container-high flex overflow-hidden">
+<div class="h-full bg-primary" style="width: 65%" title="Gedung Gereja &amp; Pastori: 65%"></div>
+<div class="h-full bg-secondary-container" style="width: 18%" title="Gudang Konsistori: 18%"></div>
+<div class="h-full bg-tertiary-container" style="width: 17%" title="Mobile 5 Rayon: 17%"></div>
+</div>
+<div class="flex justify-between items-center text-on-surface-variant font-label-sm text-label-sm">
+<span>Gedung (65%)</span>
+<span>Konsistori (18%)</span>
+<span>5 Rayon (17%)</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Main Content Layout: 12-Kolom Split Panel -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-space-lg items-start">
+<!-- Kolom Kiri: Tabel Katalog & Filter (8 Kolom di Layar Lebar) -->
+<div class="xl:col-span-8 flex flex-col gap-space-md">
+<!-- Tab Navigasi Modul -->
+<div class="flex flex-wrap items-center justify-between gap-space-sm bg-surface-container-lowest p-1.5 rounded-xl shadow-sm">
+<div class="flex items-center gap-1 overflow-x-auto">
+<button class="px-space-md py-2 rounded-lg bg-primary-container text-on-primary font-label-md text-label-md font-semibold shadow-sm flex items-center gap-1.5">
+<span class="material-symbols-outlined text-base">view_list</span>
+<span>Katalog Semua Aset</span>
+<span class="px-1.5 py-0.5 rounded-full bg-primary text-on-primary font-label-sm text-label-sm">148</span>
+</button>
+<button class="px-space-md py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-label-md text-label-md transition-colors flex items-center gap-1.5">
+<span class="material-symbols-outlined text-base">swap_horiz</span>
+<span>Peminjaman Aktif &amp; Riwayat</span>
+<span class="px-1.5 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">4</span>
+</button>
+<button class="px-space-md py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-label-md text-label-md transition-colors flex items-center gap-1.5">
+<span class="material-symbols-outlined text-base">build_circle</span>
+<span>Pemeliharaan &amp; Servis</span>
+<span class="px-1.5 py-0.5 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm">3</span>
+</button>
+<button class="px-space-md py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-label-md text-label-md transition-colors flex items-center gap-1.5">
+<span class="material-symbols-outlined text-base">category</span>
+<span>Kategori &amp; Lokasi</span>
+</button>
+</div>
+<button class="px-3 py-1.5 rounded-lg bg-surface-container-low text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-base">tune</span>
+<span>Filter Kolom</span>
+</button>
+</div>
+<!-- Filter Controls & Search Bar -->
+<div class="rounded-xl bg-surface-container-lowest p-space-md shadow-sm flex flex-col md:flex-row gap-space-sm items-center justify-between">
+<!-- Input Pencarian -->
+<div class="relative w-full md:w-72">
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-on-surface-variant text-lg">search</span>
+<input class="w-full pl-9 pr-4 py-2 rounded-lg bg-surface-container-low text-on-surface font-body-sm text-body-sm placeholder:text-on-surface-variant focus:outline-none focus:bg-surface-container-lowest focus:shadow-sm transition-all" placeholder="Cari Kode Aset / Nama Barang..." type="text"/>
+</div>
+<!-- Filter Dropdowns -->
+<div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+<select class="px-3 py-2 rounded-lg bg-surface-container-low text-on-surface font-label-sm text-label-sm focus:outline-none cursor-pointer">
+<option>Semua Kategori</option>
+<option>Alat Musik &amp; Sound</option>
+<option>Multimedia &amp; Elektronik</option>
+<option>Perlengkapan Ibadah &amp; Sakramen</option>
+<option>Furnitur, Tenda &amp; Kursi</option>
+</select>
+<select class="px-3 py-2 rounded-lg bg-surface-container-low text-on-surface font-label-sm text-label-sm focus:outline-none cursor-pointer">
+<option>Semua Lokasi</option>
+<option>Balkon Multimedia Gereja</option>
+<option>Panggung Altar Utama</option>
+<option>Gudang Konsistori</option>
+<option>Pastori I &amp; II</option>
+<option>Mobile Rayon 1-5</option>
+</select>
+<select class="px-3 py-2 rounded-lg bg-surface-container-low text-on-surface font-label-sm text-label-sm focus:outline-none cursor-pointer">
+<option>Semua Kondisi</option>
+<option>Baik (Siap Pakai)</option>
+<option>Rusak Ringan</option>
+<option>Dalam Pemeliharaan</option>
+</select>
+<button class="p-2 rounded-lg bg-surface-container-low text-on-surface-variant hover:text-on-surface" title="Reset Filter">
+<span class="material-symbols-outlined text-base">restart_alt</span>
+</button>
+</div>
+</div>
+<!-- Tabel Data Aset Inventaris -->
+<div class="rounded-xl bg-surface-container-lowest shadow-sm overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low text-on-surface-variant font-label-md text-label-md uppercase tracking-wider">
+<th class="py-3.5 px-4 font-semibold">Kode &amp; Spesifikasi Barang</th>
+<th class="py-3.5 px-3 font-semibold">Kategori</th>
+<th class="py-3.5 px-3 font-semibold">Lokasi Penyimpanan</th>
+<th class="py-3.5 px-3 font-semibold text-center">Unit / Ketersediaan</th>
+<th class="py-3.5 px-3 font-semibold">Kondisi Fisik</th>
+<th class="py-3.5 px-4 font-semibold text-right">Nilai Perolehan</th>
+<th class="py-3.5 px-3 font-semibold text-center">Aksi</th>
+</tr>
+</thead>
+<tbody class="divide-y-0 text-on-surface font-body-sm text-body-sm">
+<!-- Item 1: Soundcraft Mixer -->
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-primary flex-shrink-0">
+<span class="material-symbols-outlined text-xl">tune</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md font-semibold text-primary">AST-ELK-001</span>
+<span class="text-on-surface font-medium truncate max-w-xs" title="Mixer Audio Digital Soundcraft Si Impact 32-Channel">Mixer Audio Digital Soundcraft Si Impact 32-Ch</span>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-3 text-on-surface-variant whitespace-nowrap">
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-on-surface font-label-sm text-label-sm">Multimedia &amp; Sound</span>
+</td>
+<td class="py-3.5 px-3 text-on-surface-variant font-label-sm text-label-sm">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm text-on-surface-variant">meeting_room</span>
+<span>Balkon Multimedia</span>
+</div>
+</td>
+<td class="py-3.5 px-3 text-center">
+<span class="font-bold text-on-surface">1</span> <span class="text-on-surface-variant text-xs">/ 1 Tersedia</span>
+</td>
+<td class="py-3.5 px-3 whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span> Baik (Normal)
+                  </span>
+</td>
+<td class="py-3.5 px-4 text-right font-mono font-medium whitespace-nowrap">
+                  Rp 32.000.000
+                </td>
+<td class="py-3.5 px-3 text-center whitespace-nowrap">
+<div class="flex items-center justify-center gap-1 text-on-surface-variant">
+<button class="p-1 rounded hover:bg-surface-container-high hover:text-primary" title="Detail Aset"><span class="material-symbols-outlined text-base">visibility</span></button>
+<button class="p-1 rounded hover:bg-surface-container-high hover:text-secondary" title="Pinjamkan Barang"><span class="material-symbols-outlined text-base">outbox</span></button>
+<button class="p-1 rounded hover:bg-surface-container-high hover:text-on-surface" title="Riwayat Servis"><span class="material-symbols-outlined text-base">more_vert</span></button>
+</div>
+</td>
+</tr>
+<!-- Item 2: Keyboard Roland Organ -->
+<tr class="bg-surface-container-low/40 hover:bg-surface-container-low transition-colors">
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-primary flex-shrink-0">
+<span class="material-symbols-outlined text-xl">piano</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md font-semibold text-primary">AST-MSK-003</span>
+<span class="text-on-surface font-medium truncate max-w-xs" title="Keyboard Organ Roland BK-5 &amp; Stand">Keyboard Organ Roland BK-5 &amp; Stand</span>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-3 text-on-surface-variant whitespace-nowrap">
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-on-surface font-label-sm text-label-sm">Alat Musik</span>
+</td>
+<td class="py-3.5 px-3 text-on-surface-variant font-label-sm text-label-sm">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm text-on-surface-variant">church</span>
+<span>Panggung Altar Utama</span>
+</div>
+</td>
+<td class="py-3.5 px-3 text-center">
+<span class="font-bold text-on-surface">2</span> <span class="text-secondary font-semibold text-xs">/ 1 Tersedia</span>
+</td>
+<td class="py-3.5 px-3 whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span> Baik
+                  </span>
+</td>
+<td class="py-3.5 px-4 text-right font-mono font-medium whitespace-nowrap">
+                  Rp 16.500.000
+                </td>
+<td class="py-3.5 px-3 text-center whitespace-nowrap">
+<div class="flex items-center justify-center gap-1 text-on-surface-variant">
+<button class="p-1 rounded hover:bg-surface-container-high hover:text-primary" title="Detail Aset"><span class="material-symbols-outlined text-base">visibility</span></button>
+<button class="p-1 rounded hover:bg-surface-container-high hover:text-secondary" title="Pinjamkan Barang"><span class="material-symbols-outlined text-base">outbox</span></button>
+<button class="p-1 rounded hover:bg-surface-container-high hover:text-on-surface" title="Riwayat Servis"><span class="material-symbols-outlined text-base">more_vert</span></button>
+</div>
+</td>
+</tr>
+<!-- Item 3: Kursi Futura (Partially Borrowed) -->
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-primary flex-shrink-0">
+<span class="material-symbols-outlined text-xl">chair</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md font-semibold text-primary">AST-PRB-014</span>
+<span class="text-on-surface font-medium truncate max-w-xs" title="Kursi Lipat Futura Stainless 405">Kursi Lipat Futura 405 (Set 250)</span>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-3 text-on-surface-variant whitespace-nowrap">
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-on-surface font-label-sm text-label-sm">Furnitur &amp; Tenda</span>
+</td>
+<td class="py-3.5 px-3 text-on-surface-variant font-label-sm text-label-sm">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm text-on-surface-variant">warehouse</span>
+<span>Gudang Konsistori</span>
+</div>
+</td>
+<td class="py-3.5 px-3 text-center">
+<span class="font-bold text-on-surface">250</span> <span class="text-secondary font-bold text-xs">/ 150 Tersedia</span>
+<div class="text-[10px] text-on-surface-variant">(100 Dipinjam R-1)</div>
+</td>
+<td class="py-3.5 px-3 whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> 240 Baik / 10 R.Ringan
+                  </span>
+</td>
+<td class="py-3.5 px-4 text-right font-mono font-medium whitespace-nowrap">
+                  Rp 62.500.000
+                </td>
+<td class="py-3.5 px-3 text-center whitespace-nowrap">
+<div class="flex items-center justify-center gap-1 text-on-surface-variant">
+<button class="p-1 rounded hover:bg-surface-container-high hover:text-primary" title="Detail Aset"><span class="material-symbols-outlined text-base">visibility</span></button>
+<button class="p-1 rounded hover:bg-surface-container-high hover:text-secondary" title="Pinjamkan Barang"><span class="material-symbols-outlined text-base">outbox</span></button>
+<button class="p-1 rounded hover:bg-surface-container-high hover:text-on-surface" title="Riwayat Servis"><span class="material-symbols-outlined text-base">more_vert</span></button>
+</div>
+</td>
+</tr>
+<!-- Item 4: Set Bejana & Cawan Perjamuan Kudus Perak GMIT -->
+<tr class="bg-surface-container-low/40 hover:bg-surface-container-low transition-colors">
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-xl">wine_bar</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md font-semibold text-secondary">AST-IBD-005</span>
+<span class="text-on-surface font-medium truncate max-w-xs" title="Set Bejana &amp; Cawan Perjamuan Kudus Perak (GMIT)">Set Bejana &amp; Cawan Perjamuan Perak</span>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-3 text-on-surface-variant whitespace-nowrap">
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-on-surface font-label-sm text-label-sm">Perlengkapan Ibadah</span>
+</td>
+<td class="py-3.5 px-3 text-on-surface-variant font-label-sm text-label-sm">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm text-on-surface-variant">lock</span>
+<span>Lemari Kaca Konsistori</span>
+</div>
+</td>
+<td class="py-3.5 px-3 text-center">
+<span class="font-bold text-on-surface">4 Set</span> <span class="text-on-surface-variant text-xs">/ 4 Tersedia</span>
+</td>
+<td class="py-3.5 px-3 whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span> Baik &amp; Higienis
+                  </span>
+</td>
+<td class="py-3.5 px-4 text-right font-mono font-medium whitespace-nowrap">
+                  Rp 12.000.000
+                </td>
+<td class="py-3.5 px-3 text-center whitespace-nowrap">
+<div class="flex items-center justify-center gap-1 text-on-surface-variant">
+<button class="p-1 rounded hover:bg-surface-container-high hover:text-primary" title="Detail Aset"><span class="material-symbols-outlined text-base">visibility</span></button>
+<button class="p-1 rounded hover:bg-surface-container-high hover:text-secondary" title="Pinjamkan Barang"><span class="material-symbols-outlined text-base">outbox</span></button>
+<button class="p-1 rounded hover:bg-surface-container-high hover:text-on-surface" title="Riwayat Servis"><span class="material-symbols-outlined text-base">more_vert</span></button>
+</div>
+</td>
+</tr>
+<!-- Item 5: Proyektor Laser Epson -->
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-primary flex-shrink-0">
+<span class="material-symbols-outlined text-xl">videocam</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md font-semibold text-primary">AST-ELK-008</span>
+<span class="text-on-surface font-medium truncate max-w-xs" title="Proyektor Laser Epson EB-L630U 6200 ANSI">Proyektor Laser Epson EB-L630U</span>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-3 text-on-surface-variant whitespace-nowrap">
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-on-surface font-label-sm text-label-sm">Multimedia</span>
+</td>
+<td class="py-3.5 px-3 text-on-surface-variant font-label-sm text-label-sm">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm text-on-surface-variant">roofing</span>
+<span>Plafon Gedung Utama</span>
+</div>
+</td>
+<td class="py-3.5 px-3 text-center">
+<span class="font-bold text-on-surface">2</span> <span class="text-on-surface-variant text-xs">/ 2 Tersedia</span>
+</td>
+<td class="py-3.5 px-3 whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span> Baik (Laser Aktif)
+                  </span>
+</td>
+<td class="py-3.5 px-4 text-right font-mono font-medium whitespace-nowrap">
+                  Rp 45.000.000
+                </td>
+<td class="py-3.5 px-3 text-center whitespace-nowrap">
+<div class="flex items-center justify-center gap-1 text-on-surface-variant">
+<button class="p-1 rounded hover:bg-surface-container-high hover:text-primary" title="Detail Aset"><span class="material-symbols-outlined text-base">visibility</span></button>
+<button class="p-1 rounded hover:bg-surface-container-high hover:text-secondary" title="Pinjamkan Barang"><span class="material-symbols-outlined text-base">outbox</span></button>
+<button class="p-1 rounded hover:bg-surface-container-high hover:text-on-surface" title="Riwayat Servis"><span class="material-symbols-outlined text-base">more_vert</span></button>
+</div>
+</td>
+</tr>
+<!-- Item 6: Sound Portabel Rayon (Needs Service) -->
+<tr class="bg-surface-container-low/40 hover:bg-surface-container-low transition-colors">
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-secondary flex-shrink-0">
+<span class="material-symbols-outlined text-xl">speaker</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md font-semibold text-primary">AST-MSK-009</span>
+<span class="text-on-surface font-medium truncate max-w-xs" title="Sound Portabel Wireless + 2 Mic Wireless (Rayon Set)">Sound Portabel Wireless + 2 Mic</span>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-3 text-on-surface-variant whitespace-nowrap">
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-on-surface font-label-sm text-label-sm">Mobile Pelayanan</span>
+</td>
+<td class="py-3.5 px-3 text-on-surface-variant font-label-sm text-label-sm">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm text-secondary">explore</span>
+<span>Rayon 3 Tiberias</span>
+</div>
+</td>
+<td class="py-3.5 px-3 text-center">
+<span class="font-bold text-on-surface">3 Set</span> <span class="text-secondary font-bold text-xs">/ 1 Tersedia</span>
+</td>
+<td class="py-3.5 px-3 whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-semibold" title="Mic B kresek pada frekuensi UHF">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> Rusak Ringan (Mic B)
+                  </span>
+</td>
+<td class="py-3.5 px-4 text-right font-mono font-medium whitespace-nowrap">
+                  Rp 9.500.000
+                </td>
+<td class="py-3.5 px-3 text-center whitespace-nowrap">
+<div class="flex items-center justify-center gap-1 text-on-surface-variant">
+<button class="p-1 rounded hover:bg-surface-container-high hover:text-primary" title="Detail Aset"><span class="material-symbols-outlined text-base">visibility</span></button>
+<button class="p-1 rounded hover:bg-surface-container-high hover:text-secondary" title="Pinjamkan Barang"><span class="material-symbols-outlined text-base">outbox</span></button>
+<button class="p-1 rounded hover:bg-surface-container-high hover:text-on-surface" title="Riwayat Servis"><span class="material-symbols-outlined text-base">more_vert</span></button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Tabel Pagination & Status Sinkronisasi -->
+<div class="p-space-md bg-surface-container-lowest flex flex-col sm:flex-row items-center justify-between gap-space-sm">
+<span class="font-label-sm text-label-sm text-on-surface-variant">
+            Menampilkan <span class="font-semibold text-on-surface">1 - 6</span> dari <span class="font-semibold text-on-surface">148</span> barang inventaris GMIT Lahairoi
+          </span>
+<div class="flex items-center gap-1">
+<button class="p-1.5 rounded-lg bg-surface-container-low text-on-surface-variant hover:text-on-surface disabled:opacity-40" disabled="">
+<span class="material-symbols-outlined text-base">chevron_left</span>
+</button>
+<button class="px-3 py-1 rounded-lg bg-primary-container text-on-primary font-label-sm text-label-sm font-semibold">1</button>
+<button class="px-3 py-1 rounded-lg hover:bg-surface-container-high font-label-sm text-label-sm text-on-surface-variant">2</button>
+<button class="px-3 py-1 rounded-lg hover:bg-surface-container-high font-label-sm text-label-sm text-on-surface-variant">3</button>
+<span class="px-2 text-on-surface-variant">…</span>
+<button class="px-3 py-1 rounded-lg hover:bg-surface-container-high font-label-sm text-label-sm text-on-surface-variant">25</button>
+<button class="p-1.5 rounded-lg bg-surface-container-low text-on-surface-variant hover:text-on-surface">
+<span class="material-symbols-outlined text-base">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Panduan Kebijakan & Syarat Peminjaman Barang Jemaat -->
+<div class="rounded-xl bg-surface-container-low p-space-md flex items-start gap-space-md">
+<div class="p-2.5 rounded-lg bg-surface-container-high text-primary flex-shrink-0">
+<span class="material-symbols-outlined text-2xl">policy</span>
+</div>
+<div class="flex flex-col gap-1">
+<span class="font-label-lg text-label-lg font-bold text-primary">Kebijakan Pemakaian &amp; Peminjaman Aset Gereja</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+            Sesuai Tata Gereja GMIT dan Keputusan Majelis Jemaat Harian: Seluruh peminjaman barang untuk keperluan ibadah rumah tangga di 5 Rayon atau kepanitiaan gerejawi wajib diverifikasi oleh Presbiter Rayon terkait. Barang dengan nilai sakramental (Bejana &amp; Cawan Kudus) tidak diperkenankan dipinjam keluar kompleks gereja tanpa izin tertulis Pendeta Jemaat.
+          </p>
+</div>
+</div>
+</div>
+<!-- Kolom Kanan: Side-Widget Peminjaman Aktif & Otomasi Stok (4 Kolom) -->
+<div class="xl:col-span-4 flex flex-col gap-space-md">
+<!-- Panel Peminjaman Aktif -->
+<div class="rounded-xl bg-surface-container-lowest p-space-md shadow-sm">
+<div class="flex items-center justify-between mb-space-sm pb-space-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-xl">assignment_late</span>
+<h2 class="font-headline-sm text-headline-sm text-primary font-bold">Peminjaman Sedang Aktif</h2>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-bold">
+            4 Rayon / Panitia
+          </span>
+</div>
+<div class="flex flex-col gap-space-sm">
+<!-- Peminjaman Card 1: Rayon 1 Getsemani -->
+<div class="rounded-xl bg-surface-container-low p-space-sm relative overflow-hidden transition-all hover:shadow-md">
+<!-- Spine Indikator Liturgis / Status -->
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-secondary-container"></div>
+<div class="pl-2 flex flex-col gap-2">
+<div class="flex items-start justify-between">
+<div>
+<span class="px-2 py-0.5 rounded bg-surface-container-highest text-primary font-label-sm text-label-sm font-bold">
+                    Rayon 1 Getsemani
+                  </span>
+<div class="font-label-md text-label-md font-bold text-on-surface mt-1">
+                    100 Kursi Futura &amp; 2 Tenda Lipat
+                  </div>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-semibold">
+                  Dipinjam
+                </span>
+</div>
+<div class="text-on-surface-variant font-body-sm text-body-sm space-y-0.5">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-sm">event</span>
+<span>Keperluan: Syukur HUT &amp; Ibadah RT</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-sm">schedule</span>
+<span>Batas Kembali: <b class="text-on-surface">27 Apr 2025</b> (Sisa 3 Hari)</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-sm">person</span>
+<span>PJ: Pnt. Y. Bessie (Ketua Rayon 1)</span>
+</div>
+</div>
+<div class="pt-2 flex items-center justify-between gap-2">
+<button class="px-3 py-1 rounded bg-surface-container-highest text-on-surface font-label-sm text-label-sm hover:bg-surface-container-high transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">print</span> Cetak Bukti
+                </button>
+<button class="px-3 py-1 rounded bg-tertiary-container text-on-tertiary font-label-sm text-label-sm font-semibold hover:opacity-95 transition-opacity flex items-center gap-1" onclick="verifikasiKembali(this, 'AST-PRB-014', 100)">
+<span class="material-symbols-outlined text-sm">task_alt</span> Verifikasi Selesai
+                </button>
+</div>
+</div>
+</div>
+<!-- Peminjaman Card 2: Panitia Hari Raya Gerejawi (PHRG) -->
+<div class="rounded-xl bg-surface-container-low p-space-sm relative overflow-hidden transition-all hover:shadow-md">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-primary"></div>
+<div class="pl-2 flex flex-col gap-2">
+<div class="flex items-start justify-between">
+<div>
+<span class="px-2 py-0.5 rounded bg-surface-container-highest text-primary font-label-sm text-label-sm font-bold">
+                    Panitia HRG 2025
+                  </span>
+<div class="font-label-md text-label-md font-bold text-on-surface mt-1">
+                    Sound Portabel &amp; 2 Mic Wireless
+                  </div>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-semibold">
+                  Dipinjam
+                </span>
+</div>
+<div class="text-on-surface-variant font-body-sm text-body-sm space-y-0.5">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-sm">event</span>
+<span>Keperluan: Latihan Paduan Suara PAR</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-sm">schedule</span>
+<span>Batas Kembali: <b class="text-on-surface">26 Apr 2025</b> (Besok)</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-sm">person</span>
+<span>PJ: Dkn. M. Dethan (Seksi Acara)</span>
+</div>
+</div>
+<div class="pt-2 flex items-center justify-between gap-2">
+<button class="px-3 py-1 rounded bg-surface-container-highest text-on-surface font-label-sm text-label-sm hover:bg-surface-container-high transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">print</span> Bukti Pinjam
+                </button>
+<button class="px-3 py-1 rounded bg-tertiary-container text-on-tertiary font-label-sm text-label-sm font-semibold hover:opacity-95 transition-opacity flex items-center gap-1" onclick="verifikasiKembali(this, 'AST-MSK-009', 1)">
+<span class="material-symbols-outlined text-sm">task_alt</span> Verifikasi Selesai
+                </button>
+</div>
+</div>
+</div>
+<!-- Peminjaman Card 3: Pemuda PPGMIT Rayon 2 Golgota -->
+<div class="rounded-xl bg-surface-container-low p-space-sm relative overflow-hidden transition-all hover:shadow-md">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-tertiary-container"></div>
+<div class="pl-2 flex flex-col gap-2">
+<div class="flex items-start justify-between">
+<div>
+<span class="px-2 py-0.5 rounded bg-surface-container-highest text-primary font-label-sm text-label-sm font-bold">
+                    PPGMIT Rayon 2 Golgota
+                  </span>
+<div class="font-label-md text-label-md font-bold text-on-surface mt-1">
+                    1 Set Keyboard Stand &amp; Kabel Jack
+                  </div>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-semibold">
+                  Dipinjam
+                </span>
+</div>
+<div class="text-on-surface-variant font-body-sm text-body-sm space-y-0.5">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-sm">event</span>
+<span>Keperluan: Ibadah Padang Pemuda</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-sm">schedule</span>
+<span>Batas Kembali: <b class="text-on-surface">25 Apr 2025</b> (Hari Ini)</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-sm">person</span>
+<span>PJ: Sdr. Ricky Foenay</span>
+</div>
+</div>
+<div class="pt-2 flex items-center justify-between gap-2">
+<button class="px-3 py-1 rounded bg-surface-container-highest text-on-surface font-label-sm text-label-sm hover:bg-surface-container-high transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">print</span> Bukti Pinjam
+                </button>
+<button class="px-3 py-1 rounded bg-tertiary-container text-on-tertiary font-label-sm text-label-sm font-semibold hover:opacity-95 transition-opacity flex items-center gap-1" onclick="verifikasiKembali(this, 'AST-MSK-003', 1)">
+<span class="material-symbols-outlined text-sm">task_alt</span> Verifikasi Selesai
+                </button>
+</div>
+</div>
+</div>
+</div>
+<button class="w-full mt-4 py-2 rounded-lg bg-surface-container-high text-primary hover:bg-surface-container-highest font-label-sm text-label-sm font-bold transition-colors flex items-center justify-center gap-1">
+<span>Lihat Seluruh Riwayat Peminjaman (38)</span>
+<span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+<!-- Widget Visual: Galeri Foto Aset Gerejawi & Inventaris Utama -->
+<div class="rounded-xl bg-surface-container-lowest p-space-md shadow-sm">
+<div class="flex items-center justify-between mb-space-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-xl">photo_library</span>
+<h3 class="font-label-lg text-label-lg font-bold text-on-surface">Dokumentasi Aset Fisik</h3>
+</div>
+<span class="text-primary font-label-sm text-label-sm font-semibold">Tersimpan</span>
+</div>
+<div class="grid grid-cols-2 gap-space-sm">
+<div class="group relative rounded-lg overflow-hidden bg-surface-container-high aspect-video">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="A modern church sanctuary interior in GMIT Kupang with wooden pulpit, digital sound system setup, and altar cross illuminated by warm golden morning sunlight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDk1aXnUMOioQyZu0GYpVWo-fhq6bRJ8Um_Mfp052SEworVFYBJLDy2L7Mh0Wclw6hRY-xmKNiKsgVwGItJxAg00tBNLhbkz0gxHJavHWaweJtr_tp8E1oJm8PY9NKF8OOaOMF7BfQZSFWFX5DFgxe7IBDlN0oWdcH53Fr5TmGp7735P_v2uioYWmN85USSS0JQC4mChHUM20hUjYxubmws-yIeoehKQstdPFsCfyo"/>
+<div class="absolute inset-0 bg-gradient-to-t from-on-surface/80 via-transparent to-transparent flex items-end p-2">
+<span class="text-on-primary font-label-sm text-label-sm font-medium truncate">Mimbar &amp; Altar Utama</span>
+</div>
+</div>
+<div class="group relative rounded-lg overflow-hidden bg-surface-container-high aspect-video">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Audio digital mixing console Soundcraft Si Impact on church sound booth balcony with cables neatly managed, warm ambient church lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcLSIc-A8zm-k85vtycRj7c56vwY_IJ0bwnqMtfv203WNeTUuD-KBAV9GiTkcgZoPssqc63GzUz8P9_h8gG49YXoo33V_Ak8qr2ZFV4KBvw0g2tTmNsNenaExJiDsF3XTGQ8ovPLRJYQSiMe2FfGBUVNUt7JXBukT0KNnenmQoNqSo_EU_axTpaHJHsiOuvqOFaNXwNQ4-8jZZ4ujoFjpSzqPORN9VnptdBcp5yq0"/>
+<div class="absolute inset-0 bg-gradient-to-t from-on-surface/80 via-transparent to-transparent flex items-end p-2">
+<span class="text-on-primary font-label-sm text-label-sm font-medium truncate">Balkon Mixer Digital</span>
+</div>
+</div>
+<div class="group relative rounded-lg overflow-hidden bg-surface-container-high aspect-video">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Sacred silver holy communion chalice and plate set of Timor Protestant Church placed on white liturgical altar linen cloth with soft warm light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAmOriKXGssJo0R5Kc3YsWP8YCzAMr7nN6ofkn_2tGhr2xjrdrFk6K23ycxi-rCqXVGn2PyIXUTK5tT5T7bnemZ22AJOBIuSRfp92BwHi4ANEhJJ57WqN2hmFlcTohViAlP9S0eBZPbl_cuOBYfZlMxEbUENQDbGFuSLo6KWGGbmUB1blnR4ReR3rp0kxjjCDjs6sWZBxUvfI0gLY_GNi2km_OanEEKXuTEKA2y760"/>
+<div class="absolute inset-0 bg-gradient-to-t from-on-surface/80 via-transparent to-transparent flex items-end p-2">
+<span class="text-on-primary font-label-sm text-label-sm font-medium truncate">Set Cawan Perjamuan</span>
+</div>
+</div>
+<div class="group relative rounded-lg overflow-hidden bg-surface-container-high aspect-video">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Church storage room warehouse with stack of durable steel folding chairs neatly organized in rows on clean polished floor" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDKX9wuIbld0v73914BKiNc-m_EIqrSFapSyaRgXguIEuS81tmqBP_3U1Nsy-Lxf8X0nXPFdGVucoB07KD3cokytLyMtae3AdL5AcwTtFw-z6CVtpOqtuZRPBwHp9nR5XagjpIPUmfGGWTU3xmyAYnjVq8Ze5cRVT3z2QPp5RPrYWITcatcm2rMqzVdJc4fC5jwZ4iiXtpWFA7SbY2lvDu4SlZcw77WERhpyti_izY"/>
+<div class="absolute inset-0 bg-gradient-to-t from-on-surface/80 via-transparent to-transparent flex items-end p-2">
+<span class="text-on-primary font-label-sm text-label-sm font-medium truncate">Gudang Kursi Konsistori</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Quick Action: Otomasi Pengurangan & Pengembalian Stok (Info Card) -->
+<div class="rounded-xl bg-tertiary-container text-on-tertiary p-space-md shadow-sm">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-tertiary-fixed text-xl">sync_saved_locally</span>
+<span class="font-label-lg text-label-lg font-bold text-on-tertiary">Otomasi Stok PRD Terintegrasi</span>
+</div>
+<p class="font-body-sm text-body-sm text-surface-container-highest opacity-90 leading-relaxed">
+          Ketersediaan unit barang otomatis terpotong saat form peminjaman disetujui, dan dipulihkan kembali saat tombol "Verifikasi Selesai" ditekan tanpa perlu rekap manual.
+        </p>
+</div>
+</div>
+</div>
+<!-- Modal Interaktif: Pencatatan Peminjaman Barang Baru -->
+<div class="fixed inset-0 z-50 bg-inverse-surface/50 backdrop-blur-sm hidden flex items-center justify-center p-4" id="modal-pinjam">
+<div class="w-full max-w-xl bg-surface-container-lowest rounded-2xl shadow-xl overflow-hidden flex flex-col animate-in fade-in zoom-in duration-200">
+<!-- Modal Header -->
+<div class="px-space-lg py-space-md bg-primary text-on-primary flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-2xl">post_add</span>
+<div>
+<h3 class="font-headline-sm text-headline-sm font-bold">Catat Peminjaman Barang</h3>
+<p class="font-label-sm text-label-sm text-surface-container-highest opacity-80">Formulir Peminjaman Inventaris GMIT Lahairoi</p>
+</div>
+</div>
+<button class="p-1.5 rounded-lg text-on-primary hover:bg-surface-container-high/20 transition-colors" onclick="document.getElementById('modal-pinjam').classList.add('hidden')">
+<span class="material-symbols-outlined text-xl">close</span>
+</button>
+</div>
+<!-- Modal Body -->
+<form class="p-space-lg flex flex-col gap-space-md" id="form-pinjam-aset" onsubmit="simpanPeminjaman(event)">
+<!-- Pilihan Barang Inventaris & Live Sisa Stok -->
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm font-semibold text-on-surface">Pilih Barang Inventaris *</label>
+<select class="w-full px-3 py-2.5 rounded-lg bg-surface-container-low text-on-surface font-body-sm text-body-sm focus:outline-none focus:bg-surface-container-lowest" id="select-barang" required="">
+<option value="AST-PRB-014">AST-PRB-014 - Kursi Lipat Futura 405 (Tersedia: 150 Unit)</option>
+<option value="AST-MSK-003">AST-MSK-003 - Keyboard Organ Roland BK-5 (Tersedia: 1 Unit)</option>
+<option value="AST-MSK-009">AST-MSK-009 - Sound Portabel Wireless + 2 Mic (Tersedia: 1 Set)</option>
+<option value="AST-IBD-005">AST-IBD-005 - Set Bejana &amp; Cawan Perjamuan (Tersedia: 4 Set)</option>
+<option value="AST-ELK-001">AST-ELK-001 - Mixer Audio Digital Soundcraft (Tersedia: 1 Unit)</option>
+</select>
+</div>
+<!-- Jumlah Dipinjam & Instansi/Rayon -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm font-semibold text-on-surface">Jumlah Dipinjam *</label>
+<input class="w-full px-3 py-2.5 rounded-lg bg-surface-container-low text-on-surface font-body-sm text-body-sm focus:outline-none focus:bg-surface-container-lowest" id="input-jumlah" max="150" min="1" required="" type="number" value="10"/>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm font-semibold text-on-surface">Peminjam / Basis Rayon *</label>
+<select class="w-full px-3 py-2.5 rounded-lg bg-surface-container-low text-on-surface font-body-sm text-body-sm focus:outline-none focus:bg-surface-container-lowest" required="">
+<option>Rayon 1 Getsemani</option>
+<option>Rayon 2 Golgota</option>
+<option>Rayon 3 Tiberias</option>
+<option>Rayon 4 Betlehem</option>
+<option>Rayon 5 Yerusalem</option>
+<option>Panitia Hari Raya Gerejawi (PHRG)</option>
+<option>Badan Pengurus Pemuda (PPGMIT)</option>
+<option>Persekutuan Kaum Perempuan (PW/PKP)</option>
+</select>
+</div>
+</div>
+<!-- Nama Penanggung Jawab & Kontak HP -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm font-semibold text-on-surface">Penanggung Jawab (Presbiter/Koord) *</label>
+<input class="w-full px-3 py-2.5 rounded-lg bg-surface-container-low text-on-surface font-body-sm text-body-sm focus:outline-none focus:bg-surface-container-lowest" placeholder="Contoh: Pnt. Markus Lado" required="" type="text"/>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm font-semibold text-on-surface">Nomor HP / WhatsApp *</label>
+<input class="w-full px-3 py-2.5 rounded-lg bg-surface-container-low text-on-surface font-body-sm text-body-sm focus:outline-none focus:bg-surface-container-lowest" placeholder="0812-xxxx-xxxx" required="" type="tel"/>
+</div>
+</div>
+<!-- Tanggal Pinjam & Estimasi Pengembalian -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm font-semibold text-on-surface">Tanggal Mulai Pinjam *</label>
+<input class="w-full px-3 py-2 rounded-lg bg-surface-container-low text-on-surface font-body-sm text-body-sm focus:outline-none" required="" type="date" value="2025-04-24"/>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm font-semibold text-on-surface">Tanggal Batas Pengembalian *</label>
+<input class="w-full px-3 py-2 rounded-lg bg-surface-container-low text-on-surface font-body-sm text-body-sm focus:outline-none" required="" type="date" value="2025-04-27"/>
+</div>
+</div>
+<!-- Keperluan Peminjaman -->
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm font-semibold text-on-surface">Keperluan &amp; Lokasi Acara</label>
+<textarea class="w-full px-3 py-2 rounded-lg bg-surface-container-low text-on-surface font-body-sm text-body-sm focus:outline-none focus:bg-surface-container-lowest" placeholder="Contoh: Ibadah Penyegaran Iman Keluarga di Rumah Kel. Bessie RT 04" rows="2"></textarea>
+</div>
+<!-- Notice Sistem Otomasi -->
+<div class="p-3 rounded-lg bg-surface-container-low flex items-center gap-2 text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-secondary text-base">info</span>
+<span>Stok barang akan otomatis dipotong seketika form ini disetujui.</span>
+</div>
+<!-- Modal Actions -->
+<div class="pt-space-sm flex items-center justify-end gap-space-sm">
+<button class="px-space-md py-2.5 rounded-lg bg-surface-container-high text-on-surface font-label-md text-label-md hover:bg-surface-container-highest transition-colors" onclick="document.getElementById('modal-pinjam').classList.add('hidden')" type="button">
+            Batal
+          </button>
+<button class="px-space-md py-2.5 rounded-lg bg-secondary text-on-secondary font-label-md text-label-md font-semibold hover:opacity-95 transition-opacity flex items-center gap-1.5 shadow-sm" type="submit">
+<span class="material-symbols-outlined text-lg">check_circle</span>
+<span>Setujui &amp; Potong Stok</span>
+</button>
+</div>
+</form>
+</div>
+</div>
+<!-- Inline Scripting untuk Interaktivitas & Sinkronisasi Stok PRD -->
+<script>
+    function verifikasiKembali(btn, kodeBarang, qty) {
+      if (confirm('Konfirmasi pengembalian barang ' + kodeBarang + ' sejumlah ' + qty + ' unit? Stok ketersediaan di katalog akan otomatis dipulihkan.')) {
+        const card = btn.closest('.rounded-xl');
+        card.classList.add('opacity-40');
+        btn.innerHTML = '<span class="material-symbols-outlined text-sm">done_all</span> Sudah Dikembalikan';
+        btn.classList.remove('bg-tertiary-container', 'text-on-tertiary');
+        btn.classList.add('bg-surface-container-high', 'text-on-surface-variant');
+        btn.disabled = true;
+
+        // Tampilkan Banner Notifikasi Sederhana
+        const alertBox = document.createElement('div');
+        alertBox.className = 'fixed bottom-6 right-6 z-50 bg-primary text-on-primary px-4 py-3 rounded-xl shadow-lg flex items-center gap-2 text-sm animate-bounce';
+        alertBox.innerHTML = '<span class="material-symbols-outlined">verified</span> Aset ' + kodeBarang + ' telah diverifikasi kembali. Stok otomatis bertambah!';
+        document.body.appendChild(alertBox);
+        setTimeout(() => alertBox.remove(), 4000);
+      }
+    }
+
+    function simpanPeminjaman(event) {
+      event.preventDefault();
+      const modal = document.getElementById('modal-pinjam');
+      modal.classList.add('hidden');
+
+      const alertBox = document.createElement('div');
+      alertBox.className = 'fixed bottom-6 right-6 z-50 bg-secondary text-on-secondary px-4 py-3 rounded-xl shadow-lg flex items-center gap-2 text-sm';
+      alertBox.innerHTML = '<span class="material-symbols-outlined">inventory</span> Berhasil mencatat peminjaman baru! Stok ketersediaan berhasil diperbarui secara otomatis.';
+      document.body.appendChild(alertBox);
+      setTimeout(() => alertBox.remove(), 4000);
+    }
+  </script>
+</div></main></div></body></html>

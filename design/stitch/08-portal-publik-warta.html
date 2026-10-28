@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+
+<html lang="id"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "on-surface-variant": "#444651", "surface-bright": "#faf8ff", "on-tertiary-container": "#4ac08f", "on-secondary-fixed-variant": "#6e3900", "surface-container-low": "#f2f3ff", "primary": "#00236f", "surface-container": "#eaedff", "inverse-primary": "#b6c4ff", "on-primary-container": "#90a8ff", "on-tertiary": "#ffffff", "on-background": "#131b2e", "on-tertiary-fixed": "#002114", "outline": "#757682", "background": "#faf8ff", "on-surface": "#131b2e", "surface-dim": "#d2d9f4", "inverse-surface": "#283044", "on-primary": "#ffffff", "primary-fixed-dim": "#b6c4ff", "outline-variant": "#c5c5d3", "tertiary-fixed": "#85f8c4", "surface-variant": "#dae2fd", "surface-container-lowest": "#ffffff", "on-primary-fixed-variant": "#264191", "tertiary-fixed-dim": "#68dba9", "inverse-on-surface": "#eef0ff", "on-secondary-fixed": "#2f1500", "secondary-container": "#fe932c", "on-secondary-container": "#663500", "secondary-fixed": "#ffdcc3", "on-primary-fixed": "#00164e", "secondary-fixed-dim": "#ffb77d", "surface-container-high": "#e2e7ff", "error-container": "#ffdad6", "on-error": "#ffffff", "primary-fixed": "#dce1ff", "surface-tint": "#4059aa", "on-tertiary-fixed-variant": "#005137", "error": "#ba1a1a", "on-error-container": "#93000a", "surface": "#faf8ff", "on-secondary": "#ffffff", "tertiary": "#003120", "tertiary-container": "#004a32", "primary-container": "#1e3a8a", "secondary": "#904d00", "surface-container-highest": "#dae2fd" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-xs": "0.25rem", "space-lg": "1.5rem", "space-sm": "0.5rem", "gutter-mobile": "1rem", "margin": "2rem", "margin-mobile": "1rem", "gutter": "1.5rem", "space-md": "1rem", "space-xl": "2.5rem" }, "fontFamily": { "body-md": ["Inter"], "headline-sm": ["Plus Jakarta Sans"], "label-md": ["Inter"], "headline-lg-mobile": ["Plus Jakarta Sans"], "headline-lg": ["Plus Jakarta Sans"], "label-lg": ["Inter"], "headline-xl": ["Plus Jakarta Sans"], "label-sm": ["Inter"], "body-sm": ["Inter"], "headline-xl-mobile": ["Plus Jakarta Sans"], "body-lg": ["Inter"], "headline-md": ["Plus Jakarta Sans"] }, "fontSize": { "body-md": ["1rem", { "lineHeight": "1.5rem", "fontWeight": "400" }], "headline-sm": ["1.25rem", { "lineHeight": "1.75rem", "fontWeight": "600" }], "label-md": ["0.75rem", { "lineHeight": "1rem", "fontWeight": "600" }], "headline-lg-mobile": ["1.5rem", { "lineHeight": "2rem", "fontWeight": "700" }], "headline-lg": ["2rem", { "lineHeight": "2.5rem", "fontWeight": "700" }], "label-lg": ["0.875rem", { "lineHeight": "1.25rem", "fontWeight": "600" }], "headline-xl": ["2.5rem", { "lineHeight": "3rem", "fontWeight": "700" }], "label-sm": ["0.6875rem", { "lineHeight": "0.875rem", "fontWeight": "500" }], "body-sm": ["0.875rem", { "lineHeight": "1.25rem", "fontWeight": "400" }], "headline-xl-mobile": ["1.875rem", { "lineHeight": "2.25rem", "fontWeight": "700" }], "body-lg": ["1.125rem", { "lineHeight": "1.75rem", "fontWeight": "400" }], "headline-md": ["1.5rem", { "lineHeight": "2rem", "fontWeight": "600" }] } } } };</script></head><body class="bg-surface font-body-md text-on-surface antialiased"><header class="fixed top-0 left-0 right-0 z-50 bg-surface-container-lowest/95 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.06)]"><div class="h-20 max-w-7xl mx-auto px-margin-mobile lg:px-margin flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-md min-w-0"><img alt="Logo GMIT Lahairoi" class="h-10 w-auto object-contain flex-shrink-0" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_2NKInYOlABEPJCeaYJYKeicxL4tn_Sv6DREx13oCGKkK_f3btN94_Yf4O5i7WTQDR4ri26lpJ7dNQMBMCZoq_se96r0LipOE-vLlDWQ6bh2swxhPUujmMY4VrJyuE6_L33_4PE4ORPWkT0hKv71LrkqUoTucL0PzWG7zHUUjgIaJ_S5Go7xNCoV9RjnxzH8W8iDWE2A__HNjJMqBdU0u2vVc4M-PnEbilngcI6s"/><div class="flex flex-col min-w-0"><span class="font-headline-sm text-headline-sm text-primary truncate leading-tight tracking-tight">GMIT Lahairoi Tuak Sabu Lasiana</span><span class="font-label-sm text-label-sm text-on-surface-variant truncate">Sistem Informasi &amp; Portal Pelayanan Terpadu</span></div></div><nav class="hidden xl:flex items-center gap-space-xs p-space-xs bg-surface-container-low rounded-xl" data-active-classes="bg-primary-container text-on-primary font-bold rounded-lg"><a aria-current="page" class="px-space-md py-space-sm transition-colors bg-primary-container text-on-primary font-bold rounded-lg" data-path="beranda-publik" href="#">Beranda Publik</a><a class="px-space-md py-space-sm font-label-lg text-label-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors rounded-lg" data-path="layanan-sakramen" href="#">Layanan Sakramen</a><a class="px-space-md py-space-sm font-label-lg text-label-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors rounded-lg" data-path="warta-jemaat" href="#">Warta &amp; Tata Ibadah</a><a class="px-space-md py-space-sm font-label-lg text-label-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors rounded-lg" data-path="persembahan-qris" href="#">Persembahan QRIS</a></nav><div class="flex items-center gap-space-md flex-shrink-0"><a class="hidden md:inline-flex items-center gap-space-xs px-space-md py-space-sm rounded-lg bg-surface-container-high text-on-surface font-label-md text-label-md hover:bg-surface-container-highest transition-colors" data-path="database-jemaat" href="#"><span class="material-symbols-outlined text-base">dashboard</span>Dashboard Pengurus</a><div class="flex items-center gap-space-sm pl-space-xs"><div class="text-right hidden sm:block"><div class="font-label-md text-label-md text-on-surface truncate">Pdt. E. Messakh, M.Th</div><span class="inline-block px-space-xs py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">Pendeta Jemaat</span></div><img alt="Profile" class="w-9 h-9 rounded-full object-cover shadow-[0_1px_4px_rgba(0,0,0,0.12)]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBegQMGqstP98D4QBr1bZq0f2syBjUJ4gFYd4fLFtvUyjQyAW0K6797O1fY_iRchHmngDuMIlgNA46s2wrMPCBwrPFUlZFuX6DLvlRb4hoRe2AnYngBgE3J2GS86vjD0T56bafX8Gbubj5EWGWk6e2A-WoehRAu3tpALr9yNlw3iJ6oWKhUb95PNKQbWsicq7uoPDq3x8KcQ5vSu8QBW8ff8WrvxdZb8yBq0lL6FFM"/></div></div></div></header><main class="w-full pt-20 bg-surface min-h-[calc(100vh-16rem)]"><div class="flex flex-col w-full">
+<!-- Top Marquee Notice / Pengumuman Terkini -->
+<section class="w-full bg-primary text-on-primary py-space-sm px-margin-mobile lg:px-margin">
+<div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-space-xs font-label-md text-label-md">
+<div class="flex items-center gap-space-sm min-w-0">
+<span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-secondary-container text-on-secondary-container">
+<span class="material-symbols-outlined text-xs">campaign</span>
+</span>
+<span class="font-bold text-secondary-fixed">Warta Terkini:</span>
+<span class="truncate text-on-primary/90">Ibadah Padang Pemuda Rayon 1-5 dilaksanakan Sabtu depan di Pantai Lasiana pukul 15.30 WITA. Pendaftaran Sakramen Baptis Kudus triwulan dibuka.</span>
+</div>
+<div class="flex items-center gap-space-sm flex-shrink-0 text-primary-fixed">
+<span class="material-symbols-outlined text-sm">schedule</span>
+<span>Zona Waktu: WITA (GMT+8)</span>
+</div>
+</div>
+</section>
+<!-- Hero Welcome & Liturgical Banner Section -->
+<section class="w-full bg-surface-container-low py-space-xl px-margin-mobile lg:px-margin relative overflow-hidden">
+<!-- Subtle ambient ecclesiastical aura -->
+<div class="absolute -right-20 -top-20 w-96 h-96 rounded-full bg-surface-variant/40 blur-3xl pointer-events-none"></div>
+<div class="absolute -left-20 bottom-0 w-80 h-80 rounded-full bg-secondary-container/10 blur-3xl pointer-events-none"></div>
+<div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-space-xl relative z-10">
+<!-- Left Content -->
+<div class="flex-1 flex flex-col gap-space-md">
+<div class="inline-flex items-center gap-space-xs px-space-md py-space-xs rounded-full bg-surface-container-high w-fit">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="font-label-md text-label-md text-secondary uppercase tracking-widest">Tahun Pelayanan 2024 • Periode Liturgi Hijau</span>
+</div>
+<div class="flex flex-col gap-space-xs">
+<h1 class="font-headline-xl text-headline-xl text-primary leading-tight">
+            Selamat Datang di Portal Jemaat Lahairoi Tuak Sabu
+          </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
+            Wadah persekutuan, informasi liturgis, dan administrasi pastoral bagi seluruh jemaat dan keluarga di 5 Rayon Pelayanan Lasiana, Kupang.
+          </p>
+</div>
+<!-- Tema Minggu Ini Card -->
+<div class="p-space-lg rounded-xl bg-surface-container-lowest shadow-sm flex flex-col sm:flex-row gap-space-md items-start sm:items-center justify-between">
+<div class="flex items-start gap-space-md min-w-0">
+<div class="w-12 h-12 rounded-xl bg-primary-container text-on-primary flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-2xl">menu_book</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-sm text-label-sm text-secondary uppercase font-bold tracking-wider">Tema Khotbah &amp; Pelayanan Minggu Ini</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface truncate">
+                "Kasih yang Memulihkan dan Mempersatukan"
+              </h2>
+<span class="font-label-md text-label-md text-on-surface-variant font-medium">Berdasarkan Kolose 3:12–14 • GMIT Klasis Kota Kupang Timur</span>
+</div>
+</div>
+<div class="flex sm:flex-col items-end gap-1 flex-shrink-0">
+<span class="px-space-sm py-1 rounded-full bg-surface-container text-primary font-label-sm text-label-sm font-semibold">Liturgi A4 Resmi</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Update: Jumat, 18.00 WITA</span>
+</div>
+</div>
+<!-- Quick Action Buttons Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-sm pt-space-xs">
+<!-- Button 1: Unduh Warta PDF -->
+<a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg bg-secondary text-on-secondary shadow-sm hover:opacity-95 transition-all" href="#warta-digital">
+<span class="material-symbols-outlined text-xl">download</span>
+<div class="flex flex-col text-left min-w-0">
+<span class="font-label-md text-label-md font-bold truncate">Unduh Warta Jemaat</span>
+<span class="font-label-sm text-label-sm text-on-secondary/80">PDF Minggu Ini (2.4 MB)</span>
+</div>
+</a>
+<!-- Button 2: Jadwal Rayon -->
+<a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg bg-primary-container text-on-primary shadow-sm hover:opacity-95 transition-all" href="#jadwal-ibadah">
+<span class="material-symbols-outlined text-xl">calendar_month</span>
+<div class="flex flex-col text-left min-w-0">
+<span class="font-label-md text-label-md font-bold truncate">Jadwal 5 Rayon</span>
+<span class="font-label-sm text-label-sm text-primary-fixed">Cek Rumah Tangga</span>
+</div>
+</a>
+<!-- Button 3: QRIS Persembahan -->
+<a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg bg-surface-container-highest text-on-surface shadow-sm hover:bg-surface-variant transition-all" href="#persembahan-qris">
+<span class="material-symbols-outlined text-xl text-primary">qr_code_2</span>
+<div class="flex flex-col text-left min-w-0">
+<span class="font-label-md text-label-md font-bold truncate">Beri Persembahan</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">QRIS &amp; Bank NTT</span>
+</div>
+</a>
+<!-- Button 4: Pendaftaran Sakramen -->
+<a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg bg-surface-container-highest text-on-surface shadow-sm hover:bg-surface-variant transition-all" href="#layanan-sakramen-info">
+<span class="material-symbols-outlined text-xl text-secondary">verified_user</span>
+<div class="flex flex-col text-left min-w-0">
+<span class="font-label-md text-label-md font-bold truncate">Daftar Sakramen</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Baptis, Sidi &amp; Nikah</span>
+</div>
+</a>
+</div>
+</div>
+<!-- Right Visual Card (Foto Gereja & Emblem GMIT) -->
+<div class="w-full lg:w-96 flex-shrink-0 flex flex-col gap-space-sm">
+<div class="rounded-xl overflow-hidden shadow-md bg-surface-container-lowest relative group">
+<img class="w-full h-64 object-cover object-center group-hover:scale-105 transition-transform duration-500" data-alt="Warm photograph of the modern evangelical Protestant sanctuary of GMIT Lahairoi Tuak Sabu Lasiana in Kupang, bathed in soft afternoon tropical sunlight, showing neat wooden pews, white pulpit cross draped with green liturgical stole, and spacious tranquil communion area" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBKywi1zMrjXPOkRlHHiOFJYou1IlfoA7r2fwZ2YaW-qv1WJPO19sshwJuoaFE031OOVEWVz5eLub77jXoUkuGFEvbyYuhHiLB9hnWImpgSVJ_g1iRmKdQ5Q5YXUoeP66zhkwEgBwHr5ayKUfij8UG-IeqzrTswEyNmmkq7DXMK2v0G15Q40oJdnXQeSRIganhbTuobW_ae8ttZ71ocOEvbv55JQY9CcCm-qoA6fJg"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/30 to-transparent flex flex-col justify-end p-space-md text-on-primary">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-sm text-secondary-fixed">church</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary-fixed font-bold">Gedung Kebaktian Utama</span>
+</div>
+<p class="font-headline-sm text-headline-sm text-on-primary">Kapasitas 600 Kursi • Ber-AC &amp; Ramah Lansia</p>
+<p class="font-body-sm text-body-sm text-on-primary/80">Dilengkapi jalur kursi roda dan monitor teks kidung puji-pujian.</p>
+</div>
+</div>
+<!-- Fast Help Callout -->
+<div class="p-space-md rounded-xl bg-surface-container-high flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-secondary">volunteer_activism</span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-bold text-on-surface">Butuh Pelayanan Doa / Sakit?</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Presbiter Rayon siap mendampingi</span>
+</div>
+</div>
+<a class="px-space-sm py-1 rounded bg-primary text-on-primary font-label-sm text-label-sm font-semibold hover:bg-on-primary-fixed-variant transition-colors" href="tel:081239219980">Hubungi</a>
+</div>
+</div>
+</div>
+</section>
+<!-- Papan Jadwal Ibadah Minggu Ini & 5 Rayon -->
+<section class="w-full py-space-xl px-margin-mobile lg:px-margin bg-surface" id="jadwal-ibadah">
+<div class="max-w-7xl mx-auto flex flex-col gap-space-lg">
+<!-- Section Header -->
+<div class="flex flex-col sm:flex-row sm:items-end justify-between gap-space-sm">
+<div class="flex flex-col gap-space-xs">
+<span class="font-label-md text-label-md text-secondary uppercase font-bold tracking-wider">Jadwal Persekutuan &amp; Pelayanan</span>
+<h2 class="font-headline-lg text-headline-lg text-primary">Agenda Ibadah &amp; Persekutuan Minggu Ini</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Terbuka untuk jemaat, tamu yang berlibur di Kupang, serta persekutuan keluarga di 5 Rayon.</p>
+</div>
+<div class="flex items-center gap-space-xs">
+<button class="inline-flex items-center gap-space-xs px-space-md py-space-sm rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-label-md text-label-md transition-colors" id="downloadTataIbadahBtn">
+<span class="material-symbols-outlined text-base text-primary">picture_as_pdf</span>
+<span>Unduh Liturgi / Tata Ibadah (PDF)</span>
+</button>
+</div>
+</div>
+<!-- Filter Tabs Container -->
+<div class="flex items-center gap-space-xs overflow-x-auto pb-space-xs border-b border-surface-container-high" id="scheduleTabGroup">
+<button class="tab-btn px-space-md py-space-sm font-label-md text-label-md rounded-lg bg-primary-container text-on-primary font-bold flex-shrink-0" data-filter="all">Semua Jadwal (7)</button>
+<button class="tab-btn px-space-md py-space-sm font-label-md text-label-md rounded-lg bg-surface-container-low text-on-surface-variant hover:bg-surface-container font-semibold flex-shrink-0" data-filter="gedung">Kebaktian Gedung Gereja (2)</button>
+<button class="tab-btn px-space-md py-space-sm font-label-md text-label-md rounded-lg bg-surface-container-low text-on-surface-variant hover:bg-surface-container font-semibold flex-shrink-0" data-filter="rayon">Ibadah Rayon Rumah Tangga (5)</button>
+<button class="tab-btn px-space-md py-space-sm font-label-md text-label-md rounded-lg bg-surface-container-low text-on-surface-variant hover:bg-surface-container font-semibold flex-shrink-0" data-filter="kategorial">Kategorial PAR &amp; Pemuda</button>
+</div>
+<!-- Schedule Cards Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-space-md" id="scheduleCardsGrid">
+<!-- Card 1: Minggu Pagi I -->
+<article class="schedule-card flex flex-col justify-between p-space-md rounded-xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-shadow relative overflow-hidden" data-category="gedung">
+<div class="absolute top-0 left-0 bottom-0 w-1.5 bg-secondary"></div>
+<div class="flex flex-col gap-space-sm pl-space-xs">
+<div class="flex items-center justify-between">
+<span class="px-space-sm py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-bold uppercase">Kebaktian Utama I</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Minggu, 06.00 WITA</span>
+</div>
+<div class="flex flex-col">
+<h3 class="font-headline-sm text-headline-sm text-primary">Kebaktian Minggu Fajar</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-space-xs mt-1">
+<span class="material-symbols-outlined text-sm text-primary">pin_drop</span>
+                Gedung Gereja Lahairoi Tuak Sabu
+              </p>
+</div>
+<div class="p-space-sm rounded-lg bg-surface-container-low flex flex-col gap-1 text-on-surface font-body-sm text-body-sm">
+<div class="flex items-center justify-between">
+<span class="text-on-surface-variant font-label-sm text-label-sm">Pelayan Firman:</span>
+<span class="font-bold text-primary">Pdt. E. Messakh, M.Th</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-on-surface-variant font-label-sm text-label-sm">Majelis Bertugas:</span>
+<span>Rayon 1 &amp; Rayon 2</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-on-surface-variant font-label-sm text-label-sm">Pemandu Pujian:</span>
+<span>Paduan Suara Nafiri</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-sm mt-space-sm border-t border-surface-container-high pl-space-xs">
+<span class="font-label-sm text-label-sm text-tertiary font-medium flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-tertiary-fixed-dim"></span> Live Streaming YouTube
+            </span>
+<button class="text-primary font-label-md text-label-md font-semibold hover:underline flex items-center gap-1" onclick="downloadLiturgi('Minggu-I')">
+              Liturgi <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</article>
+<!-- Card 2: Minggu Pagi II -->
+<article class="schedule-card flex flex-col justify-between p-space-md rounded-xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-shadow relative overflow-hidden" data-category="gedung">
+<div class="absolute top-0 left-0 bottom-0 w-1.5 bg-primary"></div>
+<div class="flex flex-col gap-space-sm pl-space-xs">
+<div class="flex items-center justify-between">
+<span class="px-space-sm py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm font-bold uppercase">Kebaktian Utama II</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Minggu, 08.30 WITA</span>
+</div>
+<div class="flex flex-col">
+<h3 class="font-headline-sm text-headline-sm text-primary">Kebaktian Minggu Pagi II</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-space-xs mt-1">
+<span class="material-symbols-outlined text-sm text-primary">pin_drop</span>
+                Gedung Gereja Lahairoi Tuak Sabu
+              </p>
+</div>
+<div class="p-space-sm rounded-lg bg-surface-container-low flex flex-col gap-1 text-on-surface font-body-sm text-body-sm">
+<div class="flex items-center justify-between">
+<span class="text-on-surface-variant font-label-sm text-label-sm">Pelayan Firman:</span>
+<span class="font-bold text-primary">Pdt. J. Ndun, S.Th</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-on-surface-variant font-label-sm text-label-sm">Majelis Bertugas:</span>
+<span>Rayon 3 &amp; Rayon 4</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-on-surface-variant font-label-sm text-label-sm">Pemandu Pujian:</span>
+<span>Vocal Group Pemuda Lahairoi</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-sm mt-space-sm border-t border-surface-container-high pl-space-xs">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Termasuk Pelayanan Sekolah Minggu (PAR)</span>
+<button class="text-primary font-label-md text-label-md font-semibold hover:underline flex items-center gap-1" onclick="downloadLiturgi('Minggu-II')">
+              Liturgi <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</article>
+<!-- Card 3: Rayon 1 Getsemani -->
+<article class="schedule-card flex flex-col justify-between p-space-md rounded-xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-shadow relative overflow-hidden" data-category="rayon">
+<div class="absolute top-0 left-0 bottom-0 w-1.5 bg-tertiary-container"></div>
+<div class="flex flex-col gap-space-sm pl-space-xs">
+<div class="flex items-center justify-between">
+<span class="px-space-sm py-0.5 rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm font-bold uppercase">Rayon 1 • Getsemani</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Rabu, 18.00 WITA</span>
+</div>
+<div class="flex flex-col">
+<h3 class="font-headline-sm text-headline-sm text-primary">Ibadah Rumah Tangga</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-space-xs mt-1">
+<span class="material-symbols-outlined text-sm text-secondary">home</span>
+                Keluarga Fransisco Dethan
+              </p>
+</div>
+<div class="p-space-sm rounded-lg bg-surface-container-low flex flex-col gap-1 text-on-surface font-body-sm text-body-sm">
+<div class="flex items-center justify-between">
+<span class="text-on-surface-variant font-label-sm text-label-sm">Pelayan:</span>
+<span class="font-medium">Pnt. Mariana Lede</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-on-surface-variant font-label-sm text-label-sm">Liturgos:</span>
+<span>Dkn. Samuel Bessie</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-on-surface-variant font-label-sm text-label-sm">Lokasi:</span>
+<span class="truncate max-w-[160px]">RT 009 / Belakang SPBU</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-sm mt-space-sm border-t border-surface-container-high pl-space-xs">
+<span class="font-label-sm text-label-sm text-secondary font-bold">Warta Rayon 1 Aktif</span>
+<button class="text-primary font-label-md text-label-md font-semibold hover:underline flex items-center gap-1" onclick="downloadLiturgi('Rayon-1')">
+              Tata Ibadah <span class="material-symbols-outlined text-sm">download</span>
+</button>
+</div>
+</article>
+<!-- Card 4: Rayon 2 Golgota -->
+<article class="schedule-card flex flex-col justify-between p-space-md rounded-xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-shadow relative overflow-hidden" data-category="rayon">
+<div class="absolute top-0 left-0 bottom-0 w-1.5 bg-tertiary-container"></div>
+<div class="flex flex-col gap-space-sm pl-space-xs">
+<div class="flex items-center justify-between">
+<span class="px-space-sm py-0.5 rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm font-bold uppercase">Rayon 2 • Golgota</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Rabu, 18.00 WITA</span>
+</div>
+<div class="flex flex-col">
+<h3 class="font-headline-sm text-headline-sm text-primary">Ibadah Rumah Tangga</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-space-xs mt-1">
+<span class="material-symbols-outlined text-sm text-secondary">home</span>
+                Keluarga Daniel Mangi
+              </p>
+</div>
+<div class="p-space-sm rounded-lg bg-surface-container-low flex flex-col gap-1 text-on-surface font-body-sm text-body-sm">
+<div class="flex items-center justify-between">
+<span class="text-on-surface-variant font-label-sm text-label-sm">Pelayan:</span>
+<span class="font-medium">Pnt. Marthen Koen</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-on-surface-variant font-label-sm text-label-sm">Liturgos:</span>
+<span>Dkn. Ruth Manafe</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-on-surface-variant font-label-sm text-label-sm">Lokasi:</span>
+<span class="truncate max-w-[160px]">RT 011 / Dekat Posyandu</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-sm mt-space-sm border-t border-surface-container-high pl-space-xs">
+<span class="font-label-sm text-label-sm text-secondary font-bold">Warta Rayon 2 Aktif</span>
+<button class="text-primary font-label-md text-label-md font-semibold hover:underline flex items-center gap-1" onclick="downloadLiturgi('Rayon-2')">
+              Tata Ibadah <span class="material-symbols-outlined text-sm">download</span>
+</button>
+</div>
+</article>
+<!-- Card 5: Rayon 3 Tiberias -->
+<article class="schedule-card flex flex-col justify-between p-space-md rounded-xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-shadow relative overflow-hidden" data-category="rayon">
+<div class="absolute top-0 left-0 bottom-0 w-1.5 bg-secondary"></div>
+<div class="flex flex-col gap-space-sm pl-space-xs">
+<div class="flex items-center justify-between">
+<span class="px-space-sm py-0.5 rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm font-bold uppercase">Rayon 3 • Tiberias</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Kamis, 18.00 WITA</span>
+</div>
+<div class="flex flex-col">
+<h3 class="font-headline-sm text-headline-sm text-primary">Ibadah Rumah Tangga</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-space-xs mt-1">
+<span class="material-symbols-outlined text-sm text-secondary">home</span>
+                Keluarga Markus Lodo
+              </p>
+</div>
+<div class="p-space-sm rounded-lg bg-surface-container-low flex flex-col gap-1 text-on-surface font-body-sm text-body-sm">
+<div class="flex items-center justify-between">
+<span class="text-on-surface-variant font-label-sm text-label-sm">Pelayan:</span>
+<span class="font-medium">Pnt. Yunus Tuka</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-on-surface-variant font-label-sm text-label-sm">Liturgos:</span>
+<span>Dkn. Naomi Fanggidae</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-on-surface-variant font-label-sm text-label-sm">Lokasi:</span>
+<span class="truncate max-w-[160px]">RT 012 / Tuak Sabu Tengah</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-sm mt-space-sm border-t border-surface-container-high pl-space-xs">
+<span class="font-label-sm text-label-sm text-secondary font-bold">Warta Rayon 3 Aktif</span>
+<button class="text-primary font-label-md text-label-md font-semibold hover:underline flex items-center gap-1" onclick="downloadLiturgi('Rayon-3')">
+              Tata Ibadah <span class="material-symbols-outlined text-sm">download</span>
+</button>
+</div>
+</article>
+<!-- Card 6: Rayon 4 Galilea -->
+<article class="schedule-card flex flex-col justify-between p-space-md rounded-xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-shadow relative overflow-hidden" data-category="rayon">
+<div class="absolute top-0 left-0 bottom-0 w-1.5 bg-secondary"></div>
+<div class="flex flex-col gap-space-sm pl-space-xs">
+<div class="flex items-center justify-between">
+<span class="px-space-sm py-0.5 rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm font-bold uppercase">Rayon 4 • Galilea</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Kamis, 18.00 WITA</span>
+</div>
+<div class="flex flex-col">
+<h3 class="font-headline-sm text-headline-sm text-primary">Ibadah Rumah Tangga</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-space-xs mt-1">
+<span class="material-symbols-outlined text-sm text-secondary">home</span>
+                Keluarga Hendrikus Ratu
+              </p>
+</div>
+<div class="p-space-sm rounded-lg bg-surface-container-low flex flex-col gap-1 text-on-surface font-body-sm text-body-sm">
+<div class="flex items-center justify-between">
+<span class="text-on-surface-variant font-label-sm text-label-sm">Pelayan:</span>
+<span class="font-medium">Pnt. Antoneta Pellokila</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-on-surface-variant font-label-sm text-label-sm">Liturgos:</span>
+<span>Dkn. Soleman Netti</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-on-surface-variant font-label-sm text-label-sm">Lokasi:</span>
+<span class="truncate max-w-[160px]">RT 014 / Dekat Jalur 40</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-sm mt-space-sm border-t border-surface-container-high pl-space-xs">
+<span class="font-label-sm text-label-sm text-secondary font-bold">Warta Rayon 4 Aktif</span>
+<button class="text-primary font-label-md text-label-md font-semibold hover:underline flex items-center gap-1" onclick="downloadLiturgi('Rayon-4')">
+              Tata Ibadah <span class="material-symbols-outlined text-sm">download</span>
+</button>
+</div>
+</article>
+<!-- Card 7: Rayon 5 Kapernaum -->
+<article class="schedule-card flex flex-col justify-between p-space-md rounded-xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-shadow relative overflow-hidden" data-category="rayon">
+<div class="absolute top-0 left-0 bottom-0 w-1.5 bg-primary-container"></div>
+<div class="flex flex-col gap-space-sm pl-space-xs">
+<div class="flex items-center justify-between">
+<span class="px-space-sm py-0.5 rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm font-bold uppercase">Rayon 5 • Kapernaum</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Jumat, 18.00 WITA</span>
+</div>
+<div class="flex flex-col">
+<h3 class="font-headline-sm text-headline-sm text-primary">Ibadah Rumah Tangga</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-space-xs mt-1">
+<span class="material-symbols-outlined text-sm text-secondary">home</span>
+                Keluarga Yohanis Balla
+              </p>
+</div>
+<div class="p-space-sm rounded-lg bg-surface-container-low flex flex-col gap-1 text-on-surface font-body-sm text-body-sm">
+<div class="flex items-center justify-between">
+<span class="text-on-surface-variant font-label-sm text-label-sm">Pelayan:</span>
+<span class="font-medium">Pdt. E. Messakh, M.Th</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-on-surface-variant font-label-sm text-label-sm">Liturgos:</span>
+<span>Dkn. Kornelis Adu</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-on-surface-variant font-label-sm text-label-sm">Lokasi:</span>
+<span class="truncate max-w-[160px]">RT 015 / Lasiana Timur</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-sm mt-space-sm border-t border-surface-container-high pl-space-xs">
+<span class="font-label-sm text-label-sm text-secondary font-bold">Warta Rayon 5 Aktif</span>
+<button class="text-primary font-label-md text-label-md font-semibold hover:underline flex items-center gap-1" onclick="downloadLiturgi('Rayon-5')">
+              Tata Ibadah <span class="material-symbols-outlined text-sm">download</span>
+</button>
+</div>
+</article>
+<!-- Card 8: Kategorial PAR & Pemuda -->
+<article class="schedule-card flex flex-col justify-between p-space-md rounded-xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-shadow relative overflow-hidden" data-category="kategorial">
+<div class="absolute top-0 left-0 bottom-0 w-1.5 bg-on-tertiary-container"></div>
+<div class="flex flex-col gap-space-sm pl-space-xs">
+<div class="flex items-center justify-between">
+<span class="px-space-sm py-0.5 rounded-full bg-surface-variant text-primary font-label-sm text-label-sm font-bold uppercase">Kategorial PAR &amp; Pemuda</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Sabtu, 16.00 WITA</span>
+</div>
+<div class="flex flex-col">
+<h3 class="font-headline-sm text-headline-sm text-primary">Ibadah Padang &amp; Persekutuan</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-space-xs mt-1">
+<span class="material-symbols-outlined text-sm text-secondary">celebration</span>
+                Gedung Gereja &amp; Halaman GSG
+              </p>
+</div>
+<div class="p-space-sm rounded-lg bg-surface-container-low flex flex-col gap-1 text-on-surface font-body-sm text-body-sm">
+<div class="flex items-center justify-between">
+<span class="text-on-surface-variant font-label-sm text-label-sm">Koordinator:</span>
+<span class="font-medium">Bp. Alexander Sine (Pengurus PAR)</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-on-surface-variant font-label-sm text-label-sm">Peserta:</span>
+<span>Anak Sekolah Minggu &amp; Remaja</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-on-surface-variant font-label-sm text-label-sm">Agenda:</span>
+<span class="truncate max-w-[160px]">Latihan Vokal &amp; Cerita Alkitab</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-sm mt-space-sm border-t border-surface-container-high pl-space-xs">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Terbuka untuk Anak &amp; Orangtua</span>
+<button class="text-primary font-label-md text-label-md font-semibold hover:underline flex items-center gap-1" onclick="downloadLiturgi('PAR-Pemuda')">
+              Panduan <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</article>
+</div>
+</div>
+</section>
+<!-- Warta Jemaat Digital, Renungan Harian, & Pengumuman Jemaat -->
+<section class="w-full py-space-xl px-margin-mobile lg:px-margin bg-surface-container-low" id="warta-digital">
+<div class="max-w-7xl mx-auto flex flex-col gap-space-xl">
+<!-- Section Title -->
+<div class="flex flex-col gap-space-xs">
+<span class="font-label-md text-label-md text-secondary uppercase font-bold tracking-wider">Publikasi Mingguan</span>
+<h2 class="font-headline-lg text-headline-lg text-primary">Warta Jemaat Digital &amp; Renungan Pastoral</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Sumber firman, doa syafaat jemaat, pengumuman pernikahan, serta pertanggungjawaban kasih.</p>
+</div>
+<!-- Bento Grid Content -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-md">
+<!-- Left Column: Renungan Harian Gembala (7 Cols) -->
+<div class="lg:col-span-7 flex flex-col gap-space-md">
+<div class="p-space-lg rounded-xl bg-surface-container-lowest shadow-sm flex flex-col gap-space-md relative overflow-hidden">
+<div class="flex items-center justify-between border-b border-surface-container-high pb-space-sm">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-secondary text-2xl">auto_stories</span>
+<span class="font-label-lg text-label-lg font-bold text-primary">Renungan Pastoral Hari Ini</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-container-low px-space-sm py-1 rounded-full">Edisi Minggu Ini</span>
+</div>
+<!-- Nats Alkitab Banner -->
+<div class="p-space-md rounded-lg bg-surface-container-low flex flex-col gap-1">
+<span class="font-label-md text-label-md text-secondary font-bold uppercase tracking-wider">Kolose 3 : 12 – 14</span>
+<p class="font-body-md text-body-md text-on-surface italic">
+                "Karena itu, sebagai orang-orang pilihan Allah yang dikuduskan dan dikasihi-Nya, kenakanlah belas kasihan, kemurahan, kerendahan hati, kelemahlembutan dan kesabaran... Dan di atas semuanya itu: kenakanlah kasih, sebagai pengikat yang mempersatukan dan menyempurnakan."
+              </p>
+</div>
+<!-- Pastoral Text Excerpt -->
+<div class="flex flex-col gap-space-sm font-body-md text-body-md text-on-surface-variant">
+<p>
+                Saudara-saudaraku yang terkasih dalam Kristus di Jemaat Lahairoi Tuak Sabu, di tengah dinamika hidup persekutuan, kasih bukan sekadar perasaan hangat sesaat, melainkan komitmen untuk saling memulihkan dan merangkul. 
+              </p>
+<p>
+                Ketika kita bersedia membuka hati untuk saling memaafkan dan menopang kelemahan sesama, Kristus sendiri yang bekerja menegakkan fondasi keluarga serta jemaat kita di 5 Rayon. Kiranya firman ini meneduhkan pergumulan rumah tangga kita minggu ini.
+              </p>
+</div>
+<!-- Signature Pendeta -->
+<div class="flex items-center justify-between pt-space-sm border-t border-surface-container-high">
+<div class="flex items-center gap-space-sm">
+<img class="w-11 h-11 rounded-full object-cover" data-alt="Portrait of a friendly, dignified Indonesian Timorese church reverend smiling warmly in clerical pastoral suit, natural soft indoor church study background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC3-kS5sVhNDQ0pQckzKbvxa5qmeTwioD6x5kJ6U_90FtImutJIY021Ahllrt1LCVQEObzNui-20qwvVkQ_5Ey_HvZaCmAhX07zIXrfx0_TFwKOqu4K-FJiA2X7BLJx9NXsJlAiJmKXr0eaKgQwJ5mSnirUSubC-2JpOJRrTKikr1IMI75LKvbq2u2gkNtp8QFAkoOk-AMq8Ki2Yfrx8B-zlIEL0zCCzLkjSyJ-zCA"/>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-bold text-on-surface">Pdt. E. Messakh, M.Th</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Ketua Majelis Jemaat GMIT Lahairoi</span>
+</div>
+</div>
+<button class="inline-flex items-center gap-1 font-label-md text-label-md text-primary hover:text-on-primary-fixed-variant" onclick="shareRenungan()">
+<span class="material-symbols-outlined text-base">share</span>
+                Bagikan
+              </button>
+</div>
+</div>
+<!-- Download Full Warta Jemaat Box -->
+<div class="p-space-md rounded-xl bg-primary text-on-primary shadow-sm flex flex-col sm:flex-row items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-md">
+<div class="w-12 h-12 rounded-lg bg-surface-container-lowest/10 flex items-center justify-center flex-shrink-0 text-secondary-fixed">
+<span class="material-symbols-outlined text-3xl">newspaper</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-bold text-on-primary">Warta Jemaat Lengkap Edisi 24</span>
+<span class="font-body-sm text-body-sm text-on-primary/80">Termasuk Laporan Kas 5 Rayon &amp; Jadwal Petugas Majelis Sepekan</span>
+</div>
+</div>
+<a class="px-space-md py-space-sm rounded-lg bg-secondary text-on-secondary font-label-md text-label-md font-bold hover:bg-secondary-container transition-colors flex items-center gap-space-xs flex-shrink-0" download="" href="#">
+<span class="material-symbols-outlined text-base">file_download</span>
+<span>Unduh (PDF 2.4 MB)</span>
+</a>
+</div>
+</div>
+<!-- Right Column: Pengumuman Warta Pernikahan & Warta Duka (5 Cols) -->
+<div class="lg:col-span-5 flex flex-col gap-space-md">
+<!-- Box 1: Pengumuman Pernikahan (Warta Nikah) -->
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-center justify-between border-b border-surface-container-high pb-space-xs">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-xl">favorite</span>
+<span class="font-label-lg text-label-lg font-bold text-on-surface">Pemberitahuan Warta Pernikahan</span>
+</div>
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold">Liturgis</span>
+</div>
+<!-- Item Pernikahan 1 -->
+<div class="p-space-sm rounded-lg bg-surface-container-low flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-secondary font-bold">Warta Nikah Kedua (Terakhir)</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Pemberkatan: 12 Nov 2024</span>
+</div>
+<h4 class="font-label-lg text-label-lg text-on-surface font-semibold">
+                Sdr. Daniel Ronaldo Balle (Rayon 2) &amp; Sdri. Maria Christine Tuka (GMIT Imanuel)
+              </h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                Jika ada keberatan yang sah secara iman dan tata gereja, dimohon menyampaikannya kepada Majelis Jemaat sebelum tanggal pemberkatan.
+              </p>
+</div>
+<!-- Item Pernikahan 2 -->
+<div class="p-space-sm rounded-lg bg-surface-container-low flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-primary font-bold">Warta Nikah Pertama</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Pemberkatan: 19 Nov 2024</span>
+</div>
+<h4 class="font-label-lg text-label-lg text-on-surface font-semibold">
+                Sdr. Yoel Christian Ndun (Rayon 4) &amp; Sdri. Sarah Beatrix Dethan (Rayon 1)
+              </h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                Katekisasi pra-nikah sesi ketiga akan dilangsungkan Kamis ini di Ruang Konsistori.
+              </p>
+</div>
+</div>
+<!-- Box 2: Berita Duka Cita & Diakonia -->
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-center justify-between border-b border-surface-container-high pb-space-xs">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-outline text-xl">church</span>
+<span class="font-label-lg text-label-lg font-bold text-on-surface">Berita Duka Cita &amp; Doa Jemaat</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Diakonia</span>
+</div>
+<div class="p-space-sm rounded-lg bg-surface-container-low flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-error font-bold">Telah Berpulang ke Rumah Bapa</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Rayon 3 • Tiberias</span>
+</div>
+<h4 class="font-label-lg text-label-lg text-on-surface font-semibold">
+                Opa Barnabas Pellokila (Usia 78 Tahun)
+              </h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                Ibadah Pemakaman Gerejawi dipimpin oleh Pdt. E. Messakh, M.Th pada hari ini pukul 14.00 WITA menuju TPU Liliba. Mari menopang keluarga yang berduka.
+              </p>
+</div>
+<!-- Diakonia Callout -->
+<div class="flex items-center justify-between font-label-sm text-label-sm text-on-surface-variant pt-1">
+<span>Posko Diakonia Duka Siap Sedia 24 Jam</span>
+<a class="text-primary font-semibold hover:underline" href="#persembahan-qris">Salurkan Tali Kasih →</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Layanan Sakramen Info Mini-Section -->
+<section class="w-full py-space-lg px-margin-mobile lg:px-margin bg-surface" id="layanan-sakramen-info">
+<div class="max-w-7xl mx-auto p-space-lg rounded-xl bg-surface-container-high flex flex-col lg:flex-row items-center justify-between gap-space-lg">
+<div class="flex items-start gap-space-md max-w-3xl">
+<div class="w-12 h-12 rounded-xl bg-primary text-on-primary flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-2xl">water_drop</span>
+</div>
+<div class="flex flex-col gap-space-xs">
+<span class="font-label-sm text-label-sm text-secondary font-bold uppercase tracking-wider">Pelayanan Gerejawi</span>
+<h3 class="font-headline-md text-headline-md text-primary">Registrasi Sakramen Baptisan, Peneguhan Sidi &amp; Pernikahan</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">
+            Pendaftaran sakramen dilayani secara tertib melalui verifikasi Presbiter Rayon masing-masing. Silakan unduh formulir resmi atau lengkapi berkas di Kantor Tata Usaha Gereja.
+          </p>
+</div>
+</div>
+<div class="flex flex-col sm:flex-row items-center gap-space-sm flex-shrink-0 w-full lg:w-auto">
+<button class="w-full sm:w-auto px-space-md py-space-sm rounded-lg bg-primary text-on-primary font-label-md text-label-md font-bold hover:bg-on-primary-fixed-variant transition-colors flex items-center justify-center gap-space-xs" onclick="openFormulirModal()">
+<span class="material-symbols-outlined text-base">assignment</span>
+<span>Unduh Formulir Sakramen</span>
+</button>
+<a class="w-full sm:w-auto px-space-md py-space-sm rounded-lg bg-surface-container-lowest text-on-surface font-label-md text-label-md font-semibold hover:bg-surface-variant transition-colors flex items-center justify-center gap-space-xs" href="tel:0380821432">
+<span class="material-symbols-outlined text-base text-secondary">headset_mic</span>
+<span>Info Tata Usaha</span>
+</a>
+</div>
+</div>
+</section>
+<!-- Persembahan Kasih & QRIS Terverifikasi GMIT Lahairoi -->
+<section class="w-full py-space-xl px-margin-mobile lg:px-margin bg-surface-container-low" id="persembahan-qris">
+<div class="max-w-7xl mx-auto flex flex-col gap-space-xl">
+<!-- Title -->
+<div class="flex flex-col gap-space-xs text-center max-w-3xl mx-auto">
+<span class="font-label-md text-label-md text-secondary uppercase font-bold tracking-wider">Akuntabilitas &amp; Partisipasi Iman</span>
+<h2 class="font-headline-lg text-headline-lg text-primary">Persembahan Kasih &amp; QRIS Digital Terverifikasi</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">
+          "Hendaklah masing-masing memberikan menurut kerelaan hatinya, jangan dengan sedih hati atau karena paksaan, sebab Allah mengasihi orang yang memberi dengan sukacita." (2 Korintus 9:7)
+        </p>
+</div>
+<!-- Main Giving Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-center">
+<!-- Left QRIS Display Box (5 Cols) -->
+<div class="lg:col-span-5 flex flex-col items-center">
+<div class="w-full max-w-sm p-space-lg rounded-2xl bg-surface-container-lowest shadow-md flex flex-col items-center gap-space-md text-center border-t-4 border-secondary">
+<!-- Header QRIS Card -->
+<div class="flex flex-col items-center gap-1">
+<span class="px-space-sm py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-bold tracking-wider uppercase">NMID: ID1024388192019</span>
+<h3 class="font-headline-sm text-headline-sm text-primary">GMIT LAHAIROI TUAK SABU</h3>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Standar QRIS Nasional Indonesia • Bebas Biaya Admin</span>
+</div>
+<!-- Authentic SVG Representation of Church QRIS -->
+<div class="w-64 h-64 p-3 bg-white rounded-xl shadow-inner flex flex-col items-center justify-center relative">
+<svg class="w-full h-full text-on-surface" fill="currentColor" viewbox="0 0 240 240">
+<!-- Outer Finder Pattern Top-Left -->
+<rect fill="#00236f" height="60" rx="4" width="60" x="10" y="10"></rect>
+<rect fill="#ffffff" height="40" rx="2" width="40" x="20" y="20"></rect>
+<rect fill="#00236f" height="24" rx="2" width="24" x="28" y="28"></rect>
+<!-- Outer Finder Pattern Top-Right -->
+<rect fill="#00236f" height="60" rx="4" width="60" x="170" y="10"></rect>
+<rect fill="#ffffff" height="40" rx="2" width="40" x="180" y="20"></rect>
+<rect fill="#00236f" height="24" rx="2" width="24" x="188" y="28"></rect>
+<!-- Outer Finder Pattern Bottom-Left -->
+<rect fill="#00236f" height="60" rx="4" width="60" x="10" y="170"></rect>
+<rect fill="#ffffff" height="40" rx="2" width="40" x="20" y="180"></rect>
+<rect fill="#00236f" height="24" rx="2" width="24" x="28" y="188"></rect>
+<!-- Data Matrix Elements -->
+<rect fill="#904d00" height="10" width="10" x="80" y="15"></rect>
+<rect fill="#00236f" height="10" width="20" x="100" y="15"></rect>
+<rect fill="#00236f" height="10" width="10" x="130" y="15"></rect>
+<rect fill="#904d00" height="10" width="10" x="150" y="15"></rect>
+<rect fill="#00236f" height="10" width="20" x="80" y="35"></rect>
+<rect fill="#904d00" height="10" width="10" x="110" y="35"></rect>
+<rect fill="#00236f" height="10" width="20" x="140" y="35"></rect>
+<rect fill="#00236f" height="20" width="10" x="80" y="55"></rect>
+<rect fill="#904d00" height="10" width="10" x="100" y="55"></rect>
+<rect fill="#00236f" height="10" width="20" x="120" y="55"></rect>
+<rect fill="#904d00" height="10" width="10" x="150" y="65"></rect>
+<rect fill="#00236f" height="10" width="20" x="15" y="80"></rect>
+<rect fill="#904d00" height="20" width="10" x="45" y="80"></rect>
+<rect fill="#00236f" height="10" width="15" x="65" y="80"></rect>
+<rect fill="#00236f" height="10" width="30" x="90" y="80"></rect>
+<rect fill="#904d00" height="10" width="10" x="130" y="80"></rect>
+<rect fill="#00236f" height="10" width="20" x="150" y="80"></rect>
+<rect fill="#00236f" height="10" width="20" x="180" y="80"></rect>
+<rect fill="#904d00" height="10" width="15" x="210" y="80"></rect>
+<!-- Center Cross Logo / Shield Motif -->
+<rect fill="#ffffff" height="50" rx="8" stroke="#904d00" stroke-width="2" width="50" x="95" y="95"></rect>
+<path d="M120 102 V138 M108 112 H132" stroke="#00236f" stroke-linecap="round" stroke-width="4"></path>
+<!-- Bottom Data Matrix Elements -->
+<rect fill="#00236f" height="10" width="20" x="80" y="155"></rect>
+<rect fill="#904d00" height="20" width="10" x="110" y="155"></rect>
+<rect fill="#00236f" height="10" width="20" x="130" y="155"></rect>
+<rect fill="#00236f" height="10" width="10" x="160" y="155"></rect>
+<rect fill="#904d00" height="10" width="10" x="80" y="180"></rect>
+<rect fill="#00236f" height="10" width="20" x="100" y="180"></rect>
+<rect fill="#00236f" height="20" width="10" x="130" y="180"></rect>
+<rect fill="#904d00" height="10" width="20" x="150" y="180"></rect>
+<rect fill="#00236f" height="10" width="10" x="180" y="180"></rect>
+<rect fill="#00236f" height="10" width="20" x="200" y="180"></rect>
+<rect fill="#00236f" height="10" width="30" x="80" y="200"></rect>
+<rect fill="#904d00" height="10" width="10" x="120" y="200"></rect>
+<rect fill="#00236f" height="10" width="30" x="140" y="200"></rect>
+<rect fill="#904d00" height="20" width="10" x="180" y="200"></rect>
+<rect fill="#00236f" height="10" width="20" x="200" y="200"></rect>
+</svg>
+</div>
+<div class="flex flex-col gap-1 w-full">
+<p class="font-body-sm text-body-sm text-on-surface-variant">Dapat dipindai dari Livin' Mandiri, BRImo, BNI, BCA, Bank NTT Mobile, OVO, GoPay, DANA, dan LinkAja.</p>
+<button class="mt-2 w-full py-space-sm px-space-md rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-primary font-label-md text-label-md font-bold transition-colors flex items-center justify-center gap-1" onclick="simpanQRIS()">
+<span class="material-symbols-outlined text-sm">download</span>
+                Simpan Gambar QRIS
+              </button>
+</div>
+</div>
+</div>
+<!-- Right Bank Transfer Accounts per Pos Kas (7 Cols) -->
+<div class="lg:col-span-7 flex flex-col gap-space-md">
+<!-- Pos 1: Kas Umum Pelayanan (Bank NTT) -->
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-space-md">
+<div class="flex items-start gap-space-sm">
+<div class="w-10 h-10 rounded-lg bg-primary-fixed text-primary flex items-center justify-center font-bold text-sm flex-shrink-0">
+                NTT
+              </div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-secondary font-bold uppercase">Pos 1: Operasional &amp; Pelayanan Jemaat</span>
+<span class="font-label-lg text-label-lg font-bold text-primary">Bank NTT Cabang Utama Kupang</span>
+<div class="flex items-center gap-space-xs mt-1">
+<span class="font-mono text-body-lg font-bold text-on-surface tracking-wider" id="rekNTT">2500 109 23810</span>
+<span class="text-on-surface-variant font-label-sm text-label-sm">a/n GMIT Lahairoi Tuak Sabu</span>
+</div>
+</div>
+</div>
+<button class="px-space-md py-space-sm rounded-lg bg-surface-container-low hover:bg-surface-container-high text-primary font-label-md text-label-md font-bold flex items-center gap-1 transition-colors flex-shrink-0" id="rekBtn1" onclick="salinNomorRekening('250010923810', 'rekBtn1')">
+<span class="material-symbols-outlined text-base">content_copy</span>
+<span>Salin No. Rek</span>
+</button>
+</div>
+<!-- Pos 2: Kas Pembangunan Gedung Pastori & GSG (Bank BRI) -->
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-space-md">
+<div class="flex items-start gap-space-sm">
+<div class="w-10 h-10 rounded-lg bg-secondary-fixed text-secondary flex items-center justify-center font-bold text-sm flex-shrink-0">
+                BRI
+              </div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-secondary font-bold uppercase">Pos 2: Pembangunan Pastori &amp; Fasilitas GSG</span>
+<span class="font-label-lg text-label-lg font-bold text-primary">Bank Rakyat Indonesia (BRI) KC Kupang</span>
+<div class="flex items-center gap-space-xs mt-1">
+<span class="font-mono text-body-lg font-bold text-on-surface tracking-wider" id="rekBRI">0076 0100 8921 534</span>
+<span class="text-on-surface-variant font-label-sm text-label-sm">a/n Panitia Pembangunan Lahairoi</span>
+</div>
+</div>
+</div>
+<button class="px-space-md py-space-sm rounded-lg bg-surface-container-low hover:bg-surface-container-high text-primary font-label-md text-label-md font-bold flex items-center gap-1 transition-colors flex-shrink-0" id="rekBtn2" onclick="salinNomorRekening('007601008921534', 'rekBtn2')">
+<span class="material-symbols-outlined text-base">content_copy</span>
+<span>Salin No. Rek</span>
+</button>
+</div>
+<!-- Pos 3: Kas Diakonia Duka & Kasih Jemaat (Bank NTT) -->
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-space-md">
+<div class="flex items-start gap-space-sm">
+<div class="w-10 h-10 rounded-lg bg-surface-variant text-primary flex items-center justify-center font-bold text-sm flex-shrink-0">
+                NTT
+              </div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-secondary font-bold uppercase">Pos 3: Diakonia Duka, Sakit &amp; Yatim Piatu</span>
+<span class="font-label-lg text-label-lg font-bold text-primary">Bank NTT Unit Lasiana</span>
+<div class="flex items-center gap-space-xs mt-1">
+<span class="font-mono text-body-lg font-bold text-on-surface tracking-wider" id="rekDiakonia">2500 204 88391</span>
+<span class="text-on-surface-variant font-label-sm text-label-sm">a/n Kas Diakonia Lahairoi</span>
+</div>
+</div>
+</div>
+<button class="px-space-md py-space-sm rounded-lg bg-surface-container-low hover:bg-surface-container-high text-primary font-label-md text-label-md font-bold flex items-center gap-1 transition-colors flex-shrink-0" id="rekBtn3" onclick="salinNomorRekening('250020488391', 'rekBtn3')">
+<span class="material-symbols-outlined text-base">content_copy</span>
+<span>Salin No. Rek</span>
+</button>
+</div>
+<!-- Konfirmasi Bukti Transfer Callout -->
+<div class="p-space-md rounded-xl bg-surface-container-high flex flex-col sm:flex-row items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-secondary text-2xl">mark_chat_read</span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-bold text-on-surface">Konfirmasi Bukti Transfer / Sampul Syukur</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Kirim bukti via WhatsApp Bendahara Jemaat agar tercatat di warta</span>
+</div>
+</div>
+<a class="px-space-md py-space-sm rounded-lg bg-primary text-on-primary font-label-md text-label-md font-bold hover:bg-on-primary-fixed-variant transition-colors flex items-center gap-1 flex-shrink-0" href="https://wa.me/6281239219980?text=Syalom%20Bendahara%20GMIT%20Lahairoi,%20berikut%20bukti%20persembahan%20syukur%20kami" target="_blank">
+<span>Konfirmasi WA</span>
+<span class="material-symbols-outlined text-sm">open_in_new</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Lokasi Gereja & Kontak Presbiteriat -->
+<section class="w-full py-space-xl px-margin-mobile lg:px-margin bg-surface">
+<div class="max-w-7xl mx-auto flex flex-col gap-space-lg">
+<div class="flex flex-col gap-space-xs">
+<span class="font-label-md text-label-md text-secondary uppercase font-bold tracking-wider">Keberadaan &amp; Akses Jemaat</span>
+<h2 class="font-headline-lg text-headline-lg text-primary">Lokasi Gedung Gereja &amp; Sekretariat</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Mudah diakses dari Jalan Timor Raya dan Jalur 40 Kelurahan Lasiana, Kota Kupang.</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-md">
+<!-- Interactive Map Container (8 cols) -->
+<div class="lg:col-span-8 rounded-xl overflow-hidden shadow-sm relative min-h-[320px]">
+<div class="w-full h-full min-h-[320px] bg-cover bg-center" data-location="GMIT Lahairoi Tuak Sabu, Lasiana, Kupang, East Nusa Tenggara" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD3c-_OQkaLsKJZr7t98LOc7558l3gRzlAe9wSeOCWtpxth4Pj9ZaeBox1dHMHHgtrRO25MxvudrUXNRmFH2DIBBpOcZgLDa2PmkZmOhN9a2lo3S0DoFpHiaQJuo-Q3r-QzBqT6nQRc5_fi8oVp14yy8wwFTcdZwFfNeF0zXklu6gC3F-sTMbDNUClkxbwh0wE5YeZAAAYjL95iUWiSULAn2p-vbBYgUe7-oEprLwo')"></div>
+<div class="absolute bottom-4 left-4 right-4 bg-surface-container-lowest/95 backdrop-blur-md p-space-md rounded-xl shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-full bg-primary-fixed text-primary flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined">directions</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-bold text-on-surface">Jl. Tuak Sabu RT 012/RW 004, Lasiana</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Kec. Kelapa Lima, Kota Kupang, Nusa Tenggara Timur (85228)</span>
+</div>
+</div>
+<a class="px-space-md py-space-sm rounded-lg bg-primary text-on-primary font-label-md text-label-md font-bold hover:bg-on-primary-fixed-variant transition-colors flex items-center gap-1 flex-shrink-0" href="https://maps.google.com/?q=GMIT+Lahairoi+Tuak+Sabu+Lasiana+Kupang" target="_blank">
+<span>Buka Google Maps</span>
+<span class="material-symbols-outlined text-sm">open_in_new</span>
+</a>
+</div>
+</div>
+<!-- Kantor Pelayanan & Jam Kerja (4 cols) -->
+<div class="lg:col-span-4 p-space-lg rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between gap-space-md">
+<div class="flex flex-col gap-space-sm">
+<h3 class="font-headline-sm text-headline-sm text-primary">Jam Kerja Kantor Tata Usaha</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Pelayanan surat baptis, pengantar sidi, surat pindah domisili gerejawi, dan pendaftaran katekese.</p>
+<div class="flex flex-col gap-space-xs font-body-sm text-body-sm mt-space-xs">
+<div class="flex items-center justify-between py-1 border-b border-surface-container-high">
+<span class="text-on-surface-variant">Senin - Kamis</span>
+<span class="font-bold text-on-surface">09.00 - 15.00 WITA</span>
+</div>
+<div class="flex items-center justify-between py-1 border-b border-surface-container-high">
+<span class="text-on-surface-variant">Jumat</span>
+<span class="font-bold text-on-surface">09.00 - 12.00 WITA</span>
+</div>
+<div class="flex items-center justify-between py-1 border-b border-surface-container-high">
+<span class="text-on-surface-variant">Sabtu</span>
+<span class="font-bold text-secondary">Persiapan Majelis</span>
+</div>
+<div class="flex items-center justify-between py-1">
+<span class="text-on-surface-variant">Minggu</span>
+<span class="font-bold text-primary">Kebaktian Jemaat</span>
+</div>
+</div>
+</div>
+<div class="p-space-sm rounded-lg bg-surface-container-low flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-2xl">mail</span>
+<div class="flex flex-col min-w-0">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Email Resmi Tata Usaha:</span>
+<span class="font-label-md text-label-md font-bold text-on-surface truncate">tatausaha@gmitlahairoi.org</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Toast Notification Template for Interactivity -->
+<div class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-space-sm px-space-md py-space-sm rounded-xl bg-inverse-surface text-inverse-on-surface shadow-xl" id="toastNotification">
+<span class="material-symbols-outlined text-tertiary-fixed" id="toastIcon">check_circle</span>
+<span class="font-label-md text-label-md font-semibold" id="toastMessage">Tindakan berhasil!</span>
+</div>
+</div>
+<script>
+  // Filter Interactive Tabs for Schedule
+  const tabButtons = document.querySelectorAll('#scheduleTabGroup .tab-btn');
+  const cards = document.querySelectorAll('.schedule-card');
+
+  tabButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      // Set active visual state
+      tabButtons.forEach(b => {
+        b.classList.remove('bg-primary-container', 'text-on-primary', 'font-bold');
+        b.classList.add('bg-surface-container-low', 'text-on-surface-variant', 'font-semibold');
+      });
+      btn.classList.add('bg-primary-container', 'text-on-primary', 'font-bold');
+      btn.classList.remove('bg-surface-container-low', 'text-on-surface-variant', 'font-semibold');
+
+      const filter = btn.getAttribute('data-filter');
+
+      cards.forEach(card => {
+        const cat = card.getAttribute('data-category');
+        if (filter === 'all' || cat === filter) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    });
+  });
+
+  // Salin No Rekening Clipboard Helper with Visual Toast
+  function salinNomorRekening(nomor, btnId) {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(nomor).then(() => {
+        showToast('Nomor rekening ' + nomor + ' berhasil disalin!');
+      }).catch(() => {
+        fallbackCopy(nomor);
+      });
+    } else {
+      fallbackCopy(nomor);
+    }
+  }
+
+  function fallbackCopy(text) {
+    const input = document.createElement('input');
+    input.value = text;
+    document.body.appendChild(input);
+    input.select();
+    document.execCommand('copy');
+    document.body.removeChild(input);
+    showToast('Nomor rekening ' + text + ' disalin!');
+  }
+
+  // Toast Functionality
+  function showToast(msg) {
+    const toast = document.getElementById('toastNotification');
+    const toastMsg = document.getElementById('toastMessage');
+    toastMsg.textContent = msg;
+    toast.classList.remove('translate-y-24', 'opacity-0');
+    toast.classList.add('translate-y-0', 'opacity-100');
+    setTimeout(() => {
+      toast.classList.remove('translate-y-0', 'opacity-100');
+      toast.classList.add('translate-y-24', 'opacity-0');
+    }, 2800);
+  }
+
+  // Liturgi Download Feedback
+  function downloadLiturgi(session) {
+    showToast('Mengunduh Tata Ibadah: ' + session + ' (PDF)...');
+  }
+
+  // Simpan QRIS Image Action
+  function simpanQRIS() {
+    showToast('Menyiapkan gambar QRIS GMIT Lahairoi untuk disimpan...');
+  }
+
+  // Share Renungan
+  function shareRenungan() {
+    if (navigator.share) {
+      navigator.share({
+        title: 'Renungan GMIT Lahairoi Tuak Sabu',
+        text: 'Nats: Kolose 3:12-14 - Kasih yang Memulihkan dan Mempersatukan',
+        url: window.location.href,
+      }).catch(() => {});
+    } else {
+      salinNomorRekening(window.location.href, '');
+      showToast('Tautan renungan berhasil disalin ke clipboard!');
+    }
+  }
+
+  // Formulir Modal Handler
+  function openFormulirModal() {
+    showToast('Membuka tautan formulir pendaftaran sakramen...');
+  }
+</script></main><footer class="w-full bg-surface-container-lowest shadow-[0_-1px_8px_rgba(0,0,0,0.03)] mt-space-xl"><div class="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-xl"><div class="grid grid-cols-1 md:grid-cols-12 gap-space-lg mb-space-lg"><div class="md:col-span-5 flex flex-col gap-space-sm"><div class="flex items-center gap-space-sm"><img alt="Logo GMIT Lahairoi" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_2NKInYOlABEPJCeaYJYKeicxL4tn_Sv6DREx13oCGKkK_f3btN94_Yf4O5i7WTQDR4ri26lpJ7dNQMBMCZoq_se96r0LipOE-vLlDWQ6bh2swxhPUujmMY4VrJyuE6_L33_4PE4ORPWkT0hKv71LrkqUoTucL0PzWG7zHUUjgIaJ_S5Go7xNCoV9RjnxzH8W8iDWE2A__HNjJMqBdU0u2vVc4M-PnEbilngcI6s"/><span class="font-headline-sm text-headline-sm text-primary">GMIT Lahairoi Tuak Sabu</span></div><p class="font-body-sm text-body-sm text-on-surface-variant">Gereja Masehi Injili di Timor (GMIT) Klasis Kota Kupang Timur. Bersekutu, bersaksi, dan melayani di tengah jemaat 5 Rayon dengan ketulusan dan ketertiban administrasi gerejawi.</p><div class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-space-xs"><span class="material-symbols-outlined text-sm">location_on</span>Jl. Tuak Sabu, Kelurahan Lasiana, Kec. Kelapa Lima, Kota Kupang, Nusa Tenggara Timur</div></div><div class="md:col-span-4 flex flex-col gap-space-sm"><span class="font-label-lg text-label-lg text-primary uppercase tracking-wider">Nats Firman Minggu Ini</span><blockquote class="p-space-md rounded-xl bg-surface-container-low font-body-sm text-body-sm text-on-surface italic shadow-[0_1px_4px_rgba(0,0,0,0.02)]">"Sampai di sini TUHAN telah menolong kita. Sebab itu dinamainyalah tempat itu Eben-Haezer."<footer class="mt-space-xs font-label-md text-label-md text-secondary font-semibold not-italic">— 1 Samuel 7:12</footer></blockquote></div><div class="md:col-span-3 flex flex-col gap-space-sm"><span class="font-label-lg text-label-lg text-primary uppercase tracking-wider">Kontak &amp; Pelayanan</span><div class="flex flex-col gap-space-xs font-body-sm text-body-sm text-on-surface-variant"><span class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-base text-primary">call</span>Hotline: (0380) 821-432</span><span class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-base text-secondary">mark_email_read</span>tatausaha@gmitlahairoi.org</span><span class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-base text-tertiary-container">support_agent</span>Pastoral Care: 0812-3921-9980</span></div></div></div><div class="pt-space-md flex flex-col sm:flex-row items-center justify-between gap-space-sm bg-surface-container-low p-space-md rounded-xl"><span class="font-label-sm text-label-sm text-on-surface-variant">© 2024 Majelis Jemaat GMIT Lahairoi Tuak Sabu Lasiana. Terintegrasi 5 Rayon Pelayanan.</span><div class="flex items-center gap-space-md font-label-sm text-label-sm text-on-surface-variant"><a class="hover:text-primary transition-colors" data-path="warta-jemaat" href="#">Warta Jemaat</a><a class="hover:text-primary transition-colors" data-path="layanan-sakramen" href="#">Registrasi Sakramen</a><a class="hover:text-primary transition-colors" data-path="login" href="#">Portal Presbiter</a></div></div></div></footer></body></html>

@@ -1,0 +1,66 @@
+[
+  {
+    "file": "01-dashboard-eksekutif",
+    "title": "Dashboard Eksekutif & Analitik Gereja",
+    "screen": "projects/7339613156149599295/screens/5c85611ed59748efbdbefd1ec52c9d9e",
+    "width": "2584",
+    "height": "4172"
+  },
+  {
+    "file": "02-database-jemaat-rayon",
+    "title": "Database Jemaat & 5 Rayon",
+    "screen": "projects/7339613156149599295/screens/460c6658429443e49293cd1998a66033",
+    "width": "3456",
+    "height": "5000"
+  },
+  {
+    "file": "03-jadwal-ibadah-presensi",
+    "title": "Jadwal Ibadah, Pelayan & Presensi",
+    "screen": "projects/7339613156149599295/screens/5d6eefce404b42e988b92c05050166be",
+    "width": "2560",
+    "height": "4048"
+  },
+  {
+    "file": "04-keuangan-rapbj",
+    "title": "Keuangan Multi-Pos & RAPBJ",
+    "screen": "projects/7339613156149599295/screens/6b9f3c142a2446ea94ec47c2de76b852",
+    "width": "2560",
+    "height": "4518"
+  },
+  {
+    "file": "05-layanan-sakramen",
+    "title": "Layanan Sakramen & Pelacakan",
+    "screen": "projects/7339613156149599295/screens/73944c958dd543e08dad7bb5c157db0c",
+    "width": "2560",
+    "height": "7878"
+  },
+  {
+    "file": "06-verifikasi-sakramen-arsip-surat",
+    "title": "Verifikasi Sakramen & Arsip Surat",
+    "screen": "projects/7339613156149599295/screens/d7037ef54d564deaa19f315285571f96",
+    "width": "2560",
+    "height": "6846"
+  },
+  {
+    "file": "07-inventaris-aset",
+    "title": "Manajemen Inventaris & Aset Gereja",
+    "screen": "projects/7339613156149599295/screens/d46079d8b2ec4547a20a1746fa9e7e8b",
+    "width": "2584",
+    "height": "3862"
+  },
+  {
+    "file": "08-portal-publik-warta",
+    "title": "Portal Publik & Warta Jemaat",
+    "screen": "projects/7339613156149599295/screens/4cbaffbea0ba42ec84e56988eb393465",
+    "width": "2560",
+    "height": "8342"
+  },
+  {
+    "file": "10-portal-publik-kage",
+    "title": "Portal Publik — GMIT Lahairoi Tuak Sabu, Lasiana (Editorial)",
+    "screen": "projects/7339613156149599295/screens/f9830eb4fdbd485791362f7f91972c7a",
+    "width": 1440,
+    "height": 8160,
+    "note": "Redesign portal publik, bahasa desain kage.design Nova CLI; menggantikan 08. Screen Stitch final (f9830eb4). HTML lokal = HTML Stitch + patch kecil kolom nav footer (tidak tumpang tindih); PNG = render Chrome 1440px dari HTML lokal."
+  }
+]

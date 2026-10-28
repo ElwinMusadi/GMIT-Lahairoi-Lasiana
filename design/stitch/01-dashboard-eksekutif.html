@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+
+<html lang="id"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "background": "#faf8ff", "primary": "#00236f", "tertiary-fixed": "#85f8c4", "on-surface": "#131b2e", "tertiary-fixed-dim": "#68dba9", "outline-variant": "#c5c5d3", "surface-bright": "#faf8ff", "error-container": "#ffdad6", "tertiary": "#003120", "surface-container-highest": "#dae2fd", "secondary-fixed-dim": "#ffb77d", "on-primary-container": "#90a8ff", "inverse-on-surface": "#eef0ff", "on-error": "#ffffff", "on-tertiary-container": "#4ac08f", "on-secondary-fixed-variant": "#6e3900", "on-error-container": "#93000a", "on-primary-fixed": "#00164e", "surface-container-high": "#e2e7ff", "on-tertiary-fixed": "#002114", "on-primary-fixed-variant": "#264191", "primary-fixed-dim": "#b6c4ff", "surface-dim": "#d2d9f4", "secondary-container": "#fe932c", "error": "#ba1a1a", "secondary-fixed": "#ffdcc3", "surface-tint": "#4059aa", "surface-container": "#eaedff", "on-secondary": "#ffffff", "secondary": "#904d00", "on-tertiary": "#ffffff", "on-background": "#131b2e", "surface-container-low": "#f2f3ff", "on-secondary-fixed": "#2f1500", "tertiary-container": "#004a32", "outline": "#757682", "inverse-surface": "#283044", "on-secondary-container": "#663500", "primary-fixed": "#dce1ff", "surface-variant": "#dae2fd", "on-surface-variant": "#444651", "surface-container-lowest": "#ffffff", "inverse-primary": "#b6c4ff", "surface": "#faf8ff", "on-tertiary-fixed-variant": "#005137", "on-primary": "#ffffff", "primary-container": "#1e3a8a" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "margin-mobile": "1rem", "space-md": "1rem", "space-xs": "0.25rem", "space-xl": "2.5rem", "space-lg": "1.5rem", "space-sm": "0.5rem", "gutter-mobile": "1rem", "gutter": "1.5rem", "margin": "2rem" }, "fontFamily": { "headline-md": ["Plus Jakarta Sans"], "body-sm": ["Inter"], "headline-lg-mobile": ["Plus Jakarta Sans"], "headline-sm": ["Plus Jakarta Sans"], "body-lg": ["Inter"], "label-lg": ["Inter"], "headline-lg": ["Plus Jakarta Sans"], "body-md": ["Inter"], "headline-xl": ["Plus Jakarta Sans"], "headline-xl-mobile": ["Plus Jakarta Sans"], "label-sm": ["Inter"], "label-md": ["Inter"] }, "fontSize": { "headline-md": ["1.5rem", { "lineHeight": "2rem", "fontWeight": "600" }], "body-sm": ["0.875rem", { "lineHeight": "1.25rem", "fontWeight": "400" }], "headline-lg-mobile": ["1.5rem", { "lineHeight": "2rem", "fontWeight": "700" }], "headline-sm": ["1.25rem", { "lineHeight": "1.75rem", "fontWeight": "600" }], "body-lg": ["1.125rem", { "lineHeight": "1.75rem", "fontWeight": "400" }], "label-lg": ["0.875rem", { "lineHeight": "1.25rem", "fontWeight": "600" }], "headline-lg": ["2rem", { "lineHeight": "2.5rem", "fontWeight": "700" }], "body-md": ["1rem", { "lineHeight": "1.5rem", "fontWeight": "400" }], "headline-xl": ["2.5rem", { "lineHeight": "3rem", "fontWeight": "700" }], "headline-xl-mobile": ["1.875rem", { "lineHeight": "2.25rem", "fontWeight": "700" }], "label-sm": ["0.6875rem", { "lineHeight": "0.875rem", "fontWeight": "500" }], "label-md": ["0.75rem", { "lineHeight": "1rem", "fontWeight": "600" }] } } } };</script></head><body class="bg-surface font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-72 bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.06)] z-50 flex flex-col justify-between overflow-y-auto"><div class="flex flex-col"><div class="h-20 px-space-lg flex items-center gap-space-md"><img alt="Logo GMIT Lahairoi Tuak Sabu Lasiana" class="h-10 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_2NKInYOlABEPJCeaYJYKeicxL4tn_Sv6DREx13oCGKkK_f3btN94_Yf4O5i7WTQDR4ri26lpJ7dNQMBMCZoq_se96r0LipOE-vLlDWQ6bh2swxhPUujmMY4VrJyuE6_L33_4PE4ORPWkT0hKv71LrkqUoTucL0PzWG7zHUUjgIaJ_S5Go7xNCoV9RjnxzH8W8iDWE2A__HNjJMqBdU0u2vVc4M-PnEbilngcI6s"/><div class="flex flex-col min-w-0"><span class="font-headline-sm text-headline-sm text-primary leading-tight truncate">GMIT Lahairoi</span><span class="font-label-sm text-label-sm text-on-surface-variant truncate">Tuak Sabu Lasiana</span></div></div><div class="px-space-lg py-space-sm"><div class="px-space-md py-space-xs rounded-lg bg-surface-container-low flex items-center justify-between"><span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Basis Wilayah</span><span class="font-label-md text-label-md text-secondary font-bold">5 Rayon Pelayanan</span></div></div><nav class="px-space-md py-space-sm flex flex-col gap-1" data-active-classes="bg-primary-container text-on-primary font-bold shadow-sm"><a aria-current="page" class="flex items-center px-space-md py-space-sm rounded-lg transition-colors bg-primary-container text-on-primary font-bold shadow-sm" data-path="dashboard-eksekutif" href="#">Dashboard Eksekutif</a><a class="flex items-center px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-label-lg text-label-lg transition-colors" data-path="database-jemaat" href="#">Database Jemaat</a><a class="flex items-center px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-label-lg text-label-lg transition-colors" data-path="keuangan-multi-pos" href="#">Keuangan Multi-Pos</a><a class="flex items-center px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-label-lg text-label-lg transition-colors" data-path="jadwal-pelayan-ibadah" href="#">Jadwal &amp; Pelayan Ibadah</a><a class="flex items-center px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-label-lg text-label-lg transition-colors" data-path="verifikasi-sakramen-arsip" href="#">Verifikasi Sakramen &amp; Arsip</a><a class="flex items-center px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-label-lg text-label-lg transition-colors" data-path="inventaris-aset" href="#">Inventaris &amp; Aset</a><a class="flex items-center px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-label-lg text-label-lg transition-colors" data-path="pengaturan" href="#">Pengaturan</a></nav></div><div class="p-space-lg"><div class="p-space-md rounded-xl bg-surface-container-low flex flex-col gap-space-xs"><span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Status Data Jemaat</span><div class="flex items-center gap-space-xs font-label-md text-label-md text-on-tertiary-container"><span class="w-2 h-2 rounded-full bg-on-tertiary-container"></span><span>1.200 Jiwa / 5 Rayon</span></div><span class="font-label-sm text-label-sm text-on-surface-variant">Sistem GMIT Terpadu</span></div></div></aside><div class="pl-72"><header class="fixed top-0 left-72 right-0 h-20 bg-surface-container-lowest/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 px-space-lg flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-md min-w-0"><div class="hidden sm:flex items-center gap-space-xs px-space-md py-space-xs bg-surface-container-low rounded-lg text-on-surface-variant font-label-md text-label-md"><span class="material-symbols-outlined text-base">church</span><span>Klasis Kota Kupang Timur</span></div><span class="hidden lg:inline text-on-surface-variant font-label-md text-label-md font-medium">GMIT Lahairoi Tuak Sabu Lasiana</span></div><div class="flex items-center gap-space-md"><nav class="hidden xl:flex items-center gap-space-xs p-1 rounded-xl bg-surface-container-low" data-active-classes="bg-primary-container text-on-primary font-bold shadow-sm"><a aria-current="page" class="px-space-md py-1 rounded-lg transition-colors bg-primary-container text-on-primary font-bold shadow-sm" data-path="dashboard-eksekutif" href="#">Dashboard Eksekutif</a><a class="px-space-md py-1 rounded-lg font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="database-jemaat" href="#">Database Jemaat</a><a class="px-space-md py-1 rounded-lg font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="keuangan-multi-pos" href="#">Keuangan Multi-Pos</a><a class="px-space-md py-1 rounded-lg font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="jadwal-pelayan-ibadah" href="#">Jadwal Ibadah</a><a class="px-space-md py-1 rounded-lg font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="verifikasi-sakramen-arsip" href="#">Sakramen</a><a class="px-space-md py-1 rounded-lg font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="inventaris-aset" href="#">Inventaris</a></nav><button class="relative p-space-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded-lg transition-colors"><span class="material-symbols-outlined">notifications</span><span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span></button><div class="flex items-center gap-space-sm pl-space-sm"><div class="text-right"><div class="font-label-md text-label-md text-on-surface font-semibold">Pdt. E. Messakh, M.Th</div><span class="inline-block px-space-xs py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-semibold">Pendeta / Admin Presbiter</span></div><img alt="Pdt. E. Messakh, M.Th" class="w-9 h-9 rounded-full object-cover shadow-[0_1px_4px_rgba(0,0,0,0.12)]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBegQMGqstP98D4QBr1bZq0f2syBjUJ4gFYd4fLFtvUyjQyAW0K6797O1fY_iRchHmngDuMIlgNA46s2wrMPCBwrPFUlZFuX6DLvlRb4hoRe2AnYngBgE3J2GS86vjD0T56bafX8Gbubj5EWGWk6e2A-WoehRAu3tpALr9yNlw3iJ6oWKhUb95PNKQbWsicq7uoPDq3x8KcQ5vSu8QBW8ff8WrvxdZb8yBq0lL6FFM"/></div></div></header><main class="w-full pt-20 px-space-lg py-space-lg bg-surface min-h-screen"><div class="flex flex-col w-full">
+<!-- Liturgical Festive Top Ribbon -->
+<div class="w-full h-1.5 bg-gradient-to-r from-primary via-secondary to-primary-container rounded-full mb-space-md opacity-90"></div>
+<!-- Header Section with Executive Controls -->
+<div class="flex flex-col lg:flex-row lg:items-end justify-between gap-space-md pb-space-lg">
+<div class="space-y-space-xs max-w-3xl">
+<div class="flex items-center gap-space-xs">
+<span class="px-space-sm py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm uppercase tracking-wider font-semibold">
+          Sidang Majelis Jemaat • Q1 2025
+        </span>
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-on-surface-variant">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary-fixed-dim"></span>
+          Sinkronisasi Terpadu Klasis Kota Kupang Timur
+        </span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-primary tracking-tight">
+        Dashboard Eksekutif &amp; Analitik Presbiterial
+      </h1>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+        Ringkasan strategis demografi 5 Rayon (1.248 jiwa), kesehatan finansial RAPBJ, tren kehadiran ibadah, dan agenda pastoral GMIT Lahairoi Tuak Sabu Lasiana.
+      </p>
+</div>
+<!-- Action Bar & Global Period Filters -->
+<div class="flex flex-wrap items-center gap-space-sm self-start lg:self-end">
+<div class="inline-flex items-center bg-surface-container-low rounded-lg p-1 text-on-surface shadow-sm">
+<span class="material-symbols-outlined text-base pl-2 text-on-surface-variant">calendar_month</span>
+<select class="bg-transparent text-on-surface font-label-md text-label-md px-space-sm py-1.5 focus:outline-none cursor-pointer border-0">
+<option value="q1-2025">Tahun Anggaran 2025 / Triwulan I</option>
+<option value="q4-2024">Tahun Anggaran 2024 / Triwulan IV</option>
+<option value="fy-2024">Laporan Tahunan Penuh 2024</option>
+</select>
+</div>
+<button class="inline-flex items-center gap-1.5 px-space-md py-2 bg-surface-container-lowest text-on-surface hover:bg-surface-container-high rounded-lg font-label-md text-label-md shadow-sm transition-all duration-200 cursor-pointer active:scale-95" id="btn-refresh">
+<span class="material-symbols-outlined text-base text-primary">sync</span>
+<span>Pembaruan Data Cepat</span>
+</button>
+<button class="inline-flex items-center gap-1.5 px-space-md py-2 bg-primary text-on-primary hover:bg-primary-container rounded-lg font-label-md text-label-md shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer">
+<span class="material-symbols-outlined text-base">picture_as_pdf</span>
+<span>Ekspor Sidang Majelis</span>
+</button>
+</div>
+</div>
+<!-- KPI Metric Overview (4 Essential Pillars) -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-space-md mb-space-xl">
+<!-- KPI 1: Demografi Jemaat -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm hover:shadow-md transition-shadow relative overflow-hidden flex flex-col justify-between">
+<div class="absolute -top-6 -right-6 w-24 h-24 bg-primary/5 rounded-full pointer-events-none"></div>
+<div>
+<div class="flex items-center justify-between mb-space-sm">
+<span class="font-label-md text-label-md uppercase tracking-wider text-on-surface-variant font-semibold">Total Warga Jemaat</span>
+<span class="p-2 rounded-lg bg-surface-container text-primary">
+<span class="material-symbols-outlined text-xl">diversity_3</span>
+</span>
+</div>
+<div class="flex items-baseline gap-2 mb-1">
+<span class="font-headline-xl text-headline-xl text-primary font-bold">1.248</span>
+<span class="font-label-md text-label-md text-on-tertiary-container font-semibold inline-flex items-center">
+<span class="material-symbols-outlined text-sm">trending_up</span> +18 jiwa
+          </span>
+</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant mb-space-md">
+          312 Kepala Keluarga terdaftar resmi
+        </div>
+</div>
+<div class="pt-space-sm bg-surface-container-low/60 rounded-lg p-space-sm space-y-1">
+<div class="flex justify-between font-label-sm text-label-sm text-on-surface">
+<span>Pria: 608 (48.7%)</span>
+<span>Wanita: 640 (51.3%)</span>
+</div>
+<div class="w-full bg-surface-container-highest rounded-full h-1.5 overflow-hidden flex">
+<div class="bg-primary h-full" style="width: 48.7%;"></div>
+<div class="bg-secondary h-full" style="width: 51.3%;"></div>
+</div>
+</div>
+</div>
+<!-- KPI 2: Likuiditas & Konsolidasi Kas -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm hover:shadow-md transition-shadow relative overflow-hidden flex flex-col justify-between">
+<div class="absolute -top-6 -right-6 w-24 h-24 bg-secondary/5 rounded-full pointer-events-none"></div>
+<div>
+<div class="flex items-center justify-between mb-space-sm">
+<span class="font-label-md text-label-md uppercase tracking-wider text-on-surface-variant font-semibold">Likuiditas Kas Konsol</span>
+<span class="p-2 rounded-lg bg-secondary-fixed text-on-secondary-fixed">
+<span class="material-symbols-outlined text-xl">account_balance_wallet</span>
+</span>
+</div>
+<div class="flex items-baseline gap-2 mb-1">
+<span class="font-headline-lg text-headline-lg text-on-surface font-bold tracking-tight">Rp 148,65 M</span>
+</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant mb-space-md">
+          Terbagi 4 pos kas operasional &amp; pembangunan
+        </div>
+</div>
+<div class="pt-space-sm bg-surface-container-low/60 rounded-lg p-space-sm flex items-center justify-between">
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-on-tertiary-container font-semibold">
+<span class="material-symbols-outlined text-sm">verified</span> Sentralisasi Q1 Lunas
+        </span>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-semibold">
+          Rasio Aman
+        </span>
+</div>
+</div>
+<!-- KPI 3: Kehadiran Ibadah Rata-rata -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm hover:shadow-md transition-shadow relative overflow-hidden flex flex-col justify-between">
+<div class="absolute -top-6 -right-6 w-24 h-24 bg-primary-container/10 rounded-full pointer-events-none"></div>
+<div>
+<div class="flex items-center justify-between mb-space-sm">
+<span class="font-label-md text-label-md uppercase tracking-wider text-on-surface-variant font-semibold">Rata-rata Kehadiran</span>
+<span class="p-2 rounded-lg bg-surface-container-highest text-primary-container">
+<span class="material-symbols-outlined text-xl">church</span>
+</span>
+</div>
+<div class="flex items-baseline gap-2 mb-1">
+<span class="font-headline-xl text-headline-xl text-primary-container font-bold">819</span>
+<span class="font-label-md text-label-md text-on-tertiary-container font-semibold inline-flex items-center">
+<span class="material-symbols-outlined text-sm">north_east</span> +3.8%
+          </span>
+</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant mb-space-md">
+          Jiwa / Pekan (Kebaktian I, II, &amp; Rayon)
+        </div>
+</div>
+<div class="pt-space-sm bg-surface-container-low/60 rounded-lg p-space-sm flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface">Utilisasi Kapasitas</span>
+<span class="font-label-md text-label-md text-primary font-bold">97.2%</span>
+</div>
+</div>
+<!-- KPI 4: Cakupan Sakramen & Disiplin -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm hover:shadow-md transition-shadow relative overflow-hidden flex flex-col justify-between">
+<div class="absolute -top-6 -right-6 w-24 h-24 bg-secondary-container/10 rounded-full pointer-events-none"></div>
+<div>
+<div class="flex items-center justify-between mb-space-sm">
+<span class="font-label-md text-label-md uppercase tracking-wider text-on-surface-variant font-semibold">Cakupan Sakramen</span>
+<span class="p-2 rounded-lg bg-surface-container-low text-secondary">
+<span class="material-symbols-outlined text-xl">water_drop</span>
+</span>
+</div>
+<div class="flex items-baseline gap-2 mb-1">
+<span class="font-headline-xl text-headline-xl text-on-surface font-bold">94.2%</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Terdaftar Sah</span>
+</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant mb-space-md">
+          865 Warga Sidi • 310 Baptisan Kudus
+        </div>
+</div>
+<div class="pt-space-sm bg-surface-container-low/60 rounded-lg p-space-sm flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface">Akta Resmi Diterbitkan 2025</span>
+<span class="font-label-md text-label-md text-secondary font-bold">48 Dokumen</span>
+</div>
+</div>
+</div>
+<!-- Bento Grid Level 2: Demografi Rayon & Kategorial vs Keuangan RAPBJ -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg mb-space-xl">
+<!-- Sisi Kiri: Distribusi 5 Rayon & Kategorial (7 cols) -->
+<div class="lg:col-span-7 bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between pb-space-md">
+<div class="space-y-0.5">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-primary"></span>
+<h2 class="font-headline-sm text-headline-sm text-primary">Kekuatan Basis 5 Rayon Pelayanan</h2>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Sebaran presbiterial &amp; beban pastoral per teritorial wilayah jemaat</p>
+</div>
+<span class="px-space-sm py-1 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm">
+            Total 312 KK
+          </span>
+</div>
+<!-- Progress Bars per Rayon -->
+<div class="space-y-space-md py-space-sm">
+<!-- Rayon 1 -->
+<div class="space-y-1">
+<div class="flex justify-between items-center text-on-surface">
+<div class="flex items-center gap-2">
+<span class="w-6 h-6 rounded-md bg-primary-fixed text-on-primary-fixed flex items-center justify-center font-label-md text-label-md font-bold">1</span>
+<span class="font-label-lg text-label-lg font-semibold">Rayon 1 - Getsemani</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">(68 KK)</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="font-label-md text-label-md font-bold text-primary">274 Jiwa</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant w-12 text-right">21.9%</span>
+</div>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2.5 overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 21.9%;"></div>
+</div>
+</div>
+<!-- Rayon 4 (Besar Kedua) -->
+<div class="space-y-1">
+<div class="flex justify-between items-center text-on-surface">
+<div class="flex items-center gap-2">
+<span class="w-6 h-6 rounded-md bg-surface-container-high text-on-surface flex items-center justify-center font-label-md text-label-md font-bold">4</span>
+<span class="font-label-lg text-label-lg font-semibold">Rayon 4 - Galilea</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">(65 KK)</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="font-label-md text-label-md font-bold text-primary">260 Jiwa</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant w-12 text-right">20.8%</span>
+</div>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2.5 overflow-hidden">
+<div class="bg-primary-container h-full rounded-full" style="width: 20.8%;"></div>
+</div>
+</div>
+<!-- Rayon 2 -->
+<div class="space-y-1">
+<div class="flex justify-between items-center text-on-surface">
+<div class="flex items-center gap-2">
+<span class="w-6 h-6 rounded-md bg-surface-container-high text-on-surface flex items-center justify-center font-label-md text-label-md font-bold">2</span>
+<span class="font-label-lg text-label-lg font-semibold">Rayon 2 - Golgota</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">(62 KK)</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="font-label-md text-label-md font-bold text-primary">248 Jiwa</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant w-12 text-right">19.8%</span>
+</div>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2.5 overflow-hidden">
+<div class="bg-surface-tint h-full rounded-full" style="width: 19.8%;"></div>
+</div>
+</div>
+<!-- Rayon 3 -->
+<div class="space-y-1">
+<div class="flex justify-between items-center text-on-surface">
+<div class="flex items-center gap-2">
+<span class="w-6 h-6 rounded-md bg-surface-container-high text-on-surface flex items-center justify-center font-label-md text-label-md font-bold">3</span>
+<span class="font-label-lg text-label-lg font-semibold">Rayon 3 - Tiberias</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">(59 KK)</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="font-label-md text-label-md font-bold text-primary">236 Jiwa</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant w-12 text-right">18.9%</span>
+</div>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2.5 overflow-hidden">
+<div class="bg-outline h-full rounded-full" style="width: 18.9%;"></div>
+</div>
+</div>
+<!-- Rayon 5 -->
+<div class="space-y-1">
+<div class="flex justify-between items-center text-on-surface">
+<div class="flex items-center gap-2">
+<span class="w-6 h-6 rounded-md bg-surface-container-high text-on-surface flex items-center justify-center font-label-md text-label-md font-bold">5</span>
+<span class="font-label-lg text-label-lg font-semibold">Rayon 5 - Kapernaum</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">(58 KK)</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="font-label-md text-label-md font-bold text-primary">230 Jiwa</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant w-12 text-right">18.4%</span>
+</div>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2.5 overflow-hidden">
+<div class="bg-secondary h-full rounded-full" style="width: 18.4%;"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Komposisi Kategorial GMIT -->
+<div class="mt-space-lg pt-space-md bg-surface-container-low rounded-xl p-space-md">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold block mb-space-sm">
+          Distribusi BPPJ Berdasarkan Kategorial Jemaat
+        </span>
+<div class="grid grid-cols-2 sm:grid-cols-5 gap-space-sm text-center">
+<div class="bg-surface-container-lowest p-space-sm rounded-lg shadow-sm">
+<div class="font-headline-sm text-headline-sm text-primary font-bold">310</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">PAR (Anak)</div>
+</div>
+<div class="bg-surface-container-lowest p-space-sm rounded-lg shadow-sm">
+<div class="font-headline-sm text-headline-sm text-primary font-bold">285</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">PPGMIT (Pemuda)</div>
+</div>
+<div class="bg-surface-container-lowest p-space-sm rounded-lg shadow-sm">
+<div class="font-headline-sm text-headline-sm text-primary font-bold">320</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">PW (Perempuan)</div>
+</div>
+<div class="bg-surface-container-lowest p-space-sm rounded-lg shadow-sm">
+<div class="font-headline-sm text-headline-sm text-primary font-bold">260</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">PKB (Kaum Bapak)</div>
+</div>
+<div class="bg-surface-container-lowest p-space-sm rounded-lg shadow-sm col-span-2 sm:col-span-1">
+<div class="font-headline-sm text-headline-sm text-secondary font-bold">73</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Lansia (Simeon)</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Sisi Kanan: Realisasi RAPBJ & Multi-Pos Kas (5 cols) -->
+<div class="lg:col-span-5 bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between pb-space-md">
+<div class="space-y-0.5">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Kesehatan Finansial RAPBJ</h2>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Target Tahunan: Rp 280.000.000 (Mata Anggaran 2025)</p>
+</div>
+<span class="px-space-sm py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm font-semibold">
+            Surplus Sehat
+          </span>
+</div>
+<!-- RAPBJ Progress visual cards -->
+<div class="space-y-space-md">
+<div class="p-space-md rounded-xl bg-surface-container-low space-y-space-xs">
+<div class="flex justify-between items-baseline">
+<span class="font-label-md text-label-md text-on-surface-variant">Realisasi Penerimaan Q1</span>
+<span class="font-headline-sm text-headline-sm text-on-tertiary-container font-bold">Rp 89.200.000</span>
+</div>
+<div class="w-full bg-surface-container-highest rounded-full h-2 overflow-hidden">
+<div class="bg-on-tertiary-container h-full rounded-full" style="width: 31.8%;"></div>
+</div>
+<div class="flex justify-between font-label-sm text-label-sm text-on-surface-variant">
+<span>Capaian target: 31.8%</span>
+<span>Proyeksi Q1 tercapai (+6.8%)</span>
+</div>
+</div>
+<div class="p-space-md rounded-xl bg-surface-container-low space-y-space-xs">
+<div class="flex justify-between items-baseline">
+<span class="font-label-md text-label-md text-on-surface-variant">Realisasi Pengeluaran Q1</span>
+<span class="font-headline-sm text-headline-sm text-primary font-bold">Rp 48.750.000</span>
+</div>
+<div class="w-full bg-surface-container-highest rounded-full h-2 overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 17.4%;"></div>
+</div>
+<div class="flex justify-between font-label-sm text-label-sm text-on-surface-variant">
+<span>Penyerapan anggaran: 17.4%</span>
+<span class="text-on-tertiary-container font-semibold">Net Surplus: Rp 40.450.000</span>
+</div>
+</div>
+</div>
+<!-- Breakdown Multi-Pos Saldo Kas -->
+<div class="mt-space-md">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold block mb-space-sm">
+            Rincian Pos Likuiditas Kas Aktif
+          </span>
+<div class="space-y-2">
+<div class="flex items-center justify-between p-2 rounded-lg bg-surface-container-lowest hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span class="font-label-md text-label-md text-on-surface">Kas Umum Operasional</span>
+</div>
+<span class="font-label-md text-label-md font-mono font-bold text-on-surface">Rp 64.250.000</span>
+</div>
+<div class="flex items-center justify-between p-2 rounded-lg bg-surface-container-lowest hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="font-label-md text-label-md text-on-surface">Kas Pembangunan Pastori II</span>
+</div>
+<span class="font-label-md text-label-md font-mono font-bold text-on-surface">Rp 58.400.000</span>
+</div>
+<div class="flex items-center justify-between p-2 rounded-lg bg-surface-container-lowest hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-on-tertiary-container"></span>
+<span class="font-label-md text-label-md text-on-surface">Kas Pelayanan Diakonia &amp; Kasih</span>
+</div>
+<span class="font-label-md text-label-md font-mono font-bold text-on-surface">Rp 18.500.000</span>
+</div>
+<div class="flex items-center justify-between p-2 rounded-lg bg-surface-container-lowest hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-outline"></span>
+<span class="font-label-md text-label-md text-on-surface">Kas 5 Badan Pembantu Kategorial</span>
+</div>
+<span class="font-label-md text-label-md font-mono font-bold text-on-surface">Rp 7.500.000</span>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-space-md pt-space-sm flex items-center justify-between font-label-sm text-label-sm text-on-surface-variant">
+<span>Auditor: BPPJ Jemaat Lahairoi</span>
+<a class="text-primary hover:underline font-semibold flex items-center gap-1" href="#">
+          Buku Kas Digital <span class="material-symbols-outlined text-xs">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+<!-- Row 3: Tren Kehadiran Ibadah & Pastoral Care Engagement -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg mb-space-xl">
+<!-- Visual Tren Kehadiran 4 Pekan Terakhir (7 cols) -->
+<div class="lg:col-span-7 bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-space-md">
+<div>
+<h2 class="font-headline-sm text-headline-sm text-primary">Tren Kehadiran Ibadah Mingguan</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Statistik 4 pekan terakhir (Kebaktian I, II, dan Ibadah Rayon)</p>
+</div>
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center gap-1 px-space-sm py-1 bg-surface-container-low rounded-lg text-primary font-label-md text-label-md font-bold">
+<span class="material-symbols-outlined text-sm">trending_up</span> Naik Bertahap
+            </span>
+</div>
+</div>
+<!-- Inline SVG Visualization: Church Attendance Chart -->
+<div class="w-full bg-surface-container-low/40 rounded-xl p-space-md my-space-sm">
+<div class="h-48 w-full flex items-end justify-between gap-4 px-2 pt-6">
+<!-- Week 1 -->
+<div class="flex-1 flex flex-col items-center gap-2 group">
+<span class="font-label-sm text-label-sm font-mono text-on-surface-variant group-hover:text-primary transition-colors">790</span>
+<div class="w-full max-w-[48px] bg-primary/20 hover:bg-primary/40 rounded-t-lg transition-all duration-300" style="height: 120px;"></div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Minggu I</span>
+</div>
+<!-- Week 2 -->
+<div class="flex-1 flex flex-col items-center gap-2 group">
+<span class="font-label-sm text-label-sm font-mono text-on-surface-variant group-hover:text-primary transition-colors">815</span>
+<div class="w-full max-w-[48px] bg-primary/40 hover:bg-primary/60 rounded-t-lg transition-all duration-300" style="height: 136px;"></div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Minggu II</span>
+</div>
+<!-- Week 3 -->
+<div class="flex-1 flex flex-col items-center gap-2 group">
+<span class="font-label-sm text-label-sm font-mono text-on-surface-variant group-hover:text-primary transition-colors">830</span>
+<div class="w-full max-w-[48px] bg-primary-container hover:bg-primary rounded-t-lg transition-all duration-300" style="height: 148px;"></div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Minggu III</span>
+</div>
+<!-- Week 4 -->
+<div class="flex-1 flex flex-col items-center gap-2 group">
+<span class="font-label-sm text-label-sm font-mono text-primary font-bold">842</span>
+<div class="w-full max-w-[48px] bg-primary rounded-t-lg shadow-sm transition-all duration-300" style="height: 160px;"></div>
+<span class="font-label-sm text-label-sm font-bold text-primary">Minggu IV</span>
+</div>
+</div>
+</div>
+<!-- Pastoral Analytics Insight Banner -->
+<div class="p-space-md rounded-xl bg-surface-container-low flex items-start gap-space-sm mt-space-sm">
+<span class="material-symbols-outlined text-secondary text-xl shrink-0 mt-0.5">lightbulb</span>
+<div class="font-body-sm text-body-sm text-on-surface">
+<span class="font-semibold text-secondary">Catatan Liturgis &amp; Presbiter:</span>
+            Kebaktian Utama I (Pagi) mengalami lonjakan jemaat usia produktif; Ibadah Rayon 1 (Getsemani) &amp; Rayon 4 (Galilea) mencatat rekor kehadiran tertinggi selama bulan berjalan.
+          </div>
+</div>
+</div>
+<!-- Quick Link to Liturgy Schedule -->
+<div class="pt-space-md flex items-center justify-between font-label-md text-label-md">
+<span class="text-on-surface-variant">Tertib Ibadah Minggu Mendatang: Liturgi Epifani</span>
+<button class="px-space-md py-1.5 rounded-lg bg-surface-container-high hover:bg-primary hover:text-on-primary text-on-surface transition-all">
+          Lihat Jadwal Pelayan
+        </button>
+</div>
+</div>
+<!-- Fellowship Pastoral Widgets & Ulang Tahun Jemaat (5 cols) -->
+<div class="lg:col-span-5 flex flex-col gap-space-md">
+<!-- Widget 1: Warga Berulang Tahun Pekan Ini -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between pb-space-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">cake</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Ulang Tahun Pekan Ini</h3>
+</div>
+<span class="px-space-xs py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-bold">
+              4 Warga
+            </span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-space-sm">
+            Disiapkan untuk Warta Jemaat &amp; Doa Syafaat Mimbar
+          </p>
+<div class="space-y-space-xs">
+<!-- Member 1 -->
+<div class="p-2.5 rounded-lg bg-surface-container-low hover:bg-surface-container transition-colors flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-secondary/10 text-secondary flex items-center justify-center font-label-md text-label-md font-bold">
+                  SB
+                </div>
+<div>
+<div class="font-label-md text-label-md text-on-surface font-bold">Oma Sarah Bire-Kolo</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">78 Tahun • Rayon 5 Kapernaum</div>
+</div>
+</div>
+<button class="p-1.5 rounded-lg bg-surface-container-lowest text-primary hover:bg-primary hover:text-on-primary transition-colors cursor-pointer shadow-sm" title="Kirim Doa Pastoral">
+<span class="material-symbols-outlined text-base">send</span>
+</button>
+</div>
+<!-- Member 2 -->
+<div class="p-2.5 rounded-lg bg-surface-container-low hover:bg-surface-container transition-colors flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-label-md text-label-md font-bold">
+                  MD
+                </div>
+<div>
+<div class="font-label-md text-label-md text-on-surface font-bold">Markus Dethan</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">21 Tahun • Rayon 1 Getsemani</div>
+</div>
+</div>
+<button class="p-1.5 rounded-lg bg-surface-container-lowest text-primary hover:bg-primary hover:text-on-primary transition-colors cursor-pointer shadow-sm" title="Kirim Doa Pastoral">
+<span class="material-symbols-outlined text-base">send</span>
+</button>
+</div>
+<!-- Member 3 -->
+<div class="p-2.5 rounded-lg bg-surface-container-low hover:bg-surface-container transition-colors flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-tertiary-fixed text-on-tertiary-fixed flex items-center justify-center font-label-md text-label-md font-bold">
+                  DT
+                </div>
+<div>
+<div class="font-label-md text-label-md text-on-surface font-bold">Debora Therik (PAR)</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">9 Tahun • Rayon 4 Galilea</div>
+</div>
+</div>
+<button class="p-1.5 rounded-lg bg-surface-container-lowest text-primary hover:bg-primary hover:text-on-primary transition-colors cursor-pointer shadow-sm" title="Kirim Doa Pastoral">
+<span class="material-symbols-outlined text-base">send</span>
+</button>
+</div>
+<!-- Member 4 -->
+<div class="p-2.5 rounded-lg bg-surface-container-low hover:bg-surface-container transition-colors flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest text-on-surface flex items-center justify-center font-label-md text-label-md font-bold">
+                  DM
+                </div>
+<div>
+<div class="font-label-md text-label-md text-on-surface font-bold">Bpk. Daniel Mangi</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">52 Tahun • Rayon 2 Golgota</div>
+</div>
+</div>
+<button class="p-1.5 rounded-lg bg-surface-container-lowest text-primary hover:bg-primary hover:text-on-primary transition-colors cursor-pointer shadow-sm" title="Kirim Doa Pastoral">
+<span class="material-symbols-outlined text-base">send</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Widget 2: Status Agenda Strategis Majelis -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm">
+<div class="flex items-center justify-between mb-space-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-xl">event_available</span>
+<span class="font-label-lg text-label-lg font-bold text-primary">Agenda Strategis Presbiter</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Maret - April 2025</span>
+</div>
+<div class="space-y-2">
+<div class="p-2.5 rounded-lg bg-surface-container-low flex items-center justify-between">
+<div class="space-y-0.5">
+<div class="font-label-md text-label-md text-on-surface font-semibold">Rapat Evaluasi Triwulanan BPPJ</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">28 Maret 2025 • Ruang Konsistori</div>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-semibold">Persiapan</span>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container-low flex items-center justify-between">
+<div class="space-y-0.5">
+<div class="font-label-md text-label-md text-on-surface font-semibold">Sidang Majelis Klasis Kota Kupang Timur</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">05 April 2025 • Utusan Lahairoi Siap</div>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-highest text-on-surface font-label-sm text-label-sm font-semibold">Terjadwal</span>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container-low flex items-center justify-between">
+<div class="space-y-0.5">
+<div class="font-label-md text-label-md text-on-surface font-semibold">Perjamuan Kudus Triwulan II</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">18 April 2025 • Jumat Agung</div>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm font-semibold">Liturgi Siap</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Notification Bar: Status Sinkronisasi Real-Time -->
+<div class="w-full p-space-md rounded-xl bg-surface-container-lowest shadow-sm flex flex-col sm:flex-row items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-md">
+<div class="w-10 h-10 rounded-full bg-tertiary-fixed text-on-tertiary-fixed flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined">cloud_done</span>
+</div>
+<div>
+<div class="font-label-md text-label-md text-on-surface font-bold">
+          Sistem Informasi Administrasi Presbiterial Terintegrasi (SIAP-GMIT)
+        </div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">
+          Pembaruan basis data terakhir: Hari ini, pukul 08:30 WITA oleh Tata Usaha Jemaat Lahairoi.
+        </div>
+</div>
+</div>
+<div class="flex items-center gap-space-sm shrink-0">
+<button class="px-space-md py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high font-label-md text-label-md text-on-surface transition-colors">
+        Log Audit Keuangan
+      </button>
+<button class="px-space-md py-1.5 rounded-lg bg-primary text-on-primary hover:bg-primary-container font-label-md text-label-md transition-colors">
+        Unduh Warta Jemaat Mingguan
+      </button>
+</div>
+</div>
+</div>
+<script>
+  // Simple micro-interaction for the Quick Refresh button
+  const btnRefresh = document.getElementById('btn-refresh');
+  if (btnRefresh) {
+    btnRefresh.addEventListener('click', () => {
+      const icon = btnRefresh.querySelector('.material-symbols-outlined');
+      if (icon) {
+        icon.classList.add('animate-spin');
+        setTimeout(() => {
+          icon.classList.remove('animate-spin');
+        }, 800);
+      }
+    });
+  }
+</script></main></div></body></html>

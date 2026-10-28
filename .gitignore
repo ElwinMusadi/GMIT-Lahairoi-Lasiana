@@ -32,3 +32,6 @@ dist-ssr
 
 # Screenshot & laporan inspector design-taste-frontend (arah desain di .taste-skill/*.json tetap dilacak)
 .taste-skill/inspect*/
+
+# Screenshot referensi desain dari Google Stitch (HTML + manifest tetap dilacak)
+design/stitch/*.png

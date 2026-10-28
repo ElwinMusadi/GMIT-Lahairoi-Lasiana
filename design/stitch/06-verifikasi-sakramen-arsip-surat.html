@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+
+<html lang="id"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"tertiary":"#003120","surface":"#faf8ff","tertiary-fixed-dim":"#68dba9","secondary-fixed":"#ffdcc3","primary-container":"#1e3a8a","surface-container-low":"#f2f3ff","on-tertiary-container":"#4ac08f","secondary-container":"#fe932c","primary":"#00236f","on-secondary":"#ffffff","on-secondary-fixed":"#2f1500","tertiary-container":"#004a32","error-container":"#ffdad6","surface-container-lowest":"#ffffff","on-primary-container":"#90a8ff","on-secondary-container":"#663500","outline-variant":"#c5c5d3","outline":"#757682","secondary":"#904d00","on-tertiary-fixed":"#002114","on-primary-fixed":"#00164e","on-primary-fixed-variant":"#264191","on-tertiary":"#ffffff","tertiary-fixed":"#85f8c4","inverse-primary":"#b6c4ff","inverse-surface":"#283044","background":"#faf8ff","surface-container":"#eaedff","surface-container-high":"#e2e7ff","error":"#ba1a1a","on-background":"#131b2e","on-surface-variant":"#444651","on-tertiary-fixed-variant":"#005137","inverse-on-surface":"#eef0ff","surface-tint":"#4059aa","primary-fixed-dim":"#b6c4ff","surface-dim":"#d2d9f4","surface-container-highest":"#dae2fd","on-primary":"#ffffff","on-secondary-fixed-variant":"#6e3900","secondary-fixed-dim":"#ffb77d","on-error":"#ffffff","surface-bright":"#faf8ff","on-surface":"#131b2e","on-error-container":"#93000a","surface-variant":"#dae2fd","primary-fixed":"#dce1ff"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"space-sm":"0.5rem","space-lg":"1.5rem","space-md":"1rem","margin":"2rem","margin-mobile":"1rem","space-xs":"0.25rem","gutter-mobile":"1rem","gutter":"1.5rem","space-xl":"2.5rem"},"fontFamily":{"label-md":["Inter"],"headline-lg":["Plus Jakarta Sans"],"headline-xl":["Plus Jakarta Sans"],"body-md":["Inter"],"headline-lg-mobile":["Plus Jakarta Sans"],"label-sm":["Inter"],"headline-md":["Plus Jakarta Sans"],"body-sm":["Inter"],"headline-sm":["Plus Jakarta Sans"],"headline-xl-mobile":["Plus Jakarta Sans"],"body-lg":["Inter"],"label-lg":["Inter"]},"fontSize":{"label-md":["0.75rem",{"lineHeight":"1rem","fontWeight":"600"}],"headline-lg":["2rem",{"lineHeight":"2.5rem","fontWeight":"700"}],"headline-xl":["2.5rem",{"lineHeight":"3rem","fontWeight":"700"}],"body-md":["1rem",{"lineHeight":"1.5rem","fontWeight":"400"}],"headline-lg-mobile":["1.5rem",{"lineHeight":"2rem","fontWeight":"700"}],"label-sm":["0.6875rem",{"lineHeight":"0.875rem","fontWeight":"500"}],"headline-md":["1.5rem",{"lineHeight":"2rem","fontWeight":"600"}],"body-sm":["0.875rem",{"lineHeight":"1.25rem","fontWeight":"400"}],"headline-sm":["1.25rem",{"lineHeight":"1.75rem","fontWeight":"600"}],"headline-xl-mobile":["1.875rem",{"lineHeight":"2.25rem","fontWeight":"700"}],"body-lg":["1.125rem",{"lineHeight":"1.75rem","fontWeight":"400"}],"label-lg":["0.875rem",{"lineHeight":"1.25rem","fontWeight":"600"}]}}}};</script></head><body class="bg-background font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-72 bg-surface-container-lowest z-50 flex flex-col shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="p-space-lg flex items-center gap-space-md"><div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-on-primary font-headline-md text-headline-md shadow-sm"><span class="material-symbols-outlined text-[24px]">church</span></div><div class="flex flex-col min-w-0"><span class="font-headline-sm text-headline-sm text-primary truncate leading-tight">GMIT Lahairoi</span><span class="font-label-sm text-label-sm text-on-surface-variant truncate">Tuak Sabu Lasiana</span></div></div><div class="px-space-lg pb-space-sm"><div class="flex items-center gap-space-xs bg-surface-container-high px-space-sm py-space-xs rounded-full w-fit"><span class="w-2 h-2 rounded-full bg-secondary"></span><span class="font-label-sm text-label-sm text-on-surface uppercase tracking-wider font-semibold">Klasis Kota Kupang Timur</span></div></div><nav class="flex-1 px-space-md py-space-md flex flex-col gap-space-xs overflow-y-auto" data-active-classes="bg-primary-container text-on-primary font-label-lg rounded-xl"><a class="flex items-center gap-space-md px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-label-lg text-label-lg" data-path="database-jemaat" href="#"><span class="material-symbols-outlined text-[20px]">groups</span>Database Jemaat</a><a class="flex items-center gap-space-md px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-label-lg text-label-lg" data-path="keuangan-multi-pos" href="#"><span class="material-symbols-outlined text-[20px]">account_balance_wallet</span>Keuangan Multi-Pos</a><a class="flex items-center gap-space-md px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-label-lg text-label-lg" data-path="jadwal-dan-pelayan-ibadah" href="#"><span class="material-symbols-outlined text-[20px]">menu_book</span>Jadwal &amp; Pelayan Ibadah</a><a aria-current="page" class="flex items-center gap-space-md px-space-md py-space-sm transition-colors bg-primary-container text-on-primary font-label-lg rounded-xl" data-path="verifikasi-sakramen-dan-arsip-surat" href="#"><span class="material-symbols-outlined text-[20px]">verified</span>Verifikasi Sakramen &amp; Arsip</a><a class="flex items-center gap-space-md px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-label-lg text-label-lg" data-path="pengaturan" href="#"><span class="material-symbols-outlined text-[20px]">settings</span>Pengaturan</a></nav><div class="p-space-md m-space-md bg-surface-container-low rounded-xl flex items-center justify-between"><div class="flex flex-col"><span class="font-label-sm text-label-sm text-on-surface-variant">Tahun Gerejawi</span><span class="font-label-md text-label-md text-primary font-bold">Trinitas / Biasa</span></div><span class="material-symbols-outlined text-secondary text-[20px]">calendar_month</span></div></aside><div class="pl-72"><header class="fixed top-0 left-72 right-0 h-16 bg-surface/85 backdrop-blur-xl z-40 shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 w-full px-space-lg flex items-center justify-between"><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs text-on-surface-variant font-label-md text-label-md"><span class="material-symbols-outlined text-[18px]">home_pin</span><span>Rayon I - VII Lasiana</span></div></div><div class="flex items-center gap-space-md"><button class="w-9 h-9 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span></button><div class="h-6 w-px bg-surface-container-high"></div><div class="flex items-center gap-space-sm text-left"><div class="flex flex-col text-right"><span class="font-label-md text-label-md text-on-surface font-semibold">Pdt. E. Messakh, M.Th</span><span class="font-label-sm text-label-sm text-on-surface-variant">Pendeta / Admin Presbiter</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></div></header><main class="relative pt-16 w-full px-space-lg pb-space-xl bg-background min-h-screen"><div class="flex flex-col w-full gap-space-lg">
+<!-- Header Section with Liturgical Accent Spine and Quick Actions -->
+<div class="relative bg-surface-container-lowest rounded-xl shadow-sm p-space-lg overflow-hidden">
+<div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-primary-container to-secondary"></div>
+<div class="flex flex-col xl:flex-row xl:items-center justify-between gap-space-md pt-space-xs">
+<div class="flex flex-col gap-space-xs max-w-3xl">
+<div class="flex items-center gap-space-sm flex-wrap">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-surface-container text-primary font-label-sm text-label-sm font-semibold tracking-wide uppercase">
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+            Sekretariat &amp; Konsistori Majelis Jemaat
+          </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-secondary">verified_user</span>
+            Buku Induk Sah GMIT Lahairoi Tuak Sabu Lasiana
+          </span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-primary tracking-tight">Verifikasi Sakramen, Buku Induk &amp; Arsip Surat Gereja</h1>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+          Pengelolaan antrean pendaftaran baptis, sidi, dan nikah warga Rayon I–VII, register nomor sah gerejawi, serta buku agenda persuratan presbiterial Sinode &amp; Klasis Kota Kupang Timur.
+        </p>
+</div>
+<!-- Quick Action Group -->
+<div class="flex flex-wrap items-center gap-space-sm xl:self-start">
+<button class="inline-flex items-center gap-2 px-space-md py-2.5 bg-surface-container-low hover:bg-surface-container text-on-surface rounded-lg font-label-lg text-label-lg transition-colors shadow-sm" id="btn-open-surat-modal">
+<span class="material-symbols-outlined text-[20px] text-primary">post_add</span>
+<span>+ Catat Surat</span>
+</button>
+<button class="inline-flex items-center gap-2 px-space-md py-2.5 bg-surface-container-low hover:bg-surface-container text-on-surface rounded-lg font-label-lg text-label-lg transition-colors shadow-sm" id="btn-open-entri-modal">
+<span class="material-symbols-outlined text-[20px] text-secondary">menu_book</span>
+<span>+ Entri Buku Induk</span>
+</button>
+<button class="inline-flex items-center gap-2 px-space-md py-2.5 bg-primary hover:bg-on-primary-fixed text-on-primary rounded-lg font-label-lg text-label-lg shadow-sm transition-all hover:shadow" onclick="window.print()">
+<span class="material-symbols-outlined text-[20px]">print</span>
+<span>Cetak Rekap Tahunan</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Key Metrics Bar -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md">
+<!-- Stat 1 -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm relative overflow-hidden flex flex-col justify-between">
+<div class="absolute -right-3 -bottom-3 text-surface-container-low pointer-events-none opacity-60">
+<span class="material-symbols-outlined text-[80px]">how_to_reg</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md uppercase tracking-wider text-on-surface-variant font-semibold">Antrean Verifikasi</span>
+<span class="w-8 h-8 rounded-lg bg-surface-container-low text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">pending_actions</span>
+</span>
+</div>
+<div class="mt-space-sm">
+<div class="flex items-baseline gap-2">
+<span class="font-headline-xl text-headline-xl text-primary font-bold">6</span>
+<span class="font-label-lg text-label-lg text-on-surface-variant">Pengajuan</span>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-1 flex items-center gap-1">
+<span class="text-secondary font-semibold">4 Baptis</span> • 1 Sidi • 1 Nikah
+        </p>
+</div>
+<div class="mt-space-sm pt-space-xs flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
+<span class="text-tertiary font-medium">● 2 Butuh Konfirmasi Cepat</span>
+<span class="font-semibold text-primary">Rayon I-IV</span>
+</div>
+</div>
+<!-- Stat 2 -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm relative overflow-hidden flex flex-col justify-between">
+<div class="absolute -right-3 -bottom-3 text-surface-container-low pointer-events-none opacity-60">
+<span class="material-symbols-outlined text-[80px]">handshake</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md uppercase tracking-wider text-on-surface-variant font-semibold">Sesi Penggembalaan</span>
+<span class="w-8 h-8 rounded-lg bg-surface-container-low text-secondary flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">diversity_3</span>
+</span>
+</div>
+<div class="mt-space-sm">
+<div class="flex items-baseline gap-2">
+<span class="font-headline-xl text-headline-xl text-on-surface font-bold">3</span>
+<span class="font-label-lg text-label-lg text-on-surface-variant">Keluarga / Pasangan</span>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-1">
+          Jadwal pastoral minggu berjalan (Konsistori)
+        </p>
+</div>
+<div class="mt-space-sm pt-space-xs flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
+<span class="text-on-surface">Sabtu, 26 Apr: 2 Sesi</span>
+<span class="font-medium text-secondary">Pdt. E. Messakh</span>
+</div>
+</div>
+<!-- Stat 3 -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm relative overflow-hidden flex flex-col justify-between">
+<div class="absolute -right-3 -bottom-3 text-surface-container-low pointer-events-none opacity-60">
+<span class="material-symbols-outlined text-[80px]">auto_stories</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md uppercase tracking-wider text-on-surface-variant font-semibold">Terbit Buku Induk 2025</span>
+<span class="w-8 h-8 rounded-lg bg-surface-container-low text-tertiary flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">workspace_premium</span>
+</span>
+</div>
+<div class="mt-space-sm">
+<div class="flex items-baseline gap-2">
+<span class="font-headline-xl text-headline-xl text-tertiary font-bold">48</span>
+<span class="font-label-lg text-label-lg text-on-surface-variant">Akta Resmi Sah</span>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-1">
+          Nomor Register LTSL tersinkronisasi
+        </p>
+</div>
+<div class="mt-space-sm pt-space-xs flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
+<span class="text-tertiary font-medium">98% Lengkap Akta Sipil</span>
+<span>Arsip 100% Valid</span>
+</div>
+</div>
+<!-- Stat 4 -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm relative overflow-hidden flex flex-col justify-between">
+<div class="absolute -right-3 -bottom-3 text-surface-container-low pointer-events-none opacity-60">
+<span class="material-symbols-outlined text-[80px]">forward_to_inbox</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md uppercase tracking-wider text-on-surface-variant font-semibold">Arsip Persuratan</span>
+<span class="w-8 h-8 rounded-lg bg-surface-container-low text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">mark_email_read</span>
+</span>
+</div>
+<div class="mt-space-sm">
+<div class="flex items-baseline gap-2">
+<span class="font-headline-xl text-headline-xl text-on-surface font-bold">34</span>
+<span class="font-label-lg text-label-lg text-on-surface-variant">Dokumen Aktif</span>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-1">
+          19 Surat Masuk • 15 Surat Keluar
+        </p>
+</div>
+<div class="mt-space-sm pt-space-xs flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
+<span class="text-primary font-medium">2 Atestasi Menunggu Disposisi</span>
+<span>Klasis Kupang Timur</span>
+</div>
+</div>
+</div>
+<!-- SECTION 2: Antrean & Verifikasi Layanan Pastoral (Table + Workflow Drawer) -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-space-lg">
+<!-- Table & Filtering (8 cols or 12 depending on sidebar) -->
+<div class="xl:col-span-8 flex flex-col gap-space-md">
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-lg flex flex-col gap-space-md">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm pb-space-xs">
+<div>
+<h2 class="font-headline-md text-headline-md text-primary flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">checklist_rtl</span>
+              Antrean Verifikasi Sakramen &amp; Surat Pengantar
+            </h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Daftar permohonan sakramen dari Rayon I - VII yang memerlukan telaah tata gereja &amp; persetujuan presbiter.</p>
+</div>
+<!-- Filter Tab Pills -->
+<div class="flex items-center gap-1 bg-surface-container-low p-1 rounded-xl self-start sm:self-auto overflow-x-auto max-w-full">
+<button class="px-3 py-1.5 rounded-lg bg-surface-container-lowest text-primary font-label-sm text-label-sm shadow-sm font-semibold whitespace-nowrap">Semua (6)</button>
+<button class="px-3 py-1.5 rounded-lg text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm font-medium whitespace-nowrap">Baptisan Kudus (4)</button>
+<button class="px-3 py-1.5 rounded-lg text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm font-medium whitespace-nowrap">Sidi (1)</button>
+<button class="px-3 py-1.5 rounded-lg text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm font-medium whitespace-nowrap">Nikah (1)</button>
+</div>
+</div>
+<!-- Table Container -->
+<div class="overflow-x-auto rounded-xl">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low text-on-surface-variant font-label-md text-label-md uppercase tracking-wider">
+<th class="py-3.5 px-4 font-semibold">No. Registrasi</th>
+<th class="py-3.5 px-4 font-semibold">Pemohon &amp; Rayon</th>
+<th class="py-3.5 px-4 font-semibold">Layanan Sakramen</th>
+<th class="py-3.5 px-4 font-semibold">Kelengkapan Berkas</th>
+<th class="py-3.5 px-4 font-semibold">Status Alur Pastoral</th>
+<th class="py-3.5 px-4 font-semibold text-right">Aksi Tindakan</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container font-body-sm text-body-sm">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-low/60 transition-colors group cursor-pointer" onclick="selectRegistration('BPT-2025-0042')">
+<td class="py-3.5 px-4 font-semibold text-primary">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span>BPT-2025-0042</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant block mt-0.5">21 Apr 2025</span>
+</td>
+<td class="py-3.5 px-4">
+<p class="font-semibold text-on-surface">Abigail Seraphina Messakh</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-primary">location_on</span>
+                    Rayon 1 Getsemani (Kel. Messakh-Bunga)
+                  </p>
+</td>
+<td class="py-3.5 px-4">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-[14px]">water_drop</span>
+                    Baptisan Kudus Anak
+                  </span>
+</td>
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-1 text-tertiary">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+<span class="font-label-sm text-label-sm font-semibold">Lengkap (3/3)</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Akta Lahir, Akta Nikah, Surat Sidi</span>
+</td>
+<td class="py-3.5 px-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                    Penggembalaan Ortu (Sabtu, 26 Apr)
+                  </span>
+</td>
+<td class="py-3.5 px-4 text-right">
+<div class="flex items-center justify-end gap-1.5">
+<button class="p-1.5 text-primary hover:bg-surface-container rounded-lg transition-colors" title="Lihat Berkas" type="button">
+<span class="material-symbols-outlined text-[20px]">folder_open</span>
+</button>
+<button class="px-2.5 py-1 bg-primary text-on-primary rounded-lg font-label-sm text-label-sm hover:bg-on-primary-fixed transition-colors" type="button">
+                      Setujui
+                    </button>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-low/60 transition-colors group cursor-pointer" onclick="selectRegistration('BPT-2025-0043')">
+<td class="py-3.5 px-4 font-semibold text-primary">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-surface-variant"></span>
+<span>BPT-2025-0043</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant block mt-0.5">22 Apr 2025</span>
+</td>
+<td class="py-3.5 px-4">
+<p class="font-semibold text-on-surface">Marvelino Ndun</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-primary">location_on</span>
+                    Rayon 4 Galilea (Kel. Ndun-Kause)
+                  </p>
+</td>
+<td class="py-3.5 px-4">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-[14px]">water_drop</span>
+                    Baptisan Kudus Anak
+                  </span>
+</td>
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-1 text-secondary">
+<span class="material-symbols-outlined text-[18px]">pending</span>
+<span class="font-label-sm text-label-sm font-semibold">Kurang (2/3)</span>
+</div>
+<span class="font-label-sm text-label-sm text-error">Belum Upload Akta Nikah Ortu</span>
+</td>
+<td class="py-3.5 px-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-outline"></span>
+                    Menunggu Verifikasi TU
+                  </span>
+</td>
+<td class="py-3.5 px-4 text-right">
+<div class="flex items-center justify-end gap-1.5">
+<button class="px-2.5 py-1 bg-surface-container-low hover:bg-surface-container text-on-surface rounded-lg font-label-sm text-label-sm transition-colors" type="button">
+                      Periksa Syarat
+                    </button>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-low/60 transition-colors group cursor-pointer" onclick="selectRegistration('SDI-2025-0012')">
+<td class="py-3.5 px-4 font-semibold text-primary">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+<span>SDI-2025-0012</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant block mt-0.5">18 Apr 2025</span>
+</td>
+<td class="py-3.5 px-4">
+<p class="font-semibold text-on-surface">Markus Dethan</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-primary">location_on</span>
+                    Rayon 1 Getsemani (Kel. Dethan-Kore)
+                  </p>
+</td>
+<td class="py-3.5 px-4">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-high text-tertiary font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-[14px]">auto_stories</span>
+                    Peneguhan Sidi Remaja
+                  </span>
+</td>
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-1 text-tertiary">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+<span class="font-label-sm text-label-sm font-semibold">Lengkap (4/4)</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Surat Baptis, Nilai Katekisasi A</span>
+</td>
+<td class="py-3.5 px-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+                    Lulus Ujian Katekisasi
+                  </span>
+</td>
+<td class="py-3.5 px-4 text-right">
+<div class="flex items-center justify-end gap-1.5">
+<button class="px-2.5 py-1 bg-tertiary hover:bg-tertiary-container text-on-tertiary rounded-lg font-label-sm text-label-sm transition-colors flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[16px]">print</span>
+                      Cetak Surat Sidi
+                    </button>
+</div>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container-low/60 transition-colors group cursor-pointer" onclick="selectRegistration('NKH-2025-0005')">
+<td class="py-3.5 px-4 font-semibold text-primary">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span>NKH-2025-0005</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant block mt-0.5">14 Apr 2025</span>
+</td>
+<td class="py-3.5 px-4">
+<p class="font-semibold text-on-surface">Daniel R. Balle &amp; Maria C. Tuka</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-primary">location_on</span>
+                    Rayon 2 Golgota • GMIT LTSL &amp; Klasis Amarasi
+                  </p>
+</td>
+<td class="py-3.5 px-4">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-high text-secondary font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-[14px]">favorite</span>
+                    Pemberkatan Nikah Kudus
+                  </span>
+</td>
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-1 text-tertiary">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+<span class="font-label-sm text-label-sm font-semibold">Lengkap (6/6)</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Surat Atestasi Asal, Ket. Belum Nikah</span>
+</td>
+<td class="py-3.5 px-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                    Warta Nikah II Berjalan
+                  </span>
+</td>
+<td class="py-3.5 px-4 text-right">
+<div class="flex items-center justify-end gap-1.5">
+<button class="px-2.5 py-1 bg-primary text-on-primary rounded-lg font-label-sm text-label-sm hover:bg-on-primary-fixed transition-colors" type="button">
+                      Kesiapan Konsistori
+                    </button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="flex items-center justify-between pt-space-xs text-on-surface-variant font-label-sm text-label-sm">
+<span>Menampilkan 4 dari 6 antrean aktif</span>
+<div class="flex items-center gap-2">
+<button class="px-2.5 py-1 rounded bg-surface-container-low hover:bg-surface-container font-semibold">Sebelumnya</button>
+<button class="px-2.5 py-1 rounded bg-primary text-on-primary font-semibold">1</button>
+<button class="px-2.5 py-1 rounded bg-surface-container-low hover:bg-surface-container font-semibold">Selanjutnya</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Pastoral Verification Stepper & Checklist Flyout Card (4 cols) -->
+<div class="xl:col-span-4 flex flex-col gap-space-md">
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-lg flex flex-col gap-space-md h-full">
+<div class="flex items-center justify-between pb-space-xs">
+<div class="flex items-center gap-2">
+<span class="w-8 h-8 rounded-lg bg-primary text-on-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+</span>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-primary">Detail Verifikasi Berkas</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Reg: <span class="font-bold text-on-surface" id="current-reg-code">BPT-2025-0042</span></p>
+</div>
+</div>
+<span class="px-2.5 py-1 rounded-full bg-surface-container text-primary font-label-sm text-label-sm font-bold">Rayon 1</span>
+</div>
+<!-- Candidate Overview Box -->
+<div class="bg-surface-container-low p-space-md rounded-xl flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Calon Baptisan / Subjek</span>
+<p class="font-headline-sm text-headline-sm text-on-surface font-semibold" id="detail-name">Abigail Seraphina Messakh</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Lahir: Kupang, 12 Januari 2025 (3 Bulan)</p>
+<div class="mt-2 pt-2 flex flex-col gap-1 text-on-surface-variant font-label-sm text-label-sm">
+<div class="flex justify-between">
+<span>Orang Tua:</span>
+<span class="font-semibold text-on-surface">Markus Messakh &amp; Rut Bunga</span>
+</div>
+<div class="flex justify-between">
+<span>Pelayan Pelaksana:</span>
+<span class="font-semibold text-primary">Pdt. E. Messakh, M.Th</span>
+</div>
+<div class="flex justify-between">
+<span>Jadwal Sakramen:</span>
+<span class="font-semibold text-secondary">Minggu IV, 27 Apr 2025 (Kebaktian I)</span>
+</div>
+</div>
+</div>
+<!-- Workflow Pastoral Stepper -->
+<div class="flex flex-col gap-space-sm pt-space-xs">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-semibold">Alur Kelayakan Pastoral Sinodal</span>
+<div class="space-y-3 relative pl-6 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-surface-container-high">
+<!-- Step 1 Complete -->
+<div class="relative">
+<span class="absolute -left-6 top-0.5 w-4 h-4 rounded-full bg-tertiary text-on-tertiary flex items-center justify-center text-[10px]">
+<span class="material-symbols-outlined text-[12px]">check</span>
+</span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-semibold text-on-surface">1. Pendaftaran &amp; Sensus Rayon</span>
+<span class="font-label-sm text-label-sm text-tertiary">Terdaftar di Buku Induk KK No. 102/R1/2021</span>
+</div>
+</div>
+<!-- Step 2 Complete -->
+<div class="relative">
+<span class="absolute -left-6 top-0.5 w-4 h-4 rounded-full bg-tertiary text-on-tertiary flex items-center justify-center text-[10px]">
+<span class="material-symbols-outlined text-[12px]">check</span>
+</span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-semibold text-on-surface">2. Kelengkapan Berkas Sipil &amp; Gereja</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Akta Capil No. 5371-LT-2025-00129</span>
+</div>
+</div>
+<!-- Step 3 Active -->
+<div class="relative">
+<span class="absolute -left-6 top-0.5 w-4 h-4 rounded-full bg-secondary text-on-secondary flex items-center justify-center text-[10px] ring-4 ring-secondary-fixed">
+<span class="material-symbols-outlined text-[12px]">sync</span>
+</span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-bold text-secondary">3. Penggembalaan Orang Tua &amp; Saksi</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Konsistori Pastori: Sabtu 26 Apr, 16.00 WITA</span>
+</div>
+</div>
+<!-- Step 4 Pending -->
+<div class="relative">
+<span class="absolute -left-6 top-0.5 w-4 h-4 rounded-full bg-surface-container-high text-on-surface-variant flex items-center justify-center text-[10px]">
+                4
+              </span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-semibold text-on-surface-variant">4. Warta Jemaat &amp; Pelayanan Altar</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Warta I: 20 Apr | Layanan: 27 Apr</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Checklist Persyaratan Gerejawi -->
+<div class="flex flex-col gap-space-xs pt-space-xs">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-semibold">Checklist Dokumen Fisik &amp; Digital</span>
+<div class="space-y-2">
+<label class="flex items-center gap-space-sm p-2 rounded-lg bg-surface-container-low hover:bg-surface-container cursor-pointer transition-colors">
+<input checked="" class="w-4 h-4 text-primary rounded accent-primary" type="checkbox"/>
+<div class="flex-1">
+<p class="font-label-md text-label-md text-on-surface">Surat Pengantar Presbiter Rayon I</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Ditandatangani Koordinator Rayon (Pnt. Y. Taebenu)</p>
+</div>
+<span class="material-symbols-outlined text-[18px] text-tertiary">check_circle</span>
+</label>
+<label class="flex items-center gap-space-sm p-2 rounded-lg bg-surface-container-low hover:bg-surface-container cursor-pointer transition-colors">
+<input checked="" class="w-4 h-4 text-primary rounded accent-primary" type="checkbox"/>
+<div class="flex-1">
+<p class="font-label-md text-label-md text-on-surface">Kutipan Akta Nikah Gerejawi Ortu</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">GMIT LTSL 2021 No. 018/SN-GMIT/2021</p>
+</div>
+<span class="material-symbols-outlined text-[18px] text-tertiary">check_circle</span>
+</label>
+<label class="flex items-center gap-space-sm p-2 rounded-lg bg-surface-container-low hover:bg-surface-container cursor-pointer transition-colors">
+<input checked="" class="w-4 h-4 text-primary rounded accent-primary" type="checkbox"/>
+<div class="flex-1">
+<p class="font-label-md text-label-md text-on-surface">Surat Pengakuan Percaya (Sidi) Ortu</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Kedua orang tua berstatus Warga Sidi Aktif</p>
+</div>
+<span class="material-symbols-outlined text-[18px] text-tertiary">check_circle</span>
+</label>
+</div>
+</div>
+<div class="mt-auto pt-space-md flex gap-space-sm">
+<button class="flex-1 py-2.5 px-4 bg-surface-container-low hover:bg-surface-container text-on-surface rounded-lg font-label-md text-label-md font-semibold text-center transition-colors">
+            Unduh Berkas ZIP
+          </button>
+<button class="flex-1 py-2.5 px-4 bg-primary hover:bg-on-primary-fixed text-on-primary rounded-lg font-label-md text-label-md font-semibold text-center shadow-sm transition-colors">
+            Verifikasi Selesai
+          </button>
+</div>
+</div>
+</div>
+</div>
+<!-- SECTION 3: Register Buku Induk Sakramen & Cetak 2 Mode (PRD Requirement) -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-lg flex flex-col gap-space-lg">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md">
+<div>
+<div class="flex items-center gap-2">
+<span class="w-8 h-8 rounded-lg bg-primary text-on-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">auto_stories</span>
+</span>
+<h2 class="font-headline-md text-headline-md text-primary">Buku Register Induk Sakramen Resmi</h2>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">
+          Pemberian Nomor Register Gereja Masehi Injili di Timor (GMIT) dan modul cetak Akta/Surat Baptis, Sidi &amp; Pernikahan.
+        </p>
+</div>
+<!-- Mode Selector Switch: Tab Sakramen -->
+<div class="flex items-center gap-1 bg-surface-container-low p-1 rounded-xl">
+<button class="px-4 py-2 rounded-lg bg-surface-container-lowest text-primary font-label-md text-label-md font-bold shadow-sm transition-all" id="tab-buku-baptis" onclick="switchBukuInduk('baptis')">
+          Buku Induk Baptisan
+        </button>
+<button class="px-4 py-2 rounded-lg text-on-surface-variant hover:text-on-surface font-label-md text-label-md font-semibold transition-all" id="tab-buku-sidi" onclick="switchBukuInduk('sidi')">
+          Buku Induk Sidi
+        </button>
+<button class="px-4 py-2 rounded-lg text-on-surface-variant hover:text-on-surface font-label-md text-label-md font-semibold transition-all" id="tab-buku-nikah" onclick="switchBukuInduk('nikah')">
+          Buku Induk Pernikahan
+        </button>
+</div>
+</div>
+<!-- Active Register Table -->
+<div class="overflow-x-auto rounded-xl">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low text-on-surface-variant font-label-md text-label-md uppercase tracking-wider">
+<th class="py-3 px-4 font-semibold">No. Buku Induk GMIT</th>
+<th class="py-3 px-4 font-semibold">Nama Lengkap &amp; Tempat Lahir</th>
+<th class="py-3 px-4 font-semibold">Tgl Sakramen Dilayani</th>
+<th class="py-3 px-4 font-semibold">Pendeta Pelayan</th>
+<th class="py-3 px-4 font-semibold">Status Lembar Akta</th>
+<th class="py-3 px-4 font-semibold text-right">Opsi Cetak Surat</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container font-body-sm text-body-sm" id="buku-induk-rows">
+<!-- Sample Entry 1 -->
+<tr class="hover:bg-surface-container-low/40 transition-colors">
+<td class="py-3.5 px-4 font-mono font-bold text-primary">
+              No. 042/SB-GMIT/LTSL/IV/2025
+            </td>
+<td class="py-3.5 px-4">
+<span class="font-semibold text-on-surface">Abigail Seraphina Messakh</span>
+<span class="block font-label-sm text-label-sm text-on-surface-variant">Kupang, 12 Januari 2025 • Rayon 1</span>
+</td>
+<td class="py-3.5 px-4">
+<span>27 April 2025</span>
+<span class="block font-label-sm text-label-sm text-on-surface-variant">Kebaktian Minggu Pagi I</span>
+</td>
+<td class="py-3.5 px-4 font-medium text-on-surface">
+              Pdt. E. Messakh, M.Th
+            </td>
+<td class="py-3.5 px-4">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+                Siap Dicetak
+              </span>
+</td>
+<td class="py-3.5 px-4 text-right">
+<button class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary hover:bg-on-primary-fixed text-on-primary rounded-lg font-label-sm text-label-sm font-semibold shadow-sm transition-colors" onclick="openPrintModal('042/SB-GMIT/LTSL/IV/2025', 'Abigail Seraphina Messakh', 'Baptisan Kudus')">
+<span class="material-symbols-outlined text-[16px]">print</span>
+<span>Pilih Mode Cetak</span>
+</button>
+</td>
+</tr>
+<!-- Sample Entry 2 -->
+<tr class="hover:bg-surface-container-low/40 transition-colors">
+<td class="py-3.5 px-4 font-mono font-bold text-primary">
+              No. 041/SB-GMIT/LTSL/III/2025
+            </td>
+<td class="py-3.5 px-4">
+<span class="font-semibold text-on-surface">Jonathan Eliezer Henuk</span>
+<span class="block font-label-sm text-label-sm text-on-surface-variant">Kupang, 02 Desember 2024 • Rayon 3</span>
+</td>
+<td class="py-3.5 px-4">
+<span>30 Maret 2025</span>
+<span class="block font-label-sm text-label-sm text-on-surface-variant">Kebaktian Minggu Pagi II</span>
+</td>
+<td class="py-3.5 px-4 font-medium text-on-surface">
+              Pdt. M. Ndoen-Bessie, S.Th
+            </td>
+<td class="py-3.5 px-4">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-outline"></span>
+                Telah Terbit Fisik
+              </span>
+</td>
+<td class="py-3.5 px-4 text-right">
+<button class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-surface-container-low hover:bg-surface-container text-on-surface rounded-lg font-label-sm text-label-sm font-semibold transition-colors" onclick="openPrintModal('041/SB-GMIT/LTSL/III/2025', 'Jonathan Eliezer Henuk', 'Baptisan Kudus')">
+<span class="material-symbols-outlined text-[16px]">reorder</span>
+<span>Cetak Ulang / Duplikat</span>
+</button>
+</td>
+</tr>
+<!-- Sample Entry 3 -->
+<tr class="hover:bg-surface-container-low/40 transition-colors">
+<td class="py-3.5 px-4 font-mono font-bold text-primary">
+              No. 040/SB-GMIT/LTSL/III/2025
+            </td>
+<td class="py-3.5 px-4">
+<span class="font-semibold text-on-surface">Kezia Grace Bella</span>
+<span class="block font-label-sm text-label-sm text-on-surface-variant">Kupang, 19 Oktober 2024 • Rayon 5</span>
+</td>
+<td class="py-3.5 px-4">
+<span>30 Maret 2025</span>
+<span class="block font-label-sm text-label-sm text-on-surface-variant">Kebaktian Minggu Pagi II</span>
+</td>
+<td class="py-3.5 px-4 font-medium text-on-surface">
+              Pdt. M. Ndoen-Bessie, S.Th
+            </td>
+<td class="py-3.5 px-4">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-outline"></span>
+                Telah Terbit Fisik
+              </span>
+</td>
+<td class="py-3.5 px-4 text-right">
+<button class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-surface-container-low hover:bg-surface-container text-on-surface rounded-lg font-label-sm text-label-sm font-semibold transition-colors" onclick="openPrintModal('040/SB-GMIT/LTSL/III/2025', 'Kezia Grace Bella', 'Baptisan Kudus')">
+<span class="material-symbols-outlined text-[16px]">reorder</span>
+<span>Cetak Ulang / Duplikat</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Print Selector Modal Preview Card (PRD 2 Modes Highlight) -->
+<div class="bg-surface-container-low rounded-xl p-space-md flex flex-col gap-space-md" id="print-modal">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-space-xs">
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary font-bold">Fitur Percetakan Akta Gerejawi</span>
+<h3 class="font-headline-sm text-headline-sm text-primary">Modul Cetak 2 Mode: Akta Baptisan Kudus</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Pilih antara lembar format utuh (PDF Kop + Ornamen) atau kalibrasi teks pada kertas blangko segel sinode pabrikan.</p>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-mono text-label-sm text-label-sm px-2.5 py-1 rounded bg-surface-container-lowest text-primary font-bold shadow-sm">Reg: No. 042/SB-GMIT/LTSL/IV/2025</span>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<!-- Mode 1: Full Design -->
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm cursor-pointer transition-all hover:shadow-md ring-2 ring-primary" id="card-mode-1" onclick="selectPrintMode(1)">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-2">
+<span class="w-8 h-8 rounded-lg bg-primary-container text-on-primary flex items-center justify-center font-bold font-headline-sm">1</span>
+<div>
+<h4 class="font-label-lg text-label-lg font-bold text-primary">Mode 1: Desain Lengkap Utuh</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Dicetak di Kertas HVS/Concorde Putih Polos</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-primary text-[22px]">radio_button_checked</span>
+</div>
+<!-- Micro Visual Representation -->
+<div class="mt-space-md bg-surface-container-low rounded-lg p-3 relative h-36 flex flex-col justify-between overflow-hidden">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-primary text-[18px]">church</span>
+<span class="text-[10px] font-bold text-primary tracking-tighter uppercase">GMIT LAHAIROI TUAK SABU LASIANA</span>
+</div>
+<span class="text-[9px] font-mono text-on-surface-variant">Kop Resmi</span>
+</div>
+<div class="text-center my-auto py-1">
+<p class="text-[11px] font-bold font-headline-sm text-on-surface tracking-wide uppercase">SURAT BAPTISAN KUDUS</p>
+<p class="text-[9px] text-on-surface-variant">Berdasarkan Mat. 28:19 Pada Hari Minggu, 27 April 2025</p>
+<p class="text-[10px] font-semibold text-primary mt-1">Abigail Seraphina Messakh</p>
+</div>
+<div class="flex justify-between items-end text-[8px] text-on-surface-variant pt-1">
+<span>Cap Konsistori</span>
+<span>Ttd. Pendeta Jemaat</span>
+</div>
+</div>
+<p class="mt-space-sm font-label-sm text-label-sm text-on-surface-variant">
+            Menyertakan Kop Klasis Kupang Timur, ornamen salib &amp; alkitab GMIT, nomor seri resmi, dan stempel digital Majelis Jemaat.
+          </p>
+</div>
+<!-- Mode 2: Blangko Fisik Printer Calibration -->
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm cursor-pointer transition-all hover:shadow-md" id="card-mode-2" onclick="selectPrintMode(2)">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-2">
+<span class="w-8 h-8 rounded-lg bg-surface-container text-on-surface flex items-center justify-center font-bold font-headline-sm">2</span>
+<div>
+<h4 class="font-label-lg text-label-lg font-bold text-on-surface">Mode 2: Blangko Cetakan Pabrik</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Hanya Teks Isian untuk Kertas Segel Sinode</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-[22px]">radio_button_unchecked</span>
+</div>
+<!-- Micro Visual Representation (Offset text only) -->
+<div class="mt-space-md bg-amber-50/50 rounded-lg p-3 relative h-36 flex flex-col justify-between overflow-hidden">
+<div class="flex items-center justify-between text-amber-800/40 text-[9px] italic">
+<span>[Area Kop Blangko Fisik Sinode]</span>
+<span>[Logo Cetakan Pabrik]</span>
+</div>
+<div class="text-center my-auto py-1">
+<p class="text-[9px] font-mono text-tertiary font-bold tracking-tight">No. 042/SB-GMIT/LTSL/IV/2025</p>
+<p class="text-[11px] font-bold text-on-surface mt-1">Abigail Seraphina Messakh</p>
+<p class="text-[9px] text-on-surface">Kupang, 12 Januari 2025</p>
+</div>
+<div class="flex justify-between items-end text-[8px] text-amber-800/40 italic">
+<span>[Area Stempel Basah]</span>
+<span>Pdt. E. Messakh, M.Th</span>
+</div>
+</div>
+<!-- Offset Calibration Controls -->
+<div class="mt-space-sm bg-surface-container-low p-2 rounded-lg flex items-center justify-between gap-2">
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm font-semibold text-on-surface">Offset X:</span>
+<input class="w-14 px-1.5 py-0.5 bg-surface-container-lowest text-center rounded font-mono font-label-sm text-label-sm text-on-surface" step="0.5" type="number" value="0.0"/>
+<span class="text-on-surface-variant text-[11px]">mm</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm font-semibold text-on-surface">Offset Y:</span>
+<input class="w-14 px-1.5 py-0.5 bg-surface-container-lowest text-center rounded font-mono font-label-sm text-label-sm text-on-surface" step="0.5" type="number" value="+1.5"/>
+<span class="text-on-surface-variant text-[11px]">mm</span>
+</div>
+<span class="font-label-sm text-label-sm text-primary font-medium">Kalibrasi A4/F4</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-end gap-space-sm pt-space-xs">
+<button class="px-4 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-lg text-label-lg transition-colors">
+          Buka Pratinjau PDF
+        </button>
+<button class="px-5 py-2 rounded-lg bg-primary hover:bg-on-primary-fixed text-on-primary font-label-lg text-label-lg shadow-sm font-semibold flex items-center gap-2 transition-colors" onclick="window.print()">
+<span class="material-symbols-outlined text-[18px]">print</span>
+          Cetak Dokumen Sekarang
+        </button>
+</div>
+</div>
+</div>
+<!-- SECTION 4: Buku Agenda Arsip Persuratan Gereja (Surat Masuk & Keluar) -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-lg flex flex-col gap-space-md">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-md">
+<div>
+<div class="flex items-center gap-2">
+<span class="w-8 h-8 rounded-lg bg-secondary text-on-secondary flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">inventory_2</span>
+</span>
+<h2 class="font-headline-md text-headline-md text-primary">Buku Agenda Arsip Persuratan Gereja</h2>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">
+          Pencatatan persuratan dinas gerejawi, atestasi pindah jemaat, surat tugas pelayanan rayon, dan arsip Sinode/Klasis.
+        </p>
+</div>
+<!-- Direction Filter Toggle -->
+<div class="flex items-center gap-1 bg-surface-container-low p-1 rounded-xl self-start sm:self-auto">
+<button class="px-3.5 py-1.5 rounded-lg bg-surface-container-lowest text-primary font-label-sm text-label-sm font-bold shadow-sm" id="filter-arsip-all" onclick="filterArsip('all')">
+          Semua Arsip (34)
+        </button>
+<button class="px-3.5 py-1.5 rounded-lg text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm font-medium" id="filter-arsip-in" onclick="filterArsip('masuk')">
+          Surat Masuk (19)
+        </button>
+<button class="px-3.5 py-1.5 rounded-lg text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm font-medium" id="filter-arsip-out" onclick="filterArsip('keluar')">
+          Surat Keluar (15)
+        </button>
+</div>
+</div>
+<!-- Arsip Persuratan Table -->
+<div class="overflow-x-auto rounded-xl">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low text-on-surface-variant font-label-md text-label-md uppercase tracking-wider">
+<th class="py-3 px-4 font-semibold">No. Agenda &amp; Tgl</th>
+<th class="py-3 px-4 font-semibold">Arah &amp; Kategori</th>
+<th class="py-3 px-4 font-semibold">Nomor Berkas Resmi</th>
+<th class="py-3 px-4 font-semibold">Pengirim / Tujuan</th>
+<th class="py-3 px-4 font-semibold">Perihal Surat</th>
+<th class="py-3 px-4 font-semibold text-right">Pratinjau Berkas</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container font-body-sm text-body-sm">
+<!-- Highlight Item 1: Surat Atestasi Pindah -->
+<tr class="hover:bg-surface-container-low/50 transition-colors bg-surface-container-lowest">
+<td class="py-3.5 px-4">
+<span class="font-mono font-bold text-on-surface">AG-K-2025/089</span>
+<span class="block font-label-sm text-label-sm text-on-surface-variant">22 Apr 2025</span>
+</td>
+<td class="py-3.5 px-4">
+<div class="flex flex-col gap-1 items-start">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-bold">
+<span class="material-symbols-outlined text-[13px]">arrow_upward</span>
+                  Surat Keluar
+                </span>
+<span class="font-label-sm text-label-sm text-primary font-semibold">Atestasi Pindah Jemaat</span>
+</div>
+</td>
+<td class="py-3.5 px-4 font-mono text-on-surface font-medium">
+              112/GMIT/LTSL/IV/2025
+            </td>
+<td class="py-3.5 px-4">
+<p class="font-semibold text-on-surface">Majelis Jemaat GMIT Imanuel Oepura</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Klasis Kota Kupang (Warga: Kel. F. Adu-Tode, Rayon 3)</p>
+</td>
+<td class="py-3.5 px-4">
+<p class="text-on-surface font-medium">Pengantar Atestasi Pindah Warga Gereja (1 KK / 4 Jiwa)</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Keterangan Sidi dan Baptisan Lengkap Terlampir</p>
+</td>
+<td class="py-3.5 px-4 text-right">
+<button class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-surface-container-low hover:bg-surface-container text-primary rounded-lg font-label-sm text-label-sm font-semibold transition-colors">
+<span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
+<span>Lihat PDF</span>
+</button>
+</td>
+</tr>
+<!-- Highlight Item 2: SK Panitia Pembangunan -->
+<tr class="hover:bg-surface-container-low/50 transition-colors bg-surface-container-lowest">
+<td class="py-3.5 px-4">
+<span class="font-mono font-bold text-on-surface">AG-K-2025/088</span>
+<span class="block font-label-sm text-label-sm text-on-surface-variant">19 Apr 2025</span>
+</td>
+<td class="py-3.5 px-4">
+<div class="flex flex-col gap-1 items-start">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-bold">
+<span class="material-symbols-outlined text-[13px]">arrow_upward</span>
+                  Surat Keluar
+                </span>
+<span class="font-label-sm text-label-sm text-tertiary font-semibold">Surat Keputusan (SK)</span>
+</div>
+</td>
+<td class="py-3.5 px-4 font-mono text-on-surface font-medium">
+              014/SK-MJ/LTSL/IV/2025
+            </td>
+<td class="py-3.5 px-4">
+<p class="font-semibold text-on-surface">Panitia Ad-Hoc Pembangunan Pastori II</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Ketua: Bpk. Ir. Th. Therik</p>
+</td>
+<td class="py-3.5 px-4">
+<p class="text-on-surface font-medium">Surat Keputusan Majelis Jemaat Pengangkatan Panitia Pastori II</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Masa Bakti April 2025 – Desember 2026</p>
+</td>
+<td class="py-3.5 px-4 text-right">
+<button class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-surface-container-low hover:bg-surface-container text-primary rounded-lg font-label-sm text-label-sm font-semibold transition-colors">
+<span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
+<span>Lihat PDF</span>
+</button>
+</td>
+</tr>
+<!-- Highlight Item 3: Surat Masuk Undangan Klasis -->
+<tr class="hover:bg-surface-container-low/50 transition-colors bg-surface-container-lowest">
+<td class="py-3.5 px-4">
+<span class="font-mono font-bold text-on-surface">AG-M-2025/054</span>
+<span class="block font-label-sm text-label-sm text-on-surface-variant">17 Apr 2025</span>
+</td>
+<td class="py-3.5 px-4">
+<div class="flex flex-col gap-1 items-start">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm font-bold">
+<span class="material-symbols-outlined text-[13px]">arrow_downward</span>
+                  Surat Masuk
+                </span>
+<span class="font-label-sm text-label-sm text-primary font-semibold">Undangan Persidangan</span>
+</div>
+</td>
+<td class="py-3.5 px-4 font-mono text-on-surface font-medium">
+              43/B/KL-KKT/IV/2025
+            </td>
+<td class="py-3.5 px-4">
+<p class="font-semibold text-on-surface">Majelis Klasis Kota Kupang Timur</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Badan Pekerja Klasis (BPK Kupang Timur)</p>
+</td>
+<td class="py-3.5 px-4">
+<p class="text-on-surface font-medium">Undangan Rapat Koordinasi Bendahara &amp; Evaluasi Sentralisasi</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Hari Selasa, 29 April 2025 di GMIT Ebenhaezer Oeba</p>
+</td>
+<td class="py-3.5 px-4 text-right">
+<button class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-surface-container-low hover:bg-surface-container text-primary rounded-lg font-label-sm text-label-sm font-semibold transition-colors">
+<span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
+<span>Lihat PDF</span>
+</button>
+</td>
+</tr>
+<!-- Highlight Item 4: Surat Tugas Pelayanan -->
+<tr class="hover:bg-surface-container-low/50 transition-colors bg-surface-container-lowest">
+<td class="py-3.5 px-4">
+<span class="font-mono font-bold text-on-surface">AG-K-2025/087</span>
+<span class="block font-label-sm text-label-sm text-on-surface-variant">15 Apr 2025</span>
+</td>
+<td class="py-3.5 px-4">
+<div class="flex flex-col gap-1 items-start">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-bold">
+<span class="material-symbols-outlined text-[13px]">arrow_upward</span>
+                  Surat Keluar
+                </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-semibold">Surat Tugas Pelayanan</span>
+</div>
+</td>
+<td class="py-3.5 px-4 font-mono text-on-surface font-medium">
+              082/ST-MJ/LTSL/IV/2025
+            </td>
+<td class="py-3.5 px-4">
+<p class="font-semibold text-on-surface">Pnt. Y. Taebenu &amp; Dkn. S. Manafe</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Utusan Presbiter Rayon I &amp; Rayon IV</p>
+</td>
+<td class="py-3.5 px-4">
+<p class="text-on-surface font-medium">Tugas Pendampingan Sosialisasi Dana Abadi Sinode GMIT</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Dilaksanakan di Aula Jemaat Lahairoi Lasiana</p>
+</td>
+<td class="py-3.5 px-4 text-right">
+<button class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-surface-container-low hover:bg-surface-container text-primary rounded-lg font-label-sm text-label-sm font-semibold transition-colors">
+<span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
+<span>Lihat PDF</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Archive Footer Info -->
+<div class="p-space-md rounded-xl bg-surface-container-low flex flex-col sm:flex-row items-center justify-between gap-space-sm text-on-surface-variant font-label-sm text-label-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[20px]">folder_special</span>
+<span>Semua dokumen fisik tersimpan dalam lemari arsip baja Konsistori GMIT Lahairoi (Box File 2025/LTSL).</span>
+</div>
+<button class="text-primary font-bold hover:underline flex items-center gap-1">
+<span>Buka Buku Agenda Ekspedisi Lengkap</span>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- MODAL / DRAWER 1: Catat Surat Masuk / Keluar Baru -->
+<div class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm hidden flex items-center justify-center p-4" id="modal-catat-surat">
+<div class="bg-surface-container-lowest rounded-xl max-w-xl w-full p-space-lg shadow-xl flex flex-col gap-space-md">
+<div class="flex items-center justify-between pb-space-xs">
+<div class="flex items-center gap-2">
+<span class="w-8 h-8 rounded-lg bg-primary text-on-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">edit_note</span>
+</span>
+<h3 class="font-headline-sm text-headline-sm text-primary">Catat Surat Masuk / Keluar</h3>
+</div>
+<button class="p-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container" id="btn-close-surat">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-sm">
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm font-semibold text-on-surface">Jenis Aliran Surat</label>
+<select class="px-3 py-2 bg-surface-container-low rounded-lg font-body-sm text-body-sm text-on-surface">
+<option>Surat Masuk (Klasis / Eksternal)</option>
+<option>Surat Keluar (Atestasi / Keputusan)</option>
+<option>Surat Tugas / Mandat</option>
+</select>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm font-semibold text-on-surface">Tanggal Dokumen</label>
+<input class="px-3 py-2 bg-surface-container-low rounded-lg font-body-sm text-body-sm text-on-surface" type="date" value="2025-04-23"/>
+</div>
+<div class="sm:col-span-2 flex flex-col gap-1">
+<label class="font-label-sm text-label-sm font-semibold text-on-surface">Nomor Surat Resmi</label>
+<input class="px-3 py-2 bg-surface-container-low rounded-lg font-body-sm text-body-sm text-on-surface" placeholder="Contoh: 115/GMIT/LTSL/IV/2025" type="text"/>
+</div>
+<div class="sm:col-span-2 flex flex-col gap-1">
+<label class="font-label-sm text-label-sm font-semibold text-on-surface">Pengirim / Tujuan Surat</label>
+<input class="px-3 py-2 bg-surface-container-low rounded-lg font-body-sm text-body-sm text-on-surface" placeholder="Instansi / Jemaat / Nama Penerima" type="text"/>
+</div>
+<div class="sm:col-span-2 flex flex-col gap-1">
+<label class="font-label-sm text-label-sm font-semibold text-on-surface">Perihal / Ringkasan Isi</label>
+<textarea class="px-3 py-2 bg-surface-container-low rounded-lg font-body-sm text-body-sm text-on-surface" placeholder="Uraian ringkas perihal persuratan..." rows="3"></textarea>
+</div>
+<div class="sm:col-span-2 flex flex-col gap-1">
+<label class="font-label-sm text-label-sm font-semibold text-on-surface">Unggah Berkas Scan PDF</label>
+<div class="p-4 bg-surface-container-low rounded-lg border-dashed text-center flex flex-col items-center justify-center gap-1 cursor-pointer">
+<span class="material-symbols-outlined text-[28px] text-primary">cloud_upload</span>
+<span class="font-label-sm text-label-sm text-on-surface font-semibold">Klik untuk unggah berkas PDF / Foto Arsip</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Maksimal 15MB format PDF</span>
+</div>
+</div>
+</div>
+<div class="flex justify-end gap-space-sm pt-space-xs">
+<button class="px-4 py-2 rounded-lg bg-surface-container text-on-surface font-label-md text-label-md font-semibold" id="btn-cancel-surat">Batal</button>
+<button class="px-4 py-2 rounded-lg bg-primary text-on-primary font-label-md text-label-md font-semibold shadow-sm" onclick="document.getElementById('modal-catat-surat').classList.add('hidden')">Simpan ke Buku Agenda</button>
+</div>
+</div>
+</div>
+<!-- MODAL / DRAWER 2: Entri Buku Induk Manual -->
+<div class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm hidden flex items-center justify-center p-4" id="modal-entri-buku">
+<div class="bg-surface-container-lowest rounded-xl max-w-xl w-full p-space-lg shadow-xl flex flex-col gap-space-md">
+<div class="flex items-center justify-between pb-space-xs">
+<div class="flex items-center gap-2">
+<span class="w-8 h-8 rounded-lg bg-secondary text-on-secondary flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">book</span>
+</span>
+<h3 class="font-headline-sm text-headline-sm text-primary">Entri Buku Induk Manual Gereja</h3>
+</div>
+<button class="p-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container" id="btn-close-entri">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-sm">
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm font-semibold text-on-surface">Kategori Buku Induk</label>
+<select class="px-3 py-2 bg-surface-container-low rounded-lg font-body-sm text-body-sm text-on-surface">
+<option>Buku Induk Baptisan Kudus</option>
+<option>Buku Induk Peneguhan Sidi</option>
+<option>Buku Induk Pernikahan Kudus</option>
+</select>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm font-semibold text-on-surface">Nomor Registrasi Otomatis</label>
+<input class="px-3 py-2 bg-surface-container text-primary font-mono font-bold rounded-lg font-body-sm text-body-sm" readonly="" type="text" value="043/SB-GMIT/LTSL/IV/2025"/>
+</div>
+<div class="sm:col-span-2 flex flex-col gap-1">
+<label class="font-label-sm text-label-sm font-semibold text-on-surface">Nama Lengkap Warga</label>
+<input class="px-3 py-2 bg-surface-container-low rounded-lg font-body-sm text-body-sm text-on-surface" placeholder="Sesuai akta sipil / KTP" type="text"/>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm font-semibold text-on-surface">Tempat &amp; Tanggal Lahir</label>
+<input class="px-3 py-2 bg-surface-container-low rounded-lg font-body-sm text-body-sm text-on-surface" placeholder="Kupang, 01 Jan 2025" type="text"/>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm font-semibold text-on-surface">Rayon Domisili</label>
+<select class="px-3 py-2 bg-surface-container-low rounded-lg font-body-sm text-body-sm text-on-surface">
+<option>Rayon 1 Getsemani</option>
+<option>Rayon 2 Golgota</option>
+<option>Rayon 3 Betlehem</option>
+<option>Rayon 4 Galilea</option>
+<option>Rayon 5 Nazaret</option>
+<option>Rayon 6 Yerikho</option>
+<option>Rayon 7 Siloam</option>
+</select>
+</div>
+<div class="sm:col-span-2 flex flex-col gap-1">
+<label class="font-label-sm text-label-sm font-semibold text-on-surface">Nama Pendeta Pelayan</label>
+<select class="px-3 py-2 bg-surface-container-low rounded-lg font-body-sm text-body-sm text-on-surface">
+<option>Pdt. E. Messakh, M.Th (Ketua Majelis)</option>
+<option>Pdt. M. Ndoen-Bessie, S.Th (Pendeta Jemaat)</option>
+<option>Pendeta Tamu / Utusan Klasis</option>
+</select>
+</div>
+</div>
+<div class="flex justify-end gap-space-sm pt-space-xs">
+<button class="px-4 py-2 rounded-lg bg-surface-container text-on-surface font-label-md text-label-md font-semibold" id="btn-cancel-entri">Batal</button>
+<button class="px-4 py-2 rounded-lg bg-secondary text-on-secondary font-label-md text-label-md font-semibold shadow-sm" onclick="document.getElementById('modal-entri-buku').classList.add('hidden')">Daftarkan Nomor Sah</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Inline JavaScript for micro-interactions -->
+<script>
+  // Dynamic registration select in flyout
+  function selectRegistration(regCode) {
+    const codeEl = document.getElementById('current-reg-code');
+    const nameEl = document.getElementById('detail-name');
+    if (codeEl) codeEl.innerText = regCode;
+
+    if (regCode === 'BPT-2025-0042') {
+      if (nameEl) nameEl.innerText = 'Abigail Seraphina Messakh';
+    } else if (regCode === 'BPT-2025-0043') {
+      if (nameEl) nameEl.innerText = 'Marvelino Ndun';
+    } else if (regCode === 'SDI-2025-0012') {
+      if (nameEl) nameEl.innerText = 'Markus Dethan';
+    } else if (regCode === 'NKH-2025-0005') {
+      if (nameEl) nameEl.innerText = 'Daniel R. Balle & Maria C. Tuka';
+    }
+  }
+
+  // Switch between Buku Induk categories
+  function switchBukuInduk(category) {
+    const btnBaptis = document.getElementById('tab-buku-baptis');
+    const btnSidi = document.getElementById('tab-buku-sidi');
+    const btnNikah = document.getElementById('tab-buku-nikah');
+    const tbody = document.getElementById('buku-induk-rows');
+
+    // Reset styles
+    const inactiveClass = 'px-4 py-2 rounded-lg text-on-surface-variant hover:text-on-surface font-label-md text-label-md font-semibold transition-all';
+    const activeClass = 'px-4 py-2 rounded-lg bg-surface-container-lowest text-primary font-label-md text-label-md font-bold shadow-sm transition-all';
+
+    btnBaptis.className = inactiveClass;
+    btnSidi.className = inactiveClass;
+    btnNikah.className = inactiveClass;
+
+    if (category === 'baptis') {
+      btnBaptis.className = activeClass;
+      tbody.innerHTML = `
+        <tr class="hover:bg-surface-container-low/40 transition-colors">
+          <td class="py-3.5 px-4 font-mono font-bold text-primary">No. 042/SB-GMIT/LTSL/IV/2025</td>
+          <td class="py-3.5 px-4">
+            <span class="font-semibold text-on-surface">Abigail Seraphina Messakh</span>
+            <span class="block font-label-sm text-label-sm text-on-surface-variant">Kupang, 12 Januari 2025 • Rayon 1</span>
+          </td>
+          <td class="py-3.5 px-4"><span>27 April 2025</span><span class="block font-label-sm text-label-sm text-on-surface-variant">Kebaktian Minggu Pagi I</span></td>
+          <td class="py-3.5 px-4 font-medium text-on-surface">Pdt. E. Messakh, M.Th</td>
+          <td class="py-3.5 px-4"><span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm font-semibold">Siap Dicetak</span></td>
+          <td class="py-3.5 px-4 text-right">
+            <button onclick="openPrintModal('042/SB-GMIT/LTSL/IV/2025', 'Abigail Seraphina Messakh', 'Baptisan Kudus')" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary hover:bg-on-primary-fixed text-on-primary rounded-lg font-label-sm text-label-sm font-semibold shadow-sm transition-colors">
+              <span class="material-symbols-outlined text-[16px]">print</span>
+              <span>Pilih Mode Cetak</span>
+            </button>
+          </td>
+        </tr>
+        <tr class="hover:bg-surface-container-low/40 transition-colors">
+          <td class="py-3.5 px-4 font-mono font-bold text-primary">No. 041/SB-GMIT/LTSL/III/2025</td>
+          <td class="py-3.5 px-4">
+            <span class="font-semibold text-on-surface">Jonathan Eliezer Henuk</span>
+            <span class="block font-label-sm text-label-sm text-on-surface-variant">Kupang, 02 Desember 2024 • Rayon 3</span>
+          </td>
+          <td class="py-3.5 px-4"><span>30 Maret 2025</span><span class="block font-label-sm text-label-sm text-on-surface-variant">Kebaktian Minggu Pagi II</span></td>
+          <td class="py-3.5 px-4 font-medium text-on-surface">Pdt. M. Ndoen-Bessie, S.Th</td>
+          <td class="py-3.5 px-4"><span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm font-semibold">Telah Terbit Fisik</span></td>
+          <td class="py-3.5 px-4 text-right">
+            <button onclick="openPrintModal('041/SB-GMIT/LTSL/III/2025', 'Jonathan Eliezer Henuk', 'Baptisan Kudus')" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-surface-container-low hover:bg-surface-container text-on-surface rounded-lg font-label-sm text-label-sm font-semibold transition-colors">
+              <span class="material-symbols-outlined text-[16px]">reorder</span>
+              <span>Cetak Ulang</span>
+            </button>
+          </td>
+        </tr>
+      `;
+    } else if (category === 'sidi') {
+      btnSidi.className = activeClass;
+      tbody.innerHTML = `
+        <tr class="hover:bg-surface-container-low/40 transition-colors">
+          <td class="py-3.5 px-4 font-mono font-bold text-primary">No. 018/SS-GMIT/LTSL/IV/2025</td>
+          <td class="py-3.5 px-4">
+            <span class="font-semibold text-on-surface">Markus Dethan</span>
+            <span class="block font-label-sm text-label-sm text-on-surface-variant">Kupang, 14 Juli 2008 • Rayon 1</span>
+          </td>
+          <td class="py-3.5 px-4"><span>17 April 2025</span><span class="block font-label-sm text-label-sm text-on-surface-variant">Kebaktian Kamis Putih</span></td>
+          <td class="py-3.5 px-4 font-medium text-on-surface">Pdt. E. Messakh, M.Th</td>
+          <td class="py-3.5 px-4"><span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm font-semibold">Tervalidasi Sinode</span></td>
+          <td class="py-3.5 px-4 text-right">
+            <button onclick="openPrintModal('018/SS-GMIT/LTSL/IV/2025', 'Markus Dethan', 'Peneguhan Sidi')" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary hover:bg-on-primary-fixed text-on-primary rounded-lg font-label-sm text-label-sm font-semibold shadow-sm transition-colors">
+              <span class="material-symbols-outlined text-[16px]">print</span>
+              <span>Cetak Surat Sidi</span>
+            </button>
+          </td>
+        </tr>
+      `;
+    } else if (category === 'nikah') {
+      btnNikah.className = activeClass;
+      tbody.innerHTML = `
+        <tr class="hover:bg-surface-container-low/40 transition-colors">
+          <td class="py-3.5 px-4 font-mono font-bold text-primary">No. 008/SN-GMIT/LTSL/IV/2025</td>
+          <td class="py-3.5 px-4">
+            <span class="font-semibold text-on-surface">Daniel R. Balle &amp; Maria C. Tuka</span>
+            <span class="block font-label-sm text-label-sm text-on-surface-variant">Pemberkatan di Gedung Kebaktian LTSL • Rayon 2</span>
+          </td>
+          <td class="py-3.5 px-4"><span>03 Mei 2025</span><span class="block font-label-sm text-label-sm text-on-surface-variant">Ibadah Khusus Pernikahan</span></td>
+          <td class="py-3.5 px-4 font-medium text-on-surface">Pdt. E. Messakh, M.Th</td>
+          <td class="py-3.5 px-4"><span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-semibold">Proses Konsistori</span></td>
+          <td class="py-3.5 px-4 text-right">
+            <button onclick="openPrintModal('008/SN-GMIT/LTSL/IV/2025', 'Daniel R. Balle & Maria C. Tuka', 'Nikah Kudus')" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary hover:bg-on-primary-fixed text-on-primary rounded-lg font-label-sm text-label-sm font-semibold shadow-sm transition-colors">
+              <span class="material-symbols-outlined text-[16px]">print</span>
+              <span>Pratinjau Akta Nikah</span>
+            </button>
+          </td>
+        </tr>
+      `;
+    }
+  }
+
+  // Print Mode Selector Toggle
+  function selectPrintMode(modeNum) {
+    const c1 = document.getElementById('card-mode-1');
+    const c2 = document.getElementById('card-mode-2');
+
+    if (modeNum === 1) {
+      c1.classList.add('ring-2', 'ring-primary');
+      c1.querySelector('.material-symbols-outlined').innerText = 'radio_button_checked';
+      c1.querySelector('.material-symbols-outlined').className = 'material-symbols-outlined text-primary text-[22px]';
+      
+      c2.classList.remove('ring-2', 'ring-primary');
+      c2.querySelector('.material-symbols-outlined').innerText = 'radio_button_unchecked';
+      c2.querySelector('.material-symbols-outlined').className = 'material-symbols-outlined text-on-surface-variant text-[22px]';
+    } else {
+      c2.classList.add('ring-2', 'ring-primary');
+      c2.querySelector('.material-symbols-outlined').innerText = 'radio_button_checked';
+      c2.querySelector('.material-symbols-outlined').className = 'material-symbols-outlined text-primary text-[22px]';
+      
+      c1.classList.remove('ring-2', 'ring-primary');
+      c1.querySelector('.material-symbols-outlined').innerText = 'radio_button_unchecked';
+      c1.querySelector('.material-symbols-outlined').className = 'material-symbols-outlined text-on-surface-variant text-[22px]';
+    }
+  }
+
+  function openPrintModal(regNum, name, sacrament) {
+    const modalPreview = document.getElementById('print-modal');
+    modalPreview.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // Modal open & close event listeners
+  document.getElementById('btn-open-surat-modal').addEventListener('click', () => {
+    document.getElementById('modal-catat-surat').classList.remove('hidden');
+  });
+  document.getElementById('btn-close-surat').addEventListener('click', () => {
+    document.getElementById('modal-catat-surat').classList.add('hidden');
+  });
+  document.getElementById('btn-cancel-surat').addEventListener('click', () => {
+    document.getElementById('modal-catat-surat').classList.add('hidden');
+  });
+
+  document.getElementById('btn-open-entri-modal').addEventListener('click', () => {
+    document.getElementById('modal-entri-buku').classList.remove('hidden');
+  });
+  document.getElementById('btn-close-entri').addEventListener('click', () => {
+    document.getElementById('modal-entri-buku').classList.add('hidden');
+  });
+  document.getElementById('btn-cancel-entri').addEventListener('click', () => {
+    document.getElementById('modal-entri-buku').classList.add('hidden');
+  });
+
+  // Simple visual tab filter for archives
+  function filterArsip(type) {
+    const btnAll = document.getElementById('filter-arsip-all');
+    const btnIn = document.getElementById('filter-arsip-in');
+    const btnOut = document.getElementById('filter-arsip-out');
+
+    const inact = 'px-3.5 py-1.5 rounded-lg text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm font-medium';
+    const act = 'px-3.5 py-1.5 rounded-lg bg-surface-container-lowest text-primary font-label-sm text-label-sm font-bold shadow-sm';
+
+    btnAll.className = inact;
+    btnIn.className = inact;
+    btnOut.className = inact;
+
+    if (type === 'all') btnAll.className = act;
+    if (type === 'masuk') btnIn.className = act;
+    if (type === 'keluar') btnOut.className = act;
+  }
+</script></main></div></body></html>
