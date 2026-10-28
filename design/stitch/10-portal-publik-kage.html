@@ -374,7 +374,7 @@
 <!-- ========================================================================= -->
 <section class="relative w-full h-auto min-h-[760px] py-[100px] overflow-hidden flex items-center" id="fitur">
 <!-- Full-width Background Image -->
-<img data-parallax="bg" data-parallax-range="-8,8" alt="Latar Lasiana GMIT Lahairoi" class="absolute inset-0 w-full h-full object-cover object-center pointer-events-none" style="transform: scale(1.15);" src="https://lh3.googleusercontent.com/aida/AEtjO1XuOESeOUpBb6jPe1-0BwgBkTowTVvANO9bn2D6t2UqJ5j2LP5sXljDEEo1unhOCKd2TVUl8UOS6Oh0vWvOmSQOahebL8t2CiAgj8WV_iy_YOehRpyIzFqakJEwtuZ19VvCbi3FirV_sItVh7tlB7lfrRp6eQcyinfm2zA6yfV69mn3MMPcvKmvPW9NJTnImAXMpHKKMlx4g0rdIKD1zKXZ_WEa6E8RSIjaXDMj7gN2PXqwy4po4jBJSSc"/>
+<img data-parallax="bg" data-parallax-range="-12,12" data-parallax-scale="1.25" alt="Gedung Gereja GMIT Lahairoi Tuak Sabu" class="absolute inset-0 w-full h-full object-cover pointer-events-none" style="object-position: center 38%; transform: scale(1.25);" src="assets/gereja-gmit-lahairoi.webp"/>
 <div class="absolute inset-0 bg-[#07151A]/75 backdrop-blur-[2px] pointer-events-none"></div>
 <div class="relative z-10 max-w-[1180px] mx-auto px-6 w-full">
 <!-- Header on imagery -->
@@ -675,8 +675,8 @@
 <!-- White decorative sawtooth/zigzag top transition edge -->
 <div class="sawtooth-top w-full h-4 bg-white absolute top-0 left-0 z-20"></div>
 <!-- Full-width photograph at full opacity with soft dark scrim from bottom (~50% bottom to 10% top) -->
-<img data-parallax="bg" data-parallax-range="-10,4" alt="Senja Lasiana Kupang GMIT Lahairoi" class="absolute inset-0 w-full h-full object-cover object-bottom pointer-events-none select-none" style="transform: scale(1.15);" src="https://lh3.googleusercontent.com/aida/AEtjO1XuOESeOUpBb6jPe1-0BwgBkTowTVvANO9bn2D6t2UqJ5j2LP5sXljDEEo1unhOCKd2TVUl8UOS6Oh0vWvOmSQOahebL8t2CiAgj8WV_iy_YOehRpyIzFqakJEwtuZ19VvCbi3FirV_sItVh7tlB7lfrRp6eQcyinfm2zA6yfV69mn3MMPcvKmvPW9NJTnImAXMpHKKMlx4g0rdIKD1zKXZ_WEa6E8RSIjaXDMj7gN2PXqwy4po4jBJSSc"/>
-<div class="absolute inset-0 bg-gradient-to-t from-tealDark via-[#07151A]/50 to-[#07151A]/10 pointer-events-none"></div>
+<img data-parallax="bg" data-parallax-range="-12,6" data-parallax-scale="1.25" alt="Gedung Gereja GMIT Lahairoi Tuak Sabu" class="absolute inset-0 w-full h-full object-cover pointer-events-none select-none" style="object-position: center 45%; transform: scale(1.25);" src="assets/gereja-gmit-lahairoi.webp"/>
+<div class="absolute inset-0 bg-gradient-to-t from-[#07151A]/95 via-[#07151A]/75 to-[#07151A]/55 pointer-events-none"></div>
 <div class="relative z-10 max-w-[1180px] mx-auto px-6 pt-24 pb-12 flex flex-col justify-between min-h-[520px]">
 <!-- Main Content Grid -->
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
@@ -789,7 +789,8 @@
       var r = el.parentElement.getBoundingClientRect();
       var p = clamp((vh - r.top) / (vh + r.height), 0, 1);   /* offset: ["start end", "end start"] */
       var rg = range(el, 'data-parallax-range', '-8,8');
-      el.style.transform = 'translate3d(0,' + lerp(rg[0], rg[1], p).toFixed(2) + '%,0) scale(1.15)';
+      var sc = el.getAttribute('data-parallax-scale') || '1.15';
+      el.style.transform = 'translate3d(0,' + lerp(rg[0], rg[1], p).toFixed(2) + '%,0) scale(' + sc + ')';
     });
     if (floatScope && floats.length) {
       var r2 = floatScope.getBoundingClientRect();
