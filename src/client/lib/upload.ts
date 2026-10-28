@@ -57,14 +57,34 @@ export function uploadFile(file: File, options: UploadOptions): Promise<Uploaded
   if (invalid) return Promise.reject(new ApiError(400, invalid))
 
   const { folder, onProgress, signal } = options
+  const form = new FormData()
+  form.append('folder', folder)
+  form.append('file', file)
+  return postForm<UploadedFile>('/uploads', form, { onProgress, signal })
+}
+
+// POST multipart ke API dengan progres pengiriman, mis. unggah berkas atau pendaftaran
+// sakramen beserta dokumennya. auth: false untuk formulir publik, agar 401 tidak
+// dianggap sesi pengurus berakhir.
+export function postForm<T>(
+  path: string,
+  form: FormData,
+  {
+    onProgress,
+    signal,
+    auth = true,
+  }: { onProgress?: (percent: number) => void; signal?: AbortSignal; auth?: boolean } = {},
+): Promise<T> {
   if (signal?.aborted) return Promise.reject(signal.reason)
 
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest()
-    xhr.open('POST', '/api/uploads')
+    xhr.open('POST', `/api${path}`)
     xhr.responseType = 'json'
     xhr.setRequestHeader('Accept', 'application/json')
-    for (const [name, value] of Object.entries(authHeaders())) xhr.setRequestHeader(name, value)
+    if (auth) {
+      for (const [name, value] of Object.entries(authHeaders())) xhr.setRequestHeader(name, value)
+    }
 
     xhr.upload.onprogress = (event) => {
       if (event.lengthComputable) onProgress?.(Math.round((event.loaded / event.total) * 100))
@@ -72,22 +92,18 @@ export function uploadFile(file: File, options: UploadOptions): Promise<Uploaded
     xhr.onload = () => {
       if (xhr.status >= 200 && xhr.status < 300) {
         onProgress?.(100)
-        resolve(xhr.response as UploadedFile)
+        resolve(xhr.response as T)
         return
       }
       const body = xhr.response as ApiErrorBody | null
-      if (xhr.status === 401) notifyUnauthorized()
+      if (xhr.status === 401 && auth) notifyUnauthorized()
       reject(
         new ApiError(xhr.status, body?.error ?? defaultErrorMessage(xhr.status), body?.details),
       )
     }
     xhr.onerror = () => reject(new ApiError(0, NETWORK_ERROR_MESSAGE))
-    xhr.onabort = () => reject(new DOMException('Unggahan dibatalkan.', 'AbortError'))
+    xhr.onabort = () => reject(new DOMException('Pengiriman dibatalkan.', 'AbortError'))
     signal?.addEventListener('abort', () => xhr.abort(), { once: true })
-
-    const form = new FormData()
-    form.append('folder', folder)
-    form.append('file', file)
     xhr.send(form)
   })
 }

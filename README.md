@@ -86,6 +86,7 @@ Buka `/` untuk Portal Publik dan `/dashboard` untuk dashboard pengurus.
 | `/renungan`, `/renungan/:slug` | `PublicLayout` | Daftar Renungan Rohani dan halaman baca satu renungan |
 | `/berita`, `/berita/:slug` | `PublicLayout` | Daftar Berita & Pengumuman dan halaman baca satu berita |
 | `/media`             | `PublicLayout`    | Galeri Kegiatan: foto dan video dokumentasi, dibuka dalam jendela galeri |
+| `/layanan-sakramen`  | `PublicLayout`    | Layanan Sakramen: Cek Status dengan kode registrasi, formulir Baptisan/Sidi/Nikah bertab (`?layanan=baptis\|sidi\|nikah`) dengan unggah berkas syarat |
 | `/login`             | berdiri sendiri   | Masuk pengurus                                                    |
 | `/dashboard`         | `DashboardLayout` | Ringkasan: modul per peran, rayon, status sistem, dan aktivitas terbaru (Admin) |
 | `/dashboard/members` | `DashboardLayout` | Anggota Jemaat (Admin, Pendeta, Majelis): cari, filter kombinasi di URL, profil lengkap, ekspor |
@@ -557,6 +558,7 @@ Rute: [contents.ts](src/worker/routes/contents.ts) (CMS, perlu login) dan [publi
 - **Profil & Sejarah** (`/profil`): konten Profil di CMS masuk ke bagiannya menurut judul atau alamat: memuat "Sejarah" → Sejarah, "Visi"/"Misi" → Visi & Misi, "Majelis"/"Pendeta" → Pendeta & Majelis; lainnya di bagian akhir. Lima rayon dari `GET /api/rayons` (nama, koordinator, wilayah).
   - Daftar Pendeta & Majelis ditulis satu baris per orang, `Jabatan: Nama` (mis. `Ketua Majelis Jemaat: Pdt. …`), dan tampil sebagai kartu; baris lain menjadi catatan. Foto konten itu menjadi foto bersama majelis.
 - **Persembahan** (`/persembahan`): gambar QRIS (konten Rekening & QRIS bergambar) dengan tombol simpan gambar, dan kartu rekening per pos kas (bank, keperluan, nomor, atas nama). **Salin No. Rek** menyalin angka nomor rekening saja, menampilkan notifikasi, dan berubah menjadi "Tersalin" sebentar; tanpa Clipboard API (mis. bukan HTTPS) memakai cara salin lama.
+- **Layanan Sakramen** (`/layanan-sakramen`, [SacramentPage.tsx](src/client/pages/public/SacramentPage.tsx)), mengikuti struktur rancangan `design/stitch/05`. Uraiannya di bagian [Layanan sakramen](#layanan-sakramen).
 
 ## Jadwal ibadah, petugas & kehadiran
 
@@ -650,6 +652,26 @@ Rute: [public-sacraments.ts](src/worker/routes/public-sacraments.ts) (`/api/publ
   - Kodenya acak dan unik, mis. `BPT-K7QX-29MD`: awalan `BPT`/`SDI`/`NKH`, delapan karakter tanpa I, O, 0, 1, sehingga 32⁸ kemungkinan per layanan.
   - Nama yang disimpan: calon baptis/sidi, atau "mempelai pria & mempelai wanita".
 - Kiriman dari situs lain ditolak middleware CSRF. Belum ada pembatas laju atau captcha.
+
+**Halaman portal** `/layanan-sakramen` ([SacramentPage.tsx](src/client/pages/public/SacramentPage.tsx), [src/client/lib/sacraments.ts](src/client/lib/sacraments.ts)), tanpa login:
+
+- **Cek Status Pendaftaran** di bagian atas.
+  - Kode boleh diketik huruf kecil atau tanpa tanda hubung; formatnya diperiksa sebelum dikirim.
+  - Hasilnya menampilkan lima langkah: diterima → verifikasi berkas → penggembalaan → disetujui & dijadwalkan → dilaksanakan. Langkah yang sedang berjalan ditandai, dan Revisi berkas diberi warna peringatan.
+  - Jadwal penggembalaan dan pelaksanaan beserta pendetanya, catatan dari Majelis, dan berkas yang sudah diterima ikut tampil.
+  - Kode yang pernah dikirim dari perangkat itu tersimpan di peramban (paling banyak lima) dan tampil sebagai tombol cepat. Kode tidak pernah dimasukkan ke URL.
+- **Formulir** dalam tiga tab: Baptisan Kudus, Katekisasi/Sidi, dan Pemberkatan Nikah.
+  - Tab tersimpan di URL (`?layanan=baptis|sidi|nikah`) dan bisa dipilih dengan panah kiri/kanan. Isian tiap tab tidak hilang saat berpindah tab.
+  - Isian disusun per bagian berhuruf (A, B, …) dari `SACRAMENT_FORMS`, ditambah satu kotak unggah per dokumen syarat (klik atau seret).
+  - Berkas diperiksa jenis dan ukurannya saat dipilih. Berkas yang ditolak tidak disimpan dan tidak menahan pengiriman bila dokumennya opsional.
+  - Sebelum dikirim, isian diperiksa dengan aturan yang sama dengan API, dan semua kesalahan ditandai sekaligus dengan fokus ke isian pertama.
+  - Pengiriman memakai multipart dengan progres (`postForm` di [src/client/lib/upload.ts](src/client/lib/upload.ts)).
+- **Setelah terkirim**, formulir diganti layar sukses berisi:
+  - kode registrasi berukuran besar;
+  - **Salin kode** (berubah menjadi "Tersalin");
+  - **Kirim ke WhatsApp/aplikasi lain** bila peramban mendukung Web Share;
+  - **Cek status sekarang**, yang langsung melacak kode itu di bagian atas.
+- Menu portal mendapat tautan **Sakramen**.
 
 **Lacak status.** `GET /api/public/sacraments/track/:code`:
 

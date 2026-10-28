@@ -112,6 +112,11 @@ const portalPages: PortalPage[] = [
   { path: 'media', title: 'Galeri Kegiatan', load: () => import('@/pages/public/MediaPage') },
   { path: 'profil', title: 'Profil & Sejarah', load: () => import('@/pages/public/ProfilePage') },
   { path: 'persembahan', title: 'Persembahan', load: () => import('@/pages/public/OfferingPage') },
+  {
+    path: 'layanan-sakramen',
+    title: 'Layanan Sakramen',
+    load: () => import('@/pages/public/SacramentPage'),
+  },
 ]
 
 export const router = createBrowserRouter([

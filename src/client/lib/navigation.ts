@@ -19,7 +19,7 @@ import {
 import type { UserRole } from '@shared/types'
 
 // Tautan Portal Publik, berurutan seperti di navbar. `short` dipakai di navbar desktop
-// agar delapan tautan muat dalam satu baris.
+// agar sembilan tautan muat dalam satu baris.
 export const portalLinks = [
   { title: 'Beranda', short: 'Beranda', to: '/' },
   { title: 'Jadwal Ibadah', short: 'Jadwal', to: '/jadwal' },
@@ -28,6 +28,7 @@ export const portalLinks = [
   { title: 'Berita & Pengumuman', short: 'Berita', to: '/berita' },
   { title: 'Galeri Kegiatan', short: 'Galeri', to: '/media' },
   { title: 'Profil & Sejarah', short: 'Profil', to: '/profil' },
+  { title: 'Layanan Sakramen', short: 'Sakramen', to: '/layanan-sakramen' },
   { title: 'Persembahan', short: 'Persembahan', to: '/persembahan' },
 ] as const
 
