@@ -152,7 +152,7 @@ export const moduleGroups: ModuleGroup[] = [
       },
       {
         title: 'Inventaris',
-        path: 'inventaris',
+        path: 'assets',
         icon: Package,
         roles: ['ADMIN', 'ELDER'],
         phase: 3,

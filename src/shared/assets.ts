@@ -70,6 +70,11 @@ export function parseAssetInput(body: Body, mode: Mode, currentYear: number) {
       'Kode inventaris berisi huruf, angka, titik, garis miring, atau tanda hubung.',
     ],
   })
+  // Kode otomatis hanya saat membuat; aset yang sudah ada tetap punya kode.
+  if (mode === 'update' && read.input.asset_code === null) {
+    read.details.asset_code = ['Kode inventaris tidak boleh dikosongkan.']
+    delete read.input.asset_code
+  }
   read.text('name', 'Nama barang', { max: 150, required: true })
   read.text('category', 'Kategori', { max: 60 })
   read.integer('quantity', 'Jumlah unit', {
@@ -94,7 +99,9 @@ export function parseAssetInput(body: Body, mode: Mode, currentYear: number) {
   } else {
     read.integer('estimated_value', 'Estimasi nilai', { min: 0, max: MAX_AMOUNT })
   }
-  read.choice('condition', 'kondisi', ASSET_CONDITIONS, ASSET_CONDITION_LABELS)
+  read.choice('condition', 'kondisi', ASSET_CONDITIONS, ASSET_CONDITION_LABELS, {
+    nullable: false,
+  })
   read.text('notes', 'Catatan', { max: 1000, multiline: true })
   return { input: read.input as Partial<AssetFields>, details: read.details }
 }

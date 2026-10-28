@@ -34,7 +34,7 @@ import { requireRole } from '../middleware/auth'
 import type { AppEnv } from '../types'
 
 // Katalog aset & inventaris gereja (PRD: Manajemen Aset & Inventaris). Admin dan
-// Majelis dapat melihat; menambah, mengubah, dan menghapus aset khusus Admin (PRD).
+// Majelis melihat, menambah, dan mengubah aset (user story PRD); menghapus khusus Admin.
 // Peminjaman di /api/asset-loans.
 //
 // available_quantity tidak pernah dikirim klien: saat dibuat sama dengan quantity, lalu
@@ -43,7 +43,8 @@ import type { AppEnv } from '../types'
 // sedang dipinjam.
 //
 // GET / query opsional: category, location, condition, q (kode, nama, catatan),
-// available (true = masih ada unit tersedia), page, per_page.
+// available (true = masih ada unit tersedia), page, per_page. Respons menyertakan jumlah
+// unit dan unit tersedia seluruh aset yang cocok (units, available).
 const assets = new Hono<AppEnv>()
 
 assets.use(requireRole('ADMIN', 'ELDER'))
@@ -91,7 +92,13 @@ assets.get('/', async (c) => {
   const db = c.env.DB
   const count = where.params.length
   const [total, list, categories, locations] = await db.batch([
-    db.prepare(`SELECT COUNT(*) AS n FROM assets a ${where.sql}`).bind(...where.params),
+    db
+      .prepare(
+        `SELECT COUNT(*) AS n, COALESCE(SUM(a.quantity), 0) AS units,
+                COALESCE(SUM(a.available_quantity), 0) AS available
+         FROM assets a ${where.sql}`,
+      )
+      .bind(...where.params),
     db
       .prepare(
         `${ASSET_SELECT} ${where.sql}
@@ -109,11 +116,14 @@ assets.get('/', async (c) => {
     ),
   ])
   const values = (rows: unknown[]) => (rows as { value: string }[]).map((row) => row.value)
+  const sums = total.results[0] as { n: number; units: number; available: number }
   return c.json<AssetPage>({
     data: list.results as Asset[],
-    meta: { page, per_page: perPage, total: (total.results[0] as { n: number }).n },
+    meta: { page, per_page: perPage, total: sums.n },
     categories: values(categories.results),
     locations: values(locations.results),
+    units: sums.units,
+    available: sums.available,
   })
 })
 
@@ -137,7 +147,7 @@ assets.get('/:id', async (c) => {
   return c.json<AssetResponse>({ asset: found, loans: loans.results as AssetLoan[] })
 })
 
-assets.post('/', requireRole('ADMIN'), async (c) => {
+assets.post('/', async (c) => {
   const body = await readJsonObject(c)
   if (!body) return c.json<ApiErrorBody>({ error: 'Data aset tidak valid.' }, 400)
 
@@ -188,7 +198,7 @@ assets.post('/', requireRole('ADMIN'), async (c) => {
 
 // PRD menyebut PUT; PATCH diterima dengan arti yang sama. Field yang tidak dikirim tidak
 // diubah.
-assets.on(['PUT', 'PATCH'], '/:id', requireRole('ADMIN'), async (c) => {
+assets.on(['PUT', 'PATCH'], '/:id', async (c) => {
   const id = positiveInt(c.req.param('id'))
   const body = await readJsonObject(c)
   if (!body) return c.json<ApiErrorBody>({ error: 'Data aset tidak valid.' }, 400)

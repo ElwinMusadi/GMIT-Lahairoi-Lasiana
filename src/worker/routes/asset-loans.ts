@@ -317,8 +317,18 @@ loans.patch('/:id/return', async (c) => {
       entityType: 'asset_loans',
       entityId: id,
       label: loanLabel(current),
-      before: { status: current.status, return_date: null, return_condition: null },
-      after: { status: 'RETURNED', return_date: returnDate, return_condition: returnCondition },
+      before: {
+        status: current.status,
+        return_date: null,
+        return_condition: null,
+        notes: current.notes,
+      },
+      after: {
+        status: 'RETURNED',
+        return_date: returnDate,
+        return_condition: returnCondition,
+        notes,
+      },
     }),
   ])
   if (update.meta.changes === 0 || restock.meta.changes === 0) {

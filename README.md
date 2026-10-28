@@ -102,6 +102,7 @@ Buka `/` untuk Portal Publik dan `/dashboard` untuk dashboard pengurus.
 | `/dashboard/worships` | `DashboardLayout` | Jadwal Ibadah (Admin, Pendeta, Majelis): jadwal mendatang dengan tanda bentrok petugas, ibadah yang sudah berlangsung dengan absensi; tambah di `/new`, ubah jadwal & petugas di `/:id` (Admin dan Pendeta) |
 | `/dashboard/sacraments` | `DashboardLayout` | Layanan Sakramen (Admin, Pendeta): antrean verifikasi dan Buku Induk per jenis; rincian & verifikasi di `/:id`, cetak sertifikat 2 mode di `/:id/cetak` |
 | `/dashboard/mails`   | `DashboardLayout` | Buku Agenda Surat (Admin): surat masuk/keluar dengan filter arah, tahun, kategori, pencarian; catat dan unggah salinan, buka/unduh, hapus |
+| `/dashboard/assets`  | `DashboardLayout` | Inventaris (Admin, Majelis): tab Katalog Inventaris dengan filter kategori, lokasi, kondisi; tab Peminjaman Barang dengan tanda terlambat; catat peminjaman dan konfirmasi pengembalian |
 | `/dashboard/users`   | `DashboardLayout` | Akun Pengurus (Admin): tambah, ubah peran/rayon, atur ulang kata sandi, nonaktifkan |
 | `/dashboard/audit-logs` | `DashboardLayout` | Log Aktivitas (Admin): riwayat per hari, filter tanggal/aksi/data/pengguna di URL |
 | `/dashboard/*`       | `DashboardLayout` | Halaman modul lain (kerangka); ditolak bila peran tidak berhak    |
@@ -767,12 +768,12 @@ Rute: [mails.ts](src/worker/routes/mails.ts), khusus Admin (sama dengan folder u
 Rute: [assets.ts](src/worker/routes/assets.ts) dan [asset-loans.ts](src/worker/routes/asset-loans.ts), untuk Admin dan Majelis. Aturan data bersama ada di [src/shared/assets.ts](src/shared/assets.ts); tabelnya `assets` dan `asset_loans` (migrasi 0008).
 
 - **Katalog aset** (`/api/assets`):
-  - Admin dan Majelis dapat melihat; menambah, mengubah, dan menghapus aset khusus Admin.
+  - Admin dan Majelis dapat melihat, menambah, dan mengubah aset; menghapus khusus Admin.
   - Isian: `name` dan `quantity` (jumlah unit) wajib; `asset_code`, `category`, `location`, `acquisition_source`, `acquisition_year`, `estimated_value`, `condition` (`GOOD` bawaan, `MINOR_DAMAGE`, `MAJOR_DAMAGE`, `MAINTENANCE`), dan `notes` opsional.
   - Kode inventaris kosong dibuat otomatis (`INV-0001`, `INV-0002`, …). Kode yang diisi manual dijadikan huruf besar, dan spasi diganti tanda hubung. Kode kembar (tanpa membedakan huruf besar/kecil) ditolak `409`.
   - `available_quantity` tidak dikirim klien. Saat aset dibuat, nilainya sama dengan `quantity`; setelah itu berubah lewat peminjaman dan pengembalian.
   - Mengubah `quantity` menggeser `available_quantity` dengan selisih yang sama. Jumlah di bawah unit yang sedang dipinjam ditolak.
-  - `GET` mendukung filter `category`, `location`, `condition`, `available` (`true`/`false`), `q` (kode, nama, catatan), `page`, dan `per_page`. Respons menyertakan daftar kategori dan lokasi yang sudah dipakai.
+  - `GET` mendukung filter `category`, `location`, `condition`, `available` (`true`/`false`), `q` (kode, nama, catatan), `page`, dan `per_page`. Respons menyertakan daftar kategori dan lokasi yang sudah dipakai, serta jumlah unit (`units`) dan unit tersedia (`available`) seluruh aset yang cocok.
   - `GET /:id` mengembalikan aset beserta 20 peminjaman terakhirnya.
   - Aset yang punya riwayat peminjaman tidak dapat dihapus, agar log peminjamannya tetap utuh.
 - **Meminjam** (`POST /api/asset-loans`):
@@ -801,6 +802,24 @@ curl -b cookies.txt -H "Content-Type: application/json" -X POST http://localhost
 curl -b cookies.txt -H "Content-Type: application/json" -X PATCH http://localhost:5173/api/asset-loans/1/return \
   -d '{"return_condition":"GOOD"}'
 ```
+
+**Di dashboard** (`/dashboard/assets`, [AssetsPage.tsx](src/client/pages/dashboard/AssetsPage.tsx)):
+
+- Judul memuat ringkasan seluruh inventaris: jumlah barang, jumlah unit, dan unit yang sedang dipinjam. Tab dan filter tersimpan di URL (`?view=loans` untuk tab Peminjaman).
+- **Katalog Inventaris**:
+  - Filter kategori, lokasi, dan kondisi fisik (Baik, Rusak ringan, Rusak berat, Dalam perbaikan), serta pencarian kode/nama/catatan.
+  - Kolom **Tersedia** menampilkan sisa unit dari jumlah unit, mis. `20 / 60`, beserta jumlah yang sedang dipinjam.
+  - Kondisi baik tidak diberi tanda; kondisi lain ditandai label berwarna.
+  - **Tambah aset** dan **Ubah data aset** (klik nama barang) untuk Admin dan Majelis. Kode inventaris kosong dibuat otomatis.
+  - Menu tiap baris berisi: **Pinjamkan** (tidak aktif bila barang rusak berat, dalam perbaikan, atau semua unit dipinjam), **Riwayat peminjaman** (membuka tab Peminjaman untuk barang itu), dan **Hapus aset** (khusus Admin).
+- **Peminjaman Barang**:
+  - Saringan status: Belum kembali (bawaan), Terlambat, Sudah dikembalikan, Semua; masing-masing dengan jumlahnya. Ada juga filter rayon dan pencarian.
+  - Peminjaman yang melewati batas kembali ditandai **Terlambat N hari** dengan label merah. Jumlah yang terlambat juga tampil di tab.
+  - Tombol **Kembalikan** membuka konfirmasi pengembalian berisi tanggal kembali, kondisi saat kembali, dan catatan. Catatan pengembalian ditambahkan di bawah keperluan peminjaman.
+  - Bila barang kembali rusak, notifikasinya menawarkan **Perbarui kondisi**. Tombol ini membuka form aset dengan kondisi yang dilaporkan.
+- **Catat peminjaman** (dialog):
+  - Barang dipilih per kategori, dengan sisa unit terkini. Jumlah dibatasi sisa unit. Rayon peminjam (untuk Majelis bawaannya rayonnya sendiri), nama peminjam, tanggal pinjam, batas kembali, dan keperluan.
+  - Bila stok habis didahului peminjaman lain, dialog menampilkan sisa terbaru.
 
 ## Unggah berkas
 
@@ -988,8 +1007,8 @@ Komponen akan ditulis ke `src/client/components/ui/`. Preset yang dipakai: `radi
 | DELETE | `/api/mails/:id` | Admin | Hapus catatan surat yang salah input |
 | GET    | `/api/assets` | Admin, Majelis | Katalog inventaris dengan filter kategori, lokasi, kondisi, ketersediaan, dan kata kunci |
 | GET    | `/api/assets/:id` | Admin, Majelis | Satu aset beserta riwayat peminjaman terakhirnya |
-| POST   | `/api/assets` | Admin | Tambah aset; kode inventaris otomatis bila kosong |
-| PUT    | `/api/assets/:id` | Admin | Ubah aset; stok tersedia ikut menyesuaikan jumlah unit (PATCH juga diterima) |
+| POST   | `/api/assets` | Admin, Majelis | Tambah aset; kode inventaris otomatis bila kosong |
+| PUT    | `/api/assets/:id` | Admin, Majelis | Ubah aset; stok tersedia ikut menyesuaikan jumlah unit (PATCH juga diterima) |
 | DELETE | `/api/assets/:id` | Admin | Hapus aset yang belum pernah dipinjam |
 | GET    | `/api/asset-loans` | Admin, Majelis | Log peminjaman dengan status terlambat (`OVERDUE`), filter, dan hitungan per status |
 | POST   | `/api/asset-loans` | Admin, Majelis | Catat peminjaman; stok tersedia berkurang, ditolak bila tidak cukup |

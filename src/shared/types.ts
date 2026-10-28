@@ -703,6 +703,9 @@ export type AssetPage = ApiPage<Asset> & {
   // Kategori dan lokasi yang sudah dipakai, untuk pilihan filter dan isian form.
   categories: string[]
   locations: string[]
+  // Jumlah unit dan unit tersedia seluruh aset yang cocok dengan filter.
+  units: number
+  available: number
 }
 
 export const LOAN_STATUS_LABELS = {
