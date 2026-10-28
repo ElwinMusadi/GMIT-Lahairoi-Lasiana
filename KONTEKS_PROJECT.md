@@ -91,8 +91,21 @@ Keputusan yang sudah dikonfirmasi pengguna (28 Oktober 2026):
 - **Gerak:** parallax dan gulir halus Lenis wajib di semua halaman portal, dengan nilai persis
   dari manifest kage. Gerak hanya mati saat `prefers-reduced-motion`.
 
-Tahap berikutnya: **Tahap 0 (persiapan)**, yaitu database uji portal, tangkapan layar dasar
-portal 08, dan daftar periksa isi.
+Progres tahap:
+
+- **Tahap 0 (persiapan) selesai.** Database uji portal sudah terisi konten realistis lewat API.
+  Baseline inspector portal 08 ada di `.taste-skill/inspect-portal-08-baseline/`. Catatannya di
+  rencana bagian 11.
+- **Berikutnya: Tahap 1 (fondasi):** token terang/gelap, huruf, aset foto, komponen shadcn, dan
+  primitif kage.
+
+**Bug API yang ditemukan di Tahap 0** (belum diperbaiki, diusulkan sebagai commit terpisah):
+
+- D1 membatasi pola `LIKE` 50 byte.
+- Akibatnya, membuat konten yang alamat otomatisnya ≥49 karakter gagal dengan eror 500
+  (`uniqueSlug` di `src/worker/routes/contents.ts`).
+- Kata pencarian ≥49 karakter juga memicu eror 500 di semua kotak cari (`containsPattern` di
+  `src/worker/lib/request.ts`), termasuk pencarian portal.
 
 ### Hasil audit UI/UX (28 Oktober 2026)
 

@@ -562,6 +562,12 @@ Ditemukan saat inventaris dan diperbaiki di tahap halaman masing-masing:
 6. Profil: daftar rayon yang gagal dimuat tidak punya tombol "Coba lagi".
 7. Sakramen: kode registrasi baru baru muncul di daftar tersimpan setelah muat ulang.
 8. Sakramen: tab "3. Pemberkatan Nikah" terpotong di ponsel.
+9. Beranda: kartu "Tema kebaktian minggu ini" hilang di pertengahan minggu.
+   - Penyebabnya, kartu itu hanya mencari di 6 jadwal terdekat dari `/api/public/home`.
+     Pada Rabu–Sabtu, keenamnya berisi ibadah rayon dan kategorial.
+   - Ditemukan saat mengisi data uji di Tahap 0.
+   - Di desain baru, kartu itu mengambil Kebaktian Minggu terdekat lewat
+     `/api/public/worships?category=sunday_service&per_page=1`, endpoint yang sudah ada.
 
 ## 6. Daftar periksa isi 08
 
@@ -707,6 +713,11 @@ kage. Yang dipertahankan dari kage, dengan alasan:
 Yang **tidak** dikecualikan: teks di bawah 13 px, teks bacaan di bawah 16 px, label kicker
 huruf kapital di atas judul, gradien selain scrim foto, dan gulir menyamping.
 
+Tahap 1 juga memperbarui [.taste-skill/direction.json](../.taste-skill/direction.json), yang saat
+ini masih memuat arah lama dengan huruf Roundo. Isinya diganti huruf kage dan daftar `allow`
+untuk pengecualian di atas. Dengan begitu inspector tidak lagi melaporkan `font-not-dealt`, dan
+pengecualian yang disengaja tercatat di satu tempat.
+
 ## 9. Keputusan (dikonfirmasi 28 Oktober 2026)
 
 | No | Keputusan | Hasil |
@@ -736,3 +747,63 @@ Penegasan pengguna: **efek parallax dan gulir halus Lenis tetap dipakai**, di se
 | Foto tunggal terasa berulang (hero, band, footer) | Band dan footer memakai potongan/posisi berbeda; foto Galeri terbaru dari CMS mengisi bagian galeri dan hero `/media` |
 | Isi 08 terlewat | Daftar periksa isi (bagian 6) jadi syarat selesai tiap tahap |
 | Gaya shadcn portal berubah untuk formulir sakramen | Formulir diuji penuh (validasi, unggah, kirim, kode registrasi) di tahap 8, di kedua tema |
+
+## 11. Catatan pelaksanaan
+
+### Tahap 0 — Persiapan (28 Oktober 2026)
+
+**Data uji portal.** Data disimpan di D1 scratch sesi (di luar repo) dan diisi lewat API
+sebagai Admin dan Pendeta, sehingga semuanya lolos aturan validasi yang sama dengan CMS. Dasarnya
+database uji audit (jemaat, keuangan, sakramen, surat, inventaris), lalu ditambah:
+
+| Isi | Jumlah | Catatan |
+| --- | --- | --- |
+| Warta | 16 terbit (+1 draf, +1 terjadwal) | 19 Juli – 1 November; PDF berisi teks |
+| Renungan | 15 terbit (+1 draf, +1 terjadwal) | Satu untuk hari ini; 14 renungan harian ditulis akun Pendeta; sebagian bersampul |
+| Berita | 14 terbit (+1 draf, +1 terjadwal) | Ringkasan dan isi; sebagian bersampul; judul panjang |
+| Galeri | 8 | Dua dengan tautan YouTube (satu tanpa foto) |
+| Profil | 4 | Sejarah (berfoto), Visi dan Misi, Pendeta & Majelis (9 orang + foto), "Makna Nama Lahai-roi" (bagian lainnya) |
+| Rekening & QRIS | 4 | Dua bergambar QRIS |
+| Rayon | 5 | Koordinator dan wilayah terisi; Rayon 5 sengaja tanpa koordinator |
+| Jadwal ibadah publik | 25 | 28 Oktober – 15 November: ibadah rayon (hari ini, besok, …), kategorial, Kebaktian Minggu pagi/sore dengan 6 petugas dan tata ibadah PDF, satu Perjamuan Kudus, satu ibadah khusus |
+
+- **Gambar uji:** potongan foto gedung gereja (menara, jendela kaca patri, serambi, atap) dalam
+  WebP. Tidak ada foto karangan.
+- **Pengisi data:** skrip `seed-portal.mjs` di folder scratch.
+
+**Baseline inspector portal 08.** Disimpan di `.taste-skill/inspect-portal-08-baseline/` (tidak
+di-commit), pada lebar 1440/768/390 px:
+
+| Halaman | FAIL | WARN | FAIL yang muncul |
+| --- | --- | --- | --- |
+| Beranda | 10 | 6 | eyebrow, micro-label, gradient, shadow, hairline, icon-cards, body-size, few-pictures, small-text (46 blok), focal-point |
+| Jadwal | 10 | 6 | eyebrow, shadow, hairline, icon-cards, body-size, few-pictures, small-text (68 blok), focal-point, off-centre, still-page |
+| Jadwal (saring rayon) | 8 | 6 | eyebrow, shadow, hairline, body-size, few-pictures, small-text, focal-point, still-page |
+| Warta | 6 | 4 | eyebrow, shadow, body-size, few-pictures, small-text, still-page |
+| Renungan | 6 | 4 | eyebrow, shadow, body-size, small-text, focal-point, still-page |
+| Renungan (baca) | 7 | 4 | + few-pictures |
+| Berita | 6 | 4 | eyebrow, shadow, body-size, small-text, focal-point, still-page |
+| Berita (baca) | 7 | 4 | + few-pictures |
+| Galeri | 6 | 4 | eyebrow, shadow, body-size, small-text, focal-point, still-page |
+| Profil | 7 | 4 | eyebrow, micro-label, shadow, few-pictures, small-text, focal-point, lopsided |
+| Persembahan | 9 | 3 | eyebrow, micro-label, shadow, icon-cards, body-size, few-pictures, small-text, focal-point, still-page |
+| Layanan Sakramen (baptis, nikah) | 8 | 6 | eyebrow, micro-label, shadow, body-size, few-pictures, small-text, focal-point, still-page; WARN side-scroll di 390 px |
+| 404 | 7 | 4 | eyebrow, shadow, body-size, few-pictures, small-text, focal-point, still-page |
+| Login | 1 | 3 | few-pictures |
+
+**Temuan baru:**
+
+- **Bug API, di luar cakupan redesign:**
+  - Pembuatan alamat konten otomatis (`uniqueSlug` di `src/worker/routes/contents.ts`) memakai
+    pola `LIKE '{slug}-%'`.
+  - D1 membatasi pola LIKE 50 byte, sehingga **judul yang alamatnya ≥49 karakter gagal disimpan
+    dengan eror 500**. Contoh: "Sekolah Minggu Mengadakan Lomba Cerdas Cermat Alkitab".
+  - Hal yang sama berlaku untuk **kata pencarian ≥49 karakter** di semua kotak cari
+    (`containsPattern`), termasuk pencarian portal: `/api/public/contents?q=<60 huruf>` →
+    500.
+  - Skrip data uji sementara mengirim alamat eksplisit. Perbaikannya diusulkan sebagai commit
+    terpisah.
+- **Kartu tema hilang di pertengahan minggu:** kartu "Tema kebaktian minggu ini" di Beranda
+  tidak tampil pada Rabu–Sabtu. Masuk ke daftar perbaikan 5.10 butir 9.
+- **Arah desain inspector:** `.taste-skill/direction.json` masih memuat arah lama dengan huruf
+  Roundo, sehingga semua halaman mendapat WARN `font-not-dealt`. Diperbarui di Tahap 1 (bagian 8).
