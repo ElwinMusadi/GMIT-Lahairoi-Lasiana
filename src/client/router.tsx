@@ -21,6 +21,8 @@ const modulePages: Record<string, PageLoader> = {
   rayons: () => import('@/pages/dashboard/RayonsPage'),
   users: () => import('@/pages/dashboard/UsersPage'),
   'audit-logs': () => import('@/pages/dashboard/AuditLogsPage'),
+  'finance/transactions': () => import('@/pages/dashboard/FinanceTransactionsPage'),
+  'finance/budgets': () => import('@/pages/dashboard/FinanceBudgetsPage'),
 }
 
 // Halaman turunan sebuah modul. Hak aksesnya sama dengan modulnya, kecuali `roles` diisi.

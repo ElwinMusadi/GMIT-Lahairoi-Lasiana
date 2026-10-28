@@ -16,7 +16,7 @@ import { Label } from '@/components/ui/label'
 import { ApiError, api, errorMessage } from '@/lib/api'
 import { cn } from '@/lib/utils'
 import { describedBy, inputClass } from '@/lib/form'
-import { FieldError, FieldHint } from './form-parts'
+import { FieldError, FieldHint } from '@/components/form-parts'
 
 type Props = {
   open: boolean

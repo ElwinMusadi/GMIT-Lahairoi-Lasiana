@@ -1,6 +1,6 @@
 import { cn } from './utils'
 
-// Kelas dan atribut field form dashboard (dialog KK, anggota jemaat, dan rayon).
+// Kelas dan atribut field form dashboard (dialog jemaat, rayon, dan keuangan).
 
 export const inputClass = 'h-10 rounded-lg bg-card px-3 text-base md:text-sm'
 

@@ -44,7 +44,7 @@ import {
 import { cn } from '@/lib/utils'
 import { FamilyPicker } from './family-picker'
 import { describedBy, inputClass, selectClass } from '@/lib/form'
-import { FieldError, FieldHint, FormSection } from './form-parts'
+import { FieldError, FieldHint, FormSection } from '@/components/form-parts'
 
 type Props = {
   open: boolean

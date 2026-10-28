@@ -216,9 +216,12 @@ const ROLE_ACCESS = [
     role: 'Bendahara',
     access: 'Pos Kas, RAPBJ, transaksi kas masuk dan keluar, laporan keuangan.',
   },
-  { role: 'Pendeta', access: 'Profil jemaat, layanan sakramen, renungan, dan laporan keuangan.' },
+  {
+    role: 'Pendeta',
+    access: 'Profil jemaat, layanan sakramen, renungan, dan data keuangan (hanya baca).',
+  },
   {
     role: 'Majelis',
-    access: 'Anggota jemaat di rayonnya, jadwal pelayanan, dan laporan keuangan.',
+    access: 'Anggota jemaat di rayonnya, jadwal pelayanan, dan data keuangan (hanya baca).',
   },
 ]

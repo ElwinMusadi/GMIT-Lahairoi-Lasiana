@@ -33,10 +33,12 @@ Proyek ini berbentuk **full-stack dalam satu paket**. `@cloudflare/vite-plugin` 
 │   │   │   ├── dashboard/      # Sidebar per peran dan menu profil
 │   │   │   ├── users/          # Dialog form akun dan kata sandi sementara
 │   │   │   ├── congregation/   # Form KK, profil anggota, rayon; panel profil; pemilih KK
+│   │   │   ├── finance/        # Form Pos Kas, mata anggaran, transaksi; kuitansi; panel rincian
+│   │   │   ├── form-parts.tsx  # Pesan error, petunjuk, dan bagian form dashboard
 │   │   │   └── session-provider.tsx
 │   │   ├── layouts/            # RootLayout, PublicLayout, DashboardLayout
 │   │   ├── pages/              # public/, dashboard/, LoginPage, RouteErrorPage
-│   │   ├── lib/                # api, use-api-query, use-url-filters, upload, session, navigation, format WITA, audit-format, congregation, read-spreadsheet, member-files
+│   │   ├── lib/                # api, use-api-query, use-url-filters, upload, session, navigation, format WITA, audit-format, congregation, finance, use-live-reload, read-spreadsheet, member-files
 │   │   ├── router.tsx          # Definisi semua rute
 │   │   ├── main.tsx
 │   │   └── index.css           # Tailwind v4 + token tema portal & dashboard
@@ -84,6 +86,8 @@ Buka `/` untuk Portal Publik dan `/dashboard` untuk dashboard pengurus.
 | `/dashboard/families` | `DashboardLayout` | Kartu Keluarga per rayon; KK baru langsung dibuka untuk diisi anggotanya |
 | `/dashboard/families/:id` | `DashboardLayout` | Rincian KK: seluruh anggota, data KK, tambah Kepala Keluarga/anggota |
 | `/dashboard/rayons`  | `DashboardLayout` | Rayon (Admin): koordinator, keterangan, jumlah KK dan jiwa |
+| `/dashboard/finance/transactions` | `DashboardLayout` | Transaksi Kas: kas masuk/keluar per bulan, total, bukti kuitansi (Bendahara dan Admin mencatat; Pendeta dan Majelis membaca) |
+| `/dashboard/finance/budgets` | `DashboardLayout` | Pos Kas & RAPBJ: saldo Pos Kas, target dan realisasi tiap mata anggaran per tahun |
 | `/dashboard/users`   | `DashboardLayout` | Akun Pengurus (Admin): tambah, ubah peran/rayon, atur ulang kata sandi, nonaktifkan |
 | `/dashboard/audit-logs` | `DashboardLayout` | Log Aktivitas (Admin): riwayat per hari, filter tanggal/aksi/data/pengguna di URL |
 | `/dashboard/*`       | `DashboardLayout` | Halaman modul lain (kerangka); ditolak bila peran tidak berhak    |
@@ -430,7 +434,7 @@ Rute: [finance-funds.ts](src/worker/routes/finance-funds.ts), [finance-budgets.t
   - Bila memilih mata anggaran, mata anggaran itu harus pada Pos Kas, jenis (penerimaan ↔ kas masuk, pengeluaran ↔ kas keluar), dan tahun anggaran yang sama dengan transaksinya.
   - Bukti kuitansi diunggah dulu ke `POST /api/uploads` (folder `kuitansi`), lalu URL-nya dikirim sebagai `receipt_url`.
   - Mengubah Pos Kas, jenis, atau nominal memindahkan selisih saldonya otomatis. Pindah Pos Kas tanpa memilih mata anggaran baru melepas mata anggaran lama.
-- **Daftar transaksi.** `GET /api/finance/transactions` menerima `fund_id`, `budget_id`, `type`, `from`, `to` (inklusif), `q` (keterangan), `page`, dan `per_page`.
+- **Daftar transaksi.** `GET /api/finance/transactions` menerima `fund_id`, `budget_id`, `type`, `from`, `to` (inklusif), `receipt` (`with` berkuitansi, `without` tanpa kuitansi), `q` (keterangan), `page`, dan `per_page`.
   - Respons: `{ data, meta, totals: { income, expense } }`, dengan `totals` dihitung dari seluruh hasil filter, bukan hanya halaman itu.
 
 ```json
@@ -439,6 +443,24 @@ POST /api/finance/transactions
   "amount": 1500000, "description": "Kolekte Minggu pagi",
   "receipt_url": "/api/files/kuitansi/2026/10/<uuid>.jpg" }
 ```
+
+### Di dashboard
+
+Halaman ada di [src/client/pages/dashboard](src/client/pages/dashboard) (`FinanceBudgetsPage`, `FinanceTransactionsPage`) dan komponennya di [src/client/components/finance](src/client/components/finance). Validasi form memakai fungsi yang sama dengan API (`parseFundInput`, `parseBudgetInput`, `parseTransactionInput`).
+
+- **Hak akses di layar.** Bendahara dan Admin melihat tombol tambah, menu ubah/nonaktifkan/hapus, dan form. Pendeta dan Majelis melihat data, rincian, dan kuitansi yang sama tanpa tombol-tombol itu.
+- **Pos Kas & RAPBJ** (`/dashboard/finance/budgets`). Tahun anggaran dan Pos Kas dipilih di atas tabel dan tersimpan di URL (`?year=2025&fund_id=2`); bawaannya tahun berjalan.
+  - Mata anggaran dikelompokkan Penerimaan dan Pengeluaran, masing-masing dengan subtotal. Tiap baris menampilkan target, realisasi, dan bar capaian. Garis tegak pada bar menandai bagian tahun yang sudah berjalan, sebagai pembanding.
+  - Pengeluaran yang melewati target ditandai "Lewat Rp…" dan kelebihannya digambar dengan warna negatif di ujung bar.
+  - Kalimat di bawah judul merangkum capaian penerimaan, serapan pengeluaran, dan jumlah mata anggaran yang melewati batas.
+  - Realisasi dihitung dari transaksi tercatat. Halaman memuat ulang saat tab kembali dibuka dan setiap 60 detik, jadi transaksi dari pengurus lain ikut terhitung.
+  - Panel Pos Kas menampilkan saldo tiap Pos Kas dan totalnya. Mata anggaran atau Pos Kas yang sudah dipakai transaksi hanya bisa dinonaktifkan; menu Hapus menyebut alasannya.
+- **Transaksi Kas** (`/dashboard/finance/transactions`). Filter Bulan (bawaan bulan berjalan, atau Semua bulan), Pos Kas, Jenis, Kuitansi, dan pencarian keterangan tersimpan di URL. Nama mata anggaran di halaman RAPBJ membuka transaksinya (`?budget_id=…&month=all`).
+  - Kas masuk, kas keluar, dan selisih di atas tabel dihitung dari seluruh hasil filter.
+  - Kalimat di bawah judul menyebut transaksi bulan itu yang belum berkuitansi, dengan tautan untuk menampilkannya.
+  - "Catat transaksi" hanya menawarkan mata anggaran dengan Pos Kas, jenis, dan tahun yang cocok. Kuitansi (foto JPG/PNG/WebP atau PDF, maksimal 10 MB) langsung diunggah saat dipilih; tombol simpan menunggu unggahan selesai.
+  - Uraian transaksi membuka panel rincian. Foto kuitansi tampil di panel; PDF tampil di bingkai dengan tautan untuk membukanya di tab baru.
+  - Konfirmasi hapus menyebut saldo Pos Kas sebelum dan sesudahnya. Notifikasi setelah menyimpan menyebut saldo terbaru.
 
 ## Unggah berkas
 

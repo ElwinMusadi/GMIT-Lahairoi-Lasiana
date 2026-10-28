@@ -54,6 +54,7 @@
   --color-field: var(--field);
   --color-field-foreground: var(--field-foreground);
   --color-rule: var(--rule);
+  --color-positive: var(--positive);
   --color-positive-soft: var(--positive-soft);
   --color-positive-ink: var(--positive-ink);
   --color-negative-soft: var(--negative-soft);

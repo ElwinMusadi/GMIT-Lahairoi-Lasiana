@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ApiError, api, errorMessage } from '@/lib/api'
 import { describedBy, inputClass } from '@/lib/form'
-import { FieldError } from './form-parts'
+import { FieldError } from '@/components/form-parts'
 
 type Props = {
   open: boolean

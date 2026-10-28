@@ -31,8 +31,8 @@ import { cn } from '@/lib/utils'
 const ROLE_OPTIONS: { role: UserRole; access: string }[] = [
   { role: 'ADMIN', access: 'Akun pengurus, data jemaat, konten portal' },
   { role: 'TREASURER', access: 'Pos Kas, transaksi, laporan keuangan' },
-  { role: 'PASTOR', access: 'Profil jemaat, sakramen, renungan' },
-  { role: 'ELDER', access: 'Jemaat di rayonnya, jadwal pelayanan' },
+  { role: 'PASTOR', access: 'Profil jemaat, sakramen, renungan, keuangan (baca)' },
+  { role: 'ELDER', access: 'Jemaat di rayonnya, jadwal, keuangan (baca)' },
 ]
 
 const fieldClass = 'h-10 rounded-lg bg-card px-3 text-base md:text-sm'

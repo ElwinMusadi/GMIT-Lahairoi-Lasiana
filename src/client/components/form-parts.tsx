@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 
-// Potongan form yang dipakai bersama oleh dialog KK, anggota jemaat, dan rayon.
+// Potongan form dashboard yang dipakai bersama (dialog jemaat, rayon, dan keuangan).
 
 export function FieldError({ id, messages }: { id: string; messages?: string[] }) {
   if (!messages?.[0]) return null

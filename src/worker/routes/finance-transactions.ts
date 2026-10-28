@@ -42,8 +42,9 @@ import type { AppEnv } from '../types'
 // berubah bersama atau tidak sama sekali; aplikasi tidak pernah menulis saldo sendiri.
 //
 // GET / query opsional: fund_id, budget_id, type (INCOME/EXPENSE), from, to
-// (YYYY-MM-DD, inklusif), q (keterangan), page, per_page (maks. 100). Respons
-// menyertakan totals: jumlah kas masuk dan kas keluar seluruh hasil filter.
+// (YYYY-MM-DD, inklusif), receipt (with/without kuitansi), q (keterangan), page,
+// per_page (maks. 100). Respons menyertakan totals: jumlah kas masuk dan kas keluar
+// seluruh hasil filter.
 const transactions = new Hono<AppEnv>()
 
 transactions.use(requireRole(...FINANCE_READERS))
@@ -89,6 +90,11 @@ transactions.get('/', async (c) => {
   }
   if (from && !details.from) where.add('t.transaction_date >= ?', from)
   if (to && !details.to) where.add('t.transaction_date <= ?', to)
+  if (query.receipt !== undefined) {
+    if (query.receipt === 'with') where.addClause('t.receipt_url IS NOT NULL')
+    else if (query.receipt === 'without') where.addClause('t.receipt_url IS NULL')
+    else details.receipt = ['Isi with (berkuitansi) atau without (tanpa kuitansi).']
+  }
   if (query.q !== undefined) {
     const words = searchWords(query.q)
     if (words === null) details.q = ['Kata pencarian maksimal 100 karakter.']
