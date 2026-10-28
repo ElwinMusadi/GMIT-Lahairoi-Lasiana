@@ -30,14 +30,15 @@ export function WindowPanel({
     <div
       className={cn(
         // min-w-0: judul mono yang panjang dipotong, bukan melebarkan kolom grid induknya.
-        'min-w-0 overflow-hidden border border-white/10 bg-site-panel text-left text-white',
-        compact ? 'rounded-xl' : 'rounded-3xl shadow-site-panel',
+        // Tepi hanya di tema gelap, agar panel tetap terpisah dari kanvas yang gelap.
+        'min-w-0 overflow-hidden text-left text-white dark:border dark:border-white/10',
+        compact ? 'rounded-xl bg-site-panel-2' : 'rounded-3xl bg-site-panel shadow-site-panel',
         className,
       )}
     >
       <div
         className={cn(
-          'flex items-center gap-3 border-b border-white/10 bg-white/[0.02]',
+          'flex items-center gap-3 bg-white/[0.05]',
           compact ? 'px-4 py-3' : 'px-5 py-4 md:px-6',
         )}
       >
@@ -63,7 +64,7 @@ export function WindowPanel({
       </div>
       <div className={cn(compact ? 'p-4' : 'p-5 md:p-8', bodyClassName)}>{children}</div>
       {footer && (
-        <div className="flex flex-col items-start justify-between gap-3 border-t border-white/10 bg-white/[0.04] px-5 py-4 text-sm text-white/70 sm:flex-row sm:items-center md:px-6">
+        <div className="flex flex-col items-start justify-between gap-3 bg-white/[0.05] px-5 py-4 text-sm text-white/70 sm:flex-row sm:items-center md:px-6">
           {footer}
         </div>
       )}

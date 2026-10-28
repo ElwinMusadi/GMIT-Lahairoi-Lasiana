@@ -3,6 +3,7 @@ import { MapPin } from 'lucide-react'
 import { Link } from 'react-router'
 import { WellMark } from '@/components/brand/well'
 import { portalNavLinks } from '@/lib/navigation'
+import { CHURCH_PHOTO } from '@/lib/portal'
 import { useBackgroundParallax } from '@/lib/portal-motion'
 
 const YEAR = new Date().getFullYear()
@@ -26,8 +27,6 @@ const COLUMNS = [
   })),
 }))
 
-const PHOTO = '/images/gereja-gmit-lahairoi'
-
 // Footer Portal Publik rancangan kage: foto gedung gereja di belakang scrim teal gelap,
 // bergeser pelan mengikuti gulir (±420 px), dengan tepi gerigi di atasnya.
 export function SiteFooter() {
@@ -39,9 +38,9 @@ export function SiteFooter() {
       <img
         ref={photo}
         data-parallax-bg
-        src={`${PHOTO}-1254.webp`}
-        srcSet={`${PHOTO}-640.webp 640w, ${PHOTO}-960.webp 960w, ${PHOTO}-1254.webp 1254w`}
-        sizes="100vw"
+        src={CHURCH_PHOTO.src}
+        srcSet={CHURCH_PHOTO.srcSet}
+        sizes={CHURCH_PHOTO.sizes}
         alt=""
         loading="lazy"
         decoding="async"
@@ -59,7 +58,7 @@ export function SiteFooter() {
               <WellMark className="size-4 text-site-accent" />
               GMIT Lahairoi Tuak Sabu
             </p>
-            <p className="max-w-[40ch] text-[15px] leading-relaxed text-white/90">
+            <p className="max-w-[40ch] text-base leading-relaxed text-white/90">
               Gereja Masehi Injili di Timor, Jemaat Lahairoi Tuak Sabu. Bersekutu, bersaksi, dan
               melayani bersama jemaat di lima rayon pelayanan Lasiana.
             </p>

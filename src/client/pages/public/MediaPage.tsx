@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Skeleton } from '@/components/ui/skeleton'
-import { paragraphs, publishedDate, youTubeId } from '@/lib/portal'
+import { mediaCover, paragraphs, publishedDate, youTubeId } from '@/lib/portal'
 import { useApiQuery } from '@/lib/use-api-query'
 import { useUrlFilters } from '@/lib/use-url-filters'
 
@@ -83,15 +83,8 @@ export default function MediaPage() {
   )
 }
 
-// Gambar sampul: foto yang diunggah, atau gambar pratinjau YouTube untuk video saja.
-function coverOf(item: PublicContent) {
-  if (item.thumbnail_url) return item.thumbnail_url
-  const video = youTubeId(item.attachment_url)
-  return video ? `https://i.ytimg.com/vi/${video}/hqdefault.jpg` : null
-}
-
 function MediaTile({ item, onOpen }: { item: PublicContent; onOpen: () => void }) {
-  const cover = coverOf(item)
+  const cover = mediaCover(item)
   const hasVideo = Boolean(item.attachment_url)
   return (
     <button

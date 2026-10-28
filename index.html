@@ -30,6 +30,20 @@
           }
         } catch (e) {}
       }
+      // Foto hero Beranda diminta sejak awal, sebelum bundle selesai dimuat.
+      if (location.pathname === '/') {
+        var hero = document.createElement('link')
+        hero.rel = 'preload'
+        hero.as = 'image'
+        hero.href = '/images/gereja-gmit-lahairoi-1254.webp'
+        hero.setAttribute(
+          'imagesrcset',
+          '/images/gereja-gmit-lahairoi-640.webp 640w, /images/gereja-gmit-lahairoi-960.webp 960w, /images/gereja-gmit-lahairoi-1254.webp 1254w',
+        )
+        hero.setAttribute('imagesizes', '100vw')
+        hero.setAttribute('fetchpriority', 'high')
+        document.head.appendChild(hero)
+      }
     </script>
   </head>
   <body>

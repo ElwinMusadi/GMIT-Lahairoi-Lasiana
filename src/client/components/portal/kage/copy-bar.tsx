@@ -49,7 +49,7 @@ export function CopyBar({
   return (
     <div
       className={cn(
-        'flex min-w-0 items-center justify-between gap-3 rounded-full border border-white/15 bg-site-panel-2 p-1.5 pl-5 shadow-inner',
+        'flex min-w-0 items-center justify-between gap-3 rounded-full bg-site-panel-2 p-1.5 pl-5 shadow-inner',
         className,
       )}
     >

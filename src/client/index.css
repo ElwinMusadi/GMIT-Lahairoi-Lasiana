@@ -222,6 +222,7 @@
   /* Jarak header dan isi hero dari tepi layar; panel hero berjarak 12–16 px dari tepi,
      sisanya bantalan di dalam panel. Header dan hero memakai nilai yang sama agar sejajar. */
   --site-inset: 32px;
+  --site-hero-gap: 12px;
 
   /* Token kage, tema terang (bawaan). */
   --site-canvas: #ffffff;
@@ -277,12 +278,35 @@
 @media (width >= 48rem) {
   .theme-portal {
     --site-inset: 48px;
+    --site-hero-gap: 16px;
   }
 }
 @media (width >= 80rem) {
   .theme-portal {
     --site-inset: 64px;
   }
+}
+
+/* Bantalan isi panel hero: tepi kiri isi sejajar dengan pil header, dan bagian atasnya
+   memberi ruang untuk header (44 px) yang melayang di atas foto. */
+.site-hero-pad {
+  --pad: calc(var(--site-inset) - var(--site-hero-gap));
+  padding: calc(var(--pad) + 84px) var(--pad) var(--pad);
+}
+
+/* Scrim foto hero (manifest 75/45/85) dan band (60 %), teal sangat gelap yang nyaris
+   netral seperti scrim footer. Bagian tengah hero dinaikkan ke 55 % agar kalimat besar
+   tetap terbaca di atas dinding gereja yang putih. */
+.site-hero-scrim {
+  background: linear-gradient(
+    to bottom,
+    rgb(8 18 21 / 0.75),
+    rgb(8 18 21 / 0.55) 45%,
+    rgb(8 18 21 / 0.88)
+  );
+}
+.site-band-scrim {
+  background: rgb(8 18 21 / 0.62);
 }
 
 /* Scrim foto footer: teal sangat gelap yang nyaris netral. Pita teratas lebih terang agar

@@ -29,7 +29,7 @@ export function FaqAccordion({
         <AccordionPrimitive.Item
           key={item.question}
           value={`faq-${index}`}
-          className="group rounded-2xl border border-site-rule bg-site-canvas transition-colors hover:border-site-ink data-[state=open]:hover:border-site-rule"
+          className="group rounded-2xl bg-site-paper"
         >
           <AccordionPrimitive.Header>
             <AccordionPrimitive.Trigger className="flex w-full items-center justify-between gap-4 rounded-2xl p-5 text-left outline-none focus-visible:ring-3 focus-visible:ring-ring md:p-6">
@@ -38,7 +38,7 @@ export function FaqAccordion({
               </span>
               <span
                 aria-hidden="true"
-                className="flex size-8 flex-none items-center justify-center rounded-full border border-site-rule bg-site-paper font-site-mono text-sm text-site-ink transition-colors group-data-[state=open]:border-site-ink group-data-[state=open]:bg-site-ink group-data-[state=open]:text-site-canvas"
+                className="flex size-8 flex-none items-center justify-center rounded-full bg-site-canvas text-base text-site-ink transition-colors group-hover:bg-site-ink group-hover:text-site-canvas group-data-[state=open]:bg-site-ink group-data-[state=open]:text-site-canvas"
               >
                 <span className="group-data-[state=open]:hidden">+</span>
                 <span className="hidden group-data-[state=open]:inline">−</span>
@@ -46,7 +46,7 @@ export function FaqAccordion({
             </AccordionPrimitive.Trigger>
           </AccordionPrimitive.Header>
           <AccordionPrimitive.Content className="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down motion-reduce:animate-none">
-            <div className="mx-5 border-t border-site-rule pt-4 pb-5 font-site-body text-base leading-relaxed text-site-muted md:mx-6 md:pb-6">
+            <div className="max-w-[65ch] px-5 pb-5 font-site-body text-base leading-relaxed text-site-ink/80 md:px-6 md:pb-6">
               {item.answer}
             </div>
           </AccordionPrimitive.Content>

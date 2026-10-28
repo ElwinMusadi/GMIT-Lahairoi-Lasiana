@@ -1,55 +1,155 @@
-import { useState, type ReactNode } from 'react'
-import {
-  ArrowRight,
-  BookOpen,
-  CalendarDays,
-  Download,
-  FileText,
-  HandHeart,
-  Landmark,
-  Megaphone,
-  Newspaper,
-  QrCode,
-  Share2,
-  Users,
-} from 'lucide-react'
+import { useId, useRef, useState, type ReactNode, type RefObject } from 'react'
+import { Share2 } from 'lucide-react'
 import { Link } from 'react-router'
 import { toast } from 'sonner'
-import type { PublicContent, PublicHome, PublicWorship, WorshipCategory } from '@shared/types'
-import { WellMark } from '@/components/brand/well'
+import type {
+  ApiList,
+  ApiPage,
+  PublicContent,
+  PublicHome,
+  PublicWorshipItem,
+  RayonListItem,
+  WorshipCategory,
+} from '@shared/types'
+import { CopyBar } from '@/components/portal/kage/copy-bar'
+import { FaqAccordion } from '@/components/portal/kage/faq-accordion'
+import { HeroPanel } from '@/components/portal/kage/hero-panel'
+import { PhotoBand } from '@/components/portal/kage/photo-band'
+import { PillButton, PillLink } from '@/components/portal/kage/pill'
+import { Reveal } from '@/components/portal/kage/reveal'
+import { ScheduleBoard } from '@/components/portal/kage/schedule-board'
+import { LoadError, SectionIntro, SiteSection } from '@/components/portal/kage/site-section'
+import { TwoToneHeading } from '@/components/portal/kage/two-tone-heading'
+import { WindowPanel } from '@/components/portal/kage/window-panel'
+import { splitPaymentTitle } from '@/lib/contents'
 import {
-  EmptyNote,
-  Eyebrow,
-  PortalCard,
-  PortalSection,
-  SectionHeading,
-} from '@/components/portal/parts'
-import { WorshipCard } from '@/components/portal/worship-card'
-import { Skeleton } from '@/components/ui/skeleton'
-import { copyText, paragraphs, publishedDate, worshipWhen } from '@/lib/portal'
+  accountDigits,
+  addDays,
+  compactPublishedDate,
+  copyText,
+  mediaCover,
+  paragraphs,
+  publishedDate,
+  worshipWhen,
+} from '@/lib/portal'
+import { useFloat } from '@/lib/portal-motion'
+import { SACRAMENT_FAQ } from '@/lib/sacrament-faq'
 import { useApiQuery } from '@/lib/use-api-query'
 import { cn } from '@/lib/utils'
 
-// Beranda Portal Publik (rancangan design/stitch/08): pengumuman terkini, sambutan dan
-// tautan cepat, jadwal ibadah terdekat, renungan hari ini, warta PDF terbaru, berita,
-// dan ajakan persembahan. Semua isi dari GET /api/public/home.
+// Beranda Portal Publik rancangan kage dengan isi Beranda 08: hero foto, papan jadwal
+// terdekat, renungan hari ini, warta dan berita, layanan jemaat, lima rayon, galeri,
+// persembahan, dan tanya-jawab sakramen. Isi utama dari GET /api/public/home.
 export default function HomePage() {
   const home = useApiQuery<PublicHome>('/public/home')
-  const data = home.data
+  const today = home.data?.today
+  // Kebaktian Minggu terdekat, juga di pertengahan minggu saat enam jadwal terdekat
+  // berisi ibadah rayon dan kategorial.
+  const sunday = useApiQuery<ApiPage<PublicWorshipItem>>('/public/worships', {
+    category: 'SUNDAY_SERVICE',
+    per_page: 1,
+  })
+  const rayons = useApiQuery<ApiList<RayonListItem>>('/rayons')
+  const week = useApiQuery<ApiPage<PublicWorshipItem>>(today ? '/public/worships' : null, {
+    to: today ? addDays(today, 6) : '',
+    per_page: 1,
+  })
 
   return (
     <>
-      <NoticeBar news={data?.latest_news[0]} warta={data?.latest_warta} />
-      <Hero home={data} loading={!data && !home.error} />
-      <Agenda home={data} error={home.error} onRetry={home.reload} />
-      <Publications home={data} />
-      <OfferingStrip />
+      <HomeHero
+        home={home.data}
+        sunday={sunday.data?.data[0]}
+        loading={!home.data && !home.error}
+      />
+      <Agenda home={home.data} error={home.error} onRetry={home.reload} />
+      <Devotional home={home.data} error={home.error} onRetry={home.reload} />
+      <Publications home={home.data} error={home.error} onRetry={home.reload} />
+      <ServicesBand />
+      <Rayons rayons={rayons.data?.data} error={rayons.error} onRetry={rayons.reload} />
+      <Gallery />
+      <Offering
+        home={home.data}
+        error={home.error}
+        onRetry={home.reload}
+        rayonCount={rayons.data?.data.length}
+        weekCount={week.data?.meta.total}
+      />
+      <Questions />
     </>
   )
 }
 
-// Pita biru tua di atas hero: pengumuman terbaru.
-function NoticeBar({
+// ---------- Hero
+
+function HomeHero({
+  home,
+  sunday,
+  loading,
+}: {
+  home: PublicHome | undefined
+  sunday: PublicWorshipItem | undefined
+  loading: boolean
+}) {
+  const warta = home?.latest_warta
+  return (
+    <HeroPanel
+      size="full"
+      labelledBy="judul-beranda"
+      display={
+        <div className="grid justify-items-center gap-6 pt-2 text-center md:pt-6">
+          {/* Makna nama Lahai-roi: "Engkaulah El-Roi", Allah yang melihat. */}
+          <TwoToneHeading
+            as="p"
+            size="hero"
+            onDark
+            lead="Allah yang hidup"
+            accent="melihat kita."
+          />
+          <p className="text-sm font-medium text-white/80">Kejadian 16:13–14</p>
+        </div>
+      }
+    >
+      <div className="mt-auto grid gap-8 pt-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,340px)] lg:items-end">
+        <div className="grid gap-6">
+          <div className="grid max-w-[54ch] gap-3">
+            <h1
+              id="judul-beranda"
+              className="font-site-display text-2xl leading-tight font-bold tracking-tight text-balance md:text-[28px]"
+            >
+              GMIT Jemaat Lahairoi Tuak Sabu Lasiana
+            </h1>
+            <p className="text-base leading-relaxed text-white/85 md:text-lg">
+              Wadah persekutuan, informasi ibadah, dan pelayanan bagi seluruh jemaat dan keluarga di
+              lima rayon pelayanan Lasiana, Kota Kupang.
+            </p>
+          </div>
+          <Notice news={home?.latest_news[0]} warta={warta} />
+          <nav aria-label="Akses cepat" className="grid grid-cols-2 gap-2 xl:grid-cols-4">
+            <QuickAction
+              primary
+              to={warta?.attachment_url ?? '/warta'}
+              external={Boolean(warta?.attachment_url)}
+              title="Unduh Warta Jemaat"
+              note={warta ? `PDF · ${compactPublishedDate(warta.published_at)}` : 'Belum terbit'}
+            />
+            <QuickAction to="#jadwal" title="Jadwal Ibadah" note="Minggu, rayon, kategorial" />
+            <QuickAction to="/persembahan" title="Beri Persembahan" note="QRIS & transfer bank" />
+            <QuickAction to="/profil" title="Profil & 5 Rayon" note="Sejarah, majelis, rayon" />
+          </nav>
+        </div>
+        {loading ? (
+          <div className="h-44 animate-pulse rounded-3xl bg-white/10" />
+        ) : (
+          sunday?.theme && home && <ThemeCard worship={sunday} today={home.today} />
+        )}
+      </div>
+    </HeroPanel>
+  )
+}
+
+// Pengumuman terkini (berita terbaru, atau warta terbaru bila belum ada berita).
+function Notice({
   news,
   warta,
 }: {
@@ -59,239 +159,93 @@ function NoticeBar({
   const item = news ?? warta
   if (!item) return null
   return (
-    <div className="bg-portal-navy px-4 py-2 text-xs font-semibold text-white lg:px-8">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3">
-        <p className="flex min-w-0 items-center gap-2">
-          <span className="flex size-5 flex-none items-center justify-center rounded-full bg-portal-amber-light text-portal-amber-ink">
-            <Megaphone className="size-3" aria-hidden="true" />
-          </span>
-          <span className="flex-none text-portal-amber-soft">
-            {news ? 'Pengumuman terkini:' : 'Warta terbaru:'}
-          </span>
-          <span className="truncate font-medium text-white/90">{item.title}</span>
-        </p>
-        <span className="hidden flex-none text-portal-blue-light sm:inline">
-          Zona waktu: WITA (UTC+8)
-        </span>
-      </div>
-    </div>
-  )
-}
-
-function Hero({ home, loading }: { home: PublicHome | undefined; loading: boolean }) {
-  // Tema kebaktian Minggu terdekat yang sudah diumumkan.
-  const sunday = home?.upcoming_worships.find(
-    (worship) => worship.category === 'SUNDAY_SERVICE' && worship.theme,
-  )
-  const warta = home?.latest_warta
-  return (
-    <section
-      aria-labelledby="judul-beranda"
-      className="relative overflow-hidden bg-portal-low px-4 py-10 lg:px-8"
+    <PillLink
+      to={news ? `/berita/${news.slug}` : '/warta'}
+      tone="glass"
+      size="sm"
+      arrow
+      className="h-auto min-h-11 max-w-full justify-self-start py-2 text-sm whitespace-normal"
     >
-      <div className="mx-auto flex max-w-7xl flex-col gap-10 lg:flex-row lg:items-center">
-        <div className="flex min-w-0 flex-1 flex-col gap-5">
-          <span className="inline-flex w-fit items-center gap-2 rounded-full bg-portal-high px-4 py-1">
-            <span className="size-2 rounded-full bg-portal-amber" aria-hidden="true" />
-            <span className="text-xs font-semibold tracking-widest text-portal-amber uppercase">
-              Selamat datang di portal jemaat
-            </span>
-          </span>
-          <div className="grid gap-3">
-            <h1
-              id="judul-beranda"
-              className="font-portal-heading text-3xl leading-tight font-bold tracking-tight text-balance text-portal-navy sm:text-[2.5rem] sm:leading-[3rem]"
-            >
-              GMIT Jemaat Lahairoi Tuak Sabu Lasiana
-            </h1>
-            <p className="max-w-2xl text-lg leading-7 text-pretty text-portal-muted">
-              Wadah persekutuan, informasi ibadah, dan pelayanan bagi seluruh jemaat dan keluarga di
-              lima rayon pelayanan Lasiana, Kota Kupang.
-            </p>
-          </div>
-
-          {loading ? (
-            <Skeleton className="h-24 w-full rounded-xl" />
-          ) : (
-            sunday && home && <ThemeCard worship={sunday} today={home.today} />
-          )}
-
-          <div className="grid gap-2 pt-1 sm:grid-cols-2 lg:grid-cols-4">
-            <QuickAction
-              href={warta?.attachment_url ?? '/warta'}
-              external={Boolean(warta?.attachment_url)}
-              icon={<Download className="size-5" aria-hidden="true" />}
-              title="Unduh Warta Jemaat"
-              note={warta ? `PDF · ${publishedDate(warta.published_at)}` : 'Belum terbit'}
-              className="bg-portal-amber text-white"
-              noteClass="text-white/80"
-            />
-            <QuickAction
-              href="#jadwal"
-              icon={<CalendarDays className="size-5" aria-hidden="true" />}
-              title="Jadwal Ibadah"
-              note="Minggu, rayon, kategorial"
-              className="bg-portal-indigo text-white"
-              noteClass="text-portal-blue-soft"
-            />
-            <QuickAction
-              href="/persembahan"
-              icon={<QrCode className="size-5 text-portal-navy" aria-hidden="true" />}
-              title="Beri Persembahan"
-              note="QRIS & transfer bank"
-              className="bg-portal-highest text-portal-ink hover:bg-portal-blue-soft"
-              noteClass="text-portal-muted"
-            />
-            <QuickAction
-              href="/profil"
-              icon={<Users className="size-5 text-portal-amber" aria-hidden="true" />}
-              title="Profil & 5 Rayon"
-              note="Sejarah, majelis, rayon"
-              className="bg-portal-highest text-portal-ink hover:bg-portal-blue-soft"
-              noteClass="text-portal-muted"
-            />
-          </div>
-        </div>
-
-        <div className="flex w-full flex-none flex-col gap-3 lg:w-96">
-          <HeroVisual media={home?.latest_media ?? null} loading={loading} />
-          <div className="flex items-center justify-between gap-3 rounded-xl bg-portal-high p-4">
-            <div className="flex items-center gap-3">
-              <Landmark className="size-5 flex-none text-portal-amber" aria-hidden="true" />
-              <div className="grid">
-                <span className="text-sm font-bold text-portal-ink">Baru di Lahairoi?</span>
-                <span className="text-sm text-portal-muted">
-                  Kenali sejarah, majelis, dan rayon Anda.
-                </span>
-              </div>
-            </div>
-            <Link
-              to="/profil"
-              className="flex-none rounded-md bg-portal-navy px-3 py-1.5 text-xs font-semibold text-white hover:bg-portal-indigo"
-            >
-              Profil
-            </Link>
-          </div>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-function ThemeCard({ worship, today }: { worship: PublicWorship; today: string }) {
-  return (
-    <PortalCard className="flex flex-col items-start justify-between gap-4 p-5 sm:flex-row sm:items-center">
-      <div className="flex min-w-0 items-start gap-4">
-        <span className="flex size-12 flex-none items-center justify-center rounded-xl bg-portal-indigo text-white">
-          <BookOpen className="size-6" aria-hidden="true" />
-        </span>
-        <div className="grid min-w-0">
-          <Eyebrow className="text-xs">Tema kebaktian minggu ini</Eyebrow>
-          <p className="font-portal-heading text-xl leading-7 font-semibold text-portal-ink">
-            “{worship.theme}”
-          </p>
-          <p className="text-xs font-medium text-portal-muted">
-            {[worship.bible_reading, worship.preacher && `Pelayan Firman ${worship.preacher}`]
-              .filter(Boolean)
-              .join(' · ')}
-          </p>
-        </div>
-      </div>
-      <span className="flex-none rounded-full bg-portal-mid px-3 py-1 text-xs font-semibold text-portal-navy">
-        {worshipWhen(worship.worship_date, worship.worship_time, today)}
+      <span className="min-w-0 text-left">
+        <span className="font-semibold text-site-accent">
+          {news ? 'Pengumuman terkini:' : 'Warta terbaru:'}
+        </span>{' '}
+        <span className="font-medium">{item.title}</span>
       </span>
-    </PortalCard>
+    </PillLink>
   )
 }
 
 function QuickAction({
-  href,
-  external = false,
-  icon,
+  to,
   title,
   note,
-  className,
-  noteClass,
+  primary = false,
+  external = false,
 }: {
-  href: string
-  external?: boolean
-  icon: ReactNode
+  to: string
   title: string
   note: string
-  className: string
-  noteClass: string
+  primary?: boolean
+  external?: boolean
 }) {
+  const classes = cn(
+    'grid min-h-16 content-center gap-0.5 rounded-2xl px-3.5 py-3 text-left md:px-4 transition-colors outline-none focus-visible:ring-3 focus-visible:ring-site-accent',
+    primary
+      ? 'bg-white text-site-panel hover:bg-site-paper'
+      : 'bg-white/[0.12] text-white hover:bg-white/20',
+  )
   const body = (
     <>
-      {icon}
-      <span className="grid min-w-0 text-left">
-        <span className="truncate text-sm font-bold">{title}</span>
-        <span className={cn('truncate text-xs', noteClass)}>{note}</span>
+      <span className="text-sm font-semibold md:text-base">{title}</span>
+      <span className={cn('text-[13px]', primary ? 'text-site-panel/70' : 'text-white/75')}>
+        {note}
       </span>
     </>
   )
-  const classes = cn(
-    'flex min-h-14 items-center gap-3 rounded-lg px-4 py-2 shadow-sm transition-opacity hover:opacity-95',
-    className,
-  )
   if (external) {
     return (
-      <a href={href} target="_blank" rel="noreferrer" className={classes}>
+      <a href={to} target="_blank" rel="noreferrer" className={classes}>
         {body}
+        <span className="sr-only"> (membuka tab baru)</span>
       </a>
     )
   }
-  return href.startsWith('#') ? (
-    <a href={href} className={classes}>
+  return to.startsWith('#') ? (
+    <a href={to} className={classes}>
       {body}
     </a>
   ) : (
-    <Link to={href} className={classes}>
+    <Link to={to} className={classes}>
       {body}
     </Link>
   )
 }
 
-// Foto dokumentasi terbaru dari Galeri; tanpa foto, makna nama Lahai-roi.
-function HeroVisual({ media, loading }: { media: PublicContent | null; loading: boolean }) {
-  if (loading) return <Skeleton className="h-64 w-full rounded-xl" />
-  if (media?.thumbnail_url) {
-    return (
-      <Link
-        to="/media"
-        aria-label={`Galeri kegiatan: ${media.title}`}
-        className="relative block overflow-hidden rounded-xl bg-white shadow-md"
-      >
-        <img
-          src={media.thumbnail_url}
-          alt={media.summary ?? media.title}
-          className="h-64 w-full object-cover"
-        />
-        <span className="absolute inset-0 flex flex-col justify-end gap-0.5 bg-gradient-to-t from-portal-navy/90 via-portal-navy/30 to-transparent p-4 text-white">
-          <span className="text-xs font-bold tracking-wider text-portal-amber-soft uppercase">
-            Dokumentasi terbaru
-          </span>
-          <span className="font-portal-heading text-xl leading-7 font-semibold">{media.title}</span>
-          {media.summary && (
-            <span className="line-clamp-2 text-sm text-white/80">{media.summary}</span>
-          )}
-        </span>
-      </Link>
-    )
-  }
+function ThemeCard({ worship, today }: { worship: PublicWorshipItem; today: string }) {
+  const meta = [worship.bible_reading, worship.preacher && `Pelayan Firman ${worship.preacher}`]
+    .filter(Boolean)
+    .join(' · ')
   return (
-    <div className="relative flex h-64 flex-col justify-end overflow-hidden rounded-xl bg-portal-navy p-5 text-white shadow-md">
-      <WellMark className="absolute -top-10 -right-10 size-56 text-portal-indigo" />
-      <span className="relative text-xs font-bold tracking-wider text-portal-amber-soft uppercase">
-        Makna nama Lahai-roi
-      </span>
-      <p className="relative font-portal-heading text-xl leading-7 font-semibold">
-        Sumur Dia yang hidup, yang melihat aku.
+    <article
+      aria-labelledby="judul-tema"
+      aria-describedby="label-tema"
+      className="grid gap-3 rounded-3xl bg-white/[0.12] p-5 md:p-6"
+    >
+      <h2 id="judul-tema" className="font-site-serif text-[28px] leading-tight font-normal italic">
+        “{worship.theme}”
+      </h2>
+      <p id="label-tema" className="text-sm font-medium text-white/80">
+        Tema kebaktian minggu ini{meta && ` · ${meta}`}
       </p>
-      <p className="relative text-sm text-white/80">Kejadian 16:13–14</p>
-    </div>
+      <p className="font-site-mono text-[13px] text-site-accent">
+        {worshipWhen(worship.worship_date, worship.worship_time, today)}
+      </p>
+    </article>
   )
 }
+
+// ---------- Jadwal ibadah terdekat
 
 type AgendaFilter = 'ALL' | 'SUNDAY_SERVICE' | 'RAYON' | 'OTHER'
 
@@ -320,28 +274,37 @@ function Agenda({
   const [filter, setFilter] = useState<AgendaFilter>('ALL')
   const worships = home?.upcoming_worships ?? []
   const shown = worships.filter((worship) => matches(filter, worship.category))
+
+  const status =
+    error && !home ? (
+      <LoadError message="Jadwal tidak dapat dimuat." onRetry={onRetry} onDark />
+    ) : !home ? (
+      <div aria-hidden="true" className="grid gap-6">
+        {Array.from({ length: 3 }, (_, index) => (
+          <div key={index} className="h-20 animate-pulse rounded-xl bg-white/[0.06]" />
+        ))}
+      </div>
+    ) : worships.length === 0 ? (
+      <p className="text-base text-white/80">
+        Jadwal ibadah terdekat belum diumumkan pengurus jemaat.
+      </p>
+    ) : shown.length === 0 ? (
+      <p className="text-base text-white/80">Belum ada jadwal jenis ini dalam waktu dekat.</p>
+    ) : undefined
+
   return (
-    <PortalSection id="jadwal" labelledBy="judul-jadwal">
-      <SectionHeading
+    <SiteSection id="jadwal" labelledBy="judul-jadwal">
+      <SectionIntro
         id="judul-jadwal"
-        eyebrow="Jadwal persekutuan & pelayanan"
-        title="Jadwal Ibadah Terdekat"
-        lead="Terbuka untuk jemaat, keluarga, dan tamu. Semua waktu dalam WITA."
-        action={
-          <Link
-            to="/jadwal"
-            className="inline-flex w-fit items-center gap-1.5 rounded-lg bg-portal-high px-4 py-2 text-xs font-semibold text-portal-ink hover:bg-portal-highest"
-          >
-            <CalendarDays className="size-4 text-portal-navy" aria-hidden="true" />
-            Semua jadwal ibadah
-          </Link>
-        }
+        lead="Jadwal ibadah"
+        accent="terdekat."
+        intro="Terbuka untuk jemaat, keluarga, dan tamu. Semua waktu dalam WITA."
       />
       {worships.length > 0 && (
         <div
           role="group"
           aria-label="Saring jenis ibadah"
-          className="flex gap-1.5 overflow-x-auto border-b border-portal-high pb-2"
+          className="mt-12 grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:justify-center"
         >
           {FILTERS.map((option) => {
             const count = worships.filter((worship) =>
@@ -355,96 +318,93 @@ function Agenda({
                 aria-pressed={active}
                 onClick={() => setFilter(option.value)}
                 className={cn(
-                  'flex-none rounded-lg px-4 py-2 text-xs font-semibold transition-colors',
+                  'grid gap-1 rounded-2xl border p-4 text-left transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring sm:w-[200px]',
                   active
-                    ? 'bg-portal-indigo font-bold text-white'
-                    : 'bg-portal-low text-portal-muted hover:bg-portal-mid',
+                    ? 'border-site-ink bg-site-ink text-site-canvas'
+                    : 'border-transparent bg-site-paper text-site-ink hover:border-site-ink',
                 )}
               >
-                {option.label} ({count})
+                <span className="flex items-center justify-between gap-2 font-site-display text-sm font-bold">
+                  {option.label}
+                  {active && (
+                    <span aria-hidden="true" className="size-1.5 rounded-full bg-site-accent" />
+                  )}
+                </span>
+                <span className={cn('text-[13px]', active ? 'opacity-75' : 'text-site-muted')}>
+                  {count} jadwal
+                </span>
               </button>
             )
           })}
         </div>
       )}
-      {error && !home ? (
-        <EmptyNote>
-          Jadwal tidak dapat dimuat.{' '}
-          <button
-            type="button"
-            onClick={onRetry}
-            className="font-semibold text-portal-navy underline"
-          >
-            Coba lagi
-          </button>
-        </EmptyNote>
-      ) : !home ? (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 3 }, (_, index) => (
-            <Skeleton key={index} className="h-56 rounded-xl" />
-          ))}
-        </div>
-      ) : worships.length === 0 ? (
-        <EmptyNote>Jadwal ibadah terdekat belum diumumkan pengurus jemaat.</EmptyNote>
-      ) : shown.length === 0 ? (
-        <EmptyNote>Belum ada jadwal jenis ini dalam waktu dekat.</EmptyNote>
-      ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {shown.map((worship) => (
-            <WorshipCard key={worship.id} worship={worship} today={home.today} />
-          ))}
-        </div>
-      )}
-    </PortalSection>
+      <Reveal className="mx-auto mt-12 max-w-[1040px]">
+        <ScheduleBoard
+          worships={shown}
+          today={home?.today ?? ''}
+          status={status}
+          footer={
+            <>
+              <span>
+                {home && worships.length > 0
+                  ? `${shown.length} dari ${worships.length} jadwal terdekat`
+                  : 'Jadwal ibadah publik jemaat'}
+              </span>
+              <PillLink to="/jadwal" tone="panel" size="sm" arrow>
+                Semua jadwal ibadah
+              </PillLink>
+            </>
+          }
+        />
+      </Reveal>
+    </SiteSection>
   )
 }
 
-function Publications({ home }: { home: PublicHome | undefined }) {
-  return (
-    <PortalSection id="warta" tone="low" labelledBy="judul-publikasi">
-      <SectionHeading
-        id="judul-publikasi"
-        eyebrow="Publikasi mingguan"
-        title="Renungan Harian & Warta Jemaat"
-        lead="Firman untuk hari ini, warta lengkap dalam PDF, serta berita dan pengumuman jemaat."
-      />
-      <div className="grid gap-4 lg:grid-cols-12">
-        <div className="flex flex-col gap-4 lg:col-span-7">
-          {home ? (
-            <DevotionalCard devotional={home.devotional} />
-          ) : (
-            <Skeleton className="h-80 rounded-xl" />
-          )}
-          {home ? <WartaBox warta={home.latest_warta} /> : <Skeleton className="h-24 rounded-xl" />}
-        </div>
-        <div className="lg:col-span-5">
-          {home ? <NewsCard news={home.latest_news} /> : <Skeleton className="h-80 rounded-xl" />}
-        </div>
-      </div>
-    </PortalSection>
-  )
-}
+// ---------- Renungan hari ini
 
 const DEVOTIONAL_PREVIEW = 3
 
-function DevotionalCard({ devotional }: { devotional: PublicHome['devotional'] }) {
+function Devotional({
+  home,
+  error,
+  onRetry,
+}: {
+  home: PublicHome | undefined
+  error: string | null
+  onRetry: () => void
+}) {
+  const devotional = home?.devotional
+  return (
+    <SiteSection id="renungan" tone="paper" labelledBy="judul-renungan">
+      {devotional ? (
+        <DevotionalArticle devotional={devotional} />
+      ) : (
+        <div className="mx-auto grid max-w-[760px] justify-items-center gap-6 text-center">
+          <TwoToneHeading id="judul-renungan" lead="Renungan" accent="hari ini." />
+          {error && !home ? (
+            <LoadError message="Renungan tidak dapat dimuat." onRetry={onRetry} />
+          ) : !home ? (
+            <div
+              aria-hidden="true"
+              className="h-40 w-full animate-pulse rounded-3xl bg-site-rule/60"
+            />
+          ) : (
+            <p className="text-lg text-site-muted">Renungan hari ini belum tersedia.</p>
+          )}
+        </div>
+      )}
+    </SiteSection>
+  )
+}
+
+function DevotionalArticle({ devotional }: { devotional: NonNullable<PublicHome['devotional']> }) {
   const [expanded, setExpanded] = useState(false)
-  if (!devotional) {
-    return (
-      <PortalCard className="p-6">
-        <p className="flex items-center gap-2 text-sm font-bold text-portal-navy">
-          <BookOpen className="size-5 text-portal-amber" aria-hidden="true" />
-          Renungan Hari Ini
-        </p>
-        <p className="mt-3 text-portal-muted">Renungan hari ini belum tersedia.</p>
-      </PortalCard>
-    )
-  }
+  const bodyId = useId()
   const parts = paragraphs(devotional.content_body)
   const shown = expanded ? parts : parts.slice(0, DEVOTIONAL_PREVIEW)
 
   async function share() {
-    if (!devotional) return
     const text = `${devotional.title}${devotional.summary ? ` (${devotional.summary})` : ''}`
     const url = `${window.location.origin}/renungan/${devotional.slug}`
     if (navigator.share) {
@@ -459,182 +419,574 @@ function DevotionalCard({ devotional }: { devotional: PublicHome['devotional'] }
   }
 
   return (
-    <PortalCard as="article" className="grid gap-4 p-6">
-      <header className="flex flex-wrap items-center justify-between gap-2 border-b border-portal-high pb-3">
-        <p className="flex items-center gap-2 text-sm font-bold text-portal-navy">
-          <BookOpen className="size-5 text-portal-amber" aria-hidden="true" />
-          {devotional.is_today ? 'Renungan Hari Ini' : 'Renungan Terbaru'}
-        </p>
-        <span className="rounded-full bg-portal-low px-3 py-1 text-xs text-portal-muted">
+    <article className="grid gap-10">
+      <header className="mx-auto grid max-w-[860px] justify-items-center gap-6 text-center">
+        <Reveal>
+          <TwoToneHeading
+            id="judul-renungan"
+            size="card"
+            lead={
+              <Link
+                to={`/renungan/${devotional.slug}`}
+                className="rounded-sm decoration-2 underline-offset-8 outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring"
+              >
+                {devotional.title}
+              </Link>
+            }
+            accent={devotional.summary}
+          />
+        </Reveal>
+        <p className="inline-flex items-center gap-2 text-base font-medium text-site-muted">
+          <span aria-hidden="true" className="size-2 rounded-full bg-site-accent" />
+          {devotional.is_today ? 'Renungan hari ini' : 'Renungan terbaru'} ·{' '}
           {publishedDate(devotional.published_at)}
-        </span>
+        </p>
       </header>
-      <div id="renungan" className="grid gap-1 rounded-lg bg-portal-low p-4">
-        {devotional.summary && (
-          <span className="text-xs font-bold tracking-wider text-portal-amber uppercase">
-            {devotional.summary}
-          </span>
-        )}
-        <h3 className="font-portal-heading text-xl leading-7 font-semibold text-portal-ink">
-          <Link to={`/renungan/${devotional.slug}`} className="hover:underline">
-            {devotional.title}
-          </Link>
-        </h3>
-      </div>
       {devotional.thumbnail_url && (
-        <img
-          src={devotional.thumbnail_url}
-          alt=""
-          className="max-h-56 w-full rounded-lg object-cover"
-          loading="lazy"
-        />
+        <Reveal>
+          <img
+            src={devotional.thumbnail_url}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            className="mx-auto aspect-[16/9] max-h-[460px] w-full max-w-[960px] rounded-3xl object-cover"
+          />
+        </Reveal>
       )}
-      <div className="grid gap-3 text-portal-muted">
-        {shown.map((paragraph, index) => (
-          <p key={index} className="whitespace-pre-line">
-            {paragraph}
-          </p>
-        ))}
+      <div className="mx-auto grid w-full max-w-[62ch] gap-6">
+        <div id={bodyId} className="grid gap-5 text-lg leading-relaxed text-site-ink">
+          {shown.map((paragraph, index) => (
+            <p key={index} className="whitespace-pre-line">
+              {paragraph}
+            </p>
+          ))}
+        </div>
         {parts.length > DEVOTIONAL_PREVIEW && (
           <button
             type="button"
+            aria-expanded={expanded}
+            aria-controls={bodyId}
             onClick={() => setExpanded((value) => !value)}
-            className="w-fit text-sm font-semibold text-portal-navy underline underline-offset-4"
+            className="w-fit rounded-sm text-base font-semibold text-site-ink underline underline-offset-4 outline-none focus-visible:ring-3 focus-visible:ring-ring"
           >
             {expanded ? 'Tampilkan lebih sedikit' : 'Baca selengkapnya'}
           </button>
         )}
+        <footer className="flex flex-wrap items-center gap-x-6 gap-y-4 pt-4">
+          <p className="grid">
+            <span className="font-site-display text-base font-bold">
+              {devotional.author_name ?? 'Majelis Jemaat'}
+            </span>
+            <span className="text-sm text-site-muted">Penulis renungan</span>
+          </p>
+          <div className="ml-auto flex flex-wrap items-center gap-3">
+            <PillLink to="/renungan" tone="outline" size="sm" arrow>
+              Renungan lainnya
+            </PillLink>
+            <PillButton tone="dark" size="sm" onClick={() => void share()}>
+              <Share2 aria-hidden="true" />
+              Bagikan
+            </PillButton>
+          </div>
+        </footer>
       </div>
-      <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-portal-high pt-3">
-        <span className="grid">
-          <span className="text-sm font-bold text-portal-ink">
-            {devotional.author_name ?? 'Majelis Jemaat'}
-          </span>
-          <span className="text-xs text-portal-muted">Penulis renungan</span>
-        </span>
-        <Link
-          to="/renungan"
-          className="ml-auto text-sm font-semibold text-portal-navy hover:underline"
-        >
-          Renungan lainnya
-        </Link>
-        <button
-          type="button"
-          onClick={() => void share()}
-          className="inline-flex items-center gap-1.5 text-sm font-semibold text-portal-navy hover:underline"
-        >
-          <Share2 className="size-4" aria-hidden="true" />
-          Bagikan
-        </button>
-      </footer>
-    </PortalCard>
+    </article>
   )
 }
 
-function WartaBox({ warta }: { warta: PublicContent | null }) {
+// ---------- Warta dan berita
+
+function Publications({
+  home,
+  error,
+  onRetry,
+}: {
+  home: PublicHome | undefined
+  error: string | null
+  onRetry: () => void
+}) {
+  const scope = useRef<HTMLDivElement>(null)
   return (
-    <div className="flex flex-col items-start justify-between gap-4 rounded-xl bg-portal-navy p-5 text-white shadow-sm sm:flex-row sm:items-center">
-      <div className="flex items-center gap-4">
-        <span className="flex size-12 flex-none items-center justify-center rounded-lg bg-white/10 text-portal-amber-soft">
-          <Newspaper className="size-7" aria-hidden="true" />
-        </span>
-        <div className="grid">
-          <span className="text-sm font-bold">{warta ? warta.title : 'Warta Jemaat'}</span>
-          <span className="text-sm text-white/80">
-            {warta
-              ? (warta.summary ?? `Terbit ${publishedDate(warta.published_at)}`)
-              : 'Warta minggu ini belum diterbitkan.'}
-          </span>
+    <SiteSection id="warta" labelledBy="judul-publikasi">
+      <SectionIntro
+        id="judul-publikasi"
+        lead="Warta & berita"
+        accent="untuk jemaat."
+        intro="Warta lengkap dalam PDF, serta berita dan pengumuman jemaat."
+      />
+      {error && !home ? (
+        <LoadError
+          message="Warta dan berita tidak dapat dimuat."
+          onRetry={onRetry}
+          className="mt-12 text-center"
+        />
+      ) : (
+        <div ref={scope} className="mt-14 grid items-stretch gap-6 md:grid-cols-2 md:gap-8">
+          {home ? (
+            <>
+              <NewsCard news={home.latest_news} />
+              <WartaCard warta={home.latest_warta} scope={scope} />
+            </>
+          ) : (
+            <>
+              <div
+                aria-hidden="true"
+                className="h-[420px] animate-pulse rounded-3xl bg-site-paper"
+              />
+              <div
+                aria-hidden="true"
+                className="h-[420px] animate-pulse rounded-3xl bg-site-paper"
+              />
+            </>
+          )}
         </div>
-      </div>
-      <div className="flex flex-none flex-wrap items-center gap-3">
-        <Link to="/warta" className="text-sm font-semibold text-white underline underline-offset-4">
-          Arsip warta
-        </Link>
-        {warta?.attachment_url && (
-          <a
-            href={warta.attachment_url}
-            download={`${warta.slug}.pdf`}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-portal-amber px-4 py-2 text-sm font-bold text-white transition-colors hover:opacity-90"
-          >
-            <Download className="size-4" aria-hidden="true" />
-            Unduh PDF
-          </a>
-        )}
-      </div>
-    </div>
+      )}
+    </SiteSection>
   )
 }
 
 function NewsCard({ news }: { news: PublicContent[] }) {
   return (
-    <PortalCard className="grid h-full content-start gap-4 p-5">
-      <div className="flex items-center justify-between gap-3">
-        <p className="flex items-center gap-2 text-sm font-bold text-portal-navy">
-          <FileText className="size-5 text-portal-amber" aria-hidden="true" />
-          Berita & Pengumuman
-        </p>
-        <Link to="/berita" className="text-sm font-semibold text-portal-navy hover:underline">
-          Semua berita
-        </Link>
+    <Reveal
+      as="article"
+      aria-labelledby="judul-berita"
+      className="flex flex-col gap-7 rounded-3xl bg-site-paper p-8 md:p-10"
+    >
+      <div className="grid gap-1">
+        <h3 id="judul-berita" className="font-site-display text-2xl font-bold">
+          Berita & pengumuman
+        </h3>
+        <p className="text-base text-site-muted">Kegiatan, dukacita, dan informasi pelayanan.</p>
       </div>
       {news.length === 0 ? (
-        <p className="text-sm text-portal-muted">Belum ada berita atau pengumuman.</p>
+        <p className="text-base text-site-muted">Belum ada berita atau pengumuman.</p>
       ) : (
-        <ul className="grid gap-3">
+        <ul className="grid gap-6">
           {news.map((item) => (
-            <li
-              key={item.id}
-              className="rounded-lg border-l-4 border-portal-amber bg-portal-low p-3"
-            >
-              <p className="text-xs font-semibold text-portal-amber">
+            <li key={item.id} className="grid gap-1">
+              <p className="text-[13px] font-medium text-site-muted">
                 {publishedDate(item.published_at)}
               </p>
-              <p className="mt-0.5 font-bold text-portal-ink">
-                <Link to={`/berita/${item.slug}`} className="hover:underline">
+              <h4 className="font-site-display text-lg leading-snug font-bold">
+                <Link
+                  to={`/berita/${item.slug}`}
+                  className="rounded-sm underline-offset-4 outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring"
+                >
                   {item.title}
                 </Link>
-              </p>
+              </h4>
               {item.summary && (
-                <p className="mt-1 line-clamp-3 text-sm text-portal-muted">{item.summary}</p>
+                <p className="line-clamp-3 text-base text-site-ink/80">{item.summary}</p>
               )}
             </li>
           ))}
         </ul>
       )}
-    </PortalCard>
+      <PillLink to="/berita" tone="outline" size="sm" arrow className="mt-auto self-start">
+        Semua berita
+      </PillLink>
+    </Reveal>
   )
 }
 
-function OfferingStrip() {
+function WartaCard({
+  warta,
+  scope,
+}: {
+  warta: PublicContent | null
+  scope: RefObject<HTMLDivElement | null>
+}) {
+  const panel = useRef<HTMLDivElement>(null)
+  useFloat(panel, 24, -24, scope)
   return (
-    <PortalSection labelledBy="judul-persembahan" className="py-8">
-      <div className="flex flex-col items-start justify-between gap-5 rounded-xl border border-portal-high bg-portal-low p-6 md:flex-row md:items-center">
-        <div className="flex items-start gap-4">
-          <span className="flex size-12 flex-none items-center justify-center rounded-full bg-portal-indigo text-white">
-            <HandHeart className="size-6" aria-hidden="true" />
-          </span>
-          <div className="grid gap-1">
-            <Eyebrow>Persembahan</Eyebrow>
-            <h2
-              id="judul-persembahan"
-              className="font-portal-heading text-xl leading-7 font-semibold text-portal-navy sm:text-2xl"
-            >
-              Persembahan lewat QRIS atau transfer bank
-            </h2>
-            <p className="text-sm text-portal-muted">
-              Nomor rekening tiap pos kas dan kode QRIS resmi jemaat, dengan tombol salin.
-            </p>
-          </div>
-        </div>
-        <Link
-          to="/persembahan"
-          className="inline-flex flex-none items-center gap-1.5 rounded-lg bg-portal-navy px-4 py-2.5 text-sm font-semibold text-white hover:bg-portal-indigo"
-        >
-          Lihat rekening & QRIS
-          <ArrowRight className="size-4" aria-hidden="true" />
-        </Link>
+    <Reveal
+      as="article"
+      aria-labelledby="judul-warta"
+      className="flex flex-col gap-7 rounded-3xl bg-site-night p-8 text-white shadow-site-broad md:p-10 dark:border dark:border-white/10"
+    >
+      <div className="grid gap-1">
+        <h3 id="judul-warta" className="font-site-display text-2xl font-bold">
+          Warta Jemaat
+        </h3>
+        <p className="text-base text-white/75">
+          {warta
+            ? `Terbit ${publishedDate(warta.published_at)}`
+            : 'Warta minggu ini belum diterbitkan.'}
+        </p>
       </div>
-    </PortalSection>
+      {warta && (
+        <div ref={panel}>
+          <WindowPanel compact title={`${warta.slug}.pdf`}>
+            <p className="font-site-display text-lg leading-snug font-bold">{warta.title}</p>
+            {warta.summary && (
+              <p className="mt-2 line-clamp-3 text-base text-white/75">{warta.summary}</p>
+            )}
+            {warta.attachment_url && (
+              <a
+                href={warta.attachment_url}
+                download={`${warta.slug}.pdf`}
+                className="mt-5 inline-flex h-10 items-center gap-2 rounded-full bg-white px-4 text-sm font-semibold text-site-panel transition-colors outline-none hover:bg-site-paper focus-visible:ring-3 focus-visible:ring-site-accent"
+              >
+                Unduh PDF
+              </a>
+            )}
+          </WindowPanel>
+        </div>
+      )}
+      <PillLink to="/warta" tone="glass" size="sm" arrow className="mt-auto self-start">
+        Arsip warta
+      </PillLink>
+    </Reveal>
+  )
+}
+
+// ---------- Layanan jemaat
+
+const SERVICES: { title: string; text: string; links: { to: string; label: string }[] }[] = [
+  {
+    title: 'Warta Jemaat',
+    text: 'Warta mingguan lengkap dalam PDF: pengumuman, jadwal pelayan, dan kabar jemaat. Baca langsung atau unduh untuk disimpan.',
+    links: [{ to: '/warta', label: 'Buka warta' }],
+  },
+  {
+    title: 'Layanan Sakramen',
+    text: 'Daftarkan Baptisan Kudus, Katekisasi/Sidi, atau Pemberkatan Nikah tanpa perlu akun, lalu pantau berkasnya dengan kode registrasi.',
+    links: [
+      { to: '/layanan-sakramen', label: 'Daftar' },
+      { to: '/layanan-sakramen#cek-status', label: 'Lacak status' },
+    ],
+  },
+  {
+    title: 'Persembahan',
+    text: 'Nomor rekening tiap pos kas dan kode QRIS resmi jemaat, dengan tombol salin.',
+    links: [{ to: '/persembahan', label: 'Lihat rekening & QRIS' }],
+  },
+]
+
+function ServicesBand() {
+  return (
+    <PhotoBand labelledBy="judul-layanan">
+      <Reveal>
+        <TwoToneHeading
+          id="judul-layanan"
+          onDark
+          lead="Layanan jemaat."
+          accent="Dalam satu tempat."
+          className="text-4xl md:text-5xl"
+        />
+      </Reveal>
+      <ol className="mt-12 grid gap-10 md:grid-cols-3 md:gap-6">
+        {SERVICES.map((service, index) => (
+          <Reveal
+            as="li"
+            key={service.title}
+            className="flex flex-col rounded-3xl bg-site-night/75 p-8 md:min-h-[340px]"
+          >
+            <span
+              aria-hidden="true"
+              className="-mt-3 mb-4 hidden font-site-serif text-[84px] leading-none text-white/30 italic select-none md:block"
+            >
+              {String(index + 1).padStart(2, '0')}
+            </span>
+            <h3 className="font-site-display text-2xl font-bold">{service.title}</h3>
+            <p className="mt-3 text-base leading-relaxed text-white/80">{service.text}</p>
+            <div className="mt-auto flex flex-wrap gap-x-6 gap-y-2 pt-6">
+              {service.links.map((link) => (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  className="rounded-sm text-base font-semibold text-site-accent outline-none hover:underline focus-visible:ring-3 focus-visible:ring-site-accent"
+                >
+                  {link.label} <span aria-hidden="true">→</span>
+                </Link>
+              ))}
+            </div>
+          </Reveal>
+        ))}
+      </ol>
+    </PhotoBand>
+  )
+}
+
+// ---------- Lima rayon
+
+function Rayons({
+  rayons,
+  error,
+  onRetry,
+}: {
+  rayons: RayonListItem[] | undefined
+  error: string | null
+  onRetry: () => void
+}) {
+  return (
+    <SiteSection labelledBy="judul-rayon">
+      <SectionIntro
+        id="judul-rayon"
+        lead="Lima rayon,"
+        accent="satu jemaat."
+        intro="Wilayah pelayanan jemaat di Lasiana beserta koordinatornya."
+      />
+      <div className="mx-auto mt-14 max-w-[960px]">
+        {error && !rayons ? (
+          <LoadError message="Daftar rayon tidak dapat dimuat." onRetry={onRetry} />
+        ) : !rayons ? (
+          <div aria-hidden="true" className="grid gap-4">
+            {Array.from({ length: 5 }, (_, index) => (
+              <div key={index} className="h-14 animate-pulse rounded-xl bg-site-paper" />
+            ))}
+          </div>
+        ) : (
+          <Reveal>
+            <table className="hidden w-full border-collapse text-left md:table">
+              <caption className="sr-only">Rayon pelayanan, koordinator, dan wilayahnya</caption>
+              <thead>
+                <tr className="border-b border-site-rule">
+                  {['Rayon', 'Koordinator', 'Wilayah'].map((label) => (
+                    <th
+                      key={label}
+                      scope="col"
+                      className="px-3 py-4 text-sm font-semibold text-site-muted"
+                    >
+                      {label}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-site-rule">
+                {rayons.map((rayon, index) => (
+                  <tr key={rayon.id}>
+                    <th scope="row" className="w-[32%] px-3 py-5 align-top font-normal">
+                      <span className="block text-[13px] text-site-muted">Rayon {index + 1}</span>
+                      <span className="font-site-display text-lg font-bold">{rayon.name}</span>
+                    </th>
+                    <td className="w-[32%] px-3 py-5 align-top">
+                      <Coordinator name={rayon.coordinator_name} />
+                    </td>
+                    <td className="px-3 py-5 align-top text-base text-site-ink/80">
+                      {rayon.description ?? 'Wilayah belum diumumkan'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <ul className="grid gap-8 md:hidden">
+              {rayons.map((rayon, index) => (
+                <li key={rayon.id} className="grid gap-1">
+                  <span className="text-[13px] text-site-muted">Rayon {index + 1}</span>
+                  <span className="font-site-display text-lg font-bold">{rayon.name}</span>
+                  <Coordinator name={rayon.coordinator_name} />
+                  {rayon.description && (
+                    <span className="text-base text-site-ink/80">{rayon.description}</span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </Reveal>
+        )}
+        <div className="mt-14 flex flex-col items-start justify-between gap-4 rounded-3xl bg-site-paper p-6 sm:flex-row sm:items-center md:p-8">
+          <p className="grid gap-1">
+            <span className="font-site-display text-lg font-bold">Baru di Lahairoi?</span>
+            <span className="text-base text-site-muted">
+              Kenali sejarah, majelis, dan rayon Anda.
+            </span>
+          </p>
+          <PillLink to="/profil" tone="dark" arrow>
+            Profil & sejarah
+          </PillLink>
+        </div>
+      </div>
+    </SiteSection>
+  )
+}
+
+function Coordinator({ name }: { name: string | null }) {
+  return name ? (
+    <span className="font-site-serif text-2xl leading-snug italic">{name}</span>
+  ) : (
+    <span className="text-base text-site-muted">Koordinator belum diumumkan</span>
+  )
+}
+
+// ---------- Galeri kegiatan
+
+function Gallery() {
+  const media = useApiQuery<ApiPage<PublicContent>>('/public/contents', {
+    category: 'MEDIA',
+    per_page: 3,
+  })
+  const items = (media.data?.data ?? []).filter((item) => mediaCover(item))
+  // Seksi ini disembunyikan bila dokumentasi gagal dimuat atau belum ada.
+  if (media.data && items.length === 0) return null
+  if (media.error && !media.data) return null
+
+  return (
+    <SiteSection tone="paper" labelledBy="judul-galeri">
+      <div className="flex flex-wrap items-end justify-between gap-6">
+        <Reveal>
+          <TwoToneHeading id="judul-galeri" lead="Galeri kegiatan." accent="Dokumentasi terbaru." />
+        </Reveal>
+        <PillLink to="/media" tone="outline" arrow>
+          Semua dokumentasi
+        </PillLink>
+      </div>
+      <ul className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+        {!media.data
+          ? Array.from({ length: 3 }, (_, index) => (
+              <li
+                key={index}
+                aria-hidden="true"
+                className="aspect-[4/3] animate-pulse rounded-3xl bg-site-rule/60"
+              />
+            ))
+          : items.map((item, index) => (
+              <Reveal
+                as="li"
+                key={item.id}
+                className={cn(index === 0 && 'md:col-span-2 lg:col-span-1')}
+              >
+                <Link
+                  to="/media"
+                  className="group grid gap-4 rounded-3xl outline-none focus-visible:ring-3 focus-visible:ring-ring"
+                >
+                  <img
+                    src={mediaCover(item) ?? ''}
+                    alt={item.summary ?? item.title}
+                    loading="lazy"
+                    decoding="async"
+                    className="aspect-[4/3] w-full rounded-3xl bg-site-rule object-cover"
+                  />
+                  <span className="grid gap-1 px-1">
+                    <span className="text-[13px] font-medium text-site-muted">
+                      {publishedDate(item.published_at)}
+                    </span>
+                    <span className="font-site-display text-lg leading-snug font-bold group-hover:underline">
+                      {item.title}
+                    </span>
+                  </span>
+                </Link>
+              </Reveal>
+            ))}
+      </ul>
+    </SiteSection>
+  )
+}
+
+// ---------- Persembahan
+
+function Offering({
+  home,
+  error,
+  onRetry,
+  rayonCount,
+  weekCount,
+}: {
+  home: PublicHome | undefined
+  error: string | null
+  onRetry: () => void
+  rayonCount: number | undefined
+  weekCount: number | undefined
+}) {
+  const accounts = (home?.payment_info ?? []).filter((item) => item.summary)
+  // Hanya angka yang dihitung dari data jemaat.
+  const metrics = [
+    rayonCount ? { value: rayonCount, label: 'Rayon pelayanan' } : null,
+    weekCount ? { value: weekCount, label: 'Ibadah publik dalam 7 hari' } : null,
+  ].filter((metric) => metric !== null)
+
+  let body: ReactNode
+  if (error && !home) {
+    body = <LoadError message="Rekening persembahan tidak dapat dimuat." onRetry={onRetry} onDark />
+  } else if (!home) {
+    body = (
+      <div
+        aria-hidden="true"
+        className="mx-auto h-14 max-w-[640px] animate-pulse rounded-full bg-white/10"
+      />
+    )
+  } else if (accounts.length === 0) {
+    body = (
+      <p className="mx-auto max-w-[52ch] text-base text-white/80">
+        Rekening dan QRIS persembahan belum diumumkan. Persembahan tetap dapat diserahkan langsung
+        saat ibadah.
+      </p>
+    )
+  } else {
+    body = (
+      <ul className="mx-auto grid max-w-[640px] gap-5 text-left">
+        {accounts.map((item) => {
+          const { bank, purpose } = splitPaymentTitle(item.title)
+          const number = item.summary ?? ''
+          return (
+            <li key={item.id} className="grid gap-2">
+              <p className="pl-5 text-sm text-white/75">
+                {purpose ? `${bank} · ${purpose}` : bank}
+              </p>
+              <CopyBar
+                display={number}
+                value={accountDigits(number)}
+                buttonLabel="Salin No. Rek"
+                ariaLabel={`Salin nomor rekening ${bank} ${number}`}
+                successTitle={`Nomor rekening ${bank} disalin`}
+                successDescription={number}
+                errorMessage="Nomor rekening tidak dapat disalin. Salin secara manual."
+              />
+            </li>
+          )
+        })}
+      </ul>
+    )
+  }
+
+  return (
+    <SiteSection labelledBy="judul-persembahan">
+      <Reveal className="rounded-[32px] bg-site-panel px-6 py-12 text-center text-white shadow-site-panel dark:border dark:border-white/10 md:p-16">
+        {metrics.length > 0 && (
+          <ul className="mx-auto mb-12 grid max-w-[640px] gap-8 sm:grid-cols-2">
+            {metrics.map((metric) => (
+              <li key={metric.label} className="grid justify-items-center gap-2">
+                <span className="font-site-display text-5xl font-extrabold tabular-nums md:text-6xl">
+                  {metric.value}
+                </span>
+                <span className="text-sm text-white/70">{metric.label}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+        <TwoToneHeading
+          id="judul-persembahan"
+          onDark
+          size="card"
+          lead="Persembahan kasih."
+          accent="Lewat QRIS atau transfer bank."
+        />
+        <div className="mt-10">{body}</div>
+        <div className="mt-10 flex justify-center">
+          <PillLink to="/persembahan" tone="light" arrow>
+            Lihat rekening & QRIS
+          </PillLink>
+        </div>
+        <p className="mx-auto mt-8 max-w-[58ch] text-sm leading-relaxed text-white/70">
+          Simpan bukti transfer Anda dan tuliskan keperluan persembahan pada berita transfer.
+          Bendahara Jemaat mencatat setiap persembahan ke pos kas yang dituju.
+        </p>
+      </Reveal>
+    </SiteSection>
+  )
+}
+
+// ---------- Tanya-jawab
+
+function Questions() {
+  return (
+    <SiteSection labelledBy="judul-tanya">
+      <SectionIntro id="judul-tanya" lead="Pertanyaan seputar" accent="pendaftaran sakramen." />
+      <FaqAccordion items={SACRAMENT_FAQ} className="mx-auto mt-12 max-w-[760px] text-left" />
+      <div className="mt-10 flex justify-center">
+        <PillLink to="/layanan-sakramen" tone="dark" arrow>
+          Buka Layanan Sakramen
+        </PillLink>
+      </div>
+    </SiteSection>
   )
 }

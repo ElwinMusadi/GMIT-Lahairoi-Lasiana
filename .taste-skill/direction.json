@@ -21,7 +21,10 @@
  },
  "imagery": "atmosphere",
  "allow": [
-  "shadow"
+  "shadow",
+  "mono",
+  "numbering",
+  "font-count"
  ],
  "direction": {
   "id": "one-motif",
@@ -526,6 +529,9 @@
  ],
  "scenes": [],
  "allowReasons": {
-  "shadow": "Rancangan kage (design/stitch/10): bayangan hanya pada pil di atas foto hero, hero panel, dan panel gelap besar (shadow-site-panel / shadow-site-broad). Kartu terang tanpa bayangan; diperiksa manual tiap tahap."
+  "shadow": "Rancangan kage (design/stitch/10): bayangan hanya pada pil di atas foto hero, hero panel, dan panel gelap besar (shadow-site-panel / shadow-site-broad). Kartu terang tanpa bayangan; diperiksa manual tiap tahap.",
+  "mono": "Rancangan kage: JetBrains Mono hanya untuk bilah jendela panel, jam di papan jadwal, nomor rekening, kode registrasi, dan nama berkas PDF. Teks bacaan tidak pernah mono; WARN mono di atas 15 % tetap aktif sebagai pengaman.",
+  "numbering": "Rancangan kage: angka serif besar 01-03 di kartu band layanan Beranda (rencana 5.1 slot 5, disetujui). Disembunyikan dari pembaca layar; daftar memakai <ol>.",
+  "font-count": "Sistem huruf kage (rencana 3.2, disetujui): Plus Jakarta Sans untuk judul, Inter untuk teks, Instrument Serif miring untuk baris kedua judul dua nada, JetBrains Mono untuk bilah jendela, jam, kode, dan nomor rekening."
  }
 }

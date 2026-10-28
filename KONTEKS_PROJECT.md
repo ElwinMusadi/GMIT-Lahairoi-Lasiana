@@ -113,8 +113,16 @@ Progres tahap:
   - Halaman 08 tanpa hero diberi ruang atas lewat `main:not(:has([data-hero]))`. Hero kage
     nanti memasang `data-hero`.
   - Di tema gelap, seksi halaman 08 masih terang sampai halamannya dirombak.
-- **Berikutnya: Tahap 4 (Beranda):** hero penuh kage dan semua isi Beranda 08 (rencana bagian
-  5.1).
+- **Tahap 4 (Beranda) selesai.**
+  - Beranda kage berisi semua isi 08: hero foto, papan jadwal, renungan, warta & berita, band
+    layanan, lima rayon, galeri, persembahan dengan rekening, dan FAQ sakramen.
+  - Perbaikan 08 nomor 2, 3, 4, dan 9 selesai.
+  - Komponen baru yang dipakai ulang: `HeroPanel`, `ScheduleBoard`, `SiteSection`,
+    `PhotoBand`.
+  - Lenis kini menghormati gulir dari keyboard dan bilah gulir saat sedang meluncur.
+  - Inspector Beranda: 1 FAIL (baseline 10).
+- **Berikutnya: Tahap 5 (Jadwal & Warta):** `/jadwal` memakai `HeroPanel` ukuran `page` dan
+  `ScheduleBoard` dengan semua petugas; `/warta` berisi warta terbaru, PDF, dan arsip.
 
 **Bug API yang ditemukan di Tahap 0** (belum diperbaiki, diusulkan sebagai commit terpisah):
 

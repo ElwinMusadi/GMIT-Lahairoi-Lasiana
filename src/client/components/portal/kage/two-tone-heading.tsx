@@ -7,17 +7,19 @@ import { cn } from '@/lib/utils'
 
 const SIZES = {
   // Hero Beranda: 84px di desktop.
-  hero: 'text-5xl sm:text-6xl md:text-7xl lg:text-[84px]',
+  // Ponsel: ukuran cair agar baris pertama muat sampai lebar 360 px.
+  hero: 'text-[clamp(2.25rem,10.5vw,3rem)] sm:text-6xl md:text-7xl lg:text-[84px]',
   // Judul halaman di hero ringkas.
   page: 'text-[40px] sm:text-5xl md:text-6xl',
   // Judul seksi.
-  section: 'text-4xl md:text-[60px]',
+  section: 'text-[clamp(1.875rem,9vw,2.25rem)] sm:text-5xl md:text-[60px]',
   // Judul di dalam kartu atau panel.
   card: 'text-[28px] md:text-[40px]',
 } as const
 
 type Props = {
-  as?: 'h1' | 'h2' | 'h3'
+  // 'p' untuk kalimat besar yang bukan judul, mis. makna nama Lahai-roi di hero Beranda.
+  as?: 'h1' | 'h2' | 'h3' | 'p'
   // Baris pertama (sans) dan baris kedua (serif miring).
   lead: ReactNode
   accent?: ReactNode

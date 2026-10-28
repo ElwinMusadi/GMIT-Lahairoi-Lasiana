@@ -60,6 +60,7 @@ import {
   type FieldView,
   type SavedCode,
 } from '@/lib/sacraments'
+import { SACRAMENT_FAQ } from '@/lib/sacrament-faq'
 import { formatBytes, validateUpload } from '@/lib/upload'
 import { useApiQuery } from '@/lib/use-api-query'
 import { cn } from '@/lib/utils'
@@ -1100,23 +1101,6 @@ function SuccessPanel({
 // ---------- Pedoman
 
 function GuideSection() {
-  const items = [
-    {
-      question: 'Apa yang terjadi setelah formulir terkirim?',
-      answer:
-        'Majelis memeriksa data dan berkas Anda. Statusnya berubah menjadi Revisi berkas bila ada yang perlu diperbaiki, lalu Konseling/penggembalaan, Disetujui dengan tanggal pelaksanaan, dan Selesai setelah sakramen dilayankan.',
-    },
-    {
-      question: 'Bagaimana jika berkas perlu diperbaiki?',
-      answer:
-        'Catatan dari Majelis tampil di Cek Status. Serahkan berkas perbaikan ke kantor jemaat atau ikuti petunjuk dalam catatan, dengan menyebutkan kode registrasi Anda.',
-    },
-    {
-      question: 'Kode registrasi hilang?',
-      answer:
-        'Kode yang dikirim dari perangkat ini tersimpan di bagian Cek Status. Bila tidak ada, hubungi kantor jemaat dengan menyebutkan nama dan nomor HP yang didaftarkan.',
-    },
-  ]
   return (
     <PortalSection labelledBy="judul-pedoman">
       <div className="grid gap-1">
@@ -1126,7 +1110,7 @@ function GuideSection() {
         </h2>
       </div>
       <div className="grid gap-4 md:grid-cols-3">
-        {items.map((item) => (
+        {SACRAMENT_FAQ.map((item) => (
           <PortalCard key={item.question} as="article" className="grid content-start gap-2 p-5">
             <h3 className="font-semibold text-portal-ink">{item.question}</h3>
             <p className="text-sm text-portal-muted">{item.answer}</p>

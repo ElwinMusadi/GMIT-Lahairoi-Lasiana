@@ -100,6 +100,25 @@ export function usePortalMotion() {
       attributeFilter: ['data-scroll-locked'],
     })
 
+    // Gulir dari luar Lenis (tombol keyboard, bilah gulir, scrollTo, Cari di halaman).
+    // Lenis hanya menyelaraskannya saat diam; saat sedang meluncur ia menimpanya pada frame
+    // berikutnya. Di sini luncuran dihentikan di posisi baru itu. Lompatan asli browser ke
+    // jangkar menuju sasaran yang sama dengan luncuran Lenis, jadi dibiarkan ditimpa agar
+    // jangkar tetap meluncur halus. Diperiksa juga sebelum roda tetikus diolah, untuk gulir
+    // yang event scroll-nya belum sempat terkirim.
+    const followNativeScroll = () => {
+      const actual = instance.actualScroll
+      if (
+        instance.isScrolling !== 'native' &&
+        Math.abs(actual - instance.animatedScroll) > 2 &&
+        Math.abs(actual - instance.targetScroll) > 4
+      ) {
+        instance.scrollTo(actual, { immediate: true, force: true })
+      }
+    }
+    window.addEventListener('scroll', followNativeScroll, { passive: true })
+    window.addEventListener('wheel', followNativeScroll, { capture: true, passive: true })
+
     window.addEventListener('scroll', scheduleUpdate, { passive: true })
     window.addEventListener('resize', scheduleUpdate)
     scheduleUpdate()
@@ -107,6 +126,8 @@ export function usePortalMotion() {
     return () => {
       cancelAnimationFrame(frame)
       lockObserver.disconnect()
+      window.removeEventListener('scroll', followNativeScroll)
+      window.removeEventListener('wheel', followNativeScroll, { capture: true })
       window.removeEventListener('scroll', scheduleUpdate)
       window.removeEventListener('resize', scheduleUpdate)
       instance.destroy()

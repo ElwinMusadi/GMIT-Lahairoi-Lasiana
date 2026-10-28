@@ -596,18 +596,18 @@ uji, di desktop dan di ponsel.
 
 **Beranda**
 
-- [ ] Pita pengumuman (berita terkini atau warta terbaru); disembunyikan saat memuat atau bila kosong
-- [ ] H1 nama gereja + pengantar
-- [ ] Kartu tema kebaktian minggu ini (tema, bacaan, Pelayan Firman, waktu); kerangka saat memuat; tersembunyi bila tidak ada
-- [ ] Empat aksi cepat dengan tujuan dan baris keterangannya, termasuk cadangan "Belum terbit" → `/warta`
-- [ ] Dokumentasi terbaru → `/media`; makna nama Lahai-roi + Kejadian 16:13–14
-- [ ] Ajakan "Baru di Lahairoi?" → `/profil`
-- [ ] `#jadwal`: saringan 4 jenis dengan hitungan; ≤6 jadwal; Pelayan Firman, tema, bacaan, lokasi, tata ibadah; "Semua jadwal ibadah" → `/jadwal`
+- [x] Pita pengumuman (berita terkini atau warta terbaru); disembunyikan saat memuat atau bila kosong
+- [x] H1 nama gereja + pengantar
+- [x] Kartu tema kebaktian minggu ini (tema, bacaan, Pelayan Firman, waktu); kerangka saat memuat; tersembunyi bila tidak ada
+- [x] Empat aksi cepat dengan tujuan dan baris keterangannya, termasuk cadangan "Belum terbit" → `/warta`
+- [x] Dokumentasi terbaru → `/media`; makna nama Lahai-roi + Kejadian 16:13–14
+- [x] Ajakan "Baru di Lahairoi?" → `/profil`
+- [x] `#jadwal`: saringan 4 jenis dengan hitungan; ≤6 jadwal; Pelayan Firman, tema, bacaan, lokasi, tata ibadah; "Semua jadwal ibadah" → `/jadwal`
 - [ ] `#jadwal`: teks eror/coba lagi, kerangka, kosong, saringan-kosong
 - [ ] `#renungan`: hari ini/terbaru, tanggal, ayat, judul bertaut, sampul, 3 paragraf + buka/tutup, penulis, "Renungan lainnya", Bagikan (share/salin + toast)
-- [ ] `#warta`: judul/ringkasan/terbit/belum terbit, "Arsip warta", "Unduh PDF" (`{slug}.pdf`)
-- [ ] Berita: 3 terbaru (tanggal, judul bertaut, ringkasan), "Semua berita", teks kosong
-- [ ] Ajakan persembahan → `/persembahan`; rekening dari `payment_info` dengan salin
+- [x] `#warta`: judul/ringkasan/terbit/belum terbit, "Arsip warta", "Unduh PDF" (`{slug}.pdf`)
+- [x] Berita: 3 terbaru (tanggal, judul bertaut, ringkasan), "Semua berita", teks kosong
+- [x] Ajakan persembahan → `/persembahan`; rekening dari `payment_info` dengan salin
 
 **Jadwal Ibadah**
 
@@ -709,11 +709,24 @@ kage. Yang dipertahankan dari kage, dengan alasan:
 - **Bayangan panel gelap** (`shadow-panel`): panel memang melayang di atas kanvas putih.
 - **Label mono di bilah jendela panel:** bagian dari motif jendela. Ukurannya ≥13 px, huruf
   kecil kecuali singkatan.
+- **Huruf mono** (`mono`, ditambahkan di Tahap 4): hanya untuk bilah jendela, jam di papan
+  jadwal, nomor rekening, kode registrasi, dan nama berkas PDF. Teks bacaan tidak pernah mono.
+  Peringatan bila mono melebihi 15 % teks tetap aktif sebagai pengaman.
+- **Angka 01–03 di kartu band layanan** (`numbering`, Tahap 4): angka serif besar khas kage,
+  disembunyikan dari pembaca layar dan hanya tampil mulai lebar tablet.
+- **Empat keluarga huruf** (`font-count`, Tahap 4): sistem huruf kage di bagian 3.2.
+
+Peringatan (WARN) yang dipertahankan dengan alasan:
+
+- `mixed-font-headline`: judul dua nada sans + serif miring adalah ciri kage.
+- `small-title`: H1 Beranda adalah nama gereja; kalimat besar di hero adalah makna nama
+  Lahai-roi (ayat), bukan judul halaman.
+- `no-footage`: belum ada video kegiatan dari pengurus (Keputusan K5).
 
 Yang **tidak** dikecualikan: teks di bawah 13 px, teks bacaan di bawah 16 px, label kicker
 huruf kapital di atas judul, gradien selain scrim foto, dan gulir menyamping.
 
-Tahap 1 juga memperbarui [.taste-skill/direction.json](../.taste-skill/direction.json), yang saat
+Semua pengecualian dicatat dengan alasannya di `allowReasons`. Tahap 1 juga memperbarui [.taste-skill/direction.json](../.taste-skill/direction.json), yang saat
 ini masih memuat arah lama dengan huruf Roundo. Isinya diganti huruf kage dan daftar `allow`
 untuk pengecualian di atas. Dengan begitu inspector tidak lagi melaporkan `font-not-dealt`, dan
 pengecualian yang disengaja tercatat di satu tempat.
@@ -1006,3 +1019,110 @@ Catatan pemeriksaan:
 - **Tautan berjangkar dari menu ponsel lompat tanpa animasi.** Saat menu terbuka, Lenis
   berhenti, sehingga yang bekerja `ScrollRestoration`. Ini disengaja: halaman tertutup menu
   saat lompatan terjadi.
+
+### Tahap 4 — Beranda (29 Oktober 2026)
+
+**Komponen kage baru** (dipakai ulang di tahap berikutnya):
+
+- [hero-panel.tsx](../src/client/components/portal/kage/hero-panel.tsx): panel membulat 24 px
+  dengan foto, scrim, dan parallax hero. Ukuran `full` (Beranda) dan `page` (halaman dalam).
+  Pembungkusnya memasang `data-hero`, sehingga `main` tidak lagi memberi ruang atas.
+  Bantalannya (`.site-hero-pad`) memakai `--site-inset`, jadi isi hero sejajar dengan pil
+  header.
+- [schedule-board.tsx](../src/client/components/portal/kage/schedule-board.tsx): papan jadwal
+  dalam panel jendela. Jadwal dikelompokkan per hari, jam mono jingga, satu pil jenis/rayon,
+  dan rincian petugas dua kolom. Menerima `PublicWorship` (Pelayan Firman) maupun
+  `PublicWorshipItem` (semua petugas, untuk `/jadwal`).
+- [site-section.tsx](../src/client/components/portal/kage/site-section.tsx): `SiteSection`
+  (kanvas/putih tulang, 120 px), `SectionIntro` (judul dua nada + pengantar), dan `LoadError`
+  (pesan + "Coba lagi").
+- [photo-band.tsx](../src/client/components/portal/kage/photo-band.tsx): band foto selebar
+  layar dengan parallax ±340 px.
+- **Helper:**
+  - `CHURCH_PHOTO`, `addDays`, `dateRange`, `compactPublishedDate`, dan `mediaCover` di
+    `lib/portal.ts`. `mediaCover` dipindah dari `MediaPage`, dan footer kini memakai
+    `CHURCH_PHOTO`.
+  - `SACRAMENT_FAQ` di modul kecil `lib/sacrament-faq.ts` (bukan `lib/sacraments.ts`), agar
+    Beranda tidak ikut memuat formulir dan pengunggah sakramen. Halaman Sakramen 08 memakai
+    konstanta yang sama.
+- **Preload foto hero:** skrip di `index.html` meminta foto hero sejak awal, hanya di `/`.
+
+**Beranda** ([HomePage.tsx](../src/client/pages/public/HomePage.tsx)), urutannya:
+
+1. hero (kalimat besar, rujukan ayat, H1, pengantar, pil pengumuman, empat aksi cepat, kartu
+   tema);
+2. jadwal ibadah terdekat;
+3. renungan hari ini;
+4. warta & berita;
+5. band layanan;
+6. lima rayon;
+7. galeri;
+8. persembahan;
+9. tanya-jawab sakramen.
+
+Perbaikan kecil 08 di bagian 5.10 yang selesai di tahap ini:
+
+- **#2:** bila `/api/public/home` gagal, jadwal, renungan, warta & berita, dan persembahan
+  masing-masing menampilkan pesan dengan "Coba lagi", bukan kerangka muat yang tertahan.
+- **#3:** rekening dari `payment_info` tampil sebagai bilah salin.
+- **#4:** pil pengumuman menjadi tautan ke berita, atau ke `/warta` bila yang tampil warta.
+- **#9:** kartu tema mengambil Kebaktian Minggu terdekat dari
+  `/api/public/worships?category=SUNDAY_SERVICE&per_page=1`, sehingga tetap tampil di
+  pertengahan minggu.
+
+Penyesuaian terhadap peta isi 5.1, sebagian karena temuan inspector:
+
+- **Judul usulan dipendekkan** agar muat dua baris di ponsel: "Layanan jemaat. / *Dalam satu
+  tempat.*", "Lima rayon, / *satu jemaat.*", "Warta & berita / *untuk jemaat.*".
+- **Letak label:** pil pengumuman berada di antara pengantar dan aksi cepat, bukan di atas
+  kalimat besar. Tanggal renungan berada di bawah judul, dan label "Tema kebaktian minggu ini"
+  di bawah kutipan tema. Sebelumnya ketiganya terbaca sebagai label kicker di atas judul.
+- **Permukaan tanpa garis tepi:** kotak aksi cepat, kartu tema, kartu band, saringan, FAQ, dan
+  bilah salin. Bilah atas/bawah panel jendela memakai beda warna, bukan garis. Tepi panel gelap
+  hanya di tema gelap.
+- **Ukuran dan tinta:** ukuran huruf disatukan menjadi 10 tingkat. Teks bacaan memakai tinta
+  80 %, dan abu-abu hanya untuk keterangan.
+- **Ponsel:** kalimat besar hero dan judul seksi memakai ukuran cair (`clamp`) agar baris
+  pertamanya muat sampai lebar 360 px. Angka 01–03 band hanya tampil mulai tablet. Rincian
+  petugas di papan jadwal tetap dua kolom.
+- **Lainnya:**
+  - Ritme seksi 120 px (rancangan 140 px), untuk menghindari celah kosong antara seksi yang
+    berlatar sama.
+  - Persembahan berlatar kanvas.
+  - Float hanya pada panel jendela warta: chip tanggal berita yang melayang sendiri-sendiri
+    akan terpisah dari beritanya.
+
+**Lapisan gerak** ([portal-motion.ts](../src/client/lib/portal-motion.ts)):
+
+- **Masalah:** Lenis hanya menyelaraskan gulir asli saat diam. Saat meluncur, ia menimpa
+  gulir dari keyboard (End, PageDown), bilah gulir, `scrollTo`, dan Cari di halaman.
+- **Perbaikan:** gulir dari luar Lenis kini menghentikan luncuran di posisi baru itu.
+  Lompatan asli browser ke jangkar menuju sasaran yang sama dengan Lenis, jadi tetap ditimpa
+  agar jangkar meluncur halus.
+- **Akibat ke inspector:** masalah yang sama membuat inspector (`scrollTo` lalu roda tetikus)
+  memotret layar yang sama berulang kali, sehingga muncul temuan palsu "celah kosong" dan
+  "teks menempel 10 layar".
+
+**Pemeriksaan** (database uji, Chrome):
+
+| Uji | Hasil |
+| --- | --- |
+| Jangkar "Jadwal Ibadah" di hero | Meluncur 0→764 px dalam ±1 detik dan berhenti dengan seksi tepat di 96 px |
+| Roda tetikus lalu tombol End saat Lenis meluncur | Langsung ke dasar halaman (8552 px); sebelumnya ditimpa Lenis |
+| Parallax hero | Pada gulir 400 px: foto 13 %, skala 1,08, kalimat besar opacity 0,39 |
+| Float warta | +22 → +3 → −16 px selama seksi melintas |
+| Tombol Kembali dari berita | Posisi 3400 px dipulihkan tepat |
+| `/api/public/home` digagalkan (CDP) | Empat pesan "… tidak dapat dimuat. Coba lagi", tanpa kerangka tertahan; satu klik memuat 6 jadwal, 3 rekening, dan renungan |
+| Ponsel 390 px, DPR 3, CPU 4×, roda tetikus 40 kali | Median frame 16,7 ms, p95 16,8 ms, tidak ada frame >33 ms |
+| Kurangi gerak | Lenis mati, 18/18 elemen reveal terlihat, hero diam |
+| Tema gelap | Hero, papan jadwal (bertepi), kartu warta, panel persembahan, salin rekening + toast gelap terbaca |
+| Galeri dan Sakramen 08 | Tetap tampil; pratinjau YouTube dan FAQ dari konstanta bersama |
+| Inspector Beranda | 1 FAIL, 5 WARN (baseline 08: 10 FAIL, 6 WARN). FAIL tersisa: judul renungan dari CMS tiga baris di 390 px. WARN tersisa dijelaskan di bagian 8 |
+
+- **Belum diperiksa di browser:**
+  - keadaan kosong papan jadwal dan saringan-kosong (data uji selalu berisi);
+  - sampul, tombol buka/tutup, dan Bagikan renungan (renungan uji hanya satu paragraf tanpa
+    sampul; Bagikan membuka dialog berbagi Windows).
+  - Kodenya mengikuti 08, dan diperiksa lagi di Tahap 10.
+- **Ukuran bundle utama:** 393,3 → 417,3 KB (gzip 122,4 → 129,8 KB). Beranda dimuat langsung
+  (bukan lazy), sehingga komponen kage dan Radix Accordion untuk FAQ masuk bundle utama.
