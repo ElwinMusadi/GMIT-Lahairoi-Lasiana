@@ -762,6 +762,46 @@ Rute: [mails.ts](src/worker/routes/mails.ts), khusus Admin (sama dengan folder u
 - **Catat surat** (dialog): arah, tanggal, kategori, nomor, pengirim/penerima (labelnya mengikuti arah), perihal, dan unggah salinan. Arah awal mengikuti tab yang sedang dibuka.
 - Hapus catatan lewat menu tiap baris, dengan konfirmasi.
 
+## Inventaris & peminjaman barang
+
+Rute: [assets.ts](src/worker/routes/assets.ts) dan [asset-loans.ts](src/worker/routes/asset-loans.ts), untuk Admin dan Majelis. Aturan data bersama ada di [src/shared/assets.ts](src/shared/assets.ts); tabelnya `assets` dan `asset_loans` (migrasi 0008).
+
+- **Katalog aset** (`/api/assets`):
+  - Admin dan Majelis dapat melihat; menambah, mengubah, dan menghapus aset khusus Admin.
+  - Isian: `name` dan `quantity` (jumlah unit) wajib; `asset_code`, `category`, `location`, `acquisition_source`, `acquisition_year`, `estimated_value`, `condition` (`GOOD` bawaan, `MINOR_DAMAGE`, `MAJOR_DAMAGE`, `MAINTENANCE`), dan `notes` opsional.
+  - Kode inventaris kosong dibuat otomatis (`INV-0001`, `INV-0002`, …). Kode yang diisi manual dijadikan huruf besar, dan spasi diganti tanda hubung. Kode kembar (tanpa membedakan huruf besar/kecil) ditolak `409`.
+  - `available_quantity` tidak dikirim klien. Saat aset dibuat, nilainya sama dengan `quantity`; setelah itu berubah lewat peminjaman dan pengembalian.
+  - Mengubah `quantity` menggeser `available_quantity` dengan selisih yang sama. Jumlah di bawah unit yang sedang dipinjam ditolak.
+  - `GET` mendukung filter `category`, `location`, `condition`, `available` (`true`/`false`), `q` (kode, nama, catatan), `page`, dan `per_page`. Respons menyertakan daftar kategori dan lokasi yang sudah dipakai.
+  - `GET /:id` mengembalikan aset beserta 20 peminjaman terakhirnya.
+  - Aset yang punya riwayat peminjaman tidak dapat dihapus, agar log peminjamannya tetap utuh.
+- **Meminjam** (`POST /api/asset-loans`):
+  - Isian: `asset_id`, `borrower_name`, `quantity_borrowed`, `borrow_date` (hari ini atau sebelumnya), dan `due_date` (tidak boleh sebelum tanggal pinjam); `rayon_id` dan `notes` opsional.
+  - `available_quantity` aset langsung berkurang sebanyak `quantity_borrowed`.
+  - Bila stok tersedia tidak cukup, permintaan ditolak `409` dan `details.quantity_borrowed` menyebut sisa stoknya. Barang yang rusak berat atau dalam perbaikan juga tidak dipinjamkan.
+  - Batas `0 ≤ available_quantity ≤ quantity` dijaga oleh `CHECK` di database. Jadi dua peminjaman yang disimpan bersamaan tidak dapat membuat stok minus.
+- **Mengembalikan** (`PATCH /api/asset-loans/:id/return`):
+  - Status menjadi `RETURNED`, dan `available_quantity` bertambah lagi sebanyak yang dipinjam.
+  - Isian opsional: `return_date` (bawaannya hari ini), `return_condition`, dan `notes`.
+  - Pengembalian kedua untuk peminjaman yang sama ditolak `409`, sehingga stok hanya bertambah sekali.
+- **Terlambat**:
+  - Peminjaman yang belum kembali dan `due_date`-nya sudah lewat (tanggal hari ini, WITA) berstatus `OVERDUE`, dengan `days_overdue` (jumlah hari keterlambatan).
+  - Status ini dihitung setiap kali dibaca. Status di database juga ditandai `BORROWED` → `OVERDUE` sebelum setiap pembacaan daftar atau rincian.
+- **Daftar peminjaman** (`GET /api/asset-loans`):
+  - Filter `status` (`BORROWED`, `OVERDUE`, `RETURNED`, atau `active` = belum kembali), `asset_id`, `rayon_id`, `q` (peminjam, kode/nama barang), `from`/`to` (tanggal pinjam), `page`, dan `per_page`.
+  - `counts` berisi jumlah per status untuk filter lain yang sama.
+  - Peminjaman aktif diurutkan menurut batas kembali terdekat; selain itu, tanggal pinjam terbaru lebih dulu.
+- Perubahan aset, peminjaman, dan pengembalian tercatat di Log Aktivitas.
+
+Contoh:
+
+```bash
+curl -b cookies.txt -H "Content-Type: application/json" -X POST http://localhost:5173/api/asset-loans \
+  -d '{"asset_id":1,"borrower_name":"Pnt. Yohanis Dimu","rayon_id":2,"quantity_borrowed":20,"borrow_date":"2026-10-28","due_date":"2026-10-31"}'
+curl -b cookies.txt -H "Content-Type: application/json" -X PATCH http://localhost:5173/api/asset-loans/1/return \
+  -d '{"return_condition":"GOOD"}'
+```
+
 ## Unggah berkas
 
 Berkas (PDF warta, kuitansi, foto, berkas sakramen) disimpan di **Cloudflare R2**, bukan sebagai base64 di D1, karena baris D1 terlalu kecil untuk PDF.
@@ -946,6 +986,14 @@ Komponen akan ditulis ke `src/client/components/ui/`. Preset yang dipakai: `radi
 | GET    | `/api/mails` | Admin | Buku Agenda Surat dengan filter arah, kategori, kata kunci, tanggal, dan hitungan per arah |
 | POST   | `/api/mails` | Admin | Catat surat masuk/keluar beserta URL salinannya |
 | DELETE | `/api/mails/:id` | Admin | Hapus catatan surat yang salah input |
+| GET    | `/api/assets` | Admin, Majelis | Katalog inventaris dengan filter kategori, lokasi, kondisi, ketersediaan, dan kata kunci |
+| GET    | `/api/assets/:id` | Admin, Majelis | Satu aset beserta riwayat peminjaman terakhirnya |
+| POST   | `/api/assets` | Admin | Tambah aset; kode inventaris otomatis bila kosong |
+| PUT    | `/api/assets/:id` | Admin | Ubah aset; stok tersedia ikut menyesuaikan jumlah unit (PATCH juga diterima) |
+| DELETE | `/api/assets/:id` | Admin | Hapus aset yang belum pernah dipinjam |
+| GET    | `/api/asset-loans` | Admin, Majelis | Log peminjaman dengan status terlambat (`OVERDUE`), filter, dan hitungan per status |
+| POST   | `/api/asset-loans` | Admin, Majelis | Catat peminjaman; stok tersedia berkurang, ditolak bila tidak cukup |
+| PATCH  | `/api/asset-loans/:id/return` | Admin, Majelis | Catat pengembalian; stok tersedia bertambah lagi |
 | POST   | `/api/uploads`     | Login + peran folder | Unggah berkas ke R2 (`multipart`: `file`, `folder`) |
 | GET    | `/api/files/*`     | Publik / Login | Ambil berkas dari R2 (mendukung ETag / `304`)     |
 

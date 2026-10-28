@@ -668,6 +668,86 @@ export type MailPage = ApiPage<MailArchive> & {
 
 export type MailResponse = { mail: MailArchive }
 
+// Kondisi fisik aset (PRD): Baik, Rusak Ringan, Rusak Berat, Dalam Perbaikan.
+export const ASSET_CONDITION_LABELS = {
+  GOOD: 'Baik',
+  MINOR_DAMAGE: 'Rusak ringan',
+  MAJOR_DAMAGE: 'Rusak berat',
+  MAINTENANCE: 'Dalam perbaikan',
+} as const
+export type AssetCondition = keyof typeof ASSET_CONDITION_LABELS
+export const ASSET_CONDITIONS = Object.keys(ASSET_CONDITION_LABELS) as AssetCondition[]
+
+export type Asset = {
+  id: number
+  asset_code: string
+  name: string
+  category: string | null
+  quantity: number
+  // Unit yang sedang tidak dipinjam.
+  available_quantity: number
+  location: string | null
+  acquisition_source: string | null
+  acquisition_year: number | null
+  // Estimasi nilai seluruh unit, Rupiah.
+  estimated_value: number | null
+  condition: AssetCondition
+  notes: string | null
+  // Peminjaman yang belum dikembalikan (termasuk yang terlambat).
+  active_loans: number
+  created_at: string
+  updated_at: string
+}
+
+export type AssetPage = ApiPage<Asset> & {
+  // Kategori dan lokasi yang sudah dipakai, untuk pilihan filter dan isian form.
+  categories: string[]
+  locations: string[]
+}
+
+export const LOAN_STATUS_LABELS = {
+  BORROWED: 'Dipinjam',
+  OVERDUE: 'Terlambat',
+  RETURNED: 'Sudah dikembalikan',
+} as const
+export type LoanStatus = keyof typeof LOAN_STATUS_LABELS
+export const LOAN_STATUSES = Object.keys(LOAN_STATUS_LABELS) as LoanStatus[]
+
+export type AssetLoan = {
+  id: number
+  asset_id: number
+  asset_code: string
+  asset_name: string
+  borrower_name: string
+  rayon_id: number | null
+  rayon_name: string | null
+  quantity_borrowed: number
+  borrow_date: string
+  due_date: string
+  return_date: string | null
+  return_condition: AssetCondition | null
+  // OVERDUE bila belum dikembalikan dan hari ini (WITA) sudah melewati due_date.
+  status: LoanStatus
+  // Hari keterlambatan untuk status OVERDUE, selain itu 0.
+  days_overdue: number
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type AssetLoanPage = ApiPage<AssetLoan> & {
+  // Jumlah per status untuk filter lain yang sama.
+  counts: Record<LoanStatus, number>
+}
+
+export type AssetResponse = {
+  asset: Asset
+  // Riwayat peminjaman terbaru aset ini (maks. 20).
+  loans: AssetLoan[]
+}
+
+export type AssetLoanResponse = { loan: AssetLoan; asset: Asset }
+
 // GET /api/public/home: ringkasan Beranda Portal Publik.
 export type PublicHome = {
   // Tanggal hari ini (WITA) yang dipakai untuk jadwal terdekat dan renungan.

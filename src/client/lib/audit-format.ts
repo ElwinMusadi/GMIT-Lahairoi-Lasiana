@@ -1,10 +1,12 @@
 import { formatRupiah } from '@shared/finance'
 import {
+  ASSET_CONDITION_LABELS,
   BUDGET_TYPE_LABELS,
   CATEGORICAL_GROUP_LABELS,
   CONTENT_CATEGORY_LABELS,
   FAMILY_RELATION_LABELS,
   GENDER_LABELS,
+  LOAN_STATUS_LABELS,
   MAIL_CATEGORY_LABELS,
   MAIL_DIRECTION_LABELS,
   MARRIAGE_STATUS_LABELS,
@@ -132,6 +134,19 @@ const FIELD_LABELS: Record<string, string> = {
   mail_date: 'Tanggal surat',
   sender_or_recipient: 'Pengirim/penerima',
   subject: 'Perihal',
+  asset_code: 'Kode inventaris',
+  quantity: 'Jumlah unit',
+  acquisition_source: 'Sumber perolehan',
+  acquisition_year: 'Tahun perolehan',
+  estimated_value: 'Estimasi nilai',
+  condition: 'Kondisi',
+  asset: 'Barang',
+  borrower_name: 'Peminjam',
+  quantity_borrowed: 'Jumlah dipinjam',
+  borrow_date: 'Tanggal pinjam',
+  due_date: 'Batas kembali',
+  return_date: 'Tanggal kembali',
+  return_condition: 'Kondisi kembali',
 }
 
 // Field yang sudah tersebut lewat label entitas di kalimat ringkasan.
@@ -152,6 +167,10 @@ const LABEL_FIELDS = new Set([
   'registration_code',
   'reference_number',
   'subject',
+  'asset_code',
+  'borrower_name',
+  'quantity_borrowed',
+  'asset',
 ])
 
 // Kode tersimpan → sebutannya, per jenis data.
@@ -170,6 +189,8 @@ const VALUE_LABELS: Record<string, Record<string, Record<string, string>>> = {
   worship_schedules: { category: WORSHIP_CATEGORY_LABELS },
   sacrament_applications: { status: SACRAMENT_STATUS_LABELS, type: SACRAMENT_TYPE_LABELS },
   mail_archives: { direction: MAIL_DIRECTION_LABELS, category: MAIL_CATEGORY_LABELS },
+  assets: { condition: ASSET_CONDITION_LABELS },
+  asset_loans: { status: LOAN_STATUS_LABELS, return_condition: ASSET_CONDITION_LABELS },
 }
 
 export type AuditDescription = {
@@ -270,7 +291,10 @@ function formatValue(entity: string, field: string, value: unknown): string {
   if (labels && typeof value === 'string' && Object.hasOwn(labels, value)) return labels[value]
   if (field === 'is_active') return value ? 'Aktif' : 'Nonaktif'
   if (field === 'baptism_status' || field === 'sidi_status') return value ? 'Sudah' : 'Belum'
-  if ((field === 'amount' || field === 'target_amount') && typeof value === 'number') {
+  if (
+    (field === 'amount' || field === 'target_amount' || field === 'estimated_value') &&
+    typeof value === 'number'
+  ) {
     return formatRupiah(value)
   }
   if (
