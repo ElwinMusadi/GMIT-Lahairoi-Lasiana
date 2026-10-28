@@ -1,10 +1,13 @@
+import { formatRupiah } from '@shared/finance'
 import {
+  BUDGET_TYPE_LABELS,
   CATEGORICAL_GROUP_LABELS,
   FAMILY_RELATION_LABELS,
   GENDER_LABELS,
   MARRIAGE_STATUS_LABELS,
   MEMBER_STATUS_LABELS,
   ROLE_LABELS,
+  TRANSACTION_TYPE_LABELS,
   type AuditLogItem,
 } from '@shared/types'
 import { formatDate } from './format'
@@ -75,10 +78,31 @@ const FIELD_LABELS: Record<string, string> = {
   marriage_status: 'Status nikah',
   marriage_date: 'Tanggal nikah',
   status: 'Status',
+  code: 'Kode',
+  fund: 'Pos Kas',
+  fiscal_year: 'Tahun anggaran',
+  account_code: 'Kode mata anggaran',
+  account_name: 'Nama mata anggaran',
+  type: 'Jenis',
+  target_amount: 'Target',
+  budget: 'Mata anggaran',
+  transaction_date: 'Tanggal',
+  amount: 'Nominal',
+  receipt_url: 'Bukti kuitansi',
 }
 
 // Field yang sudah tersebut lewat label entitas di kalimat ringkasan.
-const LABEL_FIELDS = new Set(['name', 'full_name', 'kk_number', 'family_head_name'])
+const LABEL_FIELDS = new Set([
+  'name',
+  'full_name',
+  'kk_number',
+  'family_head_name',
+  'code',
+  'account_code',
+  'account_name',
+  'fiscal_year',
+  'amount',
+])
 
 // Kode tersimpan → sebutannya, per jenis data.
 const VALUE_LABELS: Record<string, Record<string, Record<string, string>>> = {
@@ -90,6 +114,8 @@ const VALUE_LABELS: Record<string, Record<string, Record<string, string>>> = {
     marriage_status: MARRIAGE_STATUS_LABELS,
     status: MEMBER_STATUS_LABELS,
   },
+  finance_budgets: { type: BUDGET_TYPE_LABELS },
+  finance_transactions: { type: TRANSACTION_TYPE_LABELS },
 }
 
 export type AuditDescription = {
@@ -161,7 +187,7 @@ export function describeAudit(item: AuditLogItem): AuditDescription {
   const data = details.data
   const detail = data
     ? Object.entries(data)
-        // Nama (dan nomor KK) sudah ada di kalimat, dan akun baru selalu aktif.
+        // Nama, kode, dan nominal sudah ada di kalimat, dan data baru selalu aktif.
         .filter(
           ([field, value]) =>
             !LABEL_FIELDS.has(field) &&
@@ -188,6 +214,10 @@ function formatValue(entity: string, field: string, value: unknown): string {
   if (labels && typeof value === 'string' && Object.hasOwn(labels, value)) return labels[value]
   if (field === 'is_active') return value ? 'Aktif' : 'Nonaktif'
   if (field === 'baptism_status' || field === 'sidi_status') return value ? 'Sudah' : 'Belum'
+  if ((field === 'amount' || field === 'target_amount') && typeof value === 'number') {
+    return formatRupiah(value)
+  }
+  if (field === 'receipt_url') return 'terlampir'
   if (field.endsWith('_date') && typeof value === 'string') return formatDate(value)
   if (typeof value === 'boolean') return value ? 'Ya' : 'Tidak'
   return String(value)

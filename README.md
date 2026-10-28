@@ -43,7 +43,7 @@ Proyek ini berbentuk **full-stack dalam satu paket**. `@cloudflare/vite-plugin` 
 │   ├── worker/                 # API Hono (Cloudflare Worker)
 │   │   ├── routes/             # Satu file per grup endpoint
 │   │   ├── middleware/         # requireAuth, requireRole (RBAC)
-│   │   ├── lib/                # Hash kata sandi, sesi, log aktivitas, pembaca request, data jemaat
+│   │   ├── lib/                # Hash kata sandi, sesi, log aktivitas, pembaca request, data jemaat, keuangan
 │   │   ├── types.ts            # Tipe env Hono (Bindings, Variables)
 │   │   └── index.ts            # Entry Worker, basePath /api
 │   └── shared/                 # Tipe, aturan validasi, format impor/ekspor & penulis CSV/XLSX (client & worker)
@@ -174,7 +174,7 @@ Sesi opaque di D1 dipilih ketimbang JWT supaya **logout dan penonaktifan akun be
 import { requireAuth, requireRole } from '../middleware/auth'
 
 members.get('/', requireRole('ADMIN', 'PASTOR', 'ELDER'), handler)  // 401 tanpa sesi, 403 bila peran tidak sesuai
-transactions.post('/', requireRole('TREASURER'), handler)
+transactions.post('/', requireRole('TREASURER', 'ADMIN'), handler)
 profile.get('/', requireAuth, (c) => c.json(c.get('user')))       // semua pengurus yang sudah masuk
 ```
 
@@ -410,6 +410,36 @@ Halaman ada di [src/client/pages/dashboard](src/client/pages/dashboard) dan komp
 - Majelis hanya mengekspor rayonnya.
 - Setiap ekspor tercatat sebagai `EXPORT` di Log Aktivitas, karena data pribadi jemaat keluar dari sistem.
 
+## Keuangan multi-pos
+
+Rute: [finance-funds.ts](src/worker/routes/finance-funds.ts), [finance-budgets.ts](src/worker/routes/finance-budgets.ts), dan [finance-transactions.ts](src/worker/routes/finance-transactions.ts). Aturan data bersama ada di [src/shared/finance.ts](src/shared/finance.ts). Semua nominal adalah bilangan bulat Rupiah tanpa desimal (maksimal Rp1 triliun per nominal).
+
+- **Hak akses.** Keempat peran pengurus boleh membaca. Menambah, mengubah, dan menghapus Pos Kas, mata anggaran, dan transaksi hanya untuk Bendahara dan Admin; Pendeta dan Majelis mendapat `403`.
+- **Saldo Pos Kas.** `current_balance` hanya diubah oleh trigger di migrasi 0004, pada statement `INSERT`, `UPDATE`, dan `DELETE` transaksi yang sama.
+  - Statement itu dijalankan dalam satu `db.batch()` bersama catatan Log Aktivitas, sehingga transaksi, saldo, dan lognya berubah bersama atau tidak sama sekali.
+  - API tidak pernah menerima atau menulis saldo; `current_balance` di body diabaikan.
+  - Respons tambah, ubah, dan hapus transaksi menyertakan Pos Kas dengan saldo terbarunya.
+  - Saldo awal dari pembukuan lama dicatat sebagai transaksi kas masuk "Saldo awal".
+- **Pos Kas.** Kode unik tanpa membedakan huruf besar/kecil, disimpan dalam huruf besar.
+  - Pos Kas nonaktif tetap tampil beserta saldonya, tetapi tidak bisa dipakai untuk transaksi atau mata anggaran baru.
+  - Hanya Pos Kas yang belum punya mata anggaran atau transaksi yang bisa dihapus.
+- **Mata anggaran RAPBJ.** Kode bebas (misalnya `4.1.01` atau `P-01/A`), unik per tahun anggaran.
+  - `realized_amount` menjumlahkan transaksi pada mata anggaran itu.
+  - Setelah dipakai transaksi, Pos Kas, jenis, dan tahun anggarannya terkunci (`409`); nama, kode, dan target tetap bisa diubah.
+- **Transaksi.** Tanggal tidak boleh melewati hari ini (WITA).
+  - Bila memilih mata anggaran, mata anggaran itu harus pada Pos Kas, jenis (penerimaan ↔ kas masuk, pengeluaran ↔ kas keluar), dan tahun anggaran yang sama dengan transaksinya.
+  - Bukti kuitansi diunggah dulu ke `POST /api/uploads` (folder `kuitansi`), lalu URL-nya dikirim sebagai `receipt_url`.
+  - Mengubah Pos Kas, jenis, atau nominal memindahkan selisih saldonya otomatis. Pindah Pos Kas tanpa memilih mata anggaran baru melepas mata anggaran lama.
+- **Daftar transaksi.** `GET /api/finance/transactions` menerima `fund_id`, `budget_id`, `type`, `from`, `to` (inklusif), `q` (keterangan), `page`, dan `per_page`.
+  - Respons: `{ data, meta, totals: { income, expense } }`, dengan `totals` dihitung dari seluruh hasil filter, bukan hanya halaman itu.
+
+```json
+POST /api/finance/transactions
+{ "fund_id": 1, "budget_id": 3, "transaction_date": "2026-10-25", "type": "INCOME",
+  "amount": 1500000, "description": "Kolekte Minggu pagi",
+  "receipt_url": "/api/files/kuitansi/2026/10/<uuid>.jpg" }
+```
+
 ## Unggah berkas
 
 Berkas (PDF warta, kuitansi, foto, berkas sakramen) disimpan di **Cloudflare R2**, bukan sebagai base64 di D1, karena baris D1 terlalu kecil untuk PDF.
@@ -429,7 +459,7 @@ const berkas = await uploadFile(file, { folder: 'kuitansi', onProgress: setPerse
   npx wrangler r2 bucket create gmit-lahairoi-files
   ```
 
-- Mengunggah wajib login, dan tiap folder punya peran yang boleh mengisinya: `kuitansi` untuk Bendahara; `warta`, `media`, `surat` untuk Admin; `konten`, `liturgi`, `sakramen` untuk Admin dan Pendeta (`UPLOAD_FOLDER_ROLES`).
+- Mengunggah wajib login, dan tiap folder punya peran yang boleh mengisinya: `kuitansi` untuk Bendahara dan Admin; `warta`, `media`, `surat` untuk Admin; `konten`, `liturgi`, `sakramen` untuk Admin dan Pendeta (`UPLOAD_FOLDER_ROLES`).
 - Berkas di folder portal (`warta`, `konten`, `media`, `liturgi`) bisa diunduh siapa saja. Berkas `kuitansi`, `sakramen`, dan `surat` hanya untuk pengurus yang sudah masuk.
 
 ## Skrip
@@ -556,6 +586,18 @@ Komponen akan ditulis ke `src/client/components/ui/`. Preset yang dipakai: `radi
 | DELETE | `/api/members/:id` | Admin       | Hapus anggota yang salah input                       |
 | POST   | `/api/members/import` | Admin    | Pratinjau (`dry_run: true`) atau simpan impor Excel/CSV |
 | GET    | `/api/members/export` | Admin, Pendeta, Majelis* | Unduh `.xlsx` (bawaan) atau `?format=csv` sesuai filter |
+| GET    | `/api/finance/funds` | Semua pengurus | Pos Kas beserta saldo (`?is_active=`)            |
+| POST   | `/api/finance/funds` | Bendahara, Admin | Tambah Pos Kas                                 |
+| PUT    | `/api/finance/funds/:id` | Bendahara, Admin | Ubah atau nonaktifkan Pos Kas (PATCH juga diterima) |
+| DELETE | `/api/finance/funds/:id` | Bendahara, Admin | Hapus Pos Kas yang belum dipakai           |
+| GET    | `/api/finance/budgets` | Semua pengurus | Mata anggaran RAPBJ beserta realisasinya       |
+| POST   | `/api/finance/budgets` | Bendahara, Admin | Tambah mata anggaran                         |
+| PUT    | `/api/finance/budgets/:id` | Bendahara, Admin | Ubah mata anggaran (PATCH juga diterima) |
+| DELETE | `/api/finance/budgets/:id` | Bendahara, Admin | Hapus mata anggaran tanpa transaksi      |
+| GET    | `/api/finance/transactions` | Semua pengurus | Transaksi dengan filter, paging, dan total |
+| POST   | `/api/finance/transactions` | Bendahara, Admin | Catat kas masuk/keluar; saldo Pos Kas ikut berubah |
+| PUT    | `/api/finance/transactions/:id` | Bendahara, Admin | Ubah transaksi (PATCH juga diterima) |
+| DELETE | `/api/finance/transactions/:id` | Bendahara, Admin | Hapus transaksi; saldo dikembalikan |
 | POST   | `/api/uploads`     | Login + peran folder | Unggah berkas ke R2 (`multipart`: `file`, `folder`) |
 | GET    | `/api/files/*`     | Publik / Login | Ambil berkas dari R2 (mendukung ETag / `304`)     |
 

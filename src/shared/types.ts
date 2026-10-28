@@ -183,6 +183,116 @@ export type MemberRequest = {
 
 export type MemberResponse = { member: MemberWithFamily }
 
+// ---------- Keuangan multi-pos (nominal: bilangan bulat Rupiah) ----------
+
+export const FINANCE_TYPES = ['INCOME', 'EXPENSE'] as const
+export type FinanceType = (typeof FINANCE_TYPES)[number]
+// Sebutan pada transaksi kas.
+export const TRANSACTION_TYPE_LABELS: Record<FinanceType, string> = {
+  INCOME: 'Kas masuk',
+  EXPENSE: 'Kas keluar',
+}
+// Sebutan pada mata anggaran RAPBJ.
+export const BUDGET_TYPE_LABELS: Record<FinanceType, string> = {
+  INCOME: 'Penerimaan',
+  EXPENSE: 'Pengeluaran',
+}
+
+// Pos Kas. current_balance hanya diubah oleh trigger transaksi (migrasi 0004).
+export type FinanceFund = {
+  id: number
+  code: string
+  name: string
+  description: string | null
+  current_balance: number
+  is_active: boolean
+  budget_count: number
+  transaction_count: number
+  created_at: string
+  updated_at: string
+}
+
+// POST /api/finance/funds dan PUT /api/finance/funds/:id (Bendahara/Admin).
+export type FinanceFundRequest = {
+  code: string
+  name: string
+  description?: string | null
+  is_active?: boolean
+}
+
+export type FinanceFundResponse = { fund: FinanceFund }
+
+// Mata anggaran RAPBJ satu tahun anggaran. realized_amount: jumlah transaksi yang
+// dicatat pada mata anggaran ini.
+export type FinanceBudget = {
+  id: number
+  fund_id: number
+  fund_code: string
+  fund_name: string
+  fiscal_year: number
+  account_code: string
+  account_name: string
+  type: FinanceType
+  target_amount: number
+  realized_amount: number
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export type FinanceBudgetRequest = {
+  fund_id: number
+  fiscal_year: number
+  account_code: string
+  account_name: string
+  type: FinanceType
+  target_amount?: number
+  is_active?: boolean
+}
+
+export type FinanceBudgetResponse = { budget: FinanceBudget }
+
+export type FinanceTransaction = {
+  id: number
+  fund_id: number
+  fund_code: string
+  fund_name: string
+  budget_id: number | null
+  budget_code: string | null
+  budget_name: string | null
+  transaction_date: string
+  type: FinanceType
+  amount: number
+  description: string | null
+  // URL berkas di R2 (/api/files/kuitansi/...), hanya untuk pengurus yang masuk.
+  receipt_url: string | null
+  created_by: number
+  created_by_name: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type FinanceTransactionRequest = {
+  fund_id: number
+  budget_id?: number | null
+  transaction_date: string
+  type: FinanceType
+  amount: number
+  description?: string | null
+  receipt_url?: string | null
+}
+
+// Respons simpan/hapus transaksi menyertakan Pos Kas dengan saldo terbarunya.
+export type FinanceTransactionResponse = {
+  transaction: FinanceTransaction | null
+  fund: FinanceFund
+}
+
+// GET /api/finance/transactions: halaman data beserta jumlah seluruh hasil filter.
+export type FinanceTransactionPage = ApiPage<FinanceTransaction> & {
+  totals: { income: number; expense: number }
+}
+
 // POST /api/members/import (khusus Admin). Berkas dibaca di browser; setiap baris
 // dikirim dengan judul kolom yang sudah dicocokkan (lihat src/shared/member-import.ts).
 // dry_run: true hanya memeriksa (pratinjau); false menyimpan baris yang siap.

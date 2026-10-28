@@ -22,7 +22,7 @@ export const UPLOAD_FOLDER_ROLES: Record<UploadFolder, readonly UserRole[]> = {
   warta: ['ADMIN'],
   konten: ['ADMIN', 'PASTOR'],
   media: ['ADMIN'],
-  kuitansi: ['TREASURER'],
+  kuitansi: ['TREASURER', 'ADMIN'],
   liturgi: ['ADMIN', 'PASTOR'],
   sakramen: ['ADMIN', 'PASTOR'],
   surat: ['ADMIN'],

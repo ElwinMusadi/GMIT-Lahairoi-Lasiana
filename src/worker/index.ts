@@ -8,6 +8,9 @@ import auditLogs from './routes/audit-logs'
 import auth from './routes/auth'
 import families from './routes/families'
 import files from './routes/files'
+import financeBudgets from './routes/finance-budgets'
+import financeFunds from './routes/finance-funds'
+import financeTransactions from './routes/finance-transactions'
 import health from './routes/health'
 import members from './routes/members'
 import rayons from './routes/rayons'
@@ -35,6 +38,9 @@ app.route('/users', users)
 app.route('/audit-logs', auditLogs)
 app.route('/families', families)
 app.route('/members', members)
+app.route('/finance/funds', financeFunds)
+app.route('/finance/budgets', financeBudgets)
+app.route('/finance/transactions', financeTransactions)
 
 app.notFound((c) => c.json<ApiErrorBody>({ error: 'Endpoint tidak ditemukan' }, 404))
 
