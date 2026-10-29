@@ -89,7 +89,7 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-2 text-[13px] text-white/70 sm:flex-row sm:justify-between">
+        <div className="flex flex-col gap-2 text-(length:--site-text-xs) text-white/70 sm:flex-row sm:justify-between">
           <p>© {YEAR} Majelis Jemaat GMIT Lahairoi Tuak Sabu Lasiana</p>
           <p>Waktu di portal ini dalam WITA (UTC+8)</p>
         </div>

@@ -52,12 +52,12 @@ export function WindowPanel({
         </span>
         {title && (
           // w-0 + flex-1: judul tidak ikut menentukan lebar minimum panel, jadi dipotong.
-          <div className="w-0 flex-1 truncate text-center font-site-mono text-[13px] tracking-wide text-white/70">
+          <div className="w-0 flex-1 truncate text-center font-site-mono text-(length:--site-text-xs) tracking-wide text-white/70">
             {title}
           </div>
         )}
         {badge && (
-          <div className="ml-auto flex-none rounded border border-site-accent/30 bg-site-accent/10 px-2 py-0.5 font-site-mono text-[13px] text-site-accent">
+          <div className="ml-auto flex-none rounded border border-site-accent/30 bg-site-accent/10 px-2 py-0.5 font-site-mono text-(length:--site-text-xs) text-site-accent">
             {badge}
           </div>
         )}

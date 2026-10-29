@@ -25,7 +25,7 @@ const pillVariants = cva(
           'border border-white/20 bg-white/10 font-site-mono font-medium text-white hover:bg-white/20',
       },
       size: {
-        sm: 'h-9 px-4 text-[13px]',
+        sm: 'h-9 px-4 text-(length:--site-text-xs)',
         md: 'h-11 px-5 text-sm',
         lg: 'h-12 px-6 text-[15px]',
       },

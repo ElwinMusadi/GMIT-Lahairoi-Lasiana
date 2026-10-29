@@ -152,7 +152,7 @@ function MediaTile({
           />
         )}
         {hasVideo && (
-          <span className="absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-site-night/75 px-3 py-1.5 text-[13px] font-semibold text-white">
+          <span className="absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-site-night/75 px-3 py-1.5 text-(length:--site-text-xs) font-semibold text-white">
             <Play className="size-3.5 fill-current" aria-hidden="true" />
             Video
           </span>
@@ -206,7 +206,7 @@ function MediaViewer({
                   <span key={dot} className="size-3 rounded-full bg-white/20" />
                 ))}
               </span>
-              <span className="w-0 flex-1 truncate text-center font-site-mono text-[13px] text-white/70">
+              <span className="w-0 flex-1 truncate text-center font-site-mono text-(length:--site-text-xs) text-white/70">
                 dokumentasi — {publishedDate(item.published_at)}
               </span>
               <DialogClose asChild>

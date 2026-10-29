@@ -85,7 +85,14 @@ ponsel, tablet, dan dashboard tetap 100%. Rencana dan keputusan S1–S4 ada di
     semula di layar.
   - `portal-motion.ts` menyamakan `scroll-margin-top` dengan zoom (luncuran jangkar Lenis).
   - Garis ubin unggah tetap 2 px, dan jangkar `/profil#…` diulang setelah font web siap.
-- **Berikutnya: Tahap 2 (lantai teks):** teks kecil 13–14 px tetap ≥13 px di layar.
+- **Tahap 2 (lantai teks) selesai.** `--text-sm` didefinisikan ulang di `.theme-portal`
+  (lantai 13 px), token `--site-text-xs` menggantikan `text-[13px]`, dan toast portal ikut.
+  Di desktop tidak ada teks di bawah 13 px; ponsel tidak berubah.
+  - Ukuran font kecil baru di portal: pakai `text-sm` atau `text-(length:--site-text-xs)`,
+    bukan `text-[13px]` atau utilitas bernama seperti `text-site-sm`, karena `cn` menganggapnya
+    warna.
+- **Berikutnya: Tahap 3 (QA & dokumentasi):** pemeriksaan menyeluruh, README, dan uji Safari
+  serta Firefox oleh pengguna.
 - **Aturan baru untuk kode portal:** tinggi relatif layar ditulis
   `calc(<tinggi>/var(--site-zoom,1))`, bukan `svh`/`vh` langsung.
 

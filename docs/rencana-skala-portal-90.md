@@ -139,16 +139,22 @@ Pada 90%, teks kecil menyusut di bawah aturan rumah "tidak ada teks di bawah 13 
 | 14 px (`text-sm`) | 12,6 px | Label isian, keterangan, tautan footer |
 | 13 px (`text-[13px]`) | 11,7 px | Pil kecil, label jendela, nomor rayon, hak cipta |
 
-Usulan lantai:
+Lantai yang dipasang (Tahap 2):
 
-- **Teks kecil:** dua token baru, sehingga teks kecil tetap ≥13 px di layar.
+- **Teks kecil** tetap ≥13 px di layar.
   - `--site-text-xs: calc(13px / var(--site-zoom))`: tetap 13 px di layar (14,44 px sebelum
-    zoom).
-  - `--site-text-sm: max(14px, calc(13px / var(--site-zoom)))`: 14 px tanpa zoom, 13 px di layar
-    dengan zoom 0,9 (lantai, bukan 12,6 px).
-  - `text-[13px]` (23 tempat) diganti `text-(length:--site-text-xs)`.
-  - `text-sm` di bagian portal diganti `text-(length:--site-text-sm)`.
-  - Daftarnya disusun dengan grep saat implementasi.
+    zoom). `text-[13px]` (23 tempat) diganti `text-(length:--site-text-xs)`.
+  - `--text-sm: max(0.875rem, calc(13px / var(--site-zoom)))` didefinisikan ulang di
+    `.theme-portal`: 14 px tanpa zoom, 13 px di layar dengan zoom 0,9 (lantai, bukan 12,6 px).
+  - Toast `sonner` (13 px dan 12 px bawaan pustaka) memakai `--site-text-xs` lewat aturan
+    `html.theme-portal [data-sonner-toast]…`.
+- *Penyesuaian saat implementasi:* rencana awal mengganti 68 `text-sm` dengan token baru. Tailwind
+  v4 menulis `text-sm` sebagai `font-size: var(--text-sm)`, jadi mendefinisikan ulang variabel itu
+  di `.theme-portal` cukup. Tinggi barisnya tetap, komponen shadcn di portal ikut, dan dashboard
+  tidak tersentuh.
+  - Utilitas bernama seperti `text-site-sm` tidak dipakai, karena penggabung kelas `cn`
+    menganggapnya warna dan membuangnya bila bertemu `text-site-muted`.
+  - Bentuk `text-(length:…)` dikenali `cn` sebagai ukuran font.
 - **Teks bacaan panjang** (isi renungan dan artikel, `text-lg` 18 px) tetap ≥16 px di layar,
   karena hasil 90%-nya 16,2 px. Tidak perlu diubah.
 - **Teks isi lain** (16 → 14,4 px) ikut 90%, seperti zoom browser 90%.
@@ -277,4 +283,24 @@ penjelasan, lalu commit setelah "Ya, commit".
 | 60 fps desktop | Median 16,7 ms, p95 ≤ 17,3 ms. Satu frame panjang hanya pada kunjungan pertama Sakramen dengan cache dingin; ulangan bersih (maks 17 ms) |
 | Inspector | Beranda 0 FAIL, Profil 0 FAIL (WARN baru `lopsided` di "Informasi lainnya": ruang desktop terasa lebih lebar), Jadwal 2 (`few-pictures`, `off-centre` 390 px, sama dengan Tahap 10), Sakramen 1 (`few-pictures`), Login 1 (`few-pictures`) |
 
-**Berikutnya: Tahap 2** (lantai teks 13 px, bagian 4.3).
+### Tahap 2 — Lantai teks (29 Oktober 2026)
+
+**Perubahan** ([index.css](../src/client/index.css) dan 11 berkas portal):
+
+- `--text-sm` didefinisikan ulang di `.theme-portal` dengan lantai 13 px.
+- Token `--site-text-xs` (13 px di layar) menggantikan 23 `text-[13px]`.
+- Toast `sonner` di portal ikut `--site-text-xs`.
+- Lihat bagian 4.3 untuk alasan penyesuaiannya.
+
+**Pemeriksaan:** ukuran di layar (ukuran terhitung × zoom) dihitung untuk setiap elemen berteks
+di 12 halaman, sambil menggulir dari atas ke bawah.
+
+| Uji | Hasil |
+| --- | --- |
+| Desktop 1440 px, 12 halaman | Teks terkecil 13 px; tidak ada yang di bawah 13 px. Sebaran umum: 13 / 14,4 / 16,2 px (sebelumnya 11,7 / 12,6 / 14,4 / 16,2) |
+| Submenu, jendela galeri | Terkecil 13 px |
+| Toast (salin nomor rekening) | 13 px di desktop (sebelumnya 11,7) dan 13 px di ponsel |
+| Ponsel 390 px, 12 halaman dan menu | Tidak berubah: 13 / 14 / 16 px seperti sebelum skala |
+| Typecheck, lint | Bersih |
+
+**Berikutnya: Tahap 3** (QA menyeluruh dan dokumentasi; uji Safari dan Firefox oleh pengguna).

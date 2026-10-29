@@ -131,7 +131,7 @@ function QrisCard({ item }: { item: PublicContent }) {
       className="grid justify-items-center gap-4 rounded-3xl bg-white p-5 text-center text-site-panel md:p-6"
     >
       <div className="grid justify-items-center gap-1">
-        <span className="rounded-full bg-site-panel px-3 py-1 text-[13px] font-bold text-white">
+        <span className="rounded-full bg-site-panel px-3 py-1 text-(length:--site-text-xs) font-bold text-white">
           QRIS
         </span>
         <h3 id={`qris-${item.id}`} className="font-site-display text-xl leading-snug font-bold">
@@ -187,7 +187,7 @@ function AccountCard({ item }: { item: PublicContent }) {
       <div className="flex items-center gap-3">
         <span
           aria-hidden="true"
-          className="flex size-11 flex-none items-center justify-center rounded-xl bg-site-ink text-[13px] font-bold text-site-canvas"
+          className="flex size-11 flex-none items-center justify-center rounded-xl bg-site-ink text-(length:--site-text-xs) font-bold text-site-canvas"
         >
           {bankBadge(bank)}
         </span>

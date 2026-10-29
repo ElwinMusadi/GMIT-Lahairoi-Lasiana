@@ -95,7 +95,7 @@ function ScheduleRow({ worship, level }: { worship: Worship; level: 'h3' | 'h4' 
         </span>
       </div>
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-white/70">
-        <span className="rounded-full bg-white/10 px-2.5 py-0.5 text-[13px] font-medium text-white/85">
+        <span className="rounded-full bg-white/10 px-2.5 py-0.5 text-(length:--site-text-xs) font-medium text-white/85">
           {kind}
         </span>
         {worship.location && (
@@ -130,7 +130,7 @@ function ScheduleRow({ worship, level }: { worship: Worship; level: 'h3' | 'h4' 
           target="_blank"
           rel="noreferrer"
           aria-label={`Unduh tata ibadah ${worship.title} (PDF)`}
-          className="inline-flex w-fit items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 font-site-mono text-[13px] text-white transition-colors outline-none hover:bg-white/20 focus-visible:ring-3 focus-visible:ring-site-accent"
+          className="inline-flex w-fit items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 font-site-mono text-(length:--site-text-xs) text-white transition-colors outline-none hover:bg-white/20 focus-visible:ring-3 focus-visible:ring-site-accent"
         >
           tata-ibadah.pdf
           <Download className="size-3.5" aria-hidden="true" />

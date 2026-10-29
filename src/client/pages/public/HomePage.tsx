@@ -199,7 +199,12 @@ function QuickAction({
   const body = (
     <>
       <span className="text-sm font-semibold md:text-base">{title}</span>
-      <span className={cn('text-[13px]', primary ? 'text-site-panel/70' : 'text-white/75')}>
+      <span
+        className={cn(
+          'text-(length:--site-text-xs)',
+          primary ? 'text-site-panel/70' : 'text-white/75',
+        )}
+      >
         {note}
       </span>
     </>
@@ -237,7 +242,7 @@ function ThemeCard({ worship, today }: { worship: PublicWorshipItem; today: stri
       <p id="label-tema" className="text-sm font-medium text-white/80">
         Tema kebaktian minggu ini{meta && ` · ${meta}`}
       </p>
-      <p className="font-site-mono text-[13px] text-site-accent">
+      <p className="font-site-mono text-(length:--site-text-xs) text-site-accent">
         {worshipWhen(worship.worship_date, worship.worship_time, today)}
       </p>
     </article>
@@ -329,7 +334,12 @@ function Agenda({
                     <span aria-hidden="true" className="size-1.5 rounded-full bg-site-accent" />
                   )}
                 </span>
-                <span className={cn('text-[13px]', active ? 'opacity-75' : 'text-site-muted')}>
+                <span
+                  className={cn(
+                    'text-(length:--site-text-xs)',
+                    active ? 'opacity-75' : 'text-site-muted',
+                  )}
+                >
                   {count} jadwal
                 </span>
               </button>
@@ -568,7 +578,7 @@ function NewsCard({ news }: { news: PublicContent[] }) {
         <ul className="grid gap-6">
           {news.map((item) => (
             <li key={item.id} className="grid gap-1">
-              <p className="text-[13px] font-medium text-site-muted">
+              <p className="text-(length:--site-text-xs) font-medium text-site-muted">
                 {publishedDate(item.published_at)}
               </p>
               <h4 className="font-site-display text-lg leading-snug font-bold">
@@ -798,7 +808,7 @@ function Gallery() {
                     className="aspect-[4/3] w-full rounded-3xl bg-site-rule object-cover"
                   />
                   <span className="grid gap-1 px-1">
-                    <span className="text-[13px] font-medium text-site-muted">
+                    <span className="text-(length:--site-text-xs) font-medium text-site-muted">
                       {publishedDate(item.published_at)}
                     </span>
                     <span className="font-site-display text-lg leading-snug font-bold group-hover:underline">

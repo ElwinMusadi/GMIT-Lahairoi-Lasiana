@@ -46,7 +46,9 @@ export function RayonTable({
           {rayons.map((rayon, index) => (
             <tr key={rayon.id}>
               <th scope="row" className="w-[32%] px-3 py-5 align-top font-normal">
-                <span className="block text-[13px] text-site-muted">Rayon {index + 1}</span>
+                <span className="block text-(length:--site-text-xs) text-site-muted">
+                  Rayon {index + 1}
+                </span>
                 <span className="font-site-display text-lg font-bold">{rayon.name}</span>
               </th>
               <td className="w-[32%] px-3 py-5 align-top">
@@ -62,7 +64,7 @@ export function RayonTable({
       <ul className="grid gap-8 md:hidden">
         {rayons.map((rayon, index) => (
           <li key={rayon.id} className="grid gap-1">
-            <span className="text-[13px] text-site-muted">Rayon {index + 1}</span>
+            <span className="text-(length:--site-text-xs) text-site-muted">Rayon {index + 1}</span>
             <span className="font-site-display text-lg font-bold">{rayon.name}</span>
             <Coordinator name={rayon.coordinator_name} />
             {rayon.description && (

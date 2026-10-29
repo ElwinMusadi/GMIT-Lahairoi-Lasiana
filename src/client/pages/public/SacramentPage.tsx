@@ -236,7 +236,7 @@ function TrackSection({ tracker, saved }: { tracker: Tracker; saved: SavedCode[]
                       type="button"
                       onClick={() => void tracker.check(item.code)}
                       title={SACRAMENT_TYPE_LABELS[item.type]}
-                      className="rounded-full bg-white/10 px-3 py-1.5 font-site-mono text-[13px] text-white transition-colors outline-none hover:bg-white/20 focus-visible:ring-3 focus-visible:ring-site-accent"
+                      className="rounded-full bg-white/10 px-3 py-1.5 font-site-mono text-(length:--site-text-xs) text-white transition-colors outline-none hover:bg-white/20 focus-visible:ring-3 focus-visible:ring-site-accent"
                     >
                       {item.code}
                     </button>
@@ -284,7 +284,7 @@ function TrackResult({ status }: { status: PublicSacramentStatus }) {
     <div className="mt-8 grid gap-6 rounded-2xl bg-white/[0.05] p-5 md:p-6">
       <div className="grid gap-2">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-white/75">
-          <span className="rounded-full bg-site-accent px-3 py-1 text-[13px] font-bold text-site-panel">
+          <span className="rounded-full bg-site-accent px-3 py-1 text-(length:--site-text-xs) font-bold text-site-panel">
             {SACRAMENT_TYPE_LABELS[status.type]}
           </span>
           <span className="font-site-mono text-base text-white">{status.registration_code}</span>
@@ -310,7 +310,7 @@ function TrackResult({ status }: { status: PublicSacramentStatus }) {
             >
               <span
                 className={cn(
-                  'flex size-8 items-center justify-center rounded-full font-site-mono text-[13px] font-semibold',
+                  'flex size-8 items-center justify-center rounded-full font-site-mono text-(length:--site-text-xs) font-semibold',
                   done
                     ? 'bg-site-green text-white'
                     : active
@@ -1051,7 +1051,9 @@ function SuccessPanel({
           </p>
         </div>
         <div className="grid w-full max-w-md gap-2 rounded-2xl bg-site-panel-2 p-5">
-          <span className="text-[13px] font-medium text-white/70">Kode registrasi</span>
+          <span className="text-(length:--site-text-xs) font-medium text-white/70">
+            Kode registrasi
+          </span>
           <output
             aria-label={`Kode registrasi ${result.registration_code.split('').join(' ')}`}
             className="font-site-mono text-3xl font-medium tracking-[0.12em] break-all text-white select-all sm:text-4xl"

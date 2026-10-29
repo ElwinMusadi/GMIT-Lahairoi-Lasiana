@@ -198,6 +198,11 @@
      tinggi relatif layar di portal ditulis calc(<tinggi> / var(--site-zoom, 1)) agar hero,
      login, dan jendela galeri tetap setinggi semula di layar. */
   --site-zoom: 1;
+  /* Lantai teks kecil: di desktop 90%, teks 13–14 px tetap ≥13 px di layar. text-sm membaca
+     --text-sm, jadi cukup didefinisikan ulang di sini (juga untuk komponen shadcn di portal);
+     label 13 px memakai text-(length:--site-text-xs). Tanpa zoom keduanya tetap 14 dan 13 px. */
+  --text-sm: max(0.875rem, calc(13px / var(--site-zoom)));
+  --site-text-xs: calc(13px / var(--site-zoom));
 
   /* Token kage, tema terang (bawaan). */
   --site-canvas: #ffffff;
@@ -271,6 +276,11 @@
   html.theme-portal {
     zoom: var(--site-zoom);
   }
+}
+/* Toast portal: sonner memasang 13 px (tombol 12 px) sendiri; ikut lantai teks kecil. */
+html.theme-portal [data-sonner-toast][data-styled='true'],
+html.theme-portal [data-sonner-toast][data-styled='true'] [data-button] {
+  font-size: var(--site-text-xs);
 }
 
 /* Bantalan isi panel hero: tepi kiri isi sejajar dengan pil header, dan bagian atasnya

@@ -193,7 +193,7 @@ function FeaturedWarta({ warta }: { warta: PublicContent }) {
         footer={
           warta.attachment_url ? (
             <>
-              <span className="min-w-0 truncate font-site-mono text-[13px] text-white/70">
+              <span className="min-w-0 truncate font-site-mono text-(length:--site-text-xs) text-white/70">
                 {warta.slug}.pdf
               </span>
               <PdfActions warta={warta} onDark />
