@@ -102,16 +102,14 @@ export function usePortalMotion() {
 
     // Gulir dari luar Lenis (tombol keyboard, bilah gulir, scrollTo, Cari di halaman).
     // Lenis hanya menyelaraskannya saat diam; saat sedang meluncur ia menimpanya pada frame
-    // berikutnya. Di sini luncuran dihentikan di posisi baru itu. Lompatan asli browser ke
-    // jangkar menuju sasaran yang sama dengan luncuran Lenis, jadi dibiarkan ditimpa agar
-    // jangkar tetap meluncur halus. Diperiksa juga sebelum roda tetikus diolah, untuk gulir
-    // yang event scroll-nya belum sempat terkirim.
+    // berikutnya. Di sini luncuran dihentikan di posisi baru itu. Diperiksa juga sebelum
+    // roda tetikus diolah, untuk gulir yang event scroll-nya belum sempat terkirim.
     const followNativeScroll = () => {
       const actual = instance.actualScroll
       if (
         instance.isScrolling !== 'native' &&
         Math.abs(actual - instance.animatedScroll) > 2 &&
-        Math.abs(actual - instance.targetScroll) > 4
+        !landedOnAnchor()
       ) {
         instance.scrollTo(actual, { immediate: true, force: true })
       }
@@ -137,15 +135,31 @@ export function usePortalMotion() {
   }, [])
 
   // Pindah halaman: ScrollRestoration memulihkan atau menaikkan posisi gulir dengan
-  // gulir asli; Lenis disamakan sesudahnya agar animasi lama tidak berlanjut.
+  // gulir asli; Lenis disamakan sesudahnya agar animasi lama tidak berlanjut. Kecuali
+  // Lenis sedang meluncur ke jangkar di halaman yang sama (Link "#…" juga mengganti
+  // lokasi): luncuran itu dibiarkan selesai.
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
-      lenis?.resize()
-      lenis?.scrollTo(window.scrollY, { immediate: true, force: true })
+      if (!lenis) return
+      lenis.resize()
+      if (lenis.isScrolling !== 'smooth') {
+        lenis.scrollTo(window.scrollY, { immediate: true, force: true })
+      }
       scheduleUpdate()
     })
     return () => cancelAnimationFrame(frame)
   }, [location.key])
+}
+
+// Lompatan asli ke jangkar (#…) yang sedang diluncurkan Lenis: browser atau
+// ScrollRestoration melompat ke sasaran yang sama, sehingga elemen jangkar tepat berada di
+// scroll-margin-top-nya. Lompatan itu dibiarkan ditimpa Lenis agar jangkar meluncur halus.
+function landedOnAnchor() {
+  const id = decodeURIComponent(window.location.hash.slice(1))
+  const anchor = id ? document.getElementById(id) : null
+  if (!anchor) return false
+  const margin = Number.parseFloat(getComputedStyle(anchor).scrollMarginTop) || 0
+  return Math.abs(anchor.getBoundingClientRect().top - margin) < 4
 }
 
 // Gulir ke sebuah elemen: halus lewat Lenis bila aktif, jika tidak memakai gulir asli

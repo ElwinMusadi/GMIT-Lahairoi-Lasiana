@@ -639,11 +639,11 @@ uji, di desktop dan di ponsel.
 
 **Profil**
 
-- [ ] Pil lompat ke 4 bagian; anchor `#sejarah`, `#visi-misi`, `#rayon`, `#majelis`
-- [ ] Pemetaan konten ke bagian menurut judul/slug (sejarah, visi/misi, majelis/pendeta, lainnya)
-- [ ] Sejarah, Visi & Misi (satu atau banyak konten), gambar dan ringkasan, pesan "sedang disusun"
+- [x] Pil lompat ke 4 bagian; anchor `#sejarah`, `#visi-misi`, `#rayon`, `#majelis`
+- [x] Pemetaan konten ke bagian menurut judul/slug (sejarah, visi/misi, majelis/pendeta, lainnya)
+- [x] Sejarah, Visi & Misi (satu atau banyak konten), gambar dan ringkasan, pesan "sedang disusun"
 - [ ] Rayon: urutan, nama, koordinator atau "belum diumumkan", wilayah; eror, kerangka
-- [ ] Majelis: foto bersama + keterangan, daftar "Jabatan: Nama" dengan inisial, catatan, kosong
+- [x] Majelis: foto bersama + keterangan, daftar "Jabatan: Nama" dengan inisial, catatan, kosong
 - [ ] "Informasi Lainnya"; lampiran ditampilkan
 
 **Persembahan**
@@ -1266,4 +1266,83 @@ Renungan, Berita, dan Galeri:
 - **Belum terlihat di browser:**
   - sampul pada artikel unggulan (renungan dan berita terbaru di data uji tanpa sampul);
   - ringkasan berita sebagai paragraf pembuka, dan lampiran artikel (tidak ada di data uji).
+  - Kodenya mengikuti 08.
+
+### Tahap 7 — Galeri & Profil (29 Oktober 2026)
+
+**Galeri Kegiatan** ([MediaPage.tsx](../src/client/pages/public/MediaPage.tsx)):
+
+- **Hero ringkas** berlatar foto dokumentasi terbaru (cadangan: foto gereja).
+  - Selama data dimuat panel tetap gelap (`HeroPanel photo={null}`), agar foto gereja tidak
+    sempat tampil lalu berganti.
+  - Judul "Galeri Kegiatan / *foto dan video.*". Usulan "ibadah dan pelayanan jemaat." tidak
+    muat dua baris di ponsel.
+- **Kisi ubin:** membulat 20 px tanpa bayangan, zoom halus saat disorot, pil "Video", ikon bila
+  tanpa gambar. Di bawahnya judul, tanggal, dan ringkasan 2 baris (judul di atas tanggal).
+- **Jendela galeri:** dialog panel gelap bergaya jendela kage. Bilah atasnya menempel saat isi
+  digulir dan berisi tiga titik, "dokumentasi — tanggal" (mono), serta pil "Tutup". Isinya
+  sama dengan 08: video youtube-nocookie atau foto, judul, keterangan (cadangan sr-only), foto
+  di bawah video, cerita, dan "Tonton video".
+- **Perbaikan 08 (fokus):** setelah jendela ditutup (Esc atau Tutup), fokus kembali ke ubin
+  pembuka.
+  - Jendela dibuka lewat state, bukan `DialogTrigger`, sehingga Radix tidak tahu ke mana fokus
+    harus dikembalikan.
+  - Di 08 fokus jatuh ke `body` dan pengguna keyboard kehilangan posisinya.
+
+**Profil & Sejarah** ([ProfilePage.tsx](../src/client/pages/public/ProfilePage.tsx)):
+
+- **Hero ringkas:** "Profil & Sejarah / *Jemaat Lahairoi.*" dan pil lompat ke empat bagian.
+  Usulan "GMIT Lahairoi Tuak Sabu." tidak muat di ponsel.
+- **Sejarah:** tulisan editorial dua kolom (teks 18 px di kiri, foto 4:5 di kanan).
+- **Visi & Misi:** kartu terang/gelap berdampingan bila ada dua konten; satu konten menjadi
+  satu kartu.
+- **Lima rayon:** `RayonTable` bersama dengan Beranda (komponen baru
+  [rayon-table.tsx](../src/client/components/portal/kage/rayon-table.tsx)).
+- **Pendeta & Majelis / *periode berjalan.*:** foto bersama dengan keterangan, kisi orang
+  dengan inisial (orang pertama gelap), dan catatan.
+- **Informasi lainnya:** konten yang tidak masuk bagian mana pun.
+- **Perbaikan 08:**
+  - **#5:** lampiran konten Profil tampil sebagai tombol "Buka lampiran (PDF)".
+  - **#6:** daftar rayon yang gagal dimuat kini punya "Coba lagi".
+  - **Jangkar dari halaman lain:** begitu data Profil dan rayon tiba, halaman lompat sekali
+    lagi ke jangkar, karena isi di atasnya baru dimuat setelah lompatan pertama. Lompatan
+    ulang ini hanya sekali, agar jangkar yang diklik di halaman ini tetap meluncur halus.
+
+**Jangkar di halaman yang sama** (berlaku di seluruh portal):
+
+- **Masalah:** tautan `<a href="#…">` biasa membuat browser menambah entri riwayat tanpa state.
+  React Router memperlakukannya sebagai navigasi Kembali/Maju, lalu `ScrollRestoration`
+  memulihkan posisi tersimpan, yaitu 0.
+  - Akibatnya pil Profil, "Jadwal Ibadah" di hero Beranda, dan dua tombol Sakramen 08 kembali
+    ke atas halaman, juga tanpa Lenis.
+- **Perbaikan:** semua jangkar memakai `Link`, dan `PillLink` tidak lagi memperlakukan "#…"
+  sebagai `<a>` biasa. "Lewati ke konten" tetap `<a>` biasa, agar fokus keyboard ikut pindah.
+- **Lapisan gerak ([portal-motion.ts](../src/client/lib/portal-motion.ts)):**
+  - Penjaga gulir dari Tahap 4 membandingkan posisi dengan `targetScroll`. Untuk luncuran
+    terprogram (jangkar), nilai itu ikut berubah tiap frame, sehingga lompatan
+    `ScrollRestoration` ke jangkar dianggap gulir luar dan luncuran berhenti.
+  - Kini lompatan yang mendarat tepat di jangkar `location.hash` (elemen di
+    `scroll-margin-top`-nya) dibiarkan ditimpa Lenis.
+  - Penyelarasan saat lokasi berubah dilewati selama Lenis sedang meluncur.
+
+**Pemeriksaan:**
+
+| Uji | Hasil |
+| --- | --- |
+| Pil "Pendeta & Majelis" di Profil (dengan Lenis) | Meluncur 0 → 1549 → 2216 → … → 2972 px, seksi di 96 px |
+| "Jadwal Ibadah" di hero Beranda | Meluncur 0 → 358 → … → 764 px, seksi di 96 px |
+| Jangkar halaman sama tanpa Lenis (Profil, Beranda, Sakramen) | Semua berhenti di 96 px (sebelumnya kembali ke 0) |
+| `/profil#rayon` dan `#majelis` dari footer Beranda | Seksi di 96 px, dengan dan tanpa Lenis (08: 110 px) |
+| Muat ulang di `/profil#majelis` | Seksi di 96 px |
+| Roda tetikus lalu End saat Lenis meluncur | Tetap langsung ke dasar halaman |
+| Jendela galeri (klik sungguhan dan Enter) | Panel gelap, video YouTube nocookie, cerita; Lenis berhenti; Esc menutup dan fokus kembali ke ubin |
+| Tema gelap | Profil (kisi orang, foto, tabel) dan Galeri terbaca |
+| Ponsel 390 px | Profil dan Galeri tanpa gulir menyamping, rayon bertumpuk |
+| Inspector | Galeri 0 FAIL (baseline 6), Profil 0 FAIL (baseline 7) |
+
+- **Belum terlihat di browser:**
+  - ubin tanpa gambar dan pager galeri (data uji 8 dokumentasi, batas 24);
+  - "Tonton video" untuk tautan non-YouTube;
+  - eror rayon dan "Coba lagi";
+  - lampiran Profil (tidak ada di data uji).
   - Kodenya mengikuti 08.

@@ -135,10 +135,19 @@ Progres tahap:
     lainnya.
   - Judul tab kini kembali setelah meninggalkan artikel (perbaikan 08 #1).
   - Inspector: daftar 0 FAIL, halaman baca 1 FAIL (K5), Beranda 0 FAIL.
-- **Berikutnya: Tahap 7 (Galeri & Profil):** `/media` (kisi dokumentasi, jendela galeri,
-  YouTube) dan `/profil` (sejarah, visi-misi, lima rayon, Pendeta & Majelis), termasuk
-  perbaikan 08 #5 (lampiran Profil), #6 (Coba lagi rayon), dan gulir ulang ke jangkar
-  `/profil#rayon` setelah data tiba.
+- **Tahap 7 (Galeri & Profil) selesai.**
+  - Galeri: hero berlatar foto dokumentasi terbaru, kisi ubin, dan jendela galeri bergaya
+    panel jendela. Fokus kini kembali ke ubin setelah jendela ditutup.
+  - Profil: sejarah editorial, kartu Visi & Misi, `RayonTable` bersama Beranda, serta kisi
+    Pendeta & Majelis.
+  - Perbaikan 08 #5 (lampiran Profil) dan #6 (Coba lagi rayon); `/profil#rayon` dari halaman
+    lain kini tepat di 96 px.
+  - Jangkar di halaman yang sama memakai `Link` (tautan "#…" biasa membuat `ScrollRestoration`
+    kembali ke atas), dan penjaga gulir Lenis membiarkan lompatan ke jangkar ditimpa luncuran.
+  - Inspector: keduanya 0 FAIL.
+- **Berikutnya: Tahap 8 (Persembahan & Sakramen):** `/persembahan` (QRIS, rekening, salin) dan
+  `/layanan-sakramen` (cek status, formulir 3 jenis, unggah berkas, FAQ), termasuk perbaikan 08
+  #7 (kode baru langsung tersimpan) dan #8 (tab nikah terpotong di ponsel).
 
 **Bug API yang ditemukan di Tahap 0** (belum diperbaiki, diusulkan sebagai commit terpisah):
 

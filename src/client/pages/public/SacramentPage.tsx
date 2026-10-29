@@ -19,7 +19,7 @@ import {
   Send,
   Share2,
 } from 'lucide-react'
-import { useSearchParams } from 'react-router'
+import { Link, useSearchParams } from 'react-router'
 import { toast } from 'sonner'
 import type { FieldErrors } from '@shared/accounts'
 import { witaToday } from '@shared/dates'
@@ -93,20 +93,20 @@ export default function SacramentPage() {
         lead="Daftarkan Baptisan Kudus, Katekisasi/Sidi, atau Pemberkatan Nikah tanpa perlu akun. Simpan kode registrasi yang Anda terima untuk memantau verifikasi berkas dan jadwal penggembalaan."
       >
         <div className="flex flex-wrap gap-2">
-          <a
-            href="#formulir"
+          <Link
+            to="#formulir"
             className="inline-flex items-center gap-1.5 rounded-lg bg-portal-navy px-5 py-2.5 text-sm font-semibold text-white hover:bg-portal-indigo"
           >
             <Send className="size-4" aria-hidden="true" />
             Daftar sekarang
-          </a>
-          <a
-            href="#cek-status"
+          </Link>
+          <Link
+            to="#cek-status"
             className="inline-flex items-center gap-1.5 rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-portal-navy shadow-sm hover:bg-portal-high"
           >
             <Search className="size-4" aria-hidden="true" />
             Cek status pendaftaran
-          </a>
+          </Link>
         </div>
       </PageIntro>
       <TrackSection tracker={tracker} />

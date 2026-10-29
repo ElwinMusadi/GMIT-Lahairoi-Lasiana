@@ -50,8 +50,9 @@ export function PillLink({
   ...props
 }: PillStyle & Omit<ComponentProps<'a'>, 'href'> & { to: string; children: ReactNode }) {
   const classes = cn(pillVariants({ tone, size }), className)
-  // Tautan luar, berkas, dan jangkar di halaman yang sama memakai <a> biasa.
-  const plain = /^(https?:|mailto:|tel:|#|\/api\/)/.test(to)
+  // Tautan luar dan berkas memakai <a> biasa. Jangkar "#…" tetap lewat Link, agar
+  // ScrollRestoration tidak memulihkan posisi lama (kembali ke atas).
+  const plain = /^(https?:|mailto:|tel:|\/api\/)/.test(to)
   const content = (
     <>
       {children}

@@ -15,7 +15,8 @@ type Props = {
   // full: hero Beranda setinggi ±92 % layar. page: hero ringkas halaman dalam.
   size?: 'full' | 'page'
   labelledBy: string
-  photo?: Photo
+  // null: panel gelap tanpa foto, mis. selama foto halaman masih ditentukan.
+  photo?: Photo | null
   // Bagian yang ikut turun dan memudar saat digulir (judul besar).
   display: ReactNode
   // Isi lain di bawahnya (pengantar, aksi, saringan); tidak ikut memudar.
@@ -48,16 +49,18 @@ export function HeroPanel({
         )}
       >
         <div ref={media} aria-hidden="true" className="absolute inset-0 -z-10 scale-[1.02]">
-          <img
-            src={photo.src}
-            srcSet={photo.srcSet}
-            sizes={photo.sizes}
-            alt=""
-            fetchPriority="high"
-            decoding="async"
-            className="size-full object-cover"
-            style={{ objectPosition: photo.position ?? 'center 0%' }}
-          />
+          {photo && (
+            <img
+              src={photo.src}
+              srcSet={photo.srcSet}
+              sizes={photo.sizes}
+              alt=""
+              fetchPriority="high"
+              decoding="async"
+              className="size-full object-cover"
+              style={{ objectPosition: photo.position ?? 'center 0%' }}
+            />
+          )}
           <div className="site-hero-scrim absolute inset-0" />
         </div>
         {size === 'full' ? (
