@@ -72,7 +72,24 @@ Catatan status:
 - Redesign portal (12 commit, merge `90e5a7a`, dan catatan merge `2396a6a`) sudah di-push ke
   `origin/main` pada 29 Oktober 2026.
 
-### Pekerjaan yang sedang berjalan: skala Portal Publik 90%
+### Pekerjaan yang sedang berjalan: redesign dashboard bergaya Zenith
+
+Dashboard pengurus (`/dashboard`) dirombak dengan tampilan Zenith Dashboard (shadcn/ui,
+DashboardPack). Pengguna punya lisensinya tetapi belum mengunduh source React-nya.
+
+- **Acuan:** penerapan gaya Zenith milik pengguna di proyek HRIS (`D:\Herd\HRIS`, Laravel + Blade +
+  Alpine.js) dan demo publik Zenith (hanya acuan tampilan; tidak ada rekonstruksi kode dengan REA).
+- **Cara kerja:** komponen React ditulis sendiri di atas shadcn/ui; logika, API, peran, dan cetakan
+  tidak berubah.
+- **Rencana dan keputusan D1–D10** (disetujui 29 Oktober 2026) ada di
+  [docs/rencana-redesign-dashboard-zenith.md](docs/rencana-redesign-dashboard-zenith.md).
+- **Branch:** `feat/redesign-dashboard-zenith`, di-merge `--no-ff` setelah semua tahap selesai (D10).
+- **Tahap 0 (persiapan):** acuan HRIS diinventaris; baseline dashboard per peran ada di
+  `.taste-skill/inspect-dashboard-baseline/` (tidak di-commit).
+- **Berikutnya: Tahap 1 (fondasi):** token terang/gelap, Geist, primitif (kartu, tabel, lencana,
+  kontrol bersegmen, KPI), dan keputusan pustaka grafik (D7).
+
+### Selesai: skala Portal Publik 90%
 
 Portal desktop (≥1024 px dengan tetikus/trackpad) dibuat tampil 90%, seperti zoom browser 90%;
 ponsel, tablet, dan dashboard tetap 100%. Rencana dan keputusan S1–S4 ada di
