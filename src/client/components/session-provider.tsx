@@ -5,7 +5,6 @@ import { WellMark } from '@/components/brand/well'
 import { api, configureApi } from '@/lib/api'
 import {
   SessionContext,
-  useCan,
   useCurrentUser,
   useSession,
   type SessionContextValue,
@@ -85,21 +84,22 @@ export function RequireRole({
   if (roles.includes(user.role)) return children
 
   return (
+    // Judul setara PageHeader dashboard, ditulis langsung agar komponen dashboard tidak ikut
+    // bundel utama (berkas ini juga dimuat portal).
     <div className="grid gap-4">
-      <h1 className="text-2xl font-semibold tracking-[-0.02em]">Akses dibatasi</h1>
-      <p className="max-w-[60ch] text-sm text-muted-foreground">
-        Halaman {title} hanya untuk {roles.map((role) => ROLE_LABELS[role]).join(', ')}. Anda masuk
-        sebagai {ROLE_LABELS[user.role]}.
-      </p>
-      <Link to="/dashboard" className="text-sm font-medium underline underline-offset-4">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">Akses dibatasi</h1>
+        <p className="mt-1 max-w-[60ch] text-sm text-muted-foreground">
+          Halaman {title} hanya untuk {roles.map((role) => ROLE_LABELS[role]).join(', ')}. Anda
+          masuk sebagai {ROLE_LABELS[user.role]}.
+        </p>
+      </div>
+      <Link
+        to="/dashboard"
+        className="justify-self-start text-sm font-medium underline underline-offset-4"
+      >
         Kembali ke Ringkasan
       </Link>
     </div>
   )
-}
-
-// Menampilkan isinya hanya untuk peran tertentu, mis. tombol Tambah/Ubah/Hapus:
-//   <Can roles={['TREASURER']}><Button>Catat transaksi</Button></Can>
-export function Can({ roles, children }: { roles: readonly UserRole[]; children: ReactNode }) {
-  return useCan(roles) ? children : null
 }

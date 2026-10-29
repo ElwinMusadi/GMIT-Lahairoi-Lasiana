@@ -383,7 +383,7 @@ function FamilyRow({ family, showRayon }: { family: Family; showRayon: boolean }
             <Link to={to} className="block truncate font-medium underline-offset-4 hover:underline">
               {family.family_head_name}
             </Link>
-            <p className="mt-0.5 truncate text-[0.8125rem] text-muted-foreground">
+            <p className="mt-0.5 text-[0.8125rem] text-muted-foreground lg:truncate">
               {showRayon && <span className="sm:hidden">{family.rayon_name} · </span>}
               {details}
             </p>

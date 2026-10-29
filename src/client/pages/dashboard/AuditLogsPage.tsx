@@ -17,6 +17,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import {
+  GroupHeaderRow,
   SkeletonRows,
   TableCard,
   TableMessage,
@@ -300,15 +301,7 @@ export default function AuditLogsPage() {
           ) : (
             days.map((day) => (
               <TableBody key={day.date} className={bodyClass}>
-                <TableRow className="bg-muted/50 hover:bg-muted/50">
-                  <th
-                    scope="rowgroup"
-                    colSpan={3}
-                    className="px-4 py-2 text-left text-[0.8125rem] font-semibold"
-                  >
-                    {formatDayHeading(day.items[0].created_at)}
-                  </th>
-                </TableRow>
+                <GroupHeaderRow>{formatDayHeading(day.items[0].created_at)}</GroupHeaderRow>
                 {day.items.map((item) => (
                   <LogRow key={item.id} item={item} icon={auditIcon(item)} />
                 ))}

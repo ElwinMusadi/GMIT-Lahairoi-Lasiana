@@ -1,4 +1,4 @@
-import type { ComponentProps, ReactNode } from 'react'
+import { useLayoutEffect, useRef, useState, type ComponentProps, type ReactNode } from 'react'
 import { ChevronLeft, ChevronRight, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -135,6 +135,55 @@ export function TableMessage({ colSpan, children }: { colSpan: number; children:
         {children}
       </TableCell>
     </TableRow>
+  )
+}
+
+// Baris judul kelompok (mis. per hari) selebar kolom yang tampil. colSpan tetap tidak boleh
+// menghitung kolom yang disembunyikan di layar sempit: table-fixed lalu membuat kolom kosong
+// yang ikut membagi lebar dan menjepit kolom utama. Jumlahnya dibaca dari kepala tabel.
+export function GroupHeaderRow({ children }: { children: ReactNode }) {
+  const ref = useRef<HTMLTableCellElement>(null)
+  const [span, setSpan] = useState(1)
+
+  useLayoutEffect(() => {
+    const cell = ref.current
+    const table = cell?.closest('table')
+    if (!cell || !table) return
+    const measure = () => setSpan(visibleColumns(cell))
+    measure()
+    // Kolom muncul/hilang di titik henti (lebar tabel ikut berubah), atau kepala tabel berganti
+    // tanpa baris ini dipasang ulang (mis. tampilan Mendatang/Selesai di Jadwal Ibadah).
+    const resize = new ResizeObserver(measure)
+    resize.observe(table)
+    const mutation = new MutationObserver(measure)
+    if (table.tHead) mutation.observe(table.tHead, { childList: true, subtree: true })
+    return () => {
+      resize.disconnect()
+      mutation.disconnect()
+    }
+  }, [])
+
+  return (
+    <TableRow className="bg-muted/50 hover:bg-muted/50">
+      <th
+        ref={ref}
+        scope="rowgroup"
+        colSpan={span}
+        className="px-4 py-2 text-left text-[0.8125rem] font-semibold"
+      >
+        {children}
+      </th>
+    </TableRow>
+  )
+}
+
+function visibleColumns(cell: HTMLElement) {
+  const head = cell.closest('table')?.tHead?.rows[0]
+  if (!head) return 1
+  return (
+    [...head.cells]
+      .filter((th) => getComputedStyle(th).display !== 'none')
+      .reduce((total, th) => total + th.colSpan, 0) || 1
   )
 }
 

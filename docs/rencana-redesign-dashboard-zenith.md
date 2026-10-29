@@ -603,3 +603,57 @@ Hasilnya ditinjau, dirapikan, dan diuji di sini.
 | Typecheck, lint, prettier | Bersih |
 
 **Berikutnya: Tahap 8** (Rapikan & QA).
+
+### Tahap 8 — Rapikan & QA (29 Oktober 2026)
+
+**Sisa gaya lama:**
+
+- **Token.** Blok `:root` "achromatic ledger" di `index.css` dihapus. Token dashboard terang kini
+  berselektor `:root, .theme-dashboard`, sehingga juga menjadi cadangan saat `<html>` tanpa
+  kelas tema (mis. halaman eror setelah layout dilepas).
+  - Portal dulu mewarisi `--radius: 0.5rem` dari `:root` lama; nilainya kini ditulis di
+    `.theme-portal`.
+  - Token mati dihapus: `--field`, `--field-foreground` (beserta `--color-field*`), dan
+    `--warning` polos.
+  - Nilai token di `<html>` dibandingkan sebelum/sesudah (portal terang/gelap, dashboard
+    terang/gelap, tanpa kelas). Portal: semua token yang dipakai, termasuk radius, sama persis;
+    yang berubah hanya token yang tidak dipakai portal (`rule`, `sidebar-*`). Dashboard: hanya tiga
+    token mati yang hilang.
+- **Komponen.** `ui/badge.tsx` dan `ui/tabs.tsx` (sudah diganti `StatusBadge` dan `Segmented`)
+  serta `<Can>` (tak dipakai sejak Ringkasan baru; cukup `useCan`) dihapus. Komentar Sonner yang
+  menyebut "dashboard selalu terang" diperbarui.
+- **Halaman "Akses dibatasi"** (`RequireRole`) memakai judul dan deskripsi setara `PageHeader`,
+  ditulis langsung karena berkas itu juga masuk bundel portal.
+
+**Audit akhir:** keempat peran, semua halaman sidebar ditambah halaman rincian/baru (Admin 23,
+Pendeta 17, Majelis 10, Bendahara 4), di 1440/768/390 px.
+
+| Uji | Hasil |
+| --- | --- |
+| Galat konsol dan API | Tidak ada |
+| Gulir menyamping, kontrol keluar kartu, `h1` ganda/hilang, gambar tanpa `alt`, `id` ganda | Tidak ada |
+| Tema gelap (1440 dan 390 px) | Hanya elemen yang memang terang: tombol utama, kotak merek, lencana "diproses", avatar |
+| Cetak saat tema gelap | Laporan Keuangan dan sertifikat: latar putih, sidebar tersembunyi |
+| Ctrl+K | Terbuka dan tertutup (Esc) untuk keempat peran |
+| Halaman ditolak | "Akses dibatasi" dengan breadcrumb, judul, dan tautan kembali |
+| Inspector `--app` | Ringkasan, Anggota, Rayon, Jadwal Ibadah, Log Aktivitas: 0 FAIL, 0 WARN |
+| Typecheck, lint, prettier | Bersih |
+
+**Perbaikan dari audit:**
+
+1. **Baris keterangan Jemaat** (Anggota, KK, Rincian KK, Rayon) masih `truncate` di semua lebar.
+   Kini `lg:truncate`, membungkus di bawah 1024 px seperti Keuangan dan Sakramen.
+2. **Rayon di ponsel:** kolom KK, Jiwa, dan tindakan dipersempit (judul "Jiwa aktif" menjadi
+   "Jiwa", "aktif" tetap untuk pembaca layar), sehingga kolom keterangan ±190 px, bukan ±126 px.
+3. **Judul hari di tabel berkelompok.** `colSpan` tetap di Jadwal Ibadah (5) dan Log Aktivitas (3)
+   ikut menghitung kolom yang disembunyikan di ponsel, sehingga `table-fixed` membuat kolom
+   kosong. Akibatnya kolom Ibadah hanya 78 px dan kolom Aktivitas 131 px. Komponen baru
+   `GroupHeaderRow` di `data-table.tsx` membaca jumlah kolom kepala yang tampil, dan memperbaruinya
+   saat lebar berubah atau kepala berganti (Mendatang/Sudah berlangsung). Kini Ibadah 310 px dan
+   Aktivitas 262 px di 390 px.
+
+**Dokumentasi:** README (struktur folder, kerangka dashboard, `useCan`, bagian Desain dengan
+asal-usul gaya Zenith, Warta & Konten, Akun Pengurus) dan `KONTEKS_PROJECT.md` (bagian Desain,
+berkas penting).
+
+**Berikutnya: Tahap 9** (Merge, D10).

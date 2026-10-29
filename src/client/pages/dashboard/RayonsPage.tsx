@@ -88,10 +88,13 @@ export default function RayonsPage() {
           <caption className="sr-only">Rayon pelayanan</caption>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
+              {/* Di ponsel kolom angka dipersempit agar keterangan rayon tidak terjepit. */}
               <TableHead>Rayon</TableHead>
-              <TableHead className="w-20 text-right sm:w-24">KK</TableHead>
-              <TableHead className="w-24 text-right sm:w-28">Jiwa aktif</TableHead>
-              <TableHead className="w-14">
+              <TableHead className="w-14 text-right sm:w-24">KK</TableHead>
+              <TableHead className="w-16 text-right sm:w-28">
+                Jiwa<span className="max-sm:sr-only"> aktif</span>
+              </TableHead>
+              <TableHead className="w-12 sm:w-14">
                 <span className="sr-only">Tindakan</span>
               </TableHead>
             </TableRow>
@@ -162,7 +165,7 @@ function RayonRow({
         >
           {rayon.name}
         </Link>
-        <p className="mt-0.5 truncate text-[0.8125rem] text-muted-foreground">{details}</p>
+        <p className="mt-0.5 text-[0.8125rem] text-muted-foreground lg:truncate">{details}</p>
         {/* Porsi jiwa: garis tipis abu-abu, tanpa lintasan (sama dengan saldo per Pos Kas). */}
         <div aria-hidden="true" className="mt-1.5 h-0.5 max-w-64">
           {share > 0 && (

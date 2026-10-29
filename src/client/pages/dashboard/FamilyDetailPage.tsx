@@ -310,7 +310,7 @@ function FamilyMemberRow({
                 </StatusBadge>
               )}
             </div>
-            <p className="mt-0.5 truncate text-[0.8125rem] text-muted-foreground">
+            <p className="mt-0.5 text-[0.8125rem] text-muted-foreground lg:truncate">
               {line2}
               <span className="sm:hidden">
                 {' · '}

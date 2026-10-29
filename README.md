@@ -19,7 +19,7 @@ Proyek ini berbentuk **full-stack dalam satu paket**. `@cloudflare/vite-plugin` 
 
 ```
 .
-├── .taste-skill/               # Arah desain hasil skill design-taste-frontend (portal & app)
+├── .taste-skill/               # Arah desain skill design-taste-frontend (portal; app/ hanya untuk inspector --app)
 ├── docs/prd.md                 # Product Requirements Document
 ├── migrations/                 # Migrasi SQL Cloudflare D1 (urut bernomor)
 ├── public/                     # Aset statis (favicon, foto gereja)
@@ -30,7 +30,9 @@ Proyek ini berbentuk **full-stack dalam satu paket**. `@cloudflare/vite-plugin` 
 │   │   │   ├── ui/             # Komponen shadcn/ui (dikelola via CLI shadcn)
 │   │   │   ├── brand/          # Motif cincin sumur Lahai-roi & wordmark
 │   │   │   ├── portal/         # Header, footer, navigasi, tombol tema, dan komponen kage/ Portal Publik
-│   │   │   ├── dashboard/      # Sidebar per peran dan menu profil
+│   │   │   ├── dashboard/      # Kerangka dashboard: sidebar per peran, topbar, palet Ctrl+K, tema, menu pengguna
+│   │   │   ├── zenith/         # Komponen dashboard bergaya Zenith (judul, KPI, panel, tabel, lencana, segmen)
+│   │   │   ├── analytics/      # Grafik SVG dan widget Ringkasan
 │   │   │   ├── users/          # Dialog form akun dan kata sandi sementara
 │   │   │   ├── congregation/   # Form KK, profil anggota, rayon; panel profil; pemilih KK
 │   │   │   ├── finance/        # Form Pos Kas, mata anggaran, transaksi; kuitansi; panel rincian
@@ -39,7 +41,7 @@ Proyek ini berbentuk **full-stack dalam satu paket**. `@cloudflare/vite-plugin` 
 │   │   │   └── session-provider.tsx
 │   │   ├── layouts/            # RootLayout, PublicLayout, DashboardLayout
 │   │   ├── pages/              # public/, dashboard/, LoginPage, RouteErrorPage
-│   │   ├── lib/                # api, use-api-query, use-url-filters, upload, session, navigation, format WITA, audit-format, congregation, finance, contents, portal, use-live-reload, read-spreadsheet, member-files
+│   │   ├── lib/                # api, use-api-query, use-url-filters, upload, session, navigation, dashboard-theme, portal-theme, format WITA, audit-format, congregation, finance, contents, portal, use-live-reload, read-spreadsheet, member-files
 │   │   ├── router.tsx          # Definisi semua rute
 │   │   ├── main.tsx
 │   │   └── index.css           # Tailwind v4 + token tema portal & dashboard
@@ -108,7 +110,7 @@ Buka `/` untuk Portal Publik dan `/dashboard` untuk dashboard pengurus.
 | `/dashboard/*`       | `DashboardLayout` | Halaman modul lain (kerangka); ditolak bila peran tidak berhak    |
 
 - **PublicLayout**: navbar (wordmark, 4 tautan, tombol Persembahan); di bawah 1024px menjadi tombol "Menu" yang membuka menu layar penuh. Footer membawa tanda Lahairoi, tautan, dan alamat.
-- **DashboardLayout**: sidebar yang bisa dibuka-tutup (tombol di header, `Ctrl/⌘+B`, atau rail di tepi sidebar) menjadi rail ikon 48px; di bawah 1024px menjadi sheet. Header berisi breadcrumb dan menu profil (nama, peran, keluar).
+- **DashboardLayout** (gaya Zenith): sidebar dengan grup menu berlabel yang bisa dilipat, kartu pengguna di bawah, dan tombol ciut di tepi. Sidebar bisa diciutkan menjadi rail ikon (tombol di topbar, `Ctrl/⌘+B`, atau tombol tepi); di bawah 1024px menjadi sheet. Topbar lengket berisi kolom pencarian yang membuka palet `Ctrl/⌘+K` (halaman sesuai peran, aksi tambah, cari anggota jemaat dan KK), tombol "Buat" sesuai peran, tombol tema, dan menu pengguna. Breadcrumb kecil tampil di atas judul setiap halaman kecuali Ringkasan.
 - Menu sidebar dan hak akses halaman diatur di [src/client/lib/navigation.ts](src/client/lib/navigation.ts) sesuai PRD. Ini hanya mengatur tampilan; pembatasan sebenarnya harus ditegakkan API.
 - Halaman modul yang sudah dibangun didaftarkan di `modulePages` pada [src/client/router.tsx](src/client/router.tsx); modul lain memakai kerangka `ModulePage`.
 
@@ -116,17 +118,15 @@ Buka `/` untuk Portal Publik dan `/dashboard` untuk dashboard pengurus.
 
 - `RequireAuth` membungkus seluruh dashboard. Tanpa sesi, pengguna diarahkan ke `/login`, lalu setelah masuk dikembalikan ke halaman semula (termasuk query-nya).
 - `RequireRole` membungkus setiap halaman modul di router. Untuk peran lain, halaman itu tidak dirender sama sekali (datanya juga tidak diminta) dan tampil pesan "Akses dibatasi".
-- `<Can roles>` atau `useCan(roles)` menyembunyikan tombol aksi per peran:
+- `useCan(roles)` dari [src/client/lib/session.ts](src/client/lib/session.ts) menyembunyikan tombol aksi per peran:
 
 ```tsx
-import { Can } from '@/components/session-provider'
+import { useCan } from '@/lib/session'
 
-<Can roles={['TREASURER']}>
-  <Button>Catat transaksi</Button>  {/* Majelis hanya melihat laporan, tanpa tombol ini */}
-</Can>
+const canEdit = useCan(FINANCE_WRITERS) // Pendeta dan Majelis hanya membaca, tanpa tombol ubah
 ```
 
-Contoh nyata: blok "Aktivitas terbaru" di Ringkasan hanya tampil (dan hanya dimuat) untuk Admin.
+Contoh nyata: blok "Aktivitas terbaru" di Ringkasan hanya tampil (dan hanya dimuat) untuk Admin, dan kartu KPI hanya menautkan modul yang boleh dibuka peran itu (`canOpenModule` di [navigation.ts](src/client/lib/navigation.ts)).
 
 ## Desain
 
@@ -136,15 +136,21 @@ Desain dibuat dengan skill `design-taste-frontend` dan `ui-ux-pro-max` di `.clau
   - **Tampilan:** kanvas putih, panel hero membulat berlatar foto gereja dengan header pil yang melayang di atasnya, panel gelap bergaya jendela (papan jadwal, cek status, panel sukses), dan footer foto bertepi gerigi.
   - **Huruf:** judul dua nada Plus Jakarta Sans + Instrument Serif miring, teks Inter, dan JetBrains Mono untuk jam, kode registrasi, dan nomor rekening (Google Fonts).
   - **Token** `site-*` (mis. `bg-site-canvas`, `text-site-ink`, `bg-site-panel`) ada di [index.css](src/client/index.css), dengan nilai terang di `.theme-portal` dan gelap di `.theme-portal.dark`. Komponen bersama ada di [components/portal/kage/](src/client/components/portal/kage).
-  - **Tema terang/gelap:** tombol di header. Bawaannya selalu terang, pilihan disimpan di perangkat ([lib/portal-theme.ts](src/client/lib/portal-theme.ts)). Dashboard selalu terang.
+  - **Tema terang/gelap:** tombol di header. Bawaannya selalu terang, pilihan disimpan di perangkat ([lib/portal-theme.ts](src/client/lib/portal-theme.ts)). Dashboard punya pilihan temanya sendiri.
   - **Gerak** ([lib/portal-motion.ts](src/client/lib/portal-motion.ts)): gulir halus Lenis, parallax hero dan foto latar, elemen yang muncul saat digulir, dan elemen melayang. Semuanya transform/opacity dan mati bila pengguna meminta kurangi gerak.
   - **Skala desktop 90%** ([docs/rencana-skala-portal-90.md](docs/rencana-skala-portal-90.md)): di layar ≥1024 px dengan tetikus/trackpad, portal tampil 90% lewat `zoom: var(--site-zoom)` pada `html.theme-portal`. Ponsel, tablet, dan dashboard tetap 100%.
     - Tinggi relatif layar ditulis `calc(<tinggi>/var(--site-zoom,1))`, bukan `svh`/`vh` langsung, agar hero, login, dan jendela galeri tetap memenuhi layar.
     - Teks kecil tetap ≥13 px di layar: pakai `text-sm` (variabel `--text-sm` diberi lantai di `.theme-portal`) atau `text-(length:--site-text-xs)`, bukan `text-[13px]`.
   - **Inspector:** pengecualian yang disengaja (bayangan panel, huruf mono, judul dua nada, satu foto gereja) dicatat di bagian 8 rencana dan di `.taste-skill/direction.json`. Ukuran yang dilaporkan inspector (dan `getComputedStyle`) adalah ukuran sebelum zoom; di desktop, ukuran di layar 90%-nya.
   - Cincin sumur Lahai-roi tetap dipakai sebagai tanda merek.
-- **Dashboard**, gaya *achromatic ledger* (seed 442642274): chrome tanpa warna, dasar batu karang `#f4f3f1`, tombol utama hampir hitam, dan crimson hanya untuk elemen data utama.
-- Token warna ada di [src/client/index.css](src/client/index.css): `:root` untuk dashboard, `.theme-portal` untuk portal. Pakai token (`bg-background`, `text-muted-foreground`, `text-brand`, …), bukan kode warna langsung.
+- **Dashboard pengurus** bergaya Zenith Dashboard (template shadcn/ui berlisensi milik pengurus), diterjemahkan lewat penerapannya di proyek HRIS pengurus. Rencana, keputusan D1–D10, dan catatan per tahap ada di [docs/rencana-redesign-dashboard-zenith.md](docs/rencana-redesign-dashboard-zenith.md).
+  - **Asal-usul:** semua komponen ditulis sendiri di atas shadcn/ui; tidak ada kode sumber Zenith di repo ini. Demo Zenith hanya dipakai sebagai acuan tampilan.
+  - **Tampilan:** palet netral oklch tanpa kroma, kanvas putih, tombol utama hitam, garis abu tipis. Crimson GMIT `#b11226` hanya untuk data (garis grafik utama, kartu KPI pertama, lencana merek).
+  - **Huruf:** Geist (OFL, `@fontsource-variable/geist`), di-host sendiri dan hanya dimuat bundel dashboard.
+  - **Tema terang/gelap:** tombol di topbar, bawaannya terang, pilihan disimpan di perangkat ([lib/dashboard-theme.ts](src/client/lib/dashboard-theme.ts)). Tema gelap hanya berlaku di layar (`@media screen`), jadi cetakan laporan keuangan dan sertifikat selalu terang.
+  - **Komponen** ada di [components/zenith/](src/client/components/zenith): `PageHeader`, `KpiCard`, `Panel`, `Donut`, `Segmented` (saringan dan tab), `StatusBadge`, `StatStrip`, `TableCard` beserta `SearchField`, `TablePagination`, dan `GroupHeaderRow` (judul kelompok per hari), `PersonAvatar`, `Stepper` (wizard impor), `Sparkline`, dan `Kbd`. Tabel memakai primitif shadcn `ui/table`. Grafik di [components/analytics/](src/client/components/analytics) adalah SVG buatan sendiri dengan palet yang sudah divalidasi untuk kedua tema.
+  - **Ringkasan per peran:** urutan blok dan kartu KPI mengikuti peran (Bendahara: keuangan lebih dulu; Pendeta dan Majelis: jemaat dan kehadiran).
+- Token warna ada di [src/client/index.css](src/client/index.css): dashboard di `:root, .theme-dashboard` (gelap di `.theme-dashboard.dark`), portal di `.theme-portal` dan `.theme-portal.dark`. Nilai `:root` juga menjadi cadangan saat `<html>` tanpa kelas tema (mis. halaman eror). Pakai token (`bg-background`, `text-muted-foreground`, `text-brand`, …), bukan kode warna langsung.
 
 Periksa tampilan dengan inspector skill (butuh Chrome atau Edge):
 
@@ -152,7 +158,7 @@ Periksa tampilan dengan inspector skill (butuh Chrome atau Edge):
 node .claude/skills/design-taste-frontend/scripts/inspect.mjs http://localhost:5173/
 ```
 
-Untuk dashboard tambahkan `--app`. Karena dashboard butuh login sedangkan inspector membuka browsernya sendiri, jalankan inspector lewat proxy lokal yang menyisipkan cookie sesi akun uji (hanya untuk database lokal). Jika Chrome gagal diluncurkan di Windows, set `CHROME_PATH` ke `msedge.exe`.
+Untuk dashboard tambahkan `--app`. Karena dashboard butuh login sedangkan inspector membuka browsernya sendiri, jalankan inspector lewat proxy lokal yang menyisipkan cookie sesi akun uji (hanya untuk database lokal). Inspector selalu membaca `.taste-skill/direction.json` (arah portal), jadi untuk dashboard jalankan dari folder yang berisi salinan `.taste-skill/app/direction.json` sebagai `.taste-skill/direction.json`. Berkas arah aplikasi itu berasal dari rancangan dashboard sebelumnya dan kini hanya dipakai sebagai masukan inspector (huruf Geist dan aturan layar aplikasi). Jika Chrome gagal diluncurkan di Windows, set `CHROME_PATH` ke `msedge.exe`.
 
 ## Memanggil API dari frontend
 
@@ -249,6 +255,7 @@ Aturannya:
 **Di dashboard** (`/dashboard/users`):
 
 - Kalimat di bawah judul menyebut akun aktif yang belum pernah masuk; biasanya kata sandi sementaranya belum diterima.
+- Status akun (Aktif, Nonaktif, Semua) berupa kontrol bersegmen beserta jumlahnya; pencarian dan saringan peran ada di bilah alat tabel. Lencana peran netral untuk semua peran.
 - Kata sandi sementara ditampilkan sekali, beserta pesan siap kirim (misalnya lewat WhatsApp) berisi alamat login, username, dan kata sandinya.
 - Penonaktifan selalu dikonfirmasi lewat dialog yang menyebut nama akunnya, dan bisa diurungkan dari notifikasi.
 - Menu baris "Lihat riwayat akun" membuka Log Aktivitas yang sudah difilter ke akun tersebut.
@@ -526,7 +533,7 @@ Rute: [contents.ts](src/worker/routes/contents.ts) (CMS, perlu login) dan [publi
 
 **Di dashboard** (`/dashboard/contents` untuk Admin, `/dashboard/renungan` untuk Pendeta; [ContentsPage.tsx](src/client/pages/dashboard/ContentsPage.tsx) dan [ContentEditorPage.tsx](src/client/pages/dashboard/ContentEditorPage.tsx)):
 
-- **Daftar** per kategori (tab Warta, Renungan, Berita, Galeri, Profil, Rekening & QRIS; di ponsel menjadi satu pilihan). Ada filter status dan pencarian di URL, serta status Draf/Terjadwal/Terbit beserta waktunya.
+- **Daftar** per kategori: kontrol bersegmen Warta, Renungan, Berita, Galeri, Profil, Rekening & QRIS (di ponsel bergulir di tempat; Renungan Saya tanpa kategori). Status (Semua, Draf, Terjadwal, Terbit) juga bersegmen; status dan pencarian tersimpan di URL. Lencana status: Draf netral, Terjadwal gelap, Terbit hijau, beserta waktunya.
   - **Sakelar Terbit** di tiap baris menerbitkan atau menjadikan draf tanpa membuka editor. Bila konten belum lengkap, notifikasi menyebut alasannya (mis. warta tanpa PDF) dan sakelar tetap mati.
   - Kalimat di bawah judul menyebut warta terakhir, apakah renungan hari ini sudah terbit, dan jumlah draf.
 - **Editor** menampilkan field sesuai kategori ([src/client/lib/contents.ts](src/client/lib/contents.ts)):
@@ -536,7 +543,7 @@ Rute: [contents.ts](src/worker/routes/contents.ts) (CMS, perlu login) dan [publi
   - **Galeri**: foto dokumentasi (folder `media`), keterangan, cerita kegiatan, dan tautan video.
   - **Rekening & QRIS**: bank, untuk (Pos Kas atau keperluan, dengan saran nama Pos Kas aktif), nomor rekening, atas nama, dan gambar QRIS. Bank dan keperluan disimpan sebagai judul "Bank NTT · Kas Pembangunan" dan diurai kembali saat diubah.
 - **Editor teks**: teks biasa dengan mode Tulis/Pratinjau. Pratinjau memisahkan paragraf seperti di portal; ada hitungan karakter.
-- **Terbit di portal**: sakelar dan waktu terbit (tanggal + jam WITA). Tanggal yang akan datang menjadikan konten terjadwal; tombol simpan menyesuaikan ("Simpan draf", "Simpan & terbitkan", "Simpan & jadwalkan").
+- **Terbit di portal**: sakelar dan waktu terbit (tanggal + jam WITA) di kolom samping yang tetap terlihat saat form digulir. Tanggal yang akan datang menjadikan konten terjadwal; tombol simpan menyesuaikan ("Simpan draf", "Simpan & terbitkan", "Simpan & jadwalkan").
   - Kelengkapan saat terbit diperiksa di browser dengan aturan yang sama dengan API.
   - Draf yang disimpan tetap di editor; konten yang terbit kembali ke daftar.
   - Meninggalkan halaman dengan perubahan yang belum disimpan meminta konfirmasi.

@@ -39,6 +39,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import {
+  GroupHeaderRow,
   SearchField,
   SkeletonRows,
   TableCard,
@@ -397,15 +398,7 @@ export default function WorshipsPage() {
                 key={day.date}
                 className={cn('transition-opacity', worships.loading && 'opacity-60')}
               >
-                <TableRow className="bg-muted/50 hover:bg-muted/50">
-                  <th
-                    scope="rowgroup"
-                    colSpan={COLUMNS}
-                    className="px-4 py-2 text-left text-[0.8125rem] font-semibold"
-                  >
-                    {dayHeading(day.date, today)}
-                  </th>
-                </TableRow>
+                <GroupHeaderRow>{dayHeading(day.date, today)}</GroupHeaderRow>
                 {day.items.map((worship) => (
                   <WorshipRow
                     key={worship.id}
