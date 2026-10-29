@@ -21,7 +21,8 @@
     "db:migrations:new": "wrangler d1 migrations create DB",
     "db:seed:local": "node scripts/seed.ts --local",
     "db:seed:remote": "node scripts/seed.ts --remote",
-    "db:reset:local": "node scripts/reset-local-db.ts && npm run db:migrate:local && npm run db:seed:local"
+    "db:reset:local": "node scripts/reset-local-db.ts && npm run db:migrate:local && npm run db:seed:local",
+    "db:seed:demo": "node scripts/seed-demo.ts"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.3.0",
