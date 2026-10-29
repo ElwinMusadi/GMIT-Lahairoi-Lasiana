@@ -97,8 +97,10 @@ ponsel, tablet, dan dashboard tetap 100%. Rencana dan keputusan S1–S4 ada di
   - Chrome: inspector 13 halaman setara Tahap 10, navigasi/keyboard/pembaca layar/tema/kurangi
     gerak lolos, tanpa lompatan ukuran saat dimuat, Lighthouse desktop 97–99 (aksesibilitas 100).
   - README bagian Desain diperbarui.
+- **Sudah di-push** ke `origin/main` (`14449e0..f2b4ed5`) pada 29 Oktober 2026, atas
+  permintaan pengguna sebelum uji Safari.
 - **Menunggu pengguna:** uji Safari macOS dengan daftar di rencana skala bagian 10 (Tahap 3).
-  Commit skala belum di-push.
+  Bila jangkar atau parallax meleset di Safari, perbaikannya memakai pendekatan cadangan R1.
 - **Aturan baru untuk kode portal:** tinggi relatif layar ditulis
   `calc(<tinggi>/var(--site-zoom,1))`, bukan `svh`/`vh` langsung.
 

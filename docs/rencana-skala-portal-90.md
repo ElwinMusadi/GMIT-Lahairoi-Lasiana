@@ -1,7 +1,8 @@
 # Rencana Implementasi: Skala Portal Publik 90%
 
 Disusun 29 Oktober 2026. Status: **selesai** 29 Oktober 2026 (keputusan S1–S4 di bagian 8),
-dikerjakan langsung di `main`. Uji Safari macOS menunggu pengguna (bagian 10, Tahap 3).
+dikerjakan langsung di `main` dan di-push ke `origin/main` (`14449e0..f2b4ed5`) atas permintaan
+pengguna. Uji Safari macOS menunggu pengguna (bagian 10, Tahap 3).
 
 ## 1. Tujuan
 
