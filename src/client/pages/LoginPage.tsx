@@ -79,7 +79,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="grid min-h-svh bg-site-canvas font-site-body text-site-ink lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:grid-rows-[auto_1fr_auto]">
+    <div className="grid min-h-[calc(100svh/var(--site-zoom,1))] bg-site-canvas font-site-body text-site-ink lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:grid-rows-[auto_1fr_auto]">
       <header className="flex items-center justify-between gap-2 px-(--site-inset) pt-(--site-inset) lg:col-start-1 lg:row-start-1">
         <BrandPill />
         <ThemeToggle />

@@ -194,6 +194,11 @@
   --site-inset: 32px;
   --site-hero-gap: 12px;
 
+  /* Skala portal (docs/rencana-skala-portal-90.md). Zoom ikut mengecilkan svh/vh, jadi
+     tinggi relatif layar di portal ditulis calc(<tinggi> / var(--site-zoom, 1)) agar hero,
+     login, dan jendela galeri tetap setinggi semula di layar. */
+  --site-zoom: 1;
+
   /* Token kage, tema terang (bawaan). */
   --site-canvas: #ffffff;
   --site-paper: #f6f6f4;
@@ -254,6 +259,17 @@
 @media (width >= 80rem) {
   .theme-portal {
     --site-inset: 64px;
+  }
+}
+/* Desktop dengan tetikus/trackpad: seluruh portal tampil 90%, seperti zoom browser 90%.
+   Ponsel dan tablet (termasuk iPad ≥1024 px) tetap 100% demi target sentuh dan keterbacaan.
+   Dashboard tidak terkena karena kelas theme-portal dilepas di sana. */
+@media (width >= 64rem) and (pointer: fine) {
+  .theme-portal {
+    --site-zoom: 0.9;
+  }
+  html.theme-portal {
+    zoom: var(--site-zoom);
   }
 }
 

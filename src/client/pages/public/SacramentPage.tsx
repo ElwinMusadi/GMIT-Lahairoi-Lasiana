@@ -935,8 +935,9 @@ function DocumentTile({
         }}
         onDragLeave={() => setDragging(false)}
         onDrop={handleDrop}
+        // Garis 2 px dibagi --site-zoom: di bawah zoom 90% Chrome membulatkan 1,8 px ke 1 px.
         className={cn(
-          'grid min-h-36 place-items-center gap-2 rounded-2xl border-2 border-dashed p-4 text-center text-sm transition-colors',
+          'grid min-h-36 place-items-center gap-2 rounded-2xl border-[length:calc(2px/var(--site-zoom,1))] border-dashed p-4 text-center text-sm transition-colors',
           file ? 'border-site-green/60 bg-site-green/10' : 'border-site-muted/50 bg-site-paper',
           dragging && 'border-site-ink',
           error && 'border-destructive/70',

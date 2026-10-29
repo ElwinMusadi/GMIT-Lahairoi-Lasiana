@@ -72,6 +72,23 @@ Catatan status:
 - Redesign portal (12 commit, merge `90e5a7a`, dan catatan merge `2396a6a`) sudah di-push ke
   `origin/main` pada 29 Oktober 2026.
 
+### Pekerjaan yang sedang berjalan: skala Portal Publik 90%
+
+Portal desktop (≥1024 px dengan tetikus/trackpad) dibuat tampil 90%, seperti zoom browser 90%;
+ponsel, tablet, dan dashboard tetap 100%. Rencana dan keputusan S1–S4 ada di
+[docs/rencana-skala-portal-90.md](docs/rencana-skala-portal-90.md). Dikerjakan langsung di `main`
+(S4), commit per tahap setelah disetujui.
+
+- **Tahap 1 (skala + kompensasi) selesai.**
+  - `zoom: var(--site-zoom)` pada `html.theme-portal`, dengan `--site-zoom: 0.9` di desktop.
+  - Tinggi relatif layar (hero, login, jendela galeri) dibagi `--site-zoom` agar tetap setinggi
+    semula di layar.
+  - `portal-motion.ts` menyamakan `scroll-margin-top` dengan zoom (luncuran jangkar Lenis).
+  - Garis ubin unggah tetap 2 px, dan jangkar `/profil#…` diulang setelah font web siap.
+- **Berikutnya: Tahap 2 (lantai teks):** teks kecil 13–14 px tetap ≥13 px di layar.
+- **Aturan baru untuk kode portal:** tinggi relatif layar ditulis
+  `calc(<tinggi>/var(--site-zoom,1))`, bukan `svh`/`vh` langsung.
+
 ### Redesign Portal Publik (selesai, 29 Oktober 2026)
 
 **Redesign Portal Publik** dikerjakan di branch `feat/redesign-portal-kage`. Tujuannya memakai

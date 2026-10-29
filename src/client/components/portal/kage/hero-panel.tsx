@@ -44,7 +44,10 @@ export function HeroPanel({
         aria-labelledby={labelledBy}
         className={cn(
           'site-hero-pad relative isolate flex flex-col overflow-hidden rounded-3xl bg-site-night text-white shadow-site-panel',
-          size === 'full' ? 'min-h-[min(92svh,880px)]' : 'min-h-[min(48svh,440px)]',
+          // Dibagi --site-zoom: tinggi di layar tetap sama saat portal di-zoom 90%.
+          size === 'full'
+            ? 'min-h-[calc(min(92svh,880px)/var(--site-zoom,1))]'
+            : 'min-h-[calc(min(48svh,440px)/var(--site-zoom,1))]',
           className,
         )}
       >

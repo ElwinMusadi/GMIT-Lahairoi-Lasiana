@@ -83,6 +83,12 @@ export function usePortalMotion() {
     root.classList.add('portal-motion')
 
     const instance = new Lenis(LENIS_OPTIONS)
+    // Lenis memakai scroll-margin-top (px CSS) langsung sebagai px layar. Di bawah zoom
+    // portal (desktop 90%) sasarannya jadi lebih rendah daripada lompatan asli browser;
+    // selisihnya ditambahkan ke offset setiap scrollTo ke elemen, termasuk klik jangkar.
+    const scrollTo = instance.scrollTo.bind(instance)
+    instance.scrollTo = (target, options) =>
+      scrollTo(target, { ...options, offset: (options?.offset ?? 0) + zoomCorrection(target) })
     lenis = instance
     let frame = requestAnimationFrame(function loop(time) {
       instance.raf(time)
@@ -158,8 +164,29 @@ function landedOnAnchor() {
   const id = decodeURIComponent(window.location.hash.slice(1))
   const anchor = id ? document.getElementById(id) : null
   if (!anchor) return false
-  const margin = Number.parseFloat(getComputedStyle(anchor).scrollMarginTop) || 0
+  // scroll-margin-top dalam px CSS, posisi elemen dalam px layar: samakan dengan zoom.
+  const margin = (Number.parseFloat(getComputedStyle(anchor).scrollMarginTop) || 0) * pageZoom()
   return Math.abs(anchor.getBoundingClientRect().top - margin) < 4
+}
+
+// Zoom halaman portal: 0,9 di desktop, 1 di tempat lain (docs/rencana-skala-portal-90.md).
+function pageZoom() {
+  return Number.parseFloat(getComputedStyle(document.documentElement).zoom) || 1
+}
+
+// Selisih antara scroll-margin-top versi Lenis (px CSS dipakai sebagai px layar) dan versi
+// browser (px CSS dikali zoom), untuk sasaran berupa elemen atau "#id".
+function zoomCorrection(target: unknown) {
+  const zoom = pageZoom()
+  if (zoom === 1) return 0
+  const element =
+    typeof target === 'string' && target.startsWith('#')
+      ? document.getElementById(target.slice(1))
+      : target instanceof Element
+        ? target
+        : null
+  if (!element) return 0
+  return (Number.parseFloat(getComputedStyle(element).scrollMarginTop) || 0) * (1 - zoom)
 }
 
 // Gulir ke sebuah elemen: halus lewat Lenis bila aktif, jika tidak memakai gulir asli

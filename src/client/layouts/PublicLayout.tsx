@@ -11,7 +11,7 @@ export default function PublicLayout() {
   const theme = usePortalThemeValue()
 
   return (
-    <div className="flex min-h-svh flex-col bg-site-canvas font-site-body text-site-ink">
+    <div className="flex min-h-[calc(100svh/var(--site-zoom,1))] flex-col bg-site-canvas font-site-body text-site-ink">
       <a
         href="#konten"
         className="sr-only z-50 rounded-full bg-site-ink px-5 py-3 text-sm font-semibold text-site-canvas focus:not-sr-only focus:fixed focus:top-3 focus:left-3"

@@ -48,9 +48,24 @@ export default function ProfilePage() {
     if (!ready || settled.current) return
     settled.current = true
     if (!hash) return
-    requestAnimationFrame(() =>
-      document.getElementById(decodeURIComponent(hash.slice(1)))?.scrollIntoView(),
-    )
+    const jump = () => document.getElementById(decodeURIComponent(hash.slice(1)))?.scrollIntoView()
+    requestAnimationFrame(jump)
+    // Font web yang selesai dimuat sesudahnya ikut mengubah tinggi isi di atas jangkar
+    // (cache kosong: jangkar meleset ±30 px). Lompat sekali lagi setelah semua font siap,
+    // kecuali pengunjung sudah mulai menggulir atau berpindah jangkar.
+    let moved = false
+    const stop = () => {
+      moved = true
+    }
+    const events = ['wheel', 'touchstart', 'keydown'] as const
+    events.forEach((name) => window.addEventListener(name, stop, { once: true, passive: true }))
+    void document.fonts.ready.then(() => {
+      if (!moved) requestAnimationFrame(jump)
+    })
+    return () => {
+      moved = true
+      events.forEach((name) => window.removeEventListener(name, stop))
+    }
   }, [ready, hash])
 
   const history = bySlot('history')

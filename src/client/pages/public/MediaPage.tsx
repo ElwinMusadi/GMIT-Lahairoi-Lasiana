@@ -196,7 +196,7 @@ function MediaViewer({
           returnFocus()
         }}
         data-lenis-prevent
-        className="max-h-[calc(100svh-2rem)] gap-0 overflow-y-auto overscroll-contain rounded-3xl bg-site-panel p-0 text-white ring-0 sm:max-w-4xl dark:ring-1 dark:ring-white/10"
+        className="max-h-[calc((100svh_-_2rem)/var(--site-zoom,1))] gap-0 overflow-y-auto overscroll-contain rounded-3xl bg-site-panel p-0 text-white ring-0 sm:max-w-4xl dark:ring-1 dark:ring-white/10"
       >
         {item && (
           <>
@@ -231,7 +231,7 @@ function MediaViewer({
                 <img
                   src={item.thumbnail_url}
                   alt={item.summary ?? item.title}
-                  className="max-h-[70svh] w-full bg-black object-contain"
+                  className="max-h-[calc(70svh/var(--site-zoom,1))] w-full bg-black object-contain"
                 />
               )
             )}
