@@ -60,7 +60,7 @@ dan tergabung di `main`.
 | Dashboard Eksekutif: API agregasi + UI + widget ulang tahun | 3 | Selesai | `cdf6930`, `f88480c` |
 | Redesign Portal Publik bergaya kage (rancangan 10), isi 08 tetap | – | Selesai | `90e5a7a` (merge) |
 | Redesign dashboard pengurus bergaya Zenith, logika dan API tetap | – | Selesai | `c7855e8` (merge) |
-| Pengaturan > Tampilan: tema Portal Publik Bawaan atau Glassmorphism | – | Selesai | branch `feat/tema-portal-glassmorphism` |
+| Pengaturan > Tampilan: tema Portal Publik Bawaan atau Glassmorphism | – | Selesai | `48c6415` (merge) |
 
 Catatan status:
 
@@ -70,12 +70,18 @@ Catatan status:
   masih dikomentari. Langkah sebelum deploy pertama ada di README bagian "Menyiapkan database di
   Cloudflare".
 - Riwayat `main` ada di bagian 13. Branch lokal lama `chore/design-skills`,
-  `docs/stitch-portal-smooth-scroll`, `feat/redesign-portal-kage`, dan
-  `feat/redesign-dashboard-zenith` sudah tergabung ke `main` dan tidak di-push.
+  `docs/stitch-portal-smooth-scroll`, `feat/redesign-portal-kage`,
+  `feat/redesign-dashboard-zenith`, `chore/data-demo-lokal`, dan
+  `feat/tema-portal-glassmorphism` sudah tergabung ke `main` dan tidak di-push.
 - Redesign portal (12 commit, merge `90e5a7a`, dan catatan merge `2396a6a`) sudah di-push ke
   `origin/main` pada 29 Oktober 2026.
 - Redesign dashboard (9 commit, merge `c7855e8`, dan catatan merge sesudahnya) sudah di-push ke
   `origin/main` pada 29 Oktober 2026.
+- Data demo lokal (merge `4b59ebb`) sudah di-push ke `origin/main` pada 29 Oktober 2026.
+- Tema portal Glassmorphism (2 commit, merge `48c6415` pada 30 Oktober 2026) **belum di-push**.
+- **Berikutnya:** kalender Jadwal Ibadah di Portal. Rencana dan keputusan J1–J9 (disetujui 30
+  Oktober 2026) ada di [docs/rencana-redesign-jadwal-ibadah.md](docs/rencana-redesign-jadwal-ibadah.md).
+  Tahap 0 selesai kecuali data uji hari padat.
 
 ### Redesign dashboard bergaya Zenith (selesai, 29 Oktober 2026)
 
@@ -756,3 +762,10 @@ Sebelum deploy pertama:
 | `59103b2` | 2026-10-29 | feat(dashboard): modul Konten & Administrasi bergaya Zenith (Tahap 7) |
 | `bfac603` | 2026-10-29 | chore(dashboard): rapikan sisa gaya lama dan audit akhir (Tahap 8) |
 | `c7855e8` | 2026-10-29 | Merge branch 'feat/redesign-dashboard-zenith': redesign dashboard bergaya Zenith |
+| `2027e49` | 2026-10-29 | docs: catat merge redesign dashboard Zenith |
+| `1fd0969` | 2026-10-29 | fix(dashboard): tombol ciut sidebar tidak lagi tertutup topbar dan rail |
+| `46c9c01` | 2026-10-29 | chore(scripts): data demo lengkap untuk database lokal |
+| `4b59ebb` | 2026-10-29 | Merge branch 'chore/data-demo-lokal': data demo untuk database lokal |
+| `d1a3dfe` | 2026-10-30 | feat: pilihan tema Portal Publik Bawaan atau Glassmorphism |
+| `bbf7d95` | 2026-10-30 | fix(portal): kaca di semua unsur hero dan cincin fokus di permukaan kaca |
+| `48c6415` | 2026-10-30 | Merge branch 'feat/tema-portal-glassmorphism': pilihan tema Portal Publik |
