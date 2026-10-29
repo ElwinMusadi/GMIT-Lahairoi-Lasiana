@@ -415,6 +415,7 @@ function DevotionalArticle({ devotional }: { devotional: NonNullable<PublicHome[
       }
     }
     if (await copyText(`${text}\n${url}`)) toast.success('Judul dan tautan renungan disalin.')
+    else toast.error('Tautan tidak dapat disalin. Salin secara manual dari bilah alamat.')
   }
 
   return (

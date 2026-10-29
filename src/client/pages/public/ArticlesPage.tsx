@@ -401,6 +401,7 @@ function ArticleDetail({ kind }: { kind: ArticleKind }) {
       }
     }
     if (await copyText(url)) toast.success('Tautan disalin.')
+    else toast.error('Tautan tidak dapat disalin. Salin secara manual dari bilah alamat.')
   }
 
   return (

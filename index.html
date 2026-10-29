@@ -30,8 +30,10 @@
           }
         } catch (e) {}
       }
-      // Foto hero Beranda diminta sejak awal, sebelum bundle selesai dimuat.
-      if (location.pathname === '/') {
+      // Foto gereja di hero (dan panel login) diminta sejak awal, sebelum bundle selesai
+      // dimuat. Galeri memakai foto dokumentasi terbaru; halaman baca artikel tanpa hero.
+      var path = location.pathname
+      if (!/^\/(dashboard|media)(\/|$)|^\/(renungan|berita)\/./.test(path)) {
         var hero = document.createElement('link')
         hero.rel = 'preload'
         hero.as = 'image'
@@ -40,7 +42,8 @@
           'imagesrcset',
           '/images/gereja-gmit-lahairoi-640.webp 640w, /images/gereja-gmit-lahairoi-960.webp 960w, /images/gereja-gmit-lahairoi-1254.webp 1254w',
         )
-        hero.setAttribute('imagesizes', '100vw')
+        // Sama dengan atribut sizes gambarnya, agar browser memilih berkas yang sama.
+        hero.setAttribute('imagesizes', path === '/login' ? '(min-width: 1024px) 58vw, 100vw' : '100vw')
         hero.setAttribute('fetchpriority', 'high')
         document.head.appendChild(hero)
       }

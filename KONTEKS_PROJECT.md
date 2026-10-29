@@ -164,10 +164,17 @@ Progres tahap:
   - Perbaikan bawaan 08: `ScrollRestoration` memakai `getKey`, sehingga muat penuh alamat lain
     tidak lagi mewarisi posisi gulir halaman sebelumnya.
   - Inspector: login 1 FAIL (`few-pictures`, K5), 404 2 FAIL (`few-pictures`, `still-page`).
-- **Berikutnya: Tahap 10 (Rapikan & QA):** hapus token `portal-*`, `parts.tsx`, dan kelas gerak
-  08 yang tak terpakai; README & KONTEKS; audit akhir (inspector, kedua tema, keyboard,
-  pembaca layar dasar, kurangi gerak, ukuran bundel, Lighthouse ponsel, 60 fps saat laptop di
-  listrik); centang daftar periksa isi.
+- **Tahap 10 (Rapikan & QA) selesai.**
+  - Sisa 08 dihapus: `parts.tsx`, token `portal-*`, huruf `--font-portal*`, `text-step-*`, kelas
+    gerak lama, `Wordmark`, dan `BuiltWell`.
+  - Perbaikan dari QA: toast saat Bagikan gagal menyalin, "Lewati ke konten" memindahkan fokus,
+    fokus setelah Hapus berkas, dan preload foto hero di semua halaman berfoto gereja.
+  - Audit: keadaan eror/memuat/kosong semua halaman (respons API disadap lewat CDP), navigasi
+    keyboard dan submenu, pembaca layar dasar, kedua tema, kurangi gerak, 60 fps (median 16,7 ms),
+    Lighthouse ponsel (aksesibilitas 100), dan bundel utama 391,4 KB (gzip 122,3 KB).
+  - Daftar periksa isi 08 tercentang semua. Hal di luar lingkup dicatat di rencana bagian 11.
+- **Berikutnya: Tahap 11 (Merge):** `git merge --no-ff feat/redesign-portal-kage` ke `main`
+  (Keputusan K6); push hanya bila diminta.
 
 **Bug API yang ditemukan di Tahap 0** (belum diperbaiki, diusulkan sebagai commit terpisah):
 
@@ -316,32 +323,28 @@ Konvensi yang wajib diikuti:
 
 ## 6. Desain
 
-### Portal Publik — saat ini rancangan "08"
+### Portal Publik — rancangan "10 kage"
 
-- Rancangannya [design/stitch/08-portal-publik-warta.html](design/stitch/08-portal-publik-warta.html):
-  biru tua `#00236f`, aksen amber `#904d00`, permukaan `#faf8ff`, kartu putih berbayang, dan
-  label amber kecil di atas judul.
-- Huruf: Plus Jakarta Sans untuk judul, Inter untuk teks (Google Fonts di `index.html`).
-- Token `portal-*` ada di `.theme-portal` di [src/client/index.css](src/client/index.css).
-  Potongan tata letaknya di `src/client/components/portal/parts.tsx`.
-- Tema portal dipasang di `<html>` oleh skrip di `index.html` dan `usePortalTheme()`.
-
-### Portal Publik — berikutnya rancangan "10 kage" (sedang dikerjakan)
-
-Isi tetap dari portal 08. Ada tambahan tema gelap (bawaan terang) dan navigasi berkelompok
-bersubmenu.
+Isi tetap dari portal 08, ditambah tema gelap (bawaan terang) dan navigasi berkelompok
+bersubmenu. Rencana, keputusan K1–K6, dan catatan per tahap ada di
+[docs/rencana-redesign-portal-kage.md](docs/rencana-redesign-portal-kage.md).
 
 - Rancangannya [design/stitch/10-portal-publik-kage.html](design/stitch/10-portal-publik-kage.html)
   (bahasa desain kage.design Nova). Ciri utamanya:
   - hero panel membulat dengan foto gedung gereja, nav berbentuk pil di atas foto, dan judul
     dua nada (sans tebal + serif miring);
   - papan jadwal gelap bergaya jendela, band fitur di atas foto, dan footer foto bertepi gergaji;
-  - parallax dan gulir halus Lenis.
-- Warna: `#07151A` (teal gelap), `#111113`, aksen `#F08A2B`, `#F6F6F4`, `#E7E7E7`, `#6B6B6B`,
-  `#00236f`.
-- Huruf: Plus Jakarta Sans, Instrument Serif *italic*, Inter, JetBrains Mono.
-- Foto: `design/stitch/assets/gereja-gmit-lahairoi.webp` (1254×1254).
-- Catatan gerak dan gulir halus ada di [design/stitch/manifest.json](design/stitch/manifest.json).
+  - parallax dan gulir halus Lenis ([src/client/lib/portal-motion.ts](src/client/lib/portal-motion.ts)),
+    mati bila pengguna meminta kurangi gerak.
+- Huruf: Plus Jakarta Sans, Instrument Serif *italic*, Inter, JetBrains Mono (Google Fonts di
+  `index.html`).
+- Token `site-*` ada di `.theme-portal` (terang) dan `.theme-portal.dark` (gelap) di
+  [src/client/index.css](src/client/index.css). Komponen bersama ada di
+  `src/client/components/portal/kage/`.
+- Tema portal dipasang di `<html>` oleh skrip di `index.html` dan `usePortalTheme()`; pilihan
+  gelap disimpan di perangkat ([src/client/lib/portal-theme.ts](src/client/lib/portal-theme.ts)).
+- Foto: satu foto gedung gereja (Keputusan K5) di `public/images/gereja-gmit-lahairoi-*.webp`
+  (640/960/1254 px). Catatan gerak asli ada di [design/stitch/manifest.json](design/stitch/manifest.json).
 
 ### Dashboard — gaya *achromatic ledger*
 
@@ -439,7 +442,8 @@ Hasil pengujian terakhir:
 | API inventaris | 58/58 |
 | API analitik | 51/51 |
 | Inspector dashboard | 0 FAIL |
-| Inspector portal 08 | gagal karena aturan gaya; ditangani redesign |
+| Inspector portal kage (13 halaman) | 6 halaman 0 FAIL; sisanya `few-pictures` (K5), ditambah `off-centre` di Jadwal 390 px dan `still-page` di halaman baca berita dan 404 |
+| QA portal kage (Tahap 10) | Keadaan eror/memuat/kosong, keyboard, pembaca layar dasar, kedua tema, kurangi gerak, 60 fps, Lighthouse aksesibilitas 100 |
 
 ---
 

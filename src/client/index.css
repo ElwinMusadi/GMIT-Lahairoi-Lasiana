@@ -31,29 +31,6 @@
   --font-sans: "Roundo", ui-sans-serif, system-ui, sans-serif;
   --font-heading: var(--font-sans);
 
-  /* Portal Publik (rancangan design/stitch/08): Inter untuk teks, Plus Jakarta Sans
-     untuk judul, biru tua dengan aksen amber di permukaan kebiruan terang. */
-  --font-portal: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-portal-heading: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
-  --color-portal-navy: #00236f;
-  --color-portal-indigo: #1e3a8a;
-  --color-portal-ink: #131b2e;
-  --color-portal-muted: #444651;
-  --color-portal-surface: #faf8ff;
-  --color-portal-low: #f2f3ff;
-  --color-portal-mid: #eaedff;
-  --color-portal-high: #e2e7ff;
-  --color-portal-highest: #dae2fd;
-  --color-portal-blue-soft: #dce1ff;
-  --color-portal-blue-ink: #00164e;
-  --color-portal-blue-light: #b6c4ff;
-  --color-portal-amber: #904d00;
-  --color-portal-amber-soft: #ffdcc3;
-  --color-portal-amber-ink: #2f1500;
-  --color-portal-amber-light: #ffb77d;
-  --color-portal-green: #004a32;
-  --color-portal-green-soft: #85f8c4;
-
   /* Portal Publik rancangan kage (design/stitch/10-portal-publik-kage). Warna yang berganti
      antara tema terang dan gelap dibaca dari variabel di .theme-portal / .theme-portal.dark;
      panel gelap, aksen, dan teal tetap sama di kedua tema. */
@@ -125,13 +102,6 @@
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) * 1.4);
-
-  /* Skala tipe Portal Publik (lembar arah one-motif): lima ukuran. */
-  --text-step-small: clamp(0.8125rem, 0.79rem + 0.1vw, 0.875rem);
-  --text-step-body: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
-  --text-step-lead: clamp(1.25rem, 1.1rem + 0.7vw, 1.625rem);
-  --text-step-head: clamp(2rem, 1.3rem + 3.2vw, 4rem);
-  --text-step-display: clamp(3.5rem, 1rem + 8vw, 8.5rem);
 }
 
 /*
@@ -332,8 +302,10 @@
   mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='16'%3E%3Cpath d='M0 16 14 0l14 16z'/%3E%3C/svg%3E")
     0 0 / 28px 16px repeat-x;
 }
+/* Isi Radix yang dirender langsung di <body> (menu ponsel, jendela galeri, toast) ikut huruf
+   teks portal. */
 .theme-portal body {
-  font-family: var(--font-portal);
+  @apply font-site-body;
 }
 
 /* Lapisan gerak kage (lib/portal-motion.ts). Elemen "muncul" hanya disembunyikan selama
@@ -352,8 +324,6 @@
     transform: none;
   }
 }
-/* Foto latar parallax: posisi diamnya tepat di tengah bingkai (bingkai: relative +
-   overflow-hidden). Saat bergerak, tinggi minimum dan transform diatur portal-motion. */
 /* Selama Lenis menggulir, scroll anchoring browser dimatikan. Isi yang berubah tinggi saat
    meluncur (mis. hasil cek status) membuat browser menggeser posisi gulir, dan pergeseran itu
    terbaca sebagai gulir dari luar sehingga luncuran berhenti. */
@@ -361,6 +331,8 @@ html.lenis-scrolling {
   overflow-anchor: none;
 }
 
+/* Foto latar parallax: posisi diamnya tepat di tengah bingkai (bingkai: relative +
+   overflow-hidden). Saat bergerak, tinggi minimum dan transform diatur portal-motion. */
 [data-parallax-bg] {
   position: absolute;
   left: 0;
@@ -373,51 +345,6 @@ html.lenis-scrolling {
   will-change: transform;
   pointer-events: none;
   user-select: none;
-}
-
-/* Lapisan gerak Portal Publik: hanya transform dan opacity. Konten tetap terlihat bila
-   animasi tidak didukung, dan gerak dimatikan bila pengguna memintanya. */
-@keyframes rise-in {
-  from {
-    opacity: 0;
-    transform: translateY(24px);
-  }
-}
-/* Untuk gerak yang dipicu scroll: tanpa opacity agar konten tidak pernah tersembunyi. */
-@keyframes drift-up {
-  from {
-    transform: translateY(48px);
-  }
-}
-@keyframes ring-in {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-}
-
-@layer utilities {
-  .rise-in {
-    animation: rise-in 700ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
-    animation-delay: var(--rise-delay, 0ms);
-  }
-  .ring-in {
-    animation: ring-in 1100ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
-  }
-  @supports (animation-timeline: view()) {
-    .scroll-rise {
-      animation: drift-up linear both;
-      animation-timeline: view();
-      animation-range: entry 5% cover 25%;
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .rise-in,
-    .ring-in,
-    .scroll-rise {
-      animation: none;
-    }
-  }
 }
 
 @layer base {

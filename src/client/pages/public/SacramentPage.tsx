@@ -883,7 +883,15 @@ function DocumentTile({
   onChange: (file: File | null) => void
 }) {
   const inputRef = useRef<HTMLInputElement>(null)
+  const pickRef = useRef<HTMLButtonElement>(null)
   const [dragging, setDragging] = useState(false)
+
+  // Tombol Hapus ikut hilang bersama berkasnya; fokus dipindah ke "Pilih berkas" yang
+  // menggantikannya agar pengguna keyboard tidak kehilangan posisi.
+  function remove() {
+    onChange(null)
+    requestAnimationFrame(() => pickRef.current?.focus())
+  }
 
   function handleDrop(event: DragEvent<HTMLDivElement>) {
     event.preventDefault()
@@ -946,7 +954,7 @@ function DocumentTile({
                 Ganti
                 <span className="sr-only"> {document.label}</span>
               </PillButton>
-              <PillButton tone="outline" size="sm" onClick={() => onChange(null)}>
+              <PillButton tone="outline" size="sm" onClick={remove}>
                 Hapus
                 <span className="sr-only"> {document.label}</span>
               </PillButton>
@@ -954,6 +962,7 @@ function DocumentTile({
           </>
         ) : (
           <button
+            ref={pickRef}
             type="button"
             onClick={() => inputRef.current?.click()}
             className="grid w-full place-items-center gap-2 rounded-xl py-2 text-site-muted outline-none focus-visible:ring-3 focus-visible:ring-ring"

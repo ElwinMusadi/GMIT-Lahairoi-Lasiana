@@ -21,9 +21,11 @@ export default function PublicLayout() {
       <SiteHeader />
       {/* Header melayang di atas hero. Halaman yang belum punya hero ([data-hero]) diberi
           ruang di atas agar isinya tidak tertutup header. */}
+      {/* tabIndex -1: "Lewati ke konten" ikut memindahkan fokus keyboard ke isi halaman. */}
       <main
         id="konten"
-        className="flex-1 [&:not(:has([data-hero]))]:pt-[calc(var(--site-inset)_+_68px)]"
+        tabIndex={-1}
+        className="flex-1 outline-none [&:not(:has([data-hero]))]:pt-[calc(var(--site-inset)_+_68px)]"
       >
         <Outlet />
       </main>

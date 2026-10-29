@@ -577,27 +577,28 @@ Ditemukan saat inventaris dan diperbaiki di tahap halaman masing-masing:
 ## 6. Daftar periksa isi 08
 
 Syarat selesai tiap tahap halaman. Butir dicentang setelah diperiksa di browser dengan database
-uji, di desktop dan di ponsel.
+uji, di desktop dan di ponsel. Keadaan yang tidak ada di data uji (eror, memuat, kosong) diperiksa
+di Tahap 10 dengan respons API yang disadap lewat CDP.
 
 **Kerangka & global**
 
-- [ ] Judul tab "{judul} · GMIT Lahairoi Tuak Sabu Lasiana" per rute; Beranda memakai nama situs; halaman baca memakai judul artikel
-- [ ] Meta description di `index.html`; `/tentang` → `/profil`; `ScrollRestoration` + tombol Kembali
-- [ ] Tautan "Lewati ke konten" → `#konten`; toaster portal di bawah tengah
-- [ ] Sembilan tautan navigasi dengan penanda aktif (`/` hanya persis; `/renungan/x` menandai Renungan)
-- [ ] Menu ponsel: judul lengkap, "Tutup", "Masuk Pengurus", tertutup setelah tautan diklik, judul sr-only "Menu navigasi"
-- [ ] "Masuk Pengurus" → `/login`
-- [ ] Isi footer: deskripsi gereja, lokasi, tautan portal dan jemaat (`/profil#rayon`, `/profil#majelis`, login), hak cipta tahun berjalan, catatan WITA
+- [x] Judul tab "{judul} · GMIT Lahairoi Tuak Sabu Lasiana" per rute; Beranda memakai nama situs; halaman baca memakai judul artikel
+- [x] Meta description di `index.html`; `/tentang` → `/profil`; `ScrollRestoration` + tombol Kembali
+- [x] Tautan "Lewati ke konten" → `#konten`; toaster portal di bawah tengah
+- [x] Sembilan tautan navigasi dengan penanda aktif (`/` hanya persis; `/renungan/x` menandai Renungan)
+- [x] Menu ponsel: judul lengkap, "Tutup", "Masuk Pengurus", tertutup setelah tautan diklik, judul sr-only "Menu navigasi"
+- [x] "Masuk Pengurus" → `/login`
+- [x] Isi footer: deskripsi gereja, lokasi, tautan portal dan jemaat (`/profil#rayon`, `/profil#majelis`, login), hak cipta tahun berjalan, catatan WITA
 
 **Fitur baru dari keputusan K2, K3, dan gerak**
 
-- [ ] Tombol tema di header (desktop dan ponsel); bawaan terang walau OS memakai mode gelap; pilihan diingat setelah muat ulang dan saat pindah halaman; tanpa kedip warna saat dimuat
-- [ ] Tema gelap terbaca di semua halaman portal dan login; QRIS dan PDF tetap di atas putih; dashboard tetap terang setelah berpindah dari portal bertema gelap
-- [ ] Lima menu induk; submenu Kabar Jemaat, Pelayanan, Tentang Jemaat terbuka saat hover, fokus keyboard, dan ketuk; Esc menutup; menu induk ditandai aktif untuk halaman di dalamnya
-- [ ] Menu ponsel dikelompokkan dengan judul grup dan memuat semua tautan
-- [ ] Gulir halus Lenis di semua halaman; tautan jangkar (`#jadwal`, `#cek-status`, `#rayon`, …) meluncur halus dan berhenti di bawah header
-- [ ] Parallax hero di semua halaman, parallax foto band dan footer, reveal, dan float bekerja; semuanya mati saat reduced-motion
-- [ ] Menu ponsel, submenu, dan jendela galeri bisa digulir di dalamnya (Lenis tidak membajak gulirannya)
+- [x] Tombol tema di header (desktop dan ponsel); bawaan terang walau OS memakai mode gelap; pilihan diingat setelah muat ulang dan saat pindah halaman; tanpa kedip warna saat dimuat
+- [x] Tema gelap terbaca di semua halaman portal dan login; QRIS dan PDF tetap di atas putih; dashboard tetap terang setelah berpindah dari portal bertema gelap
+- [x] Lima menu induk; submenu Kabar Jemaat, Pelayanan, Tentang Jemaat terbuka saat hover, fokus keyboard, dan ketuk; Esc menutup; menu induk ditandai aktif untuk halaman di dalamnya
+- [x] Menu ponsel dikelompokkan dengan judul grup dan memuat semua tautan
+- [x] Gulir halus Lenis di semua halaman; tautan jangkar (`#jadwal`, `#cek-status`, `#rayon`, …) meluncur halus dan berhenti di bawah header
+- [x] Parallax hero di semua halaman, parallax foto band dan footer, reveal, dan float bekerja; semuanya mati saat reduced-motion
+- [x] Menu ponsel, submenu, dan jendela galeri bisa digulir di dalamnya (Lenis tidak membajak gulirannya)
 
 **Beranda**
 
@@ -608,8 +609,8 @@ uji, di desktop dan di ponsel.
 - [x] Dokumentasi terbaru → `/media`; makna nama Lahai-roi + Kejadian 16:13–14
 - [x] Ajakan "Baru di Lahairoi?" → `/profil`
 - [x] `#jadwal`: saringan 4 jenis dengan hitungan; ≤6 jadwal; Pelayan Firman, tema, bacaan, lokasi, tata ibadah; "Semua jadwal ibadah" → `/jadwal`
-- [ ] `#jadwal`: teks eror/coba lagi, kerangka, kosong, saringan-kosong
-- [ ] `#renungan`: hari ini/terbaru, tanggal, ayat, judul bertaut, sampul, 3 paragraf + buka/tutup, penulis, "Renungan lainnya", Bagikan (share/salin + toast)
+- [x] `#jadwal`: teks eror/coba lagi, kerangka, kosong, saringan-kosong
+- [x] `#renungan`: hari ini/terbaru, tanggal, ayat, judul bertaut, sampul, 3 paragraf + buka/tutup, penulis, "Renungan lainnya", Bagikan (share/salin + toast)
 - [x] `#warta`: judul/ringkasan/terbit/belum terbit, "Arsip warta", "Unduh PDF" (`{slug}.pdf`)
 - [x] Berita: 3 terbaru (tanggal, judul bertaut, ringkasan), "Semua berita", teks kosong
 - [x] Ajakan persembahan → `/persembahan`; rekening dari `payment_info` dengan salin
@@ -620,61 +621,61 @@ uji, di desktop dan di ponsel.
 - [x] Judul hitungan langsung + "Memuat jadwal…"; "Tampilkan semua jadwal"
 - [x] Kelompok per hari ("Hari ini · …", "Besok · …"); jam atau "Jam menyusul"
 - [x] Semua petugas berurutan, tema, bacaan, lokasi, pil jenis/rayon, unduh tata ibadah
-- [ ] Eror/coba lagi, 6 kerangka, kosong + saran "Ibadah Rayon", daftar meredup saat memuat ulang, pager "jadwal"
+- [x] Eror/coba lagi, 6 kerangka, kosong + saran "Ibadah Rayon", daftar meredup saat memuat ulang, pager "jadwal"
 
 **Warta**
 
 - [x] Warta terbaru (halaman 1, tanpa `q`): tanggal, judul, ringkasan, Unduh PDF, Baca di tab baru, pratinjau PDF ≥1024 px
 - [x] Arsip: pencarian (jeda 300 ms, `?q=`), baris tanggal/judul/ringkasan/PDF, pager "warta"
-- [ ] Pesan eror, belum terbit (pencarian disembunyikan), tidak cocok "{q}", belum ada warta sebelumnya
+- [x] Pesan eror, belum terbit (pencarian disembunyikan), tidak cocok "{q}", belum ada warta sebelumnya
 
 **Renungan & Berita**
 
 - [x] Teks pengantar per jenis; pencarian selalu tampil (`?q=`, `?page=`), jeda 300 ms
-- [ ] Unggulan: sampul, "Terbaru · tanggal", judul, ayat, cuplikan, "Baca selengkapnya"
+- [x] Unggulan: sampul, "Terbaru · tanggal", judul, ayat, cuplikan, "Baca selengkapnya"
 - [x] Kartu: sampul, "tanggal · ayat", judul, cuplikan, "Baca"; pager
-- [ ] Halaman baca: kembali, label jenis + tanggal, H1, ayat, penulis, Bagikan (share/salin "Tautan disalin."), sampul, ringkasan berita, isi, lampiran, 3 artikel lainnya
+- [x] Halaman baca: kembali, label jenis + tanggal, H1, ayat, penulis, Bagikan (share/salin "Tautan disalin."), sampul, ringkasan berita, isi, lampiran, 3 artikel lainnya
 - [x] Pengalihan kategori keliru (6 kategori); "… tidak ditemukan" + penjelasan; kerangka
 
 **Galeri**
 
-- [ ] Ubin: sampul / pratinjau YouTube / ikon; badge Video; tanggal, judul, ringkasan; pager "dokumentasi"
-- [ ] Jendela galeri: YouTube nocookie, foto + alt, tanggal, judul, keterangan (cadangan sr-only), foto di bawah video, cerita, "Tonton video", Esc/Tutup
-- [ ] Pesan eror, kerangka, kosong
+- [x] Ubin: sampul / pratinjau YouTube / ikon; badge Video; tanggal, judul, ringkasan; pager "dokumentasi"
+- [x] Jendela galeri: YouTube nocookie, foto + alt, tanggal, judul, keterangan (cadangan sr-only), foto di bawah video, cerita, "Tonton video", Esc/Tutup
+- [x] Pesan eror, kerangka, kosong
 
 **Profil**
 
 - [x] Pil lompat ke 4 bagian; anchor `#sejarah`, `#visi-misi`, `#rayon`, `#majelis`
 - [x] Pemetaan konten ke bagian menurut judul/slug (sejarah, visi/misi, majelis/pendeta, lainnya)
 - [x] Sejarah, Visi & Misi (satu atau banyak konten), gambar dan ringkasan, pesan "sedang disusun"
-- [ ] Rayon: urutan, nama, koordinator atau "belum diumumkan", wilayah; eror, kerangka
+- [x] Rayon: urutan, nama, koordinator atau "belum diumumkan", wilayah; eror, kerangka
 - [x] Majelis: foto bersama + keterangan, daftar "Jabatan: Nama" dengan inisial, catatan, kosong
-- [ ] "Informasi Lainnya"; lampiran ditampilkan
+- [x] "Informasi Lainnya"; lampiran ditampilkan
 
 **Persembahan**
 
 - [x] Ayat 2 Korintus 9:7
 - [x] QRIS: badge, judul bank · keperluan, petunjuk pindai, gambar + alt, catatan, "Simpan gambar QRIS" (`qris-{slug}.{ext}`)
 - [x] Rekening: singkatan bank, keperluan, bank, nomor, atas nama, catatan, "Salin No. Rek" (hanya digit, toast sukses/gagal, "Tersalin", aria-label)
-- [ ] Satu konten boleh tampil di kedua kolom; pesan kosong per kolom; pesan belum diumumkan; catatan bukti transfer
+- [x] Satu konten boleh tampil di kedua kolom; pesan kosong per kolom; pesan belum diumumkan; catatan bukti transfer
 
 **Layanan Sakramen**
 
 - [x] Pengantar + "Daftar sekarang" / "Cek status pendaftaran"
-- [ ] Cek status: normalisasi kode, 3 pesan eror, chip tersimpan (≤5, localStorage), *live region*
+- [x] Cek status: normalisasi kode, 3 pesan eror, chip tersimpan (≤5, localStorage), *live region*
 - [x] Hasil: jenis, kode, nama tersamar, diperbarui, status, pelacak 5 langkah + teks sr, catatan Majelis + petunjuk revisi, berkas diterima
-- [ ] Tab 3 jenis + `?layanan=` + panah; nilai tetap saat pindah tab
-- [ ] Seluruh field per jenis (bagian 11.3 inventaris) dengan label, wajib/opsional, placeholder, petunjuk, batas karakter, aturan tanggal
-- [ ] Validasi klien = API, fokus ke field pertama yang salah, ringkasan eror, pesan server
-- [ ] Unggah: seret-lepas, Ganti/Hapus, ukuran, penolakan klien dan server, teks keterangan berkas
-- [ ] Kirim: progres "%", "Menyimpan…"; panel sukses dengan salin kode, share, cek status, daftarkan lain, catatan nomor HP
+- [x] Tab 3 jenis + `?layanan=` + panah; nilai tetap saat pindah tab
+- [x] Seluruh field per jenis (bagian 11.3 inventaris) dengan label, wajib/opsional, placeholder, petunjuk, batas karakter, aturan tanggal
+- [x] Validasi klien = API, fokus ke field pertama yang salah, ringkasan eror, pesan server
+- [x] Unggah: seret-lepas, Ganti/Hapus, ukuran, penolakan klien dan server, teks keterangan berkas
+- [x] Kirim: progres "%", "Menyimpan…"; panel sukses dengan salin kode, share, cek status, daftarkan lain, catatan nomor HP
 - [x] FAQ 3 butir
 
 **404, eror, login**
 
 - [x] 404: judul, teks, "Ke beranda"
-- [ ] `RouteErrorPage`: 3 varian pesan, "Muat ulang", "Ke beranda"
-- [ ] Login: field + pesan kosong, lihat/sembunyikan sandi, alert, "Memeriksa…", lupa sandi, kembali ke portal, daftar 4 peran + catatan jemaat, pengalihan bila sudah masuk, pemetaan eror 400, kosongkan sandi saat 401
+- [x] `RouteErrorPage`: 3 varian pesan, "Muat ulang", "Ke beranda" (varian HTTP tidak bisa dipicu: router tidak memakai loader)
+- [x] Login: field + pesan kosong, lihat/sembunyikan sandi, alert, "Memeriksa…", lupa sandi, kembali ke portal, daftar 4 peran + catatan jemaat, pengalihan bila sudah masuk, pemetaan eror 400, kosongkan sandi saat 401
 
 ## 7. Tahapan kerja
 
@@ -1493,3 +1494,63 @@ sudah memuat tautan ke semua halaman portal.
   - pemetaan eror 400 dari server di login.
 - **Untuk Tahap 10:** `parts.tsx` 08 dan kelas gerak 08 (`rise-in`, `ring-in`, `scroll-rise`)
   kini tidak dipakai komponen mana pun.
+
+### Tahap 10 — Rapikan & QA (29 Oktober 2026)
+
+**Pembersihan sisa 08** (±340 baris dihapus):
+
+- `components/portal/parts.tsx`;
+- token warna `portal-*` dan huruf `--font-portal*` di `@theme`;
+- skala tipe `text-step-*`;
+- kelas dan keyframe gerak lama (`rise-in`, `ring-in`, `scroll-rise`, `drift-up`);
+- `Wordmark` dan `BuiltWell` di `brand/well.tsx`.
+
+`body` di tema portal kini memakai `font-site-body`, agar isi Radix yang dirender di `<body>`
+(menu ponsel, jendela galeri, toast) ikut huruf portal. Komentar CSS parallax yang salah tempat
+sejak Tahap 8 dirapikan. `ui/badge.tsx` dan `ui/card.tsx` dibiarkan: keduanya sudah tak terpakai
+sebelum redesign dan bukan bagian portal.
+
+**Perbaikan dari QA:**
+
+- **Bagikan yang gagal menyalin** (Beranda dan halaman baca) kini memberi toast "Tautan tidak dapat
+  disalin. Salin secara manual dari bilah alamat.". Sebelumnya, sama seperti 08, tombol diam saja.
+- **"Lewati ke konten"** kini memindahkan fokus keyboard: `<main>` diberi `tabIndex={-1}`.
+  Sebelumnya fokus tetap di `body`.
+- **Hapus berkas di formulir sakramen** kini memindahkan fokus ke tombol "Pilih berkas" yang
+  menggantikannya. Sebelumnya, sama seperti 08, fokus hilang ke `body`.
+- **Preload foto hero** di [index.html](../index.html) diperluas dari Beranda ke semua halaman
+  yang memakai foto gereja (kecuali Galeri, halaman baca, dan dashboard), termasuk login dengan
+  `imagesizes` yang sama dengan gambarnya. Setiap halaman tetap mengunduh foto sekali.
+
+**Audit:**
+
+| Uji | Hasil |
+| --- | --- |
+| Inspector, 13 halaman × 3 lebar | Beranda, Renungan, Berita, Galeri, Profil, Persembahan: 0 FAIL. Jadwal 2 (`few-pictures`, `off-centre` di 390 px seperti Tahap 5); Warta, halaman baca renungan, Sakramen, login: 1 (`few-pictures`); halaman baca berita dan 404: 2 (`few-pictures`, `still-page`) |
+| Keadaan eror + "Coba lagi" | Beranda (4 bagian), Jadwal (jaringan dan HTTP 500), Warta, Galeri, rayon Profil, Persembahan: pesan 08 tampil dan "Coba lagi" memuat ulang |
+| Keadaan memuat | Kerangka di Beranda (8), Jadwal (6, "Memuat jadwal…"), Galeri (6), Profil (8); daftar jadwal meredup (opacity 0,6) saat saringan berganti |
+| Keadaan kosong | Beranda (jadwal, renungan, berita, warta "Belum terbit", rekening; galeri disembunyikan), saringan jadwal kosong, Jadwal + saran "Ibadah Rayon", Warta (pencarian disembunyikan, "Belum ada warta sebelumnya", tidak cocok), Galeri, Persembahan (semua, tanpa QRIS, tanpa rekening) |
+| Fitur yang belum terlihat sebelumnya | Renungan Beranda buka/tutup dan sampul; Bagikan (klik sungguhan) dengan toast dan isi papan klip; sampul artikel unggulan; ringkasan dan lampiran berita; ubin galeri tanpa gambar, pager galeri (24 dari 40), "Tonton video" untuk tautan non-YouTube; lampiran dan "Informasi lainnya" di Profil; pager jadwal (30 dari 57) |
+| Sakramen | Kode tidak ditemukan, gangguan jaringan, chip maksimal 5, tab dengan panah (URL berganti, posisi tetap, nilai tidak hilang), Nikah kosong "Periksa 13 isian", penolakan berkas (jenis, ukuran, kosong), seret-lepas, Hapus, pesan server per isian, progres "Mengirim berkas… 0–100%" lalu "Menyimpan…", panel sukses |
+| Isian sakramen | Definisi formulir (`src/shared/sacraments.ts`, `lib/sacraments.ts`) tidak berubah dari `main`; komponen isian meneruskan label, wajib, placeholder, petunjuk, batas karakter, dan aturan tanggal |
+| Eror rute | Varian "versi baru" (Tahap 9) dan varian umum (data renungan rusak); "Muat ulang" memulihkan Beranda |
+| Login | Eror 400 dipetakan ke isian dan peringatan; sandi tidak dikosongkan (hanya saat 401) |
+| Kerangka | Judul tab 13 halaman; meta description; `/tentang` → `/profil`; toaster bawah tengah; footer lengkap (13 tautan, tahun berjalan, WITA) |
+| Navigasi | Penanda aktif (`/` persis; grup ditandai untuk halaman di dalamnya); submenu dengan hover, Enter, Spasi, panah, Tab ke dalam, Esc (fokus kembali ke pemicu), dan ketuk; menu ponsel berkelompok (13 tautan), bisa digulir di dalamnya tanpa menggulir halaman, tertutup setelah tautan diklik |
+| Pembaca layar dasar | Semua halaman: satu h1, tanpa lompatan tingkat judul, landmark lengkap, tanpa gambar tanpa `alt`, tanpa tombol/tautan/isian tanpa nama |
+| Tema | Bawaan terang walau OS gelap; pilihan disimpan, kelas `dark` sudah terpasang sebelum React dimuat (tanpa kedip), tetap saat pindah halaman; semua halaman terbaca di tema gelap (desktop dan ponsel) |
+| Gerak | Lenis aktif dan parallax hero bergerak di semua halaman berhero; footer parallax; kurangi gerak mematikan Lenis, parallax, dan reveal (semua isi tampil) |
+| 60 fps (daya listrik) | Acuan 16,7 ms. Desktop CPU 1× (Beranda, Profil, Sakramen, Galeri) dan ponsel CPU 4× (Beranda, Jadwal, Galeri): median 16,7 ms, p95 ≤ 17,1 ms, tanpa frame di atas 33,4 ms |
+| Lighthouse ponsel (lokal, `wrangler dev`) | Aksesibilitas 100 di Beranda, Jadwal, dan Sakramen. Kinerja 86/85/76; LCP 3,6/3,6/4,4 s dengan FCP sebagai penghambat (CSS, Google Fonts, chunk halaman). Praktik terbaik 96, SEO 92 |
+| Bundel utama | 391,4 KB (gzip 122,3 KB); sebelum redesign 381,5 KB (gzip 119,7 KB) |
+
+**Di luar lingkup redesign (dicatat, belum dikerjakan):**
+
+- `GET /api/auth/me` mengembalikan 401 di setiap halaman portal (pemeriksaan sesi bawaan 08),
+  sehingga konsol mencatat galat dan Lighthouse "Praktik terbaik" 96.
+- Belum ada `robots.txt` (SEO 92). Isinya keputusan pengurus: halaman mana yang boleh diindeks.
+- `session-provider` dimuat langsung oleh `main.tsx`, sehingga sebagian kode dashboard ikut di
+  bundel utama ("unused JavaScript" ±57–75 KiB).
+- Pesan ukuran berkas membulatkan ke MB: berkas 10 MB lebih beberapa byte tertulis "Ukuran berkas
+  10 MB, maksimal 10 MB." (bawaan 08).
+- Bug API `LIKE` 50 byte dan perbaikan dashboard, seperti yang sudah disepakati.
