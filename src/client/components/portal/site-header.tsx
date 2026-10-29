@@ -9,9 +9,6 @@ import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from '@/com
 import { activePortalLink, portalNav, type PortalLink } from '@/lib/navigation'
 import { cn } from '@/lib/utils'
 
-// Tombol besar membulat, dipakai halaman masuk pengurus.
-export const portalButton = 'h-12 rounded-full px-6 text-base font-medium'
-
 // Pil kaca bahasa kage: putih tembus pandang di tema terang, gelap di tema gelap.
 const glassPill =
   'inline-flex h-11 flex-none items-center gap-2 rounded-full border border-site-rule bg-site-glass px-4 text-sm font-semibold text-site-ink shadow-sm transition-colors outline-none hover:border-site-ink/40 focus-visible:ring-3 focus-visible:ring-ring'
@@ -58,7 +55,8 @@ export function SiteHeader() {
   )
 }
 
-function BrandPill({ onClick }: { onClick?: () => void }) {
+// Pil merek ke beranda; dipakai juga di halaman masuk pengurus.
+export function BrandPill({ onClick }: { onClick?: () => void }) {
   return (
     <Link
       to="/"

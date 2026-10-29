@@ -155,8 +155,19 @@ Progres tahap:
   - `html.lenis-scrolling { overflow-anchor: none }`: scroll anchoring tidak lagi menghentikan
     luncuran saat isi berubah tinggi.
   - Inspector: Persembahan 0 FAIL, Sakramen 1 FAIL (`few-pictures`, keputusan K5).
-- **Berikutnya: Tahap 9 (404, eror, login):** halaman 404, `RouteErrorPage`, dan halaman login
-  bergaya kage, dengan isi dan perilaku 08 tetap.
+- **Tahap 9 (404, eror, login) selesai.**
+  - 404: hero ringkas "Alamat ini / tidak ada." dengan pil "Ke beranda".
+  - `RouteErrorPage`: tetap netral, judul dua nada, tombol pil.
+  - Login: formulir di kiri, panel foto gereja dengan kartu kaca peran di kanan (ponsel: pita
+    foto di atas). Login menyalakan lapisan gerak portal (Lenis, parallax, muncul berurutan).
+  - Gaya isian bersama di `kage/field.ts`.
+  - Perbaikan bawaan 08: `ScrollRestoration` memakai `getKey`, sehingga muat penuh alamat lain
+    tidak lagi mewarisi posisi gulir halaman sebelumnya.
+  - Inspector: login 1 FAIL (`few-pictures`, K5), 404 2 FAIL (`few-pictures`, `still-page`).
+- **Berikutnya: Tahap 10 (Rapikan & QA):** hapus token `portal-*`, `parts.tsx`, dan kelas gerak
+  08 yang tak terpakai; README & KONTEKS; audit akhir (inspector, kedua tema, keyboard,
+  pembaca layar dasar, kurangi gerak, ukuran bundel, Lighthouse ponsel, 60 fps saat laptop di
+  listrik); centang daftar periksa isi.
 
 **Bug API yang ditemukan di Tahap 0** (belum diperbaiki, diusulkan sebagai commit terpisah):
 

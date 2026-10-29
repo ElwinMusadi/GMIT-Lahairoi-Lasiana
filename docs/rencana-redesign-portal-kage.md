@@ -228,7 +228,9 @@ src/client/
 **Aturan integrasi:**
 
 - **Lenis dan React Router:**
-  - Lenis dibuat sekali di `PublicLayout` dan dihancurkan saat pindah ke dashboard atau login.
+  - Lenis dibuat sekali di `PublicLayout` dan dihancurkan saat pindah ke dashboard.
+    Halaman login menyalakan lapisan gerak yang sama (Lenis, parallax panel foto, muncul),
+    karena berada di luar `PublicLayout` (Tahap 9).
   - Saat rute berganti, panggil `lenis.scrollTo(0, { immediate: true })`. `ScrollRestoration`
     di `RootLayout` tetap dipakai untuk tombol Kembali, lalu `lenis.resize()`.
 - **Radix (Sheet menu, Dialog galeri):** konten yang bisa digulir diberi `data-lenis-prevent`.
@@ -550,6 +552,8 @@ hitungan jadwal 7 hari. Semuanya endpoint yang sudah ada.
   - Kanan: panel foto gereja membulat berisi kartu kaca "Siapa yang bisa masuk" (empat peran)
     dan catatan untuk warga jemaat. Di ponsel panel foto menjadi pita pendek di atas.
   - Perilaku login tidak berubah.
+  - *Pelaksanaan (Tahap 9):* tombol tema ikut di samping pil merek. Di ponsel, kartu peran
+    pindah ke bawah formulir.
 
 ### 5.10 Perbaikan kecil 08 yang ikut dikerjakan
 
@@ -668,7 +672,7 @@ uji, di desktop dan di ponsel.
 
 **404, eror, login**
 
-- [ ] 404: judul, teks, "Ke beranda"
+- [x] 404: judul, teks, "Ke beranda"
 - [ ] `RouteErrorPage`: 3 varian pesan, "Muat ulang", "Ke beranda"
 - [ ] Login: field + pesan kosong, lihat/sembunyikan sandi, alert, "Memeriksa…", lupa sandi, kembali ke portal, daftar 4 peran + catatan jemaat, pengalihan bila sudah masuk, pemetaan eror 400, kosongkan sandi saat 401
 
@@ -1422,3 +1426,70 @@ sampai 360 px.
   - formulir Nikah sampai terkirim, unggah berkas ditolak, dan pesan eror server;
   - progres unggah "%" (terlalu cepat di lokal).
   - Kodenya mengikuti 08.
+
+### Tahap 9 — 404, eror rute, dan login (29 Oktober 2026)
+
+**404** ([NotFoundPage.tsx](../src/client/pages/public/NotFoundPage.tsx)): hero ringkas
+"Alamat ini / *tidak ada.*" dengan teks 08 dan pil putih "Ke beranda". Footer tepat di bawahnya
+sudah memuat tautan ke semua halaman portal.
+
+**Eror rute** ([RouteErrorPage.tsx](../src/client/pages/RouteErrorPage.tsx)):
+
+- Tetap netral, tanpa header/footer portal, dan memakai warna tema yang sedang aktif. Halaman
+  ini juga menangani eror dashboard, dan tema portal sudah dilepas saat eror tampil.
+- Judul dua nada "Halaman / *gagal dimuat.*" (Plus Jakarta Sans + Instrument Serif), teks Inter.
+  Tombol "Muat ulang" dan "Ke beranda" menjadi pil.
+- Tiga varian pesan 08 tetap.
+
+**Login** ([LoginPage.tsx](../src/client/pages/LoginPage.tsx)):
+
+- **Desktop:** kolom kiri berisi pil merek dan tombol tema, "Masuk / *pengurus.*" (40 px,
+  sebelumnya 118 px), pengantar, dua isian, pil "Masuk →" ("Memeriksa…"), catatan lupa kata sandi,
+  dan pil "Kembali ke portal".
+- **Panel foto:** kolom kanan berisi foto gereja membulat, bergeser pelan mengikuti gulir (±120 px).
+  Kartu kaca "Siapa yang bisa masuk" menumpang di sel grid yang sama. Scrim tipis di bagian bawah
+  foto memisahkan kartu putih dari dinding gereja yang putih.
+- **Ponsel:** urutannya header, pita foto pendek, formulir, lalu kartu peran (latar kertas).
+- **Isian:** gaya isian dipindah ke modul bersama
+  [field.ts](../src/client/components/portal/kage/field.ts), dipakai formulir sakramen dan login.
+  Tombol lihat sandi 44 × 44 px.
+- **Gerak:** login kini menyalakan lapisan gerak portal (Lenis, parallax, muncul). Bagian halaman
+  muncul berurutan 80 ms per langkah, seperti animasi masuk login 08.
+- **Perilaku 08 tetap:** validasi kosong dan fokus, pemetaan eror 400, sandi dikosongkan saat
+  401, pengalihan bila sudah masuk, dan tema mengikuti pilihan portal.
+- `portalButton` di `site-header.tsx` dihapus (tak terpakai). `BrandPill` diekspor untuk login.
+
+**Pemulihan gulir antar-muat penuh** ([RootLayout.tsx](../src/client/layouts/RootLayout.tsx)):
+
+- **Masalah (bawaan 08):** setiap muat penuh (alamat diketik, tautan `<a>` biasa seperti "Ke
+  beranda" di halaman eror, muat ulang) memakai kunci lokasi `default` yang sama. Akibatnya,
+  setelah `/jadwal` digulir ke 1200 px, membuka `/persembahan` lewat muat penuh di tab yang sama
+  mendarat di 928 px, bukan di atas.
+- **Perbaikan:** `ScrollRestoration` memakai `getKey`. Muat penuh dikunci per alamat;
+  navigasi di dalam aplikasi tetap per entri riwayat. Berlaku juga untuk dashboard.
+
+**Pemeriksaan:**
+
+| Uji | Hasil |
+| --- | --- |
+| Login kosong | "Isi email atau username Anda." dan "Isi kata sandi Anda.", fokus ke isian pertama |
+| Hanya username | Hanya pesan sandi, fokus ke kata sandi |
+| Lihat sandi | Label, `aria-pressed`, dan tipe isian berganti |
+| Sandi salah | "Memeriksa…" (tombol nonaktif), lalu "Email/username atau kata sandi salah."; sandi dikosongkan dan difokus |
+| Masuk (admin) | Ke `/dashboard`; membuka `/login` lagi langsung dialihkan |
+| Login tema gelap → dashboard | Dashboard terang: kelas tema dilepas, `theme-color` putih |
+| Kurangi gerak | Semua isi langsung tampil, foto tanpa parallax |
+| Eror rute (berkas Jadwal diblokir lewat CDP) | "Halaman / gagal dimuat." dengan pesan versi baru |
+| Pemulihan gulir | Muat penuh alamat lain: 0 px (sebelumnya 928). Muat ulang: tetap 600 px. Kembali setelah pindah halaman: 600 px |
+| Ponsel 390 px | Login dan 404 tanpa gulir menyamping; kartu peran di bawah formulir |
+| Tema gelap | Login, kartu kaca, dan 404 terbaca |
+| Inspector | Login 1 FAIL `few-pictures` (K5), sama dengan baseline 08. 404: 2 FAIL, `few-pictures` (K5) dan `still-page` (baseline 7) |
+| Bundel utama | 391,27 KB (gzip 122,28 KB), turun ±27 KB. 404 tidak lagi memakai `parts.tsx` 08 |
+
+- **`still-page` di 404 disengaja.** Halamannya hanya hero dan footer; geraknya parallax hero
+  dan footer. Footer di bawah hero sudah menjadi daftar tautan, jadi tidak ditambah seksi lain.
+- **Belum terlihat di browser:**
+  - eror rute varian HTTP dan varian umum (kodenya mengikuti 08);
+  - pemetaan eror 400 dari server di login.
+- **Untuk Tahap 10:** `parts.tsx` 08 dan kelas gerak 08 (`rise-in`, `ring-in`, `scroll-rise`)
+  kini tidak dipakai komponen mana pun.

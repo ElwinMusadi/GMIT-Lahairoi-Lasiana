@@ -41,6 +41,7 @@ import {
   type SacramentType,
 } from '@shared/types'
 import { FaqAccordion } from '@/components/portal/kage/faq-accordion'
+import { siteInput } from '@/components/portal/kage/field'
 import { HeroPanel } from '@/components/portal/kage/hero-panel'
 import { PillButton, PillLink } from '@/components/portal/kage/pill'
 import { Reveal } from '@/components/portal/kage/reveal'
@@ -72,11 +73,6 @@ import { useApiQuery } from '@/lib/use-api-query'
 import { cn } from '@/lib/utils'
 
 const LETTERS = 'ABCDE'
-
-// Isian formulir bergaya kage: tepi abu tua (5,3:1, batas kolom terlihat), huruf 16 px
-// agar iOS tidak memperbesar layar saat diketuk.
-const inputClass =
-  'h-12 w-full rounded-xl border border-site-muted bg-site-canvas px-4 text-base text-site-ink outline-none placeholder:text-site-muted focus-visible:border-site-ink focus-visible:ring-3 focus-visible:ring-ring aria-invalid:border-destructive'
 
 // Pesan eror di atas panel gelap: merah muda terang agar terbaca (destructive tema terang
 // terlalu gelap di atas panel).
@@ -808,7 +804,7 @@ function Field({
         {...common}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className={inputClass}
+        className={siteInput}
       >
         <option value="">Bukan warga Jemaat Lahairoi / belum tahu</option>
         {rayons.map((rayon) => (
@@ -826,7 +822,7 @@ function Field({
         value={value}
         maxLength={field.max}
         onChange={(event) => onChange(event.target.value)}
-        className={cn(inputClass, 'h-auto py-3')}
+        className={cn(siteInput, 'h-auto py-3')}
       />
     )
   } else {
@@ -845,7 +841,7 @@ function Field({
         placeholder={field.placeholder}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className={inputClass}
+        className={siteInput}
       />
     )
   }

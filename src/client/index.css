@@ -308,6 +308,11 @@
 .site-band-scrim {
   background: rgb(8 18 21 / 0.62);
 }
+/* Panel foto login: hanya bagian bawah digelapkan, agar kartu peran yang putih tetap
+   terpisah dari dinding gereja yang juga putih. */
+.site-login-scrim {
+  background: linear-gradient(to bottom, rgb(8 18 21 / 0) 40%, rgb(8 18 21 / 0.55));
+}
 
 /* Scrim foto footer: teal sangat gelap yang nyaris netral. Pita teratas lebih terang agar
    foto gereja terlihat; mulai baris teks pertama (±88 px) cukup gelap untuk teks putih di
