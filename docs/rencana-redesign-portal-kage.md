@@ -1563,4 +1563,4 @@ sebelum redesign dan bukan bagian portal.
   merge identik dengan ujung branch yang sudah diuji di Tahap 10.
 - Di `main`: typecheck dan lint bersih, build lolos dengan bundel yang sama
   (`index-D5tq9XRQ.js`, 391,37 KB, gzip 122,31 KB).
-- Belum di-push.
+- Di-push ke `origin/main` (`f88480c..2396a6a`) atas permintaan pengguna.

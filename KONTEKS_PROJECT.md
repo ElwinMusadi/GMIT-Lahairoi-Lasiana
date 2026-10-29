@@ -69,8 +69,8 @@ Catatan status:
 - Riwayat `main` ada di bagian 13. Branch lokal lama `chore/design-skills`,
   `docs/stitch-portal-smooth-scroll`, dan `feat/redesign-portal-kage` sudah tergabung ke `main`
   dan tidak di-push.
-- **`main` belum di-push** sejak redesign portal: 12 commit redesign, merge `90e5a7a`, dan
-  catatan merge sesudahnya. Push hanya bila diminta.
+- Redesign portal (12 commit, merge `90e5a7a`, dan catatan merge `2396a6a`) sudah di-push ke
+  `origin/main` pada 29 Oktober 2026.
 
 ### Redesign Portal Publik (selesai, 29 Oktober 2026)
 
@@ -179,7 +179,7 @@ Progres tahap:
   - Daftar periksa isi 08 tercentang semua. Hal di luar lingkup dicatat di rencana bagian 11.
 - **Tahap 11 (Merge) selesai.** `git merge --no-ff` menjadi merge commit `90e5a7a` di `main`
   (Keputusan K6). Pohon `main` identik dengan ujung branch yang diuji; typecheck, lint, dan build
-  lolos dengan bundel yang sama. Belum di-push.
+  lolos dengan bundel yang sama. Sudah di-push ke `origin/main`.
 - **Usulan berikutnya** (belum dimulai):
   - perbaikan bug API `LIKE` 50 byte di bawah;
   - perbaikan dashboard yang ditunda sampai redesign selesai;
