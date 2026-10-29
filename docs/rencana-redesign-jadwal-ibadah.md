@@ -1,8 +1,8 @@
 # Rencana Implementasi: Kalender Jadwal Ibadah (Portal Publik)
 
 Disusun 30 Oktober 2026. Status: **disetujui** 30 Oktober 2026 (keputusan J1–J9 semua sesuai
-usulan, bagian 8). Tahap 0 dan Tahap 1 (API) selesai di branch `feat/kalender-jadwal-ibadah`
-(bagian 10).
+usulan, bagian 8). Tahap 0–2 (persiapan, API, lapisan data klien) selesai di branch
+`feat/kalender-jadwal-ibadah` (bagian 10).
 
 ## 1. Tujuan
 
@@ -317,6 +317,7 @@ Bentuk respons tetap `ApiPage<PublicWorshipItem>`, jadi Beranda tidak terpengaru
 | Berkas | Isi |
 | --- | --- |
 | `src/client/lib/schedule-calendar.ts` (baru) | Hitungan tanggal WITA (awal pekan Senin, kisi bulan 6×7, rentang per tampilan), baca/tulis URL, saringan di browser, hitungan per jenis/rayon/hari, baris jam pekan, pengelompokan per hari |
+| `src/client/lib/use-schedule-calendar.ts` (baru) | Hook halaman: keadaan dari URL, data kisi bulan, pencarian, rincian per id, `update()` |
 | `src/client/components/portal/schedule/` (baru) | `calendar-panel.tsx` (bingkai, bilah alat), `mini-month.tsx`, `schedule-filters.tsx` (+ lembar ponsel), `week-table.tsx`, `month-grid.tsx`, `agenda-list.tsx`, `week-strip.tsx`, `worship-card.tsx`, `worship-detail.tsx` |
 | `src/client/pages/public/SchedulePage.tsx` | Disusun ulang dari komponen di atas |
 | `src/client/components/portal/kage/hero-panel.tsx` | Ukuran baru `compact` (±240 px desktop, ±200 px ponsel) |
@@ -512,3 +513,58 @@ README bagian "Konten Portal Publik (CMS)".
   - Rincian per id dan `404`.
 - **Regresi lain.** Batas 100 per halaman tetap di `/api/public/contents`, Beranda normal, halaman
   Jadwal lama tetap jalan. Typecheck dan lint lolos.
+
+### Tahap 2 — Lapisan data klien (30 Oktober 2026)
+
+**[src/client/lib/schedule-calendar.ts](../src/client/lib/schedule-calendar.ts)**: fungsi murni
+tanpa React. Semua tanggal YYYY-MM-DD (WITA) dihitung di UTC, jadi zona waktu perangkat tidak
+menggeser hari.
+
+- **Tanggal.**
+  - Awal pekan Senin, tanggal sepekan, kisi bulan 6×7.
+  - Geser periode: ±7 hari, atau ke hari pertama bulan sebelum/berikutnya.
+  - Label periode: "2–8 November 2026", "26 Oktober–1 November 2026",
+    "28 Desember 2026–3 Januari 2027", dan "November 2026".
+- **Data dimuat per kisi bulan** (`loadRange`, 42 hari, di dalam batas mode rentang API).
+  - Pekan jangkar selalu berada di dalam kisi bulannya; ini diperiksa untuk setiap hari
+    2026–2028.
+  - Akibatnya, berpindah pekan di bulan yang sama atau berganti tampilan tidak memuat ulang data.
+  - Kalender mini di sisi kiri mendapat titiknya dari data yang sama.
+- **URL** (`parseCalendarParams`, `calendarParams`): parameter `tampilan`, `tanggal`, `jenis`,
+  `rayon`, `cari`, `jadwal`.
+  - Nilai yang tidak sah memakai bawaan.
+  - Keempat jenis sekaligus berarti tanpa saringan.
+  - Nilai bawaan tidak ditulis, jadi tautan tanpa `tanggal` selalu berarti "pekan ini" bagi
+    penerimanya.
+  - Tautan lama `?jenis=rayon&rayon=2` tetap terbaca; `page` dari daftar lama dibuang.
+- **Saringan dan hitungan.**
+  - Jenis (pilih banyak) dan rayon dengan arti J3: ibadah tanpa rayon selalu ikut.
+  - Hitungan per jenis mengabaikan saringan jenis tetapi mengikuti rayon. Hitungan per rayon
+    hanya menghitung ibadah yang terikat rayon dan mengikuti saringan jenis.
+  - Pengelompokan per tanggal, ringkasan titik per hari, dan baris jam Pekan (jadwal tanpa jam di
+    baris terakhir).
+
+**[src/client/lib/use-schedule-calendar.ts](../src/client/lib/use-schedule-calendar.ts)**: keadaan
+dari URL, dengan bawaan Agenda di bawah 768 px dan Pekan di atasnya.
+
+- **Data.**
+  - Kisi bulan dimuat dengan `per_page` 300.
+  - Pencarian (`q`, 50 per halaman) hanya saat `cari` terisi.
+  - Rincian per id hanya bila jadwalnya tidak ada di data yang sudah dimuat.
+- **`update()`.**
+  - Dibangun dari URL saat ini.
+  - Periode dan saringan memakai `replace`; membuka rincian memakai `push`.
+  - Hook ini baru dipakai halaman di Tahap 3.
+
+**Uji unit: 55/55 lolos** di empat zona waktu yang benar-benar aktif (Asia/Makassar,
+America/Los_Angeles, Pacific/Kiritimati, UTC).
+
+- Uji dibundel esbuild dengan `tsconfig.app.json`, karena proyek belum punya test runner.
+- Isinya:
+  - awal pekan, termasuk pergantian tahun;
+  - kisi bulan, termasuk bulan yang mulai hari Minggu;
+  - geser bulan dari tanggal 31;
+  - label lintas bulan dan tahun;
+  - URL bolak-balik di desktop dan ponsel, tautan lama;
+  - saringan J3 dan hitungan.
+- Typecheck dan lint lolos.
