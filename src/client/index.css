@@ -349,6 +349,13 @@
 }
 /* Foto latar parallax: posisi diamnya tepat di tengah bingkai (bingkai: relative +
    overflow-hidden). Saat bergerak, tinggi minimum dan transform diatur portal-motion. */
+/* Selama Lenis menggulir, scroll anchoring browser dimatikan. Isi yang berubah tinggi saat
+   meluncur (mis. hasil cek status) membuat browser menggeser posisi gulir, dan pergeseran itu
+   terbaca sebagai gulir dari luar sehingga luncuran berhenti. */
+html.lenis-scrolling {
+  overflow-anchor: none;
+}
+
 [data-parallax-bg] {
   position: absolute;
   left: 0;

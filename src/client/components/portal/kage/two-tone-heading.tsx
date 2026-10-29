@@ -10,7 +10,8 @@ const SIZES = {
   // Ponsel: ukuran cair agar baris pertama muat sampai lebar 360 px.
   hero: 'text-[clamp(2.25rem,10.5vw,3rem)] sm:text-6xl md:text-7xl lg:text-[84px]',
   // Judul halaman di hero ringkas.
-  page: 'text-[40px] sm:text-5xl md:text-6xl',
+  // Ponsel: cair agar judul halaman seperti "Layanan Sakramen" muat satu baris sampai 360 px.
+  page: 'text-[clamp(2rem,9.5vw,2.5rem)] sm:text-5xl md:text-6xl',
   // Judul seksi.
   section: 'text-[clamp(1.875rem,9vw,2.25rem)] sm:text-5xl md:text-[60px]',
   // Judul di dalam kartu atau panel.

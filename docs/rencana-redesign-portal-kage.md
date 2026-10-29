@@ -496,8 +496,9 @@ hitungan jadwal 7 hari. Semuanya endpoint yang sudah ada.
 
 ### 5.7 Persembahan `/persembahan`
 
-- **Hero ringkas:** "Persembahan kasih. / *Dengan sukacita.*" dengan ayat 08: "'Allah mengasihi
-  orang yang memberi dengan sukacita.' (2 Korintus 9:7)".
+- **Hero ringkas:** "Persembahan / *dengan sukacita.*" dengan ayat 08: "'Allah mengasihi
+  orang yang memberi dengan sukacita.' (2 Korintus 9:7)". Usulan awal "Persembahan kasih." tidak
+  muat dua baris di ponsel.
 - **QRIS:** panel gelap berisi kartu putih dengan gambar QRIS besar, badge "QRIS",
   "{bank} · {keperluan}", petunjuk pindai, catatan, dan "Simpan gambar QRIS". Kosong: "Kode
   QRIS belum tersedia. Gunakan transfer bank di samping."
@@ -648,22 +649,22 @@ uji, di desktop dan di ponsel.
 
 **Persembahan**
 
-- [ ] Ayat 2 Korintus 9:7
-- [ ] QRIS: badge, judul bank · keperluan, petunjuk pindai, gambar + alt, catatan, "Simpan gambar QRIS" (`qris-{slug}.{ext}`)
-- [ ] Rekening: singkatan bank, keperluan, bank, nomor, atas nama, catatan, "Salin No. Rek" (hanya digit, toast sukses/gagal, "Tersalin", aria-label)
+- [x] Ayat 2 Korintus 9:7
+- [x] QRIS: badge, judul bank · keperluan, petunjuk pindai, gambar + alt, catatan, "Simpan gambar QRIS" (`qris-{slug}.{ext}`)
+- [x] Rekening: singkatan bank, keperluan, bank, nomor, atas nama, catatan, "Salin No. Rek" (hanya digit, toast sukses/gagal, "Tersalin", aria-label)
 - [ ] Satu konten boleh tampil di kedua kolom; pesan kosong per kolom; pesan belum diumumkan; catatan bukti transfer
 
 **Layanan Sakramen**
 
-- [ ] Pengantar + "Daftar sekarang" / "Cek status pendaftaran"
+- [x] Pengantar + "Daftar sekarang" / "Cek status pendaftaran"
 - [ ] Cek status: normalisasi kode, 3 pesan eror, chip tersimpan (≤5, localStorage), *live region*
-- [ ] Hasil: jenis, kode, nama tersamar, diperbarui, status, pelacak 5 langkah + teks sr, catatan Majelis + petunjuk revisi, berkas diterima
+- [x] Hasil: jenis, kode, nama tersamar, diperbarui, status, pelacak 5 langkah + teks sr, catatan Majelis + petunjuk revisi, berkas diterima
 - [ ] Tab 3 jenis + `?layanan=` + panah; nilai tetap saat pindah tab
 - [ ] Seluruh field per jenis (bagian 11.3 inventaris) dengan label, wajib/opsional, placeholder, petunjuk, batas karakter, aturan tanggal
 - [ ] Validasi klien = API, fokus ke field pertama yang salah, ringkasan eror, pesan server
 - [ ] Unggah: seret-lepas, Ganti/Hapus, ukuran, penolakan klien dan server, teks keterangan berkas
 - [ ] Kirim: progres "%", "Menyimpan…"; panel sukses dengan salin kode, share, cek status, daftarkan lain, catatan nomor HP
-- [ ] FAQ 3 butir
+- [x] FAQ 3 butir
 
 **404, eror, login**
 
@@ -1345,4 +1346,79 @@ Renungan, Berita, dan Galeri:
   - "Tonton video" untuk tautan non-YouTube;
   - eror rayon dan "Coba lagi";
   - lampiran Profil (tidak ada di data uji).
+  - Kodenya mengikuti 08.
+
+### Tahap 8 — Persembahan & Sakramen (29 Oktober 2026)
+
+**Persembahan** ([OfferingPage.tsx](../src/client/pages/public/OfferingPage.tsx)):
+
+- **Hero ringkas** "Persembahan / *dengan sukacita.*" dengan ayat 2 Korintus 9:7.
+- **QRIS (kiri):** panel gelap berisi kartu putih per QRIS: badge, "{bank} · {keperluan}",
+  petunjuk pindai, gambar, catatan, dan "Simpan gambar QRIS" (`qris-{slug}.{ext}`).
+  - Kartu tetap putih di tema gelap agar mudah dipindai, jadi warna tombol simpan dikunci
+    (di tema gelap tombol sempat putih di atas putih).
+- **Transfer bank (kanan):** kartu per rekening dengan lencana singkatan bank, keperluan, nama
+  bank, `CopyBar` "Salin No. Rek" (hanya digit; toast, "Tersalin", dan aria-label 08), atas
+  nama, dan catatan. Di bawahnya kotak "Simpan bukti transfer Anda".
+- Satu konten boleh tampil di kedua kolom (Kas Pembangunan di data uji). Pesan eror, memuat,
+  kosong per kolom, dan "belum diumumkan" memakai teks 08.
+
+**Layanan Sakramen** ([SacramentPage.tsx](../src/client/pages/public/SacramentPage.tsx)):
+
+- **Hero ringkas:** "Layanan Sakramen / *& pelacakan berkas.*", pil "Daftar sekarang"
+  (`#formulir`) dan "Cek status pendaftaran" (`#cek-status`).
+- **Cek status / *pendaftaran.*:** panel jendela gelap berisi masukan kode mono, "Lacak status"
+  ("Memeriksa…"), chip kode tersimpan, dan hasil di *live region*.
+  - Hasil: pil jenis, kode, nama tersamar, status, "Diperbarui …", pelacak 5 langkah vertikal
+    (nomor mono, centang untuk langkah selesai, teks status pembaca layar, langkah revisi
+    merah), catatan Majelis, dan berkas diterima.
+- **Formulir / *pendaftaran sakramen.*:** usulan "Daftar baptis, sidi, atau nikah." terlalu
+  panjang di ponsel.
+  - Tab tiga kolom, `?layanan=` dengan `replace` tanpa menggulir, dan tombol panah.
+  - Kartu kanvas berisi kotak info, ringkasan eror, bagian berhuruf (lingkaran mono), field
+    16 px, ubin unggah bergaris putus-putus, "Kosongkan", dan "Kirim pendaftaran" (progres).
+  - Bintang wajib memakai warna `ring` (oranye kage), bukan merah eror.
+- **Panel sukses:** jendela gelap "pendaftaran-terkirim" dengan kode besar mono, "Salin kode",
+  "Kirim ke WhatsApp/aplikasi lain" (bila `navigator.share` ada), "Cek status sekarang",
+  catatan nomor HP, dan "Daftarkan layanan lain". Fokus ke judul panel dan gulir ke tengah.
+- **FAQ:** "Pertanyaan seputar / *pendaftaran sakramen.*" dengan `SACRAMENT_FAQ` bersama Beranda.
+- **Perbaikan 08:**
+  - **#7:** kode baru langsung muncul di chip tersimpan. Daftar chip kini state halaman yang
+    diperbarui setelah formulir menyimpan kode.
+  - **#8:** label tab membungkus di ponsel sehingga "3. Pemberkatan Nikah" tidak lagi terpotong.
+
+**Judul halaman di ponsel** ([two-tone-heading.tsx](../src/client/components/portal/kage/two-tone-heading.tsx)):
+ukuran `page` kini cair (`clamp(2rem, 9.5vw, 2.5rem)`) agar "Layanan Sakramen" muat satu baris
+sampai 360 px.
+
+**Luncuran "Cek status sekarang"** ([index.css](../src/client/index.css)):
+
+- **Masalah:** luncuran Lenis ke `#cek-status` berhenti di tengah jalan. Saat hasil cek status
+  muncul, tinggi panel berubah dan *scroll anchoring* browser menggeser posisi gulir.
+  Pergeseran itu terbaca sebagai gulir dari luar, sehingga penjaga gulir Tahap 4 menghentikan
+  luncuran.
+- **Perbaikan:** `html.lenis-scrolling { overflow-anchor: none }`. Diuji perlu: bila aturan ini
+  dibatalkan lewat CDP, luncuran kembali tersangkut di 1605 px.
+
+**Pemeriksaan:**
+
+| Uji | Hasil |
+| --- | --- |
+| Persembahan (data uji) | 2 kartu QRIS dan 3 rekening; Kas Pembangunan tampil di kedua kolom |
+| Cek status | Pesan format salah; "bpt azyz hlev" dinormalkan; hasil COMPLETED dan REVISION beserta catatan |
+| Kirim kosong | "Periksa 10 isian yang ditandai.", fokus ke Nama lengkap |
+| Kirim Baptisan | Kode `BPT-HJNU-P8TP`, fokus ke judul panel sukses, chip langsung muncul (#7) |
+| Tab Sidi | `?layanan=sidi`; kirim → `SDI-PVDS-GHT7`; chip bertambah |
+| "Cek status sekarang" (CDP) | Dengan Lenis meluncur 1118 → 436 px, seksi di 96 px, hasil menampilkan kode baru. Kurangi gerak: langsung ke 436 px |
+| Jangkar (Profil, Beranda, Sakramen) | Semua di 96 px, dengan dan tanpa Lenis |
+| Ponsel 390 px | Tab tiga kolom membungkus, tanpa gulir menyamping (#8) |
+| Tema gelap | Persembahan, cek status, dan formulir terbaca; tombol QRIS diperbaiki |
+| Inspector | Persembahan 0 FAIL (baseline 9); Sakramen 1 FAIL `few-pictures` (K5: satu foto gereja), baseline 8. WARN `dashed` disengaja (zona unggah) |
+| Bundel utama | 418,68 KB (gzip 130,17 KB) |
+
+- **Belum terlihat di browser:**
+  - pesan kosong per kolom dan "belum diumumkan" di Persembahan (data uji lengkap);
+  - eror kode tidak ditemukan dan eror jaringan di cek status;
+  - formulir Nikah sampai terkirim, unggah berkas ditolak, dan pesan eror server;
+  - progres unggah "%" (terlalu cepat di lokal).
   - Kodenya mengikuti 08.

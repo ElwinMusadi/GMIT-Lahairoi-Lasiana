@@ -145,9 +145,18 @@ Progres tahap:
   - Jangkar di halaman yang sama memakai `Link` (tautan "#…" biasa membuat `ScrollRestoration`
     kembali ke atas), dan penjaga gulir Lenis membiarkan lompatan ke jangkar ditimpa luncuran.
   - Inspector: keduanya 0 FAIL.
-- **Berikutnya: Tahap 8 (Persembahan & Sakramen):** `/persembahan` (QRIS, rekening, salin) dan
-  `/layanan-sakramen` (cek status, formulir 3 jenis, unggah berkas, FAQ), termasuk perbaikan 08
-  #7 (kode baru langsung tersimpan) dan #8 (tab nikah terpotong di ponsel).
+- **Tahap 8 (Persembahan & Sakramen) selesai.**
+  - Persembahan: kolom QRIS (kartu putih di panel gelap) dan kolom transfer bank dengan bilah
+    salin.
+  - Sakramen: panel jendela cek status dengan pelacak 5 langkah, formulir tiga jenis dalam kartu
+    kanvas, panel sukses gelap, dan FAQ bersama Beranda.
+  - Perbaikan 08 #7 (kode baru langsung muncul di chip) dan #8 (tab nikah tidak terpotong di
+    ponsel).
+  - `html.lenis-scrolling { overflow-anchor: none }`: scroll anchoring tidak lagi menghentikan
+    luncuran saat isi berubah tinggi.
+  - Inspector: Persembahan 0 FAIL, Sakramen 1 FAIL (`few-pictures`, keputusan K5).
+- **Berikutnya: Tahap 9 (404, eror, login):** halaman 404, `RouteErrorPage`, dan halaman login
+  bergaya kage, dengan isi dan perilaku 08 tetap.
 
 **Bug API yang ditemukan di Tahap 0** (belum diperbaiki, diusulkan sebagai commit terpisah):
 
