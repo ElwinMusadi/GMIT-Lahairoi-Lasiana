@@ -1,13 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
-import {
-  ArrowLeft,
-  ClipboardList,
-  ExternalLink,
-  FileText,
-  Plus,
-  TriangleAlert,
-  X,
-} from 'lucide-react'
+import { ClipboardList, ExternalLink, FileText, Plus, TriangleAlert, X } from 'lucide-react'
 import { Link, useBlocker, useNavigate, useParams } from 'react-router'
 import { toast } from 'sonner'
 import type { FieldErrors } from '@shared/accounts'
@@ -47,6 +39,8 @@ import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { UploadField } from '@/components/upload-field'
 import { AttendanceDialog } from '@/components/worship/attendance-dialog'
+import { PageHeader } from '@/components/zenith/page-header'
+import { Panel } from '@/components/zenith/panel'
 import { ApiError, api, errorMessage } from '@/lib/api'
 import { nextSunday } from '@/lib/contents'
 import { addDays, formatLongDate } from '@/lib/finance'
@@ -67,6 +61,7 @@ import {
 } from '@/lib/worship'
 
 const LIST_HREF = '/dashboard/worships'
+const BACK = { to: LIST_HREF, label: 'Jadwal Ibadah' }
 
 // Tugas di tata ibadah GMIT yang dicakup tiap peran (PRD: Penugasan Pelayan, Majelis &
 // Pemusik).
@@ -87,19 +82,30 @@ export default function WorshipEditorPage() {
 
   if (id && !existing.data) {
     return (
-      <div className="grid gap-4">
-        <BackLink />
-        {existing.error ? (
-          <p className="text-sm text-muted-foreground">
-            Jadwal tidak dapat dimuat: {existing.error}{' '}
-            <button type="button" onClick={existing.reload} className="font-medium underline">
-              Coba lagi
-            </button>
-          </p>
-        ) : (
-          <div className="grid gap-3" aria-hidden="true">
-            <Skeleton className="h-8 w-72" />
-            <Skeleton className="h-96 w-full max-w-4xl" />
+      <div className="grid gap-6">
+        <PageHeader
+          back={BACK}
+          title="Ubah jadwal ibadah"
+          description={
+            existing.error ? (
+              <>
+                Jadwal tidak dapat dimuat: {existing.error}{' '}
+                <button type="button" onClick={existing.reload} className="font-medium underline">
+                  Coba lagi
+                </button>
+              </>
+            ) : (
+              <span className="inline-block h-4 w-72 max-w-full animate-pulse rounded-md bg-muted align-middle" />
+            )
+          }
+        />
+        {!existing.error && (
+          <div
+            className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]"
+            aria-hidden="true"
+          >
+            <Skeleton className="h-96 rounded-xl" />
+            <Skeleton className="h-64 rounded-xl" />
           </div>
         )}
       </div>
@@ -108,18 +114,6 @@ export default function WorshipEditorPage() {
 
   const worship = existing.data?.worship ?? null
   return <WorshipForm key={worship ? worship.id : 'new'} worship={worship} />
-}
-
-function BackLink() {
-  return (
-    <Link
-      to={LIST_HREF}
-      className="inline-flex w-fit items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
-    >
-      <ArrowLeft className="size-4" aria-hidden="true" />
-      Jadwal Ibadah
-    </Link>
-  )
 }
 
 type ServantRow = {
@@ -435,29 +429,32 @@ function WorshipForm({ worship }: { worship: WorshipItem | null }) {
 
   return (
     <form noValidate onSubmit={handleSubmit} className="grid gap-6">
-      <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
-        <div className="grid gap-1.5">
-          <BackLink />
-          <h1 className="text-2xl font-semibold tracking-[-0.02em]">{heading}</h1>
-          <p className="text-sm text-muted-foreground">
+      {/* Tombol Simpan di kepala halaman tetap tombol kirim form ini. */}
+      <PageHeader
+        back={BACK}
+        title={heading}
+        description={
+          <span className="tabular-nums">
             {dateValid ? formatLongDate(state.worship_date, true) : 'Tanggal belum diisi'}
             {time ? `, ${time} WITA` : ', jam menyusul'}
             {dirty && ' · Perubahan belum disimpan'}
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button asChild variant="outline" size="lg">
-            <Link to={LIST_HREF}>Batal</Link>
-          </Button>
-          <Button type="submit" size="lg" disabled={submitting || uploading}>
-            {submitting ? 'Menyimpan…' : uploading ? 'Menunggu unggahan…' : 'Simpan jadwal'}
-          </Button>
-        </div>
-      </header>
+          </span>
+        }
+        actions={
+          <>
+            <Button asChild variant="outline" size="lg">
+              <Link to={LIST_HREF}>Batal</Link>
+            </Button>
+            <Button type="submit" size="lg" disabled={submitting || uploading}>
+              {submitting ? 'Menyimpan…' : uploading ? 'Menunggu unggahan…' : 'Simpan jadwal'}
+            </Button>
+          </>
+        }
+      />
 
       <div role="alert" aria-live="assertive" className="empty:hidden">
         {formError && (
-          <p className="rounded-lg border border-destructive/40 bg-negative-soft px-4 py-3 text-sm text-negative-ink">
+          <p className="rounded-xl border border-destructive/40 bg-negative-soft px-4 py-3 text-sm text-negative-ink">
             {formError}
           </p>
         )}
@@ -465,13 +462,7 @@ function WorshipForm({ worship }: { worship: WorshipItem | null }) {
 
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="grid min-w-0 gap-6">
-          <section
-            aria-labelledby="judul-rincian"
-            className="grid gap-5 rounded-lg border bg-card p-5 sm:p-6"
-          >
-            <h2 id="judul-rincian" className="text-base font-semibold">
-              Rincian ibadah
-            </h2>
+          <Panel title="Rincian ibadah" contentClassName="grid gap-5">
             <SegmentedChoice
               name="category"
               legend="Jenis ibadah"
@@ -603,23 +594,17 @@ function WorshipForm({ worship }: { worship: WorshipItem | null }) {
                 <FieldError id="bible_reading-error" messages={errors.bible_reading} />
               </div>
             </div>
-          </section>
+          </Panel>
 
-          <section
-            aria-labelledby="judul-petugas"
-            aria-describedby="petugas-hint"
-            className="grid gap-4 rounded-lg border bg-card p-5 sm:p-6"
+          <Panel
+            title="Petugas pelayanan"
+            description={
+              state.worship_time
+                ? 'Nama diperiksa terhadap ibadah lain pada tanggal dan jam yang sama.'
+                : 'Isi jam ibadah agar bentrok jadwal petugas bisa diperiksa.'
+            }
+            contentClassName="grid gap-4"
           >
-            <div className="grid gap-1">
-              <h2 id="judul-petugas" className="text-base font-semibold">
-                Petugas pelayanan
-              </h2>
-              <p id="petugas-hint" className="text-[0.8125rem] text-muted-foreground">
-                {state.worship_time
-                  ? 'Nama diperiksa terhadap ibadah lain pada tanggal dan jam yang sama.'
-                  : 'Isi jam ibadah agar bentrok jadwal petugas bisa diperiksa.'}
-              </p>
-            </div>
             <div aria-live="polite" className="empty:hidden">
               {conflictCount > 0 && (
                 <p className="flex items-start gap-2 rounded-lg border border-warning-border bg-warning-soft px-4 py-3 text-sm text-warning-ink">
@@ -642,7 +627,7 @@ function WorshipForm({ worship }: { worship: WorshipItem | null }) {
                 return (
                   <fieldset
                     key={role}
-                    className="grid gap-2 border-t border-rule py-4 first:border-t-0 first:pt-0 last:pb-0 sm:grid-cols-[11rem_minmax(0,1fr)] sm:gap-4"
+                    className="grid gap-2 border-t py-4 first:border-t-0 first:pt-0 last:pb-0 sm:grid-cols-[11rem_minmax(0,1fr)] sm:gap-4"
                   >
                     <legend className="float-left grid gap-0.5 sm:pt-2">
                       <span className="text-sm font-medium">{label}</span>
@@ -682,81 +667,84 @@ function WorshipForm({ worship }: { worship: WorshipItem | null }) {
                 )
               })}
             </div>
-          </section>
+          </Panel>
         </div>
 
-        <aside className="grid gap-5 rounded-lg border bg-card p-5">
-          <label className="flex items-start justify-between gap-4">
-            <span className="grid gap-0.5">
-              <span className="text-sm font-medium">Tampil di portal</span>
-              <span className="text-[0.8125rem] text-muted-foreground">
-                {state.is_public
-                  ? 'Muncul di Papan Jadwal Ibadah portal publik setelah disimpan.'
-                  : 'Internal: hanya terlihat di dashboard.'}
-              </span>
-            </span>
-            <input
-              type="checkbox"
-              role="switch"
-              checked={state.is_public}
-              onChange={(event) => set('is_public', event.target.checked)}
-              className="peer sr-only"
-            />
-            <span
-              aria-hidden="true"
-              className={cn(
-                'relative mt-0.5 inline-flex h-6 w-10 flex-none rounded-full border-2 border-transparent transition-colors peer-focus-visible:ring-3 peer-focus-visible:ring-ring/50',
-                state.is_public ? 'bg-primary' : 'bg-input',
-              )}
-            >
-              <span
-                className={cn(
-                  'block size-5 rounded-full bg-card transition-transform',
-                  state.is_public ? 'translate-x-4' : 'translate-x-0',
-                )}
-              />
-            </span>
-          </label>
-
-          <div className="grid gap-2 border-t border-rule pt-5">
-            <UploadField
-              id="liturgy_file_url"
-              label="Tata ibadah (liturgi)"
-              folder="liturgi"
-              kind="pdf"
-              value={state.liturgy_file_url}
-              onChange={(url) => set('liturgy_file_url', url)}
-              onBusyChange={setUploading}
-              emptyText="PDF, maksimal 10 MB."
-              preview={(url) => <LiturgyLink url={url} />}
-              error={errors.liturgy_file_url?.[0]}
-              hint={
-                <FieldHint id="liturgy-hint">
+        {/* Kolom samping: portal dan tata ibadah dalam satu kartu, kehadiran kartu tersendiri. */}
+        {/* Kolom samping lengket di bawah topbar: tetap terjangkau saat form panjang digulir. */}
+        <aside className="grid content-start gap-6 lg:sticky lg:top-24">
+          <div className="grid gap-5 rounded-xl bg-card p-5 text-card-foreground ring-1 ring-foreground/10">
+            <label className="flex items-start justify-between gap-4">
+              <span className="grid gap-0.5">
+                <span className="text-sm font-medium">Tampil di portal</span>
+                <span className="text-[0.8125rem] text-muted-foreground">
                   {state.is_public
-                    ? 'Tampil sebagai tautan unduh di Papan Jadwal portal.'
-                    : 'Tautan unduh muncul di portal bila jadwal ditampilkan di portal.'}
-                </FieldHint>
-              }
-            />
-            {state.is_public && worship?.is_public && (
-              <Link
-                to="/jadwal"
-                target="_blank"
-                className="inline-flex w-fit items-center gap-1 text-[0.8125rem] font-medium underline-offset-4 hover:underline"
+                    ? 'Muncul di Papan Jadwal Ibadah portal publik setelah disimpan.'
+                    : 'Internal: hanya terlihat di dashboard.'}
+                </span>
+              </span>
+              <input
+                type="checkbox"
+                role="switch"
+                checked={state.is_public}
+                onChange={(event) => set('is_public', event.target.checked)}
+                className="peer sr-only"
+              />
+              <span
+                aria-hidden="true"
+                className={cn(
+                  'relative mt-0.5 inline-flex h-6 w-10 flex-none rounded-full border-2 border-transparent transition-colors peer-focus-visible:ring-3 peer-focus-visible:ring-ring/50',
+                  state.is_public ? 'bg-primary' : 'bg-input',
+                )}
               >
-                Lihat Papan Jadwal
-                <ExternalLink className="size-3.5" aria-hidden="true" />
-                <span className="sr-only">(tab baru)</span>
-              </Link>
-            )}
+                <span
+                  className={cn(
+                    'block size-5 rounded-full bg-card transition-transform',
+                    state.is_public ? 'translate-x-4' : 'translate-x-0',
+                  )}
+                />
+              </span>
+            </label>
+
+            <div className="grid gap-2 border-t pt-5">
+              <UploadField
+                id="liturgy_file_url"
+                label="Tata ibadah (liturgi)"
+                folder="liturgi"
+                kind="pdf"
+                value={state.liturgy_file_url}
+                onChange={(url) => set('liturgy_file_url', url)}
+                onBusyChange={setUploading}
+                emptyText="PDF, maksimal 10 MB."
+                preview={(url) => <LiturgyLink url={url} />}
+                error={errors.liturgy_file_url?.[0]}
+                hint={
+                  <FieldHint id="liturgy-hint">
+                    {state.is_public
+                      ? 'Tampil sebagai tautan unduh di Papan Jadwal portal.'
+                      : 'Tautan unduh muncul di portal bila jadwal ditampilkan di portal.'}
+                  </FieldHint>
+                }
+              />
+              {state.is_public && worship?.is_public && (
+                <Link
+                  to="/jadwal"
+                  target="_blank"
+                  className="inline-flex w-fit items-center gap-1 text-[0.8125rem] font-medium underline-offset-4 hover:underline"
+                >
+                  Lihat Papan Jadwal
+                  <ExternalLink className="size-3.5" aria-hidden="true" />
+                  <span className="sr-only">(tab baru)</span>
+                </Link>
+              )}
+            </div>
           </div>
 
           {attendanceOf && (
-            <div className="grid gap-2 border-t border-rule pt-5">
-              <p className="text-sm font-medium">Kehadiran</p>
+            <Panel title="Kehadiran" contentClassName="grid gap-2">
               {attendanceOf.attendance_total !== null ? (
                 <>
-                  <p className="text-2xl font-semibold tabular-nums">
+                  <p className="text-2xl font-bold tracking-tight tabular-nums">
                     {attendanceOf.attendance_total.toLocaleString('id-ID')}
                     <span className="ml-1.5 text-sm font-normal text-muted-foreground">orang</span>
                   </p>
@@ -780,11 +768,11 @@ function WorshipForm({ worship }: { worship: WorshipItem | null }) {
                   {attendanceOf.attendance_total !== null ? 'Ubah kehadiran' : 'Catat kehadiran'}
                 </Button>
               )}
-            </div>
+            </Panel>
           )}
 
           {worship && (
-            <p className="border-t border-rule pt-5 text-[0.8125rem] text-muted-foreground">
+            <p className="text-[0.8125rem] text-muted-foreground">
               {worshipKind(worship)} · dibuat {formatDate(worship.created_at)}, diubah{' '}
               {formatDate(worship.updated_at)} {formatTime(worship.updated_at)}
             </p>

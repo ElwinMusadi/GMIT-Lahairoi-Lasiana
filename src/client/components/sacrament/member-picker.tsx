@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { Search, UserRound, X } from 'lucide-react'
+import { Search, X } from 'lucide-react'
 import {
   MARRIAGE_STATUS_LABELS,
   type ApiPage,
@@ -8,6 +8,7 @@ import {
 } from '@shared/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { PersonAvatar } from '@/components/zenith/person-avatar'
 import { formatLongDate } from '@/lib/finance'
 import { inputClass } from '@/lib/form'
 import { useApiQuery } from '@/lib/use-api-query'
@@ -73,9 +74,9 @@ export function MemberPicker({
         {label}
       </span>
       {value ? (
-        <div className="flex items-center gap-2 rounded-lg border px-3 py-2">
-          <UserRound className="size-4 flex-none text-muted-foreground" aria-hidden="true" />
-          <span className="min-w-0 flex-1 truncate text-sm font-medium">{value.name}</span>
+        <div className="flex items-center gap-2.5 rounded-lg border py-1.5 pr-1.5 pl-2">
+          <PersonAvatar name={value.name} className="size-7" />
+          <span className="min-w-0 flex-1 text-sm font-medium break-words">{value.name}</span>
           <Button
             type="button"
             variant="ghost"
@@ -108,7 +109,7 @@ export function MemberPicker({
             />
           </div>
           {searching && (
-            <div aria-live="polite" className="rounded-lg border">
+            <div aria-live="polite" className="overflow-hidden rounded-lg border">
               {!results.data ? (
                 <p className="px-3 py-2 text-[0.8125rem] text-muted-foreground">Mencari…</p>
               ) : results.data.data.length === 0 ? (
@@ -117,20 +118,23 @@ export function MemberPicker({
                   diselesaikan tanpa tautan.
                 </p>
               ) : (
-                <ul>
+                <ul className="divide-y">
                   {results.data.data.map((member) => (
-                    <li key={member.id} className="border-t border-rule first:border-t-0">
+                    <li key={member.id}>
                       <button
                         type="button"
                         onClick={() => onChange({ id: member.id, name: member.full_name })}
-                        className="grid w-full gap-0.5 px-3 py-2 text-left hover:bg-muted/60"
+                        className="flex w-full items-start gap-2.5 px-3 py-2 text-left outline-none hover:bg-muted/60 focus-visible:bg-muted/60 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:ring-inset"
                       >
-                        <span className="text-sm font-medium">{member.full_name}</span>
-                        <span className="text-[0.8125rem] text-muted-foreground">
-                          Rayon {member.rayon_name} · KK {member.family_head_name}
-                          {member.birth_date &&
-                            ` · lahir ${formatLongDate(member.birth_date)}`} ·{' '}
-                          {sacramentNote(member, type)}
+                        <PersonAvatar name={member.full_name} className="mt-0.5 size-7" />
+                        <span className="grid min-w-0 gap-0.5">
+                          <span className="text-sm font-medium">{member.full_name}</span>
+                          <span className="text-[0.8125rem] text-muted-foreground">
+                            Rayon {member.rayon_name} · KK {member.family_head_name}
+                            {member.birth_date &&
+                              ` · lahir ${formatLongDate(member.birth_date)}`} ·{' '}
+                            {sacramentNote(member, type)}
+                          </span>
                         </span>
                       </button>
                     </li>

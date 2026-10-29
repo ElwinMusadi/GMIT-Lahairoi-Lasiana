@@ -1,12 +1,15 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
-import { ArrowLeft, Printer, RotateCcw } from 'lucide-react'
-import { Link, useParams, useSearchParams } from 'react-router'
+import { Printer, RotateCcw } from 'lucide-react'
+import { useParams, useSearchParams } from 'react-router'
 import { SACRAMENT_TYPE_LABELS, type SacramentDetail, type SacramentResponse } from '@shared/types'
 import { Certificate, type CertificateMode } from '@/components/sacrament/certificate'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
+import { PageHeader } from '@/components/zenith/page-header'
+import { Panel } from '@/components/zenith/panel'
+import { Segmented } from '@/components/zenith/segmented'
 import { certificateContent, loadMargins, saveMargins, type Margins } from '@/lib/sacrament-admin'
 import { useApiQuery } from '@/lib/use-api-query'
 import { cn } from '@/lib/utils'
@@ -16,16 +19,17 @@ const LIST_HREF = '/dashboard/sacraments'
 // 210 mm dalam piksel CSS (96 dpi), untuk menskalakan pratinjau.
 const SHEET_PX = (210 / 25.4) * 96
 
-const MODES: { value: CertificateMode; title: string; description: string }[] = [
+// Format cetak sebagai kontrol bersegmen; keterangan format terpilih tampil di bawahnya.
+const MODES: { value: CertificateMode; label: string; description: string }[] = [
   {
     value: 'lengkap',
-    title: 'Format Desain Lengkap (Kop & Bingkai)',
+    label: 'Desain lengkap',
     description:
       'Untuk kertas A4 kosong: kop GMIT, bingkai, judul, label, ayat, dan seluruh isian.',
   },
   {
     value: 'blangko',
-    title: 'Format Blangko (Hanya Teks Isian)',
+    label: 'Blangko',
     description:
       'Untuk blangko sertifikat gereja: hanya isian yang tercetak, tanpa kop dan bingkai.',
   },
@@ -41,46 +45,54 @@ export default function SacramentCertificatePage() {
 
   if (!application) {
     return (
-      <div className="grid gap-4">
-        <BackLink id={id} />
+      <div className="grid gap-6">
         {detail.error ? (
-          <p className="text-sm text-muted-foreground">
-            Pendaftaran tidak dapat dimuat: {detail.error}{' '}
-            <button type="button" onClick={detail.reload} className="font-medium underline">
-              Coba lagi
-            </button>
-          </p>
+          <PageHeader
+            className="print:hidden"
+            back={backTo(id)}
+            title="Pendaftaran tidak dapat dimuat"
+            description={
+              <>
+                {detail.error}{' '}
+                <button type="button" onClick={detail.reload} className="font-medium underline">
+                  Coba lagi
+                </button>
+              </>
+            }
+          />
         ) : (
-          <Skeleton className="h-[40rem] w-full max-w-3xl" />
+          <div className="grid gap-6 print:hidden" aria-busy="true">
+            <div className="grid gap-2">
+              <Skeleton className="h-8 w-72 max-w-full" />
+              <Skeleton className="h-5 w-96 max-w-full" />
+            </div>
+            <Skeleton className="h-[40rem] w-full max-w-3xl rounded-xl" />
+          </div>
         )}
       </div>
     )
   }
   if (application.status !== 'COMPLETED') {
     return (
-      <div className="grid gap-4">
-        <BackLink id={id} />
-        <h1 className="text-2xl font-semibold tracking-[-0.02em]">Cetak sertifikat</h1>
-        <p className="max-w-xl text-sm text-muted-foreground">
-          Sertifikat {application.applicant_name} baru bisa dicetak setelah pendaftarannya Selesai
-          dan tercatat di buku induk dengan nomor register.
-        </p>
-      </div>
+      <PageHeader
+        className="print:hidden"
+        back={backTo(id)}
+        title="Cetak sertifikat"
+        description={
+          <span className="block max-w-xl">
+            Sertifikat {application.applicant_name} baru bisa dicetak setelah pendaftarannya Selesai
+            dan tercatat di buku induk dengan nomor register.
+          </span>
+        }
+      />
     )
   }
   return <CertificateEditor application={application} />
 }
 
-function BackLink({ id }: { id?: string }) {
-  return (
-    <Link
-      to={id ? `${LIST_HREF}/${id}` : LIST_HREF}
-      className="inline-flex w-fit items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground print:hidden"
-    >
-      <ArrowLeft className="size-4" aria-hidden="true" />
-      Rincian pendaftaran
-    </Link>
-  )
+// Tujuan tombol kembali: rincian pendaftaran, atau daftar bila id tidak ada.
+function backTo(id?: string) {
+  return { to: id ? `${LIST_HREF}/${id}` : LIST_HREF, label: 'Rincian pendaftaran' }
 }
 
 function CertificateEditor({ application }: { application: SacramentDetail }) {
@@ -134,53 +146,49 @@ function CertificateEditor({ application }: { application: SacramentDetail }) {
       {/* Kertas A4 tanpa margin printer bawaan; posisi sertifikat diatur dalam mm. */}
       <style>{'@page { size: A4 portrait; margin: 0; }'}</style>
 
-      <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4 print:hidden">
-        <div className="grid gap-1.5">
-          <BackLink id={String(application.id)} />
-          <h1 className="text-2xl font-semibold tracking-[-0.02em]">Cetak {content.title}</h1>
-          <p className="text-sm text-muted-foreground">
+      <PageHeader
+        className="print:hidden"
+        back={backTo(String(application.id))}
+        title={`Cetak ${content.title}`}
+        description={
+          <>
             {application.applicant_name} · {label} ·{' '}
             <span className="font-mono">{content.number}</span>
-          </p>
-        </div>
-        <Button size="lg" onClick={() => window.print()}>
-          <Printer data-icon="inline-start" />
-          Cetak
-        </Button>
-      </header>
+          </>
+        }
+        actions={
+          <Button size="lg" onClick={() => window.print()}>
+            <Printer data-icon="inline-start" />
+            Cetak
+          </Button>
+        }
+      />
 
       <div className="grid items-start gap-6 xl:grid-cols-[22rem_minmax(0,1fr)] print:block">
-        <section
-          aria-label="Pengaturan cetak"
-          className="grid gap-5 rounded-lg border bg-card p-5 print:hidden"
+        {/* Lengket di bawah topbar, agar format bisa diganti sambil melihat pratinjau. */}
+        <Panel
+          title="Pengaturan cetak"
+          className="xl:sticky xl:top-24 print:hidden"
+          contentClassName="grid gap-5"
         >
-          <fieldset className="grid gap-2">
-            <legend className="mb-2 text-sm font-medium">Format cetak</legend>
-            {MODES.map((option) => (
-              <label
-                key={option.value}
-                className="flex cursor-pointer items-start gap-3 rounded-lg border px-3 py-3 has-checked:border-foreground has-checked:ring-1 has-checked:ring-foreground has-focus-visible:ring-3 has-focus-visible:ring-ring/50"
-              >
-                <input
-                  type="radio"
-                  name="format"
-                  value={option.value}
-                  checked={mode === option.value}
-                  onChange={() => setMode(option.value)}
-                  className="mt-1 size-4 accent-foreground"
-                />
-                <span className="grid gap-0.5">
-                  <span className="text-sm font-medium">{option.title}</span>
-                  <span className="text-[0.8125rem] text-muted-foreground">
-                    {option.description}
-                  </span>
-                </span>
-              </label>
-            ))}
-          </fieldset>
+          <div className="grid gap-2">
+            <span className="text-sm font-medium" aria-hidden="true">
+              Format cetak
+            </span>
+            <Segmented
+              label="Format cetak"
+              value={mode}
+              onChange={setMode}
+              options={MODES}
+              className="w-full [&>button]:flex-1"
+            />
+            <p className="text-[0.8125rem] text-muted-foreground">
+              {MODES.find((option) => option.value === mode)?.description}
+            </p>
+          </div>
 
           {mode === 'blangko' && (
-            <fieldset className="grid gap-3 border-t border-rule pt-5">
+            <fieldset className="grid gap-3 border-t pt-5">
               <legend className="float-left mb-3 w-full text-sm font-medium">
                 Kalibrasi printer
               </legend>
@@ -228,11 +236,11 @@ function CertificateEditor({ application }: { application: SacramentDetail }) {
             </fieldset>
           )}
 
-          <p className="border-t border-rule pt-5 text-[0.8125rem] text-muted-foreground">
+          <p className="border-t pt-5 text-[0.8125rem] text-muted-foreground">
             Di dialog cetak pilih kertas A4, skala 100% (ukuran sebenarnya), dan matikan header dan
             footer peramban.
           </p>
-        </section>
+        </Panel>
 
         <Preview>
           <Certificate content={content} mode={mode} margins={margins} showGuide={showGuide} />

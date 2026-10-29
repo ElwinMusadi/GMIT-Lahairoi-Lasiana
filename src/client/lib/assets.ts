@@ -1,16 +1,8 @@
-import type { Asset, AssetCondition, AssetLoan } from '@shared/types'
+import type { Asset, AssetLoan } from '@shared/types'
 import { UNLENDABLE_CONDITIONS } from '@shared/assets'
 
-// Tampilan bersama halaman Inventaris (/dashboard/assets): tanda kondisi barang dan
-// keterangan batas kembali peminjaman.
-
-// Kondisi baik tidak diberi tanda; hanya yang perlu perhatian yang berwarna.
-export const CONDITION_PILL: Record<AssetCondition, string | null> = {
-  GOOD: null,
-  MINOR_DAMAGE: 'bg-warning-soft text-warning-ink ring-1 ring-warning-border',
-  MAJOR_DAMAGE: 'bg-negative-soft text-negative-ink',
-  MAINTENANCE: 'bg-secondary text-secondary-foreground',
-}
+// Tampilan bersama halaman Inventaris (/dashboard/assets): alasan barang tidak bisa
+// dipinjamkan dan keterangan batas kembali peminjaman.
 
 // Alasan barang tidak bisa dipinjamkan sekarang, atau null bila bisa.
 export function unlendableReason(asset: Asset): string | null {

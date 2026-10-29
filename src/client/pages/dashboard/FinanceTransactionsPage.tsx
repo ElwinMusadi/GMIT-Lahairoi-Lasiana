@@ -426,6 +426,7 @@ export default function FinanceTransactionsPage() {
             )}
             {!result && !transactions.error && (
               <SkeletonRows
+                avatar={false}
                 rows={8}
                 cells={[
                   'hidden sm:table-cell',

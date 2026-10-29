@@ -7,8 +7,8 @@ import {
   Globe,
   Pencil,
   Plus,
-  Search,
   TriangleAlert,
+  X,
 } from 'lucide-react'
 import { Link } from 'react-router'
 import { witaToday } from '@shared/dates'
@@ -30,9 +30,25 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Skeleton } from '@/components/ui/skeleton'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import {
+  SearchField,
+  SkeletonRows,
+  TableCard,
+  TableMessage,
+  TablePagination,
+  selectClass,
+} from '@/components/zenith/data-table'
+import { PageHeader } from '@/components/zenith/page-header'
+import { Segmented } from '@/components/zenith/segmented'
+import { StatusBadge } from '@/components/zenith/status-badge'
 import { useCan } from '@/lib/session'
 import { useApiQuery } from '@/lib/use-api-query'
 import { useUrlFilters } from '@/lib/use-url-filters'
@@ -47,15 +63,16 @@ import {
 } from '@/lib/worship'
 
 const PER_PAGE = 100
-
-const controlClass =
-  'h-9 w-full rounded-lg border border-input bg-card px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50'
+// Jam, Ibadah, Petugas, Kehadiran/Tata ibadah, Tindakan.
+const COLUMNS = 5
 
 type View = 'upcoming' | 'past'
 
 // Jadwal Ibadah (PRD: Penjadwalan Ibadah, Pelayan & Kehadiran). "Mendatang" untuk
 // menyusun jadwal dan petugas, dengan tanda bentrok; "Sudah berlangsung" untuk mencatat
-// kehadiran. Hari ini ada di keduanya. Filter disimpan di URL.
+// kehadiran. Hari ini ada di keduanya. Filter disimpan di URL. Tabel bergaya Zenith (D6:
+// tanpa tampilan kalender): tampilan bersegmen, pencarian dan filter di bilah alat, dan
+// baris dikelompokkan per tanggal.
 export default function WorshipsPage() {
   const canPlan = useCan(WORSHIP_PLANNERS)
   const { params, update } = useUrlFilters()
@@ -106,8 +123,6 @@ export default function WorshipsPage() {
   const result = worships.data
   const items = result?.data ?? []
   const total = result?.meta.total ?? 0
-  const first = total === 0 ? 0 : (page - 1) * PER_PAGE + 1
-  const last = Math.min(page * PER_PAGE, total)
   const filtered = Boolean(category || rayonId || attendance || q)
   const missingCount = missing.data?.meta.total
   const conflictCount = items.filter((item) => item.has_conflict).length
@@ -145,10 +160,10 @@ export default function WorshipsPage() {
 
   return (
     <div className="grid gap-6">
-      <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
-        <div className="grid gap-1">
-          <h1 className="text-2xl font-semibold tracking-[-0.02em]">Jadwal Ibadah</h1>
-          {result && missingCount !== undefined ? (
+      <PageHeader
+        title="Jadwal Ibadah"
+        description={
+          result && missingCount !== undefined ? (
             <Summary
               view={view}
               total={total}
@@ -160,264 +175,253 @@ export default function WorshipsPage() {
               }
             />
           ) : (
-            <Skeleton className="h-5 w-80" />
-          )}
-        </div>
-        {canPlan && (
-          <Button asChild size="lg">
-            <Link to="/dashboard/worships/new">
-              <Plus data-icon="inline-start" />
-              Tambah jadwal
-            </Link>
-          </Button>
-        )}
-      </header>
+            <span className="inline-block h-4 w-80 max-w-full animate-pulse rounded-md bg-muted align-middle" />
+          )
+        }
+        actions={
+          canPlan && (
+            <Button asChild size="lg">
+              <Link to="/dashboard/worships/new">
+                <Plus data-icon="inline-start" />
+                Tambah jadwal
+              </Link>
+            </Button>
+          )
+        }
+      />
 
-      <nav aria-label="Tampilan jadwal" className="border-b">
-        <ul className="flex gap-1">
-          {(
-            [
-              ['upcoming', 'Mendatang'],
-              ['past', 'Sudah berlangsung'],
-            ] as const
-          ).map(([value, label]) => (
-            <li key={value}>
-              <button
-                type="button"
-                aria-pressed={view === value}
-                onClick={() =>
+      <TableCard
+        aria-label="Daftar jadwal ibadah"
+        toolbar={
+          <>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <Segmented
+                label="Tampilan jadwal"
+                value={view}
+                onChange={(value) =>
                   update({ view: value === 'past' ? 'past' : '', attendance: '', page: '' })
                 }
-                className={cn(
-                  '-mb-px border-b-2 px-3 pt-1 pb-2.5 text-sm outline-offset-[-2px]',
-                  view === value
-                    ? 'border-foreground font-medium text-foreground'
-                    : 'border-transparent text-muted-foreground hover:text-foreground',
-                )}
+                options={[
+                  { value: 'upcoming', label: 'Mendatang' },
+                  {
+                    value: 'past',
+                    label: (
+                      <>
+                        Sudah berlangsung
+                        {missingCount !== undefined && missingCount > 0 && (
+                          <span className="text-xs text-muted-foreground tabular-nums">
+                            {missingCount.toLocaleString('id-ID')}
+                            <span className="sr-only sm:not-sr-only"> belum dicatat</span>
+                          </span>
+                        )}
+                      </>
+                    ),
+                  },
+                ]}
+              />
+              <p className="text-sm text-muted-foreground tabular-nums" aria-live="polite">
+                {result ? `${total.toLocaleString('id-ID')} jadwal` : ''}
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <SearchField
+                value={search}
+                onChange={handleSearch}
+                label="Cari jadwal ibadah"
+                placeholder="Cari nama, tema, atau lokasi"
+              />
+              <div
+                role="group"
+                aria-label="Filter"
+                className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap"
               >
-                {label}
-                {value === 'past' && missingCount !== undefined && missingCount > 0 && (
-                  <span className="ml-1.5 text-muted-foreground tabular-nums">
-                    {missingCount.toLocaleString('id-ID')}
-                    <span className="sr-only sm:not-sr-only"> belum dicatat</span>
-                  </span>
-                )}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </nav>
-
-      <div className="grid gap-3">
-        <div
-          className={cn(
-            'grid grid-cols-2 items-end gap-3',
-            view === 'past' ? 'md:grid-cols-4' : 'md:grid-cols-3',
-          )}
-        >
-          <FilterField id="filter-jenis" label="Jenis ibadah">
-            <select
-              id="filter-jenis"
-              value={category}
-              onChange={(event) =>
-                update({
-                  category: event.target.value,
-                  rayon_id: event.target.value && event.target.value !== 'RAYON' ? '' : rayonId,
-                })
-              }
-              className={controlClass}
-            >
-              <option value="">Semua jenis</option>
-              {CATEGORY_ORDER.map((value) => (
-                <option key={value} value={value}>
-                  {WORSHIP_CATEGORY_LABELS[value]}
-                </option>
-              ))}
-            </select>
-          </FilterField>
-          <FilterField id="filter-rayon" label="Rayon">
-            <select
-              id="filter-rayon"
-              value={rayonId}
-              disabled={!rayons.data}
-              onChange={(event) => update({ rayon_id: event.target.value })}
-              className={controlClass}
-            >
-              <option value="">Semua rayon</option>
-              {(rayons.data?.data ?? []).map((rayon) => (
-                <option key={rayon.id} value={rayon.id}>
-                  {rayon.name}
-                </option>
-              ))}
-            </select>
-          </FilterField>
-          {view === 'past' && (
-            <FilterField id="filter-kehadiran" label="Kehadiran">
-              <select
-                id="filter-kehadiran"
-                value={attendance}
-                onChange={(event) => update({ attendance: event.target.value })}
-                className={controlClass}
-              >
-                <option value="">Semua</option>
-                <option value="missing">Belum dicatat</option>
-                <option value="recorded">Sudah dicatat</option>
-              </select>
-            </FilterField>
-          )}
-          {/* Tampilan Sudah berlangsung: pencarian berbagi baris dengan Kehadiran di ponsel. */}
-          <div className={cn('relative', view === 'upcoming' && 'col-span-2 md:col-span-1')}>
-            <Search
-              aria-hidden="true"
-              className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
-            />
-            <Input
-              type="search"
-              value={search}
-              onChange={(event) => handleSearch(event.target.value)}
-              placeholder="Cari nama, tema, atau lokasi"
-              aria-label="Cari jadwal ibadah"
-              className={cn(controlClass, 'pl-9')}
-            />
-          </div>
-        </div>
-        <div className="flex flex-wrap items-center justify-end gap-3">
-          {filtered && (
-            <Button
-              variant="ghost"
-              onClick={() => clearSearch({ category: '', rayon_id: '', attendance: '' })}
-            >
-              Hapus filter
-            </Button>
-          )}
-          <p className="text-sm text-muted-foreground tabular-nums" aria-live="polite">
-            {result ? `${total.toLocaleString('id-ID')} jadwal` : ''}
-          </p>
-        </div>
-      </div>
-
-      <div className="rounded-lg border bg-card" aria-busy={worships.loading}>
-        {/* Judul kolom tampil sekali; setiap tanggal adalah tabel tersendiri dengan judul
-            kolom untuk pembaca layar, agar kolom yang disembunyikan di ponsel tidak
-            menyisakan lebar. */}
-        <table className="w-full table-fixed text-sm" aria-hidden="true">
-          <thead>
-            <ColumnHeads view={view} />
-          </thead>
-        </table>
-        {worships.error ? (
-          <Message>
-            Jadwal tidak dapat dimuat: {worships.error}{' '}
-            <button type="button" onClick={worships.reload} className="font-medium underline">
-              Coba lagi
-            </button>
-          </Message>
-        ) : !result ? (
-          <table className="w-full table-fixed text-sm" aria-hidden="true">
-            <thead>
-              <ColumnHeads view={view} quiet />
-            </thead>
-            <tbody>
-              {Array.from({ length: 6 }, (_, index) => (
-                <SkeletonRow key={index} view={view} />
-              ))}
-            </tbody>
-          </table>
-        ) : items.length === 0 ? (
-          <Message>
-            {q ? (
-              <>
-                Tidak ada jadwal yang cocok dengan “{q}”.{' '}
-                <button
-                  type="button"
-                  className="font-medium underline"
-                  onClick={() => clearSearch()}
+                <select
+                  aria-label="Jenis ibadah"
+                  value={category}
+                  onChange={(event) =>
+                    update({
+                      category: event.target.value,
+                      rayon_id: event.target.value && event.target.value !== 'RAYON' ? '' : rayonId,
+                    })
+                  }
+                  className={selectClass}
                 >
-                  Hapus pencarian
+                  <option value="">Semua jenis</option>
+                  {CATEGORY_ORDER.map((value) => (
+                    <option key={value} value={value}>
+                      {WORSHIP_CATEGORY_LABELS[value]}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  aria-label="Rayon"
+                  value={rayonId}
+                  disabled={!rayons.data}
+                  onChange={(event) => update({ rayon_id: event.target.value })}
+                  className={selectClass}
+                >
+                  <option value="">Semua rayon</option>
+                  {(rayons.data?.data ?? []).map((rayon) => (
+                    <option key={rayon.id} value={rayon.id}>
+                      Rayon {rayon.name}
+                    </option>
+                  ))}
+                </select>
+                {view === 'past' && (
+                  <select
+                    aria-label="Kehadiran"
+                    value={attendance}
+                    onChange={(event) => update({ attendance: event.target.value })}
+                    className={cn(selectClass, 'col-span-2 sm:col-span-1')}
+                  >
+                    <option value="">Kehadiran: semua</option>
+                    <option value="missing">Kehadiran belum dicatat</option>
+                    <option value="recorded">Kehadiran sudah dicatat</option>
+                  </select>
+                )}
+              </div>
+              {filtered && (
+                <Button
+                  variant="ghost"
+                  size="lg"
+                  onClick={() => clearSearch({ category: '', rayon_id: '', attendance: '' })}
+                >
+                  <X data-icon="inline-start" />
+                  Hapus filter
+                </Button>
+              )}
+            </div>
+          </>
+        }
+        footer={
+          result &&
+          total > PER_PAGE && (
+            <TablePagination
+              label="Halaman jadwal ibadah"
+              page={page}
+              perPage={PER_PAGE}
+              total={total}
+              unit="jadwal"
+              onPage={(next) => update({ page: String(next) })}
+            />
+          )
+        }
+      >
+        <Table className="table-fixed" aria-busy={worships.loading}>
+          <caption className="sr-only">
+            {view === 'past'
+              ? 'Ibadah yang sudah berlangsung, terbaru dulu, dikelompokkan per tanggal'
+              : 'Jadwal ibadah mendatang, dikelompokkan per tanggal'}
+          </caption>
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead className="hidden w-20 text-right sm:table-cell">Jam</TableHead>
+              <TableHead>Ibadah</TableHead>
+              <TableHead className="hidden w-[30%] md:table-cell">Petugas</TableHead>
+              {view === 'past' ? (
+                <TableHead className="w-28 text-right sm:w-32">Kehadiran</TableHead>
+              ) : (
+                <TableHead className="hidden w-12 px-2 sm:table-cell">
+                  <FileText className="mx-auto size-3.5" aria-hidden="true" />
+                  <span className="sr-only">Tata ibadah</span>
+                </TableHead>
+              )}
+              <TableHead className="w-12">
+                <span className="sr-only">Tindakan</span>
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          {worships.error ? (
+            <TableBody>
+              <TableMessage colSpan={COLUMNS}>
+                Jadwal tidak dapat dimuat: {worships.error}{' '}
+                <button type="button" onClick={worships.reload} className="font-medium underline">
+                  Coba lagi
                 </button>
-              </>
-            ) : attendance === 'missing' ? (
-              'Kehadiran semua ibadah yang sudah berlangsung sudah dicatat.'
-            ) : filtered ? (
-              'Tidak ada jadwal yang cocok dengan filter ini.'
-            ) : view === 'past' ? (
-              'Belum ada ibadah yang sudah berlangsung.'
-            ) : (
-              <>
-                Belum ada jadwal ibadah mendatang.
-                {canPlan && (
+              </TableMessage>
+            </TableBody>
+          ) : !result ? (
+            <TableBody>
+              <SkeletonRows
+                avatar={false}
+                cells={[
+                  'hidden sm:table-cell',
+                  '',
+                  'hidden md:table-cell',
+                  view === 'past' ? '' : 'hidden sm:table-cell',
+                  '',
+                ]}
+              />
+            </TableBody>
+          ) : items.length === 0 ? (
+            <TableBody>
+              <TableMessage colSpan={COLUMNS}>
+                {q ? (
                   <>
-                    {' '}
-                    <Link
-                      to="/dashboard/worships/new"
-                      className="font-medium text-foreground underline"
+                    Tidak ada jadwal yang cocok dengan “{q}”.{' '}
+                    <button
+                      type="button"
+                      className="font-medium underline"
+                      onClick={() => clearSearch()}
                     >
-                      Tambah jadwal
-                    </Link>
+                      Hapus pencarian
+                    </button>
+                  </>
+                ) : attendance === 'missing' ? (
+                  'Kehadiran semua ibadah yang sudah berlangsung sudah dicatat.'
+                ) : filtered ? (
+                  'Tidak ada jadwal yang cocok dengan filter ini.'
+                ) : view === 'past' ? (
+                  'Belum ada ibadah yang sudah berlangsung.'
+                ) : (
+                  <>
+                    Belum ada jadwal ibadah mendatang.
+                    {canPlan && (
+                      <>
+                        {' '}
+                        <Link
+                          to="/dashboard/worships/new"
+                          className="font-medium text-foreground underline"
+                        >
+                          Tambah jadwal
+                        </Link>
+                      </>
+                    )}
                   </>
                 )}
-              </>
-            )}
-          </Message>
-        ) : (
-          <div className={cn('transition-opacity', worships.loading && 'opacity-60')}>
-            {days.map((day) => (
-              <table
+              </TableMessage>
+            </TableBody>
+          ) : (
+            days.map((day) => (
+              <TableBody
                 key={day.date}
-                className="w-full table-fixed border-t border-rule text-sm first:border-t-0"
+                className={cn('transition-opacity', worships.loading && 'opacity-60')}
               >
-                <caption className="px-4 pt-4 pb-1 text-left text-[0.8125rem] font-semibold">
-                  {dayHeading(day.date, today)}
-                </caption>
-                <thead>
-                  <ColumnHeads view={view} quiet />
-                </thead>
-                <tbody>
-                  {day.items.map((worship) => (
-                    <WorshipRow
-                      key={worship.id}
-                      worship={worship}
-                      view={view}
-                      held={worship.worship_date <= today}
-                      canPlan={canPlan}
-                      onView={() => setDetail(worship)}
-                      onAttendance={() => openAttendance(worship)}
-                    />
-                  ))}
-                </tbody>
-              </table>
-            ))}
-          </div>
-        )}
-
-        {result && total > PER_PAGE && (
-          <nav
-            aria-label="Halaman jadwal ibadah"
-            className="flex flex-wrap items-center justify-between gap-3 border-t border-rule px-4 py-3"
-          >
-            <p className="text-sm text-muted-foreground tabular-nums">
-              {first.toLocaleString('id-ID')}–{last.toLocaleString('id-ID')} dari{' '}
-              {total.toLocaleString('id-ID')} jadwal
-            </p>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                disabled={page <= 1}
-                onClick={() => update({ page: String(page - 1) })}
-              >
-                Sebelumnya
-              </Button>
-              <Button
-                variant="outline"
-                disabled={last >= total}
-                onClick={() => update({ page: String(page + 1) })}
-              >
-                Berikutnya
-              </Button>
-            </div>
-          </nav>
-        )}
-      </div>
+                <TableRow className="bg-muted/50 hover:bg-muted/50">
+                  <th
+                    scope="rowgroup"
+                    colSpan={COLUMNS}
+                    className="px-4 py-2 text-left text-[0.8125rem] font-semibold"
+                  >
+                    {dayHeading(day.date, today)}
+                  </th>
+                </TableRow>
+                {day.items.map((worship) => (
+                  <WorshipRow
+                    key={worship.id}
+                    worship={worship}
+                    view={view}
+                    held={worship.worship_date <= today}
+                    canPlan={canPlan}
+                    onView={() => setDetail(worship)}
+                    onAttendance={() => openAttendance(worship)}
+                  />
+                ))}
+              </TableBody>
+            ))
+          )}
+        </Table>
+      </TableCard>
 
       <WorshipDetailSheet
         worship={detail}
@@ -479,15 +483,16 @@ function Summary({
       </span>,
     )
   }
+  // Isi deskripsi PageHeader (di dalam <p>), jadi hanya elemen sebaris.
   return (
-    <p className="text-sm text-muted-foreground tabular-nums">
+    <span className="tabular-nums">
       {parts.map((part, index) => (
         <span key={index}>
           {index > 0 && ' · '}
           {part}
         </span>
       ))}
-    </p>
+    </span>
   )
 }
 
@@ -517,31 +522,32 @@ function WorshipRow({
       : null
 
   const conflictMark = conflicts > 0 && (
-    <span className="inline-flex flex-none items-center gap-1 rounded-full bg-warning-soft px-2 py-0.5 text-xs font-medium whitespace-nowrap text-warning-ink ring-1 ring-warning-border">
+    <StatusBadge tone="warning" className="flex-none">
       <TriangleAlert className="size-3" aria-hidden="true" />
       {conflicts} bentrok
-    </span>
+    </StatusBadge>
   )
 
   return (
-    <tr className="align-top">
-      <td className="hidden py-2.5 pl-4 whitespace-nowrap tabular-nums sm:table-cell">
+    <TableRow className="[&>td]:align-top">
+      <TableCell className="hidden text-right whitespace-nowrap tabular-nums sm:table-cell">
         {time ?? (
           <span className="text-muted-foreground" title="Jam menyusul">
             —<span className="sr-only">Jam menyusul</span>
           </span>
         )}
-      </td>
-      <td className="py-2.5 pr-4 pl-4 sm:pl-0">
+      </TableCell>
+      <TableCell className="pr-2 sm:pr-4">
+        {/* Di bawah 1024 px nama, lokasi, dan petugas membungkus agar terbaca utuh. */}
         <button
           type="button"
           onClick={onView}
-          className="block max-w-full text-left font-medium underline-offset-4 hover:underline sm:truncate"
+          className="block max-w-full text-left font-medium break-words underline-offset-4 hover:underline lg:truncate"
         >
           {worship.title}
         </button>
-        <p className="mt-0.5 flex min-w-0 items-center gap-1.5 text-[0.8125rem] text-muted-foreground">
-          <span className="truncate">
+        <p className="mt-0.5 flex min-w-0 flex-wrap items-center gap-x-1.5 text-[0.8125rem] text-muted-foreground lg:flex-nowrap">
+          <span className="min-w-0 break-words lg:truncate">
             <span className="tabular-nums sm:hidden">{time ?? 'Jam menyusul'} · </span>
             {worshipKind(worship)}
             {worship.location && ` · ${worship.location}`}
@@ -558,15 +564,15 @@ function WorshipRow({
           )}
         </p>
         {/* Di bawah lebar tablet kolom Petugas pindah ke baris ketiga. */}
-        <p className="mt-0.5 flex min-w-0 items-center gap-1.5 text-[0.8125rem] md:hidden">
-          <span className={cn('truncate', !crew && 'text-muted-foreground')}>
+        <p className="mt-1 flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-1 text-[0.8125rem] md:hidden">
+          <span className={cn('min-w-0 break-words', !crew && 'text-muted-foreground')}>
             {crew ?? 'Belum ada petugas'}
           </span>
           {conflictMark}
         </p>
-      </td>
-      <td className="hidden py-2.5 pr-4 md:table-cell">
-        <p className={cn('truncate', !crew && 'text-muted-foreground')}>
+      </TableCell>
+      <TableCell className="hidden md:table-cell">
+        <p className={cn('break-words lg:truncate', !crew && 'text-muted-foreground')}>
           {crew ?? 'Belum ada petugas'}
         </p>
         <p className="mt-0.5 flex items-center gap-1.5 text-[0.8125rem] text-muted-foreground">
@@ -577,9 +583,9 @@ function WorshipRow({
                 ? 'Pelayan Firman belum ditetapkan'
                 : '')}
         </p>
-      </td>
+      </TableCell>
       {view === 'past' ? (
-        <td className="py-2.5 pr-4 text-right">
+        <TableCell className="text-right">
           {worship.attendance_total !== null ? (
             <button
               type="button"
@@ -601,9 +607,9 @@ function WorshipRow({
           ) : (
             <span className="text-muted-foreground">—</span>
           )}
-        </td>
+        </TableCell>
       ) : (
-        <td className="hidden py-2.5 sm:table-cell">
+        <TableCell className="hidden px-2 text-center sm:table-cell">
           {worship.liturgy_file_url ? (
             <a
               href={worship.liturgy_file_url}
@@ -620,9 +626,9 @@ function WorshipRow({
               —<span className="sr-only">Belum ada tata ibadah</span>
             </span>
           )}
-        </td>
+        </TableCell>
       )}
-      <td className="py-1.5 pr-2 text-right">
+      <TableCell className="py-1.5 pr-2 pl-0 text-right">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="size-10 sm:size-8">
@@ -662,84 +668,7 @@ function WorshipRow({
             )}
           </DropdownMenuContent>
         </DropdownMenu>
-      </td>
-    </tr>
-  )
-}
-
-function FilterField({ id, label, children }: { id: string; label: string; children: ReactNode }) {
-  return (
-    <div className="grid min-w-0 gap-1.5">
-      <Label htmlFor={id} className="text-xs font-normal text-muted-foreground">
-        {label}
-      </Label>
-      {children}
-    </div>
-  )
-}
-
-function Message({ children }: { children: ReactNode }) {
-  return <p className="border-t border-rule px-4 py-6 text-sm text-muted-foreground">{children}</p>
-}
-
-// Judul kolom. quiet: hanya untuk pembaca layar, tetapi tetap menentukan lebar kolom
-// (tabel table-fixed mengambil lebar dari baris pertamanya).
-function ColumnHeads({ view, quiet = false }: { view: View; quiet?: boolean }) {
-  const label = (text: string) => (quiet ? <span className="sr-only">{text}</span> : text)
-  return (
-    <tr className="text-left text-xs text-muted-foreground">
-      <th
-        scope="col"
-        className={cn('hidden w-20 font-normal sm:table-cell', quiet ? 'p-0' : 'h-10 pl-4')}
-      >
-        {label('Jam')}
-      </th>
-      <th scope="col" className={cn('font-normal', quiet ? 'p-0' : 'h-10 pr-4 pl-4 sm:pl-0')}>
-        {label('Ibadah')}
-      </th>
-      <th
-        scope="col"
-        className={cn('hidden w-[30%] font-normal md:table-cell', quiet ? 'p-0' : 'pr-4')}
-      >
-        {label('Petugas')}
-      </th>
-      {view === 'past' ? (
-        <th
-          scope="col"
-          className={cn('w-28 text-right font-normal sm:w-32', quiet ? 'p-0' : 'pr-4')}
-        >
-          {label('Kehadiran')}
-        </th>
-      ) : (
-        <th scope="col" className={cn('hidden w-12 font-normal sm:table-cell', quiet && 'p-0')}>
-          {!quiet && <FileText className="size-3.5" aria-hidden="true" />}
-          <span className="sr-only">Tata ibadah</span>
-        </th>
-      )}
-      <th scope="col" className={cn('w-12', quiet ? 'p-0' : 'pr-2')}>
-        <span className="sr-only">Tindakan</span>
-      </th>
-    </tr>
-  )
-}
-
-function SkeletonRow({ view }: { view: View }) {
-  return (
-    <tr className="border-t border-rule">
-      <td className="hidden py-3 pl-4 sm:table-cell">
-        <Skeleton className="h-5 w-12" />
-      </td>
-      <td className="py-3 pr-4 pl-4 sm:pl-0">
-        <Skeleton className="h-5 w-56 max-w-full" />
-        <Skeleton className="mt-1.5 h-4 w-40 max-w-full" />
-      </td>
-      <td className="hidden py-3 pr-4 md:table-cell">
-        <Skeleton className="h-5 w-40 max-w-full" />
-      </td>
-      <td className={cn('py-3 pr-4', view === 'upcoming' && 'hidden sm:table-cell')}>
-        <Skeleton className="ml-auto h-5 w-10" />
-      </td>
-      <td />
-    </tr>
+      </TableCell>
+    </TableRow>
   )
 }

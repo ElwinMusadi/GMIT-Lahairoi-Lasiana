@@ -37,7 +37,9 @@ export function Segmented<T extends string>({
         >
           {option.label}
           {option.count !== undefined && (
-            <span className="text-xs tabular-nums text-muted-foreground">{option.count}</span>
+            <span className="text-xs tabular-nums text-muted-foreground">
+              {option.count.toLocaleString('id-ID')}
+            </span>
           )}
         </button>
       ))}

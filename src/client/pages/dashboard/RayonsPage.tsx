@@ -105,7 +105,9 @@ export default function RayonsPage() {
                 </button>
               </TableMessage>
             )}
-            {!rayons.data && !rayons.error && <SkeletonRows rows={5} cells={['', '', '', '']} />}
+            {!rayons.data && !rayons.error && (
+              <SkeletonRows rows={5} avatar={false} cells={['', '', '', '']} />
+            )}
             {rows.map((rayon) => (
               <RayonRow
                 key={rayon.id}

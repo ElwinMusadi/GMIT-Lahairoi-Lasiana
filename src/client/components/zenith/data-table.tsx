@@ -29,7 +29,9 @@ export function TableCard({
       )}
       {...props}
     >
-      {toolbar && <div className="grid gap-3 border-b px-4 py-3">{toolbar}</div>}
+      {/* grid-cols-1 = minmax(0, 1fr): kontrol yang lebar (segmen panjang) bergulir di tempat,
+          tidak melebarkan bilah alat melewati kartu di ponsel. */}
+      {toolbar && <div className="grid grid-cols-1 gap-3 border-b px-4 py-3">{toolbar}</div>}
       {children}
       {footer}
     </section>
@@ -136,14 +138,17 @@ export function TableMessage({ colSpan, children }: { colSpan: number; children:
   )
 }
 
-// Baris kerangka: kolom pertama dua baris (nama + keterangan), sisanya satu batang.
+// Baris kerangka: kolom pertama dua baris (nama + keterangan, dengan atau tanpa avatar),
+// sisanya satu batang selebar kolomnya paling lebar 4rem.
 export function SkeletonRows({
   rows = 6,
   cells,
+  avatar = true,
 }: {
   rows?: number
   // Kelas tiap sel (mis. 'hidden md:table-cell') agar kerangka mengikuti kolom yang tampil.
   cells: string[]
+  avatar?: boolean
 }) {
   return Array.from({ length: rows }, (_, row) => (
     <TableRow key={row} aria-hidden="true" className="hover:bg-transparent">
@@ -151,14 +156,14 @@ export function SkeletonRows({
         <TableCell key={index} className={cell}>
           {index === 0 ? (
             <div className="flex items-center gap-3">
-              <Skeleton className="size-8 shrink-0 rounded-full" />
+              {avatar && <Skeleton className="size-8 shrink-0 rounded-full" />}
               <div className="grid flex-1 gap-1.5">
                 <Skeleton className="h-4 w-40 max-w-full" />
                 <Skeleton className="h-3.5 w-56 max-w-full" />
               </div>
             </div>
           ) : (
-            <Skeleton className="h-4 w-16" />
+            <Skeleton className="h-4 w-16 max-w-full" />
           )}
         </TableCell>
       ))}

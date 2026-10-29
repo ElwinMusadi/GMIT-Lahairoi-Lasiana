@@ -118,8 +118,17 @@ DashboardPack). Pengguna punya lisensinya tetapi belum mengunduh source React-ny
   - Pos Kas & RAPBJ: Pos Kas menjadi deret kartu saldo di atas tabel RAPBJ selebar halaman.
   - Laporan: kendali bersegmen dan deret saldo di atas lembar; cetakan tidak berubah.
   - Perbaikan tertunda #1 dan #2 selesai.
-- **Berikutnya: Tahap 6 (Pelayanan):** Jadwal Ibadah + editor, Sakramen + rincian + sertifikat,
-  Arsip Surat, Inventaris.
+- **Tahap 6 (Pelayanan) selesai.**
+  - Jadwal Ibadah: tampilan bersegmen, satu tabel berkelompok per tanggal. Editor memakai
+    `Panel`, kolom sampingnya lengket.
+  - Sakramen: antrean/Buku Induk bersegmen, lencana status di
+    `components/sacrament/status-badge.tsx`. Halaman cetak sertifikat hanya diganti
+    bingkainya; isi cetakan tetap.
+  - Arsip Surat: arah surat bersegmen, kolom Salinan. Inventaris: Katalog/Peminjaman dan
+    kondisi bersegmen; kondisi Baik tetap tanpa lencana.
+  - Dikerjakan tiga subagen paralel dengan pola dari Tahap 3–5, lalu ditinjau dan diuji di sini.
+- **Berikutnya: Tahap 7 (Konten & Administrasi):** Warta & Konten + editor, Renungan Saya,
+  Akun Pengurus, Log Aktivitas.
 
 ### Selesai: skala Portal Publik 90%
 

@@ -25,15 +25,6 @@ export const STATUS_SHORT: Record<SacramentStatus, string> = {
   COMPLETED: 'Selesai',
 }
 
-// Pasangan pucat-gelap satu warna per status (aturan dashboard: tanpa isian jenuh).
-export const STATUS_PILL: Record<SacramentStatus, string> = {
-  PENDING: 'bg-secondary text-secondary-foreground',
-  REVISION: 'bg-negative-soft text-negative-ink',
-  COUNSELING: 'bg-warning-soft text-warning-ink',
-  APPROVED: 'bg-positive-soft text-positive-ink',
-  COMPLETED: 'bg-muted text-muted-foreground',
-}
-
 // Arti tiap status dan isian yang dibutuhkannya, untuk panel verifikasi.
 export const STATUS_HINTS: Record<SacramentStatus, string> = {
   PENDING: 'Berkas belum diperiksa.',

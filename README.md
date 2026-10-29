@@ -727,7 +727,7 @@ Rute: [public-sacraments.ts](src/worker/routes/public-sacraments.ts) (`/api/publ
 **Di dashboard** (`/dashboard/sacraments`, Admin dan Pendeta; [SacramentsPage.tsx](src/client/pages/dashboard/SacramentsPage.tsx), [SacramentDetailPage.tsx](src/client/pages/dashboard/SacramentDetailPage.tsx), [SacramentCertificatePage.tsx](src/client/pages/dashboard/SacramentCertificatePage.tsx), [src/client/components/sacrament](src/client/components/sacrament)):
 
 - **Antrean verifikasi**: semua pendaftaran yang belum Selesai, terlama dulu.
-  - Chip status beserta jumlahnya (Semua aktif, Menunggu verifikasi, Revisi berkas, Konseling, Disetujui), filter layanan, dan pencarian, semuanya tersimpan di URL.
+  - Kontrol bersegmen status beserta jumlahnya (Semua aktif, Menunggu, Revisi berkas, Konseling, Disetujui), filter layanan, dan pencarian, semuanya tersimpan di URL. Lencana status: Menunggu netral, Revisi berkas merah, Konseling kuning, Disetujui gelap ("diproses"), Selesai hijau.
   - Kolom: pendaftar dan kodenya, tanggal masuk, jadwal konseling atau pelaksanaan, jumlah berkas, dan status.
 - **Buku Induk**: tab per jenis (Baptisan, Sidi, Nikah), berisi pendaftaran Selesai dengan nomor register, tanggal pelaksanaan, pendeta, dan anggota jemaat tertaut. Pelaksanaan terbaru di atas; tiap baris punya tombol **Cetak**.
 - **Rincian pendaftaran** (`/:id`):

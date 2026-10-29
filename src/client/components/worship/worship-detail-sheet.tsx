@@ -12,6 +12,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet'
+import { StatusBadge } from '@/components/zenith/status-badge'
 import { formatLongDate } from '@/lib/finance'
 import { conflictPhrase, worshipKind, worshipTime } from '@/lib/worship'
 
@@ -76,7 +77,11 @@ function Detail({
           <Row label="Tema">{worship.theme}</Row>
           <Row label="Bacaan Alkitab">{worship.bible_reading}</Row>
           <Row label="Portal publik">
-            {worship.is_public ? 'Tampil di Papan Jadwal' : 'Tidak tampil (internal)'}
+            {worship.is_public ? (
+              <StatusBadge tone="success">Tampil di Papan Jadwal</StatusBadge>
+            ) : (
+              <StatusBadge>Tidak tampil (internal)</StatusBadge>
+            )}
           </Row>
         </dl>
 
@@ -89,11 +94,11 @@ function Detail({
               {worship.servants.map((servant) => (
                 <li
                   key={servant.id}
-                  className="grid grid-cols-[8.5rem_minmax(0,1fr)] gap-3 border-t border-rule py-2 text-sm first:border-t-0"
+                  className="grid grid-cols-[8.5rem_minmax(0,1fr)] gap-3 border-t py-2 text-sm first:border-t-0"
                 >
                   <span className="text-muted-foreground">{SERVANT_ROLE_LABELS[servant.role]}</span>
                   <span className="grid gap-1">
-                    <span>{servant.servant_name}</span>
+                    <span className="break-words">{servant.servant_name}</span>
                     {servant.conflicts.map((conflict) => (
                       <span
                         key={`${conflict.worship_id}-${conflict.role}`}
@@ -160,7 +165,7 @@ function Detail({
             Kehadiran
           </h3>
           {recorded ? (
-            <dl className="grid grid-cols-4 divide-x divide-rule rounded-lg border">
+            <dl className="grid grid-cols-4 divide-x rounded-lg border">
               {ATTENDANCE_FIELDS.map((field) => (
                 <div key={field} className="grid gap-0.5 px-3 py-2.5">
                   <dt className="text-[0.8125rem] text-muted-foreground">
@@ -214,7 +219,7 @@ function Detail({
 function Row({ label, children }: { label: string; children: ReactNode }) {
   const empty = children === null || children === undefined || children === ''
   return (
-    <div className="grid grid-cols-[8.5rem_minmax(0,1fr)] gap-3 border-t border-rule py-2 text-sm first:border-t-0">
+    <div className="grid grid-cols-[8.5rem_minmax(0,1fr)] gap-3 border-t py-2 text-sm first:border-t-0">
       <dt className="text-muted-foreground">{label}</dt>
       <dd className={empty ? 'text-muted-foreground' : undefined}>{empty ? '—' : children}</dd>
     </div>

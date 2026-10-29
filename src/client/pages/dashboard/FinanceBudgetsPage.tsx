@@ -304,6 +304,7 @@ export default function FinanceBudgetsPage() {
             ) : loading ? (
               <TableBody>
                 <SkeletonRows
+                  avatar={false}
                   cells={[
                     '',
                     'hidden md:table-cell',

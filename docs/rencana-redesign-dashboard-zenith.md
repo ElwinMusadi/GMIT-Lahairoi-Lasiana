@@ -482,3 +482,75 @@ di Tahap 5–7:
 | Typecheck, lint, prettier | Bersih |
 
 **Berikutnya: Tahap 6** (Pelayanan).
+
+### Tahap 6 — Pelayanan (29 Oktober 2026)
+
+**Cara kerja:** tujuh halaman (±4.000 baris) dibagi ke tiga subagen paralel dengan berkas yang
+tidak bersinggungan:
+
+1. Jadwal Ibadah + editor;
+2. Sakramen;
+3. Arsip Surat + Inventaris.
+
+Tiap subagen mengikuti pola halaman Tahap 3–5 yang sudah jadi. Hasilnya ditinjau, dirapikan, dan
+diuji di sini.
+
+**Halaman:**
+
+- **Jadwal Ibadah:**
+  - Mendatang/Sudah berlangsung bersegmen, beserta jumlah yang belum dicatat;
+  - pencarian, jenis, dan rayon di bilah alat;
+  - satu tabel dengan kelompok per tanggal (`th scope="rowgroup"`);
+  - lencana "N bentrok" kuning; kolom Jam rata kanan.
+- **Editor jadwal:**
+  - `PageHeader` dengan tombol kembali, Batal, dan Simpan;
+  - `Panel` Rincian ibadah dan Petugas pelayanan;
+  - kolom samping (tampil di portal, tata ibadah, Kehadiran) lengket di bawah topbar.
+- **Sakramen:**
+  - Antrean verifikasi / Buku Induk bersegmen di kanan judul;
+  - status (antrean) atau jenis (Buku Induk) bersegmen di bilah alat;
+  - avatar pendaftar di sel nama.
+  - Rincian: `Panel` data pendaftaran, berkas, dan verifikasi. Pendaftaran Selesai memakai deret
+    buku induk selebar halaman.
+  - Lencana status di `components/sacrament/status-badge.tsx`: Menunggu netral, Revisi merah,
+    Konseling kuning, Disetujui gelap, Selesai hijau.
+- **Cetak sertifikat:**
+  - judul dan pengaturan memakai `PageHeader` dan `Panel` (format bersegmen, lengket di xl);
+  - semuanya `print:hidden`;
+  - `certificate.tsx` dan aturan `@page` tidak disentuh.
+- **Arsip Surat:**
+  - arah surat bersegmen beserta jumlah;
+  - tahun dan kategori di bilah alat;
+  - lencana Masuk/Keluar;
+  - kolom Salinan: "Buka" + unduh, atau "Tidak ada".
+- **Inventaris:**
+  - Katalog/Peminjaman bersegmen (beserta lencana "N terlambat"); kondisi dan status peminjaman
+    juga bersegmen.
+  - Kondisi rusak ringan, rusak berat, dan dalam perbaikan berlencana; Baik tetap teks biasa
+    agar pengecualian menonjol.
+  - Lencana "Terlambat N hari" merah.
+
+**Perbaikan bersama:**
+
+- `TableCard`: bilah alat kini `grid-cols-1` (minmax(0, 1fr)). Segmen yang panjang bergulir di
+  tempat dan tidak lagi melebarkan bilah alat melewati kartu di ponsel (ditemukan di Inventaris
+  390 px).
+- `SkeletonRows` mendapat opsi `avatar` (tabel tanpa avatar: Jadwal, Transaksi, RAPBJ, Rayon,
+  Buku Induk, Arsip, Inventaris).
+- `Segmented` menulis jumlah dengan pemisah ribuan.
+- Kode lama yang tidak terpakai dihapus: `STATUS_PILL` sakramen dan `CONDITION_PILL` aset.
+
+**Pemeriksaan:**
+
+| Uji | Hasil |
+| --- | --- |
+| Admin, Pendeta, Majelis (1440 px) | Semua halaman sesuai hak akses; lencana sesuai peta nada; tanpa gulir menyamping dan tanpa teks penting terpotong |
+| Editor jadwal (yang ada dan baru) | Panel Rincian ibadah, Petugas pelayanan, Kehadiran; tombol Batal dan Simpan di judul |
+| Inventaris → Peminjaman | `?view=loans`, segmen status beserta jumlah, lencana "Terlambat N hari" |
+| Buku Induk → rincian Selesai → cetak | Deret buku induk; cetak (desain lengkap dan blangko) hanya menampilkan isi sertifikat |
+| 768 dan 390 px | Tanpa gulir menyamping atau teks terpotong; isi bilah alat 11 halaman tabel tetap di dalam kartu |
+| Tema gelap | Jadwal, Sakramen, Inventaris mengikuti token |
+| Inspector `--app` (Admin) | 0 FAIL di 9 halaman. 0 WARN: Jadwal, Sakramen, kedua rincian sakramen, Arsip, Inventaris. Dibiarkan: `ragged-row` di editor jadwal (form panjang dengan kolom samping lengket) dan di halaman cetak (pengaturan lengket di samping pratinjau A4), serta `font-count` di halaman cetak (Georgia adalah huruf sertifikat) |
+| Typecheck, lint, prettier | Bersih |
+
+**Berikutnya: Tahap 7** (Konten & Administrasi).
