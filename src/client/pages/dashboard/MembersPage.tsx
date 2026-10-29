@@ -1,5 +1,5 @@
 import { useRef, useState, type ReactNode } from 'react'
-import { Download, ListFilter, Plus, Search, Upload } from 'lucide-react'
+import { Download, ListFilter, Plus, Upload, X } from 'lucide-react'
 import { Link } from 'react-router'
 import { toast } from 'sonner'
 import {
@@ -23,9 +23,26 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Skeleton } from '@/components/ui/skeleton'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import {
+  SearchField,
+  SkeletonRows,
+  TableCard,
+  TableMessage,
+  TablePagination,
+  selectClass,
+} from '@/components/zenith/data-table'
+import { PageHeader } from '@/components/zenith/page-header'
+import { PersonAvatar } from '@/components/zenith/person-avatar'
+import { Segmented } from '@/components/zenith/segmented'
+import { StatusBadge } from '@/components/zenith/status-badge'
 import { errorMessage } from '@/lib/api'
 import { ageOn, categoricalLabel, familyName, sacramentSummary } from '@/lib/congregation'
 import { downloadExport } from '@/lib/member-files'
@@ -45,11 +62,18 @@ const FILTER_KEYS = [
   'status',
 ] as const
 
-const controlClass =
-  'h-9 w-full rounded-lg border border-input bg-card px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50'
+// Status keanggotaan sebagai kontrol bersegmen di atas tabel (Zenith).
+type StatusView = 'ACTIVE' | 'MOVED' | 'DECEASED' | 'ALL'
+const STATUS_VIEWS: { value: StatusView; label: string }[] = [
+  { value: 'ACTIVE', label: 'Aktif' },
+  { value: 'MOVED', label: 'Pindah' },
+  { value: 'DECEASED', label: 'Meninggal' },
+  { value: 'ALL', label: 'Semua' },
+]
 
 // Anggota Jemaat dengan pencarian dan filter kombinasi (PRD: minimal 3 parameter
-// sekaligus, mis. Rayon + Kategori + Status Sidi). Semua filter disimpan di URL.
+// sekaligus, mis. Rayon + Kategori + Status Sidi). Semua filter disimpan di URL. Tabel
+// bergaya Zenith: status bersegmen, pencarian dan filter di bilah alat, avatar per jiwa.
 export default function MembersPage() {
   const me = useCurrentUser()
   const isElder = me.role === 'ELDER'
@@ -67,6 +91,8 @@ export default function MembersPage() {
   const searchTimer = useRef<number | undefined>(undefined)
   const [showFilters, setShowFilters] = useState(false)
   const activeFilters = FILTER_KEYS.filter((key) => filters[key]).length
+  // Jumlah di tombol Filter (ponsel): tanpa status, yang selalu tampil sebagai segmen.
+  const panelFilters = FILTER_KEYS.filter((key) => key !== 'status' && filters[key]).length
 
   // Filter yang sama dipakai daftar dan tombol Ekspor.
   const listQuery = {
@@ -129,22 +155,31 @@ export default function MembersPage() {
   const result = members.data
   const items = result?.data ?? []
   const total = result?.meta.total ?? 0
-  const first = total === 0 ? 0 : (page - 1) * PER_PAGE + 1
-  const last = Math.min(page * PER_PAGE, total)
   const showRayon = !isElder && !filters.rayon_id
-  const columns = showRayon ? 6 : 5
   const statusLabel =
     filters.status === 'ALL'
       ? 'semua status'
       : MEMBER_STATUS_LABELS[(filters.status || 'ACTIVE') as keyof typeof MEMBER_STATUS_LABELS]
 
+  const statusValue = (filters.status || 'ACTIVE') as StatusView
+  const columns = showRayon ? 6 : 5
+  // Kolom yang tampil untuk kerangka baris, sama dengan kepala tabel.
+  const skeletonCells = [
+    '',
+    ...(showRayon ? ['hidden sm:table-cell'] : []),
+    'hidden md:table-cell',
+    'hidden md:table-cell',
+    'hidden xl:table-cell',
+    '',
+  ]
+
   return (
     <div className="grid gap-6">
-      <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
-        <div className="grid gap-1">
-          <h1 className="text-2xl font-semibold tracking-[-0.02em]">Anggota Jemaat</h1>
-          {activeCount.data && katekisasi.data ? (
-            <p className="text-sm text-muted-foreground tabular-nums">
+      <PageHeader
+        title="Anggota Jemaat"
+        description={
+          activeCount.data && katekisasi.data ? (
+            <span className="tabular-nums">
               {activeCount.data.meta.total.toLocaleString('id-ID')} jiwa aktif
               {isElder && ' di rayon Anda'}
               {katekisasi.data.meta.total > 0 && (
@@ -165,239 +200,208 @@ export default function MembersPage() {
                   </button>
                 </>
               )}
-            </p>
+            </span>
           ) : (
-            <Skeleton className="h-5 w-80" />
-          )}
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {isAdmin && (
-            <Button asChild variant="outline" size="lg">
-              <Link to="/dashboard/members/import">
-                <Upload data-icon="inline-start" />
-                Impor
-              </Link>
-            </Button>
-          )}
-          {actions.canEdit && (
-            <Button size="lg" onClick={() => actions.add()}>
-              <Plus data-icon="inline-start" />
-              Tambah anggota
-            </Button>
-          )}
-        </div>
-      </header>
-
-      <section aria-label="Pencarian dan filter" className="grid gap-3">
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="relative w-full sm:w-80">
-            <Search
-              aria-hidden="true"
-              className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
-            />
-            <Input
-              type="search"
-              value={search}
-              onChange={(event) => handleSearch(event.target.value)}
-              placeholder="Cari nama, NIK, Nomor Induk, nomor KK"
-              aria-label="Cari anggota jemaat"
-              className={cn(controlClass, 'pl-9')}
-            />
-          </div>
-          <Button
-            variant="outline"
-            size="lg"
-            className="md:hidden"
-            aria-expanded={showFilters}
-            aria-controls="filter-jemaat"
-            onClick={() => setShowFilters((shown) => !shown)}
-          >
-            <ListFilter data-icon="inline-start" />
-            Filter{activeFilters > 0 && ` (${activeFilters})`}
-          </Button>
-          <div className="ml-auto flex items-center gap-2">
-            {(activeFilters > 0 || q) && (
-              <Button variant="ghost" onClick={clearAll}>
-                Hapus filter
+            <span className="inline-block h-4 w-72 max-w-full animate-pulse rounded-md bg-muted align-middle" />
+          )
+        }
+        actions={
+          <>
+            {isAdmin && (
+              <Button asChild variant="outline" size="lg">
+                <Link to="/dashboard/members/import">
+                  <Upload data-icon="inline-start" />
+                  Impor
+                </Link>
               </Button>
             )}
-            <p className="text-sm text-muted-foreground tabular-nums" aria-live="polite">
-              {result ? `${total.toLocaleString('id-ID')} jiwa` : ''}
-            </p>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" disabled={exporting || !result || total === 0}>
-                  <Download data-icon="inline-start" />
-                  {exporting ? 'Menyiapkan…' : 'Ekspor'}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-64">
-                <DropdownMenuLabel className="font-normal text-muted-foreground">
-                  {total.toLocaleString('id-ID')} jiwa sesuai pencarian dan filter
-                </DropdownMenuLabel>
-                <DropdownMenuItem onSelect={() => void exportAs('xlsx')}>
-                  Excel (.xlsx)
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => void exportAs('csv')}>
-                  CSV (.csv)
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
+            {actions.canEdit && (
+              <Button size="lg" onClick={() => actions.add()}>
+                <Plus data-icon="inline-start" />
+                Tambah anggota
+              </Button>
+            )}
+          </>
+        }
+      />
 
-        <div
-          id="filter-jemaat"
-          className={cn(
-            'grid grid-cols-2 items-end gap-3 md:grid md:grid-cols-3 xl:grid-cols-[repeat(auto-fit,minmax(8rem,1fr))]',
-            !showFilters && 'hidden',
-          )}
-        >
-          {!isElder && (
-            <FilterField id="filter-rayon" label="Rayon">
-              <select
-                id="filter-rayon"
-                value={filters.rayon_id}
-                onChange={(event) => update({ rayon_id: event.target.value })}
-                className={controlClass}
-              >
-                <option value="">Semua rayon</option>
-                {(rayons.data?.data ?? []).map((rayon) => (
-                  <option key={rayon.id} value={rayon.id}>
-                    {rayon.name}
-                  </option>
-                ))}
-              </select>
-            </FilterField>
-          )}
-          <FilterField id="filter-kategori" label="Kategori">
-            <select
-              id="filter-kategori"
-              value={filters.categorical_group}
-              onChange={(event) => update({ categorical_group: event.target.value })}
-              className={controlClass}
-            >
-              <option value="">Semua kategori</option>
-              {CATEGORICAL_GROUPS.map((group) => (
-                <option key={group} value={group}>
-                  {CATEGORICAL_GROUP_LABELS[group]}
-                </option>
-              ))}
-            </select>
-          </FilterField>
-          <FilterField id="filter-darah" label="Golongan darah">
-            <select
-              id="filter-darah"
-              value={filters.blood_type}
-              onChange={(event) => update({ blood_type: event.target.value })}
-              className={controlClass}
-            >
-              <option value="">Semua</option>
-              {BLOOD_TYPES.map((type) => (
-                <option key={type} value={type}>
-                  {type}
-                </option>
-              ))}
-            </select>
-          </FilterField>
-          <FilterField id="filter-baptis" label="Baptis">
-            <select
-              id="filter-baptis"
-              value={filters.baptism_status}
-              onChange={(event) => update({ baptism_status: event.target.value })}
-              className={controlClass}
-            >
-              <option value="">Semua</option>
-              <option value="true">Sudah baptis</option>
-              <option value="false">Belum baptis</option>
-            </select>
-          </FilterField>
-          <FilterField id="filter-sidi" label="Sidi">
-            <select
-              id="filter-sidi"
-              value={filters.sidi_status}
-              onChange={(event) => update({ sidi_status: event.target.value })}
-              className={controlClass}
-            >
-              <option value="">Semua</option>
-              <option value="true">Sudah sidi</option>
-              <option value="false">Belum sidi</option>
-            </select>
-          </FilterField>
-          <FilterField id="filter-status" label="Status keanggotaan">
-            <select
-              id="filter-status"
-              value={filters.status}
-              onChange={(event) => update({ status: event.target.value })}
-              className={controlClass}
-            >
-              <option value="">Aktif</option>
-              <option value="MOVED">Pindah</option>
-              <option value="DECEASED">Meninggal</option>
-              <option value="ALL">Semua status</option>
-            </select>
-          </FilterField>
-        </div>
-      </section>
+      <TableCard
+        aria-label="Daftar anggota jemaat"
+        toolbar={
+          <>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <Segmented
+                label="Status keanggotaan"
+                value={statusValue}
+                onChange={(value) => update({ status: value === 'ACTIVE' ? '' : value })}
+                options={STATUS_VIEWS}
+              />
+              <div className="flex items-center gap-2">
+                <p className="text-sm text-muted-foreground tabular-nums" aria-live="polite">
+                  {result ? `${total.toLocaleString('id-ID')} jiwa` : ''}
+                </p>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" disabled={exporting || !result || total === 0}>
+                      <Download data-icon="inline-start" />
+                      {exporting ? 'Menyiapkan…' : 'Ekspor'}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-64">
+                    <DropdownMenuLabel className="font-normal text-muted-foreground">
+                      {total.toLocaleString('id-ID')} jiwa sesuai pencarian dan filter
+                    </DropdownMenuLabel>
+                    <DropdownMenuItem onSelect={() => void exportAs('xlsx')}>
+                      Excel (.xlsx)
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => void exportAs('csv')}>
+                      CSV (.csv)
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
 
-      <div className="rounded-lg border bg-card">
-        <table className="w-full table-fixed text-sm" aria-busy={members.loading}>
-          <caption className="sr-only">Anggota jemaat, {statusLabel}, urut nama</caption>
-          <thead>
-            <tr className="text-left text-xs text-muted-foreground">
-              <th
-                scope="col"
-                className="sticky top-0 z-10 h-10 rounded-tl-lg bg-card pr-4 pl-4 font-normal"
+            <div className="flex flex-wrap items-center gap-2">
+              <SearchField
+                value={search}
+                onChange={handleSearch}
+                label="Cari anggota jemaat"
+                placeholder="Cari nama, NIK, No. Induk, No. KK"
+              />
+              <Button
+                variant="outline"
+                size="lg"
+                className="md:hidden"
+                aria-expanded={showFilters}
+                aria-controls="filter-jemaat"
+                onClick={() => setShowFilters((shown) => !shown)}
               >
-                Nama
-              </th>
-              {showRayon && (
-                <th
-                  scope="col"
-                  className="sticky top-0 z-10 hidden w-32 bg-card pr-4 font-normal sm:table-cell"
+                <ListFilter data-icon="inline-start" />
+                Filter{panelFilters > 0 && ` (${panelFilters})`}
+              </Button>
+              {/* Di ponsel filter dilipat di balik tombol Filter; di layar lebar selalu tampil. */}
+              <div
+                id="filter-jemaat"
+                role="group"
+                aria-label="Filter"
+                className={cn(
+                  'grid w-full grid-cols-2 gap-2 md:flex md:w-auto md:flex-wrap',
+                  !showFilters && 'hidden md:flex',
+                )}
+              >
+                {!isElder && (
+                  <select
+                    aria-label="Rayon"
+                    value={filters.rayon_id}
+                    onChange={(event) => update({ rayon_id: event.target.value })}
+                    className={selectClass}
+                  >
+                    <option value="">Semua rayon</option>
+                    {(rayons.data?.data ?? []).map((rayon) => (
+                      <option key={rayon.id} value={rayon.id}>
+                        Rayon {rayon.name}
+                      </option>
+                    ))}
+                  </select>
+                )}
+                <select
+                  aria-label="Kategori"
+                  value={filters.categorical_group}
+                  onChange={(event) => update({ categorical_group: event.target.value })}
+                  className={selectClass}
                 >
-                  Rayon
-                </th>
+                  <option value="">Semua kategori</option>
+                  {CATEGORICAL_GROUPS.map((group) => (
+                    <option key={group} value={group}>
+                      {CATEGORICAL_GROUP_LABELS[group]}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  aria-label="Golongan darah"
+                  value={filters.blood_type}
+                  onChange={(event) => update({ blood_type: event.target.value })}
+                  className={selectClass}
+                >
+                  <option value="">Semua gol. darah</option>
+                  {BLOOD_TYPES.map((type) => (
+                    <option key={type} value={type}>
+                      Gol. darah {type}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  aria-label="Baptis"
+                  value={filters.baptism_status}
+                  onChange={(event) => update({ baptism_status: event.target.value })}
+                  className={selectClass}
+                >
+                  <option value="">Baptis: semua</option>
+                  <option value="true">Sudah baptis</option>
+                  <option value="false">Belum baptis</option>
+                </select>
+                <select
+                  aria-label="Sidi"
+                  value={filters.sidi_status}
+                  onChange={(event) => update({ sidi_status: event.target.value })}
+                  className={selectClass}
+                >
+                  <option value="">Sidi: semua</option>
+                  <option value="true">Sudah sidi</option>
+                  <option value="false">Belum sidi</option>
+                </select>
+              </div>
+              {(activeFilters > 0 || q) && (
+                <Button variant="ghost" size="lg" onClick={clearAll}>
+                  <X data-icon="inline-start" />
+                  Hapus filter
+                </Button>
               )}
-              <th
-                scope="col"
-                className="sticky top-0 z-10 hidden w-28 bg-card pr-4 font-normal md:table-cell"
-              >
-                Kategori
-              </th>
-              <th
-                scope="col"
-                className="sticky top-0 z-10 hidden w-16 bg-card pr-4 text-right font-normal md:table-cell"
-              >
-                Umur
-              </th>
-              <th
-                scope="col"
-                className="sticky top-0 z-10 hidden w-40 bg-card pr-4 font-normal xl:table-cell"
-              >
-                Sakramen
-              </th>
-              <th scope="col" className="sticky top-0 z-10 w-14 rounded-tr-lg bg-card pr-2">
+            </div>
+          </>
+        }
+        footer={
+          result && (
+            <TablePagination
+              label="Halaman daftar jemaat"
+              page={page}
+              perPage={PER_PAGE}
+              total={total}
+              unit="jiwa"
+              onPage={(next) => update({ page: String(next) })}
+            />
+          )
+        }
+      >
+        <Table className="table-fixed" aria-busy={members.loading}>
+          <caption className="sr-only">Anggota jemaat, {statusLabel}, urut nama</caption>
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead>Nama</TableHead>
+              {showRayon && <TableHead className="hidden w-32 sm:table-cell">Rayon</TableHead>}
+              <TableHead className="hidden w-32 md:table-cell">Kategori</TableHead>
+              <TableHead className="hidden w-16 text-right md:table-cell">Umur</TableHead>
+              <TableHead className="hidden w-40 xl:table-cell">Sakramen</TableHead>
+              <TableHead className="w-14">
                 <span className="sr-only">Tindakan</span>
-              </th>
-            </tr>
-          </thead>
-          <tbody className={cn('transition-opacity', members.loading && result && 'opacity-60')}>
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody
+            className={cn('transition-opacity', members.loading && result && 'opacity-60')}
+          >
             {members.error && (
-              <MessageRow colSpan={columns}>
+              <TableMessage colSpan={columns}>
                 Data jemaat tidak dapat dimuat: {members.error}{' '}
                 <button type="button" onClick={members.reload} className="font-medium underline">
                   Coba lagi
                 </button>
-              </MessageRow>
+              </TableMessage>
             )}
-            {!result &&
-              !members.error &&
-              Array.from({ length: 8 }, (_, index) => (
-                <SkeletonRow key={index} showRayon={showRayon} />
-              ))}
+            {!result && !members.error && <SkeletonRows rows={8} cells={skeletonCells} />}
             {result && !members.error && items.length === 0 && (
-              <MessageRow colSpan={columns}>
+              <TableMessage colSpan={columns}>
                 {activeFilters > 0 || q ? (
                   <>
                     Tidak ada jemaat yang cocok dengan pencarian dan filter ini.{' '}
@@ -417,7 +421,7 @@ export default function MembersPage() {
                     </Link>
                   </>
                 )}
-              </MessageRow>
+              </TableMessage>
             )}
             {!members.error &&
               items.map((member) => (
@@ -429,37 +433,9 @@ export default function MembersPage() {
                   menu={<MemberMenu member={member} actions={actions} />}
                 />
               ))}
-          </tbody>
-        </table>
-
-        {result && total > 0 && (
-          <nav
-            aria-label="Halaman daftar jemaat"
-            className="flex flex-wrap items-center justify-between gap-3 border-t border-rule px-4 py-3"
-          >
-            <p className="text-sm text-muted-foreground tabular-nums">
-              {first.toLocaleString('id-ID')}–{last.toLocaleString('id-ID')} dari{' '}
-              {total.toLocaleString('id-ID')} jiwa
-            </p>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                disabled={page <= 1}
-                onClick={() => update({ page: String(page - 1) })}
-              >
-                Sebelumnya
-              </Button>
-              <Button
-                variant="outline"
-                disabled={last >= total}
-                onClick={() => update({ page: String(page + 1) })}
-              >
-                Berikutnya
-              </Button>
-            </div>
-          </nav>
-        )}
-      </div>
+          </TableBody>
+        </Table>
+      </TableCard>
 
       {actions.dialogs}
     </div>
@@ -491,93 +467,53 @@ function MemberRow({
     .join(' · ')
 
   return (
-    <tr className="border-t border-rule align-top">
-      <td className="py-3 pr-4 pl-4">
-        <div className="flex min-w-0 items-center gap-2">
-          <button
-            type="button"
-            onClick={onView}
-            className={cn(
-              'truncate text-left font-medium underline-offset-4 hover:underline',
-              inactive && 'text-muted-foreground',
-            )}
-          >
-            {member.full_name}
-          </button>
-          {inactive && (
-            <span className="flex-none rounded-full bg-secondary px-2 py-0.5 text-xs font-medium whitespace-nowrap text-secondary-foreground">
-              {MEMBER_STATUS_LABELS[member.status]}
-            </span>
-          )}
+    <TableRow>
+      <TableCell className="py-2.5">
+        <div className="flex min-w-0 items-center gap-3">
+          <PersonAvatar name={member.full_name} muted={inactive} />
+          <div className="min-w-0">
+            <div className="flex min-w-0 items-center gap-2">
+              <button
+                type="button"
+                onClick={onView}
+                className={cn(
+                  'truncate text-left font-medium underline-offset-4 hover:underline',
+                  inactive && 'text-muted-foreground',
+                )}
+              >
+                {member.full_name}
+              </button>
+              {inactive && (
+                <StatusBadge className="flex-none">
+                  {MEMBER_STATUS_LABELS[member.status]}
+                </StatusBadge>
+              )}
+            </div>
+            <p className="mt-0.5 truncate text-[0.8125rem] text-muted-foreground">
+              <span className="md:hidden">{phoneLine}</span>
+              <span className="hidden md:inline">
+                <span className="xl:hidden">{sacramentSummary(member)} · </span>
+                {FAMILY_RELATION_LABELS[member.family_relation]} · KK {familyName(member)}
+              </span>
+            </p>
+          </div>
         </div>
-        <p className="mt-0.5 text-[0.8125rem] text-muted-foreground md:truncate">
-          <span className="md:hidden">{phoneLine}</span>
-          <span className="hidden md:inline">
-            <span className="xl:hidden">{sacramentSummary(member)} · </span>
-            {FAMILY_RELATION_LABELS[member.family_relation]} · KK {familyName(member)}
-          </span>
-        </p>
-      </td>
+      </TableCell>
       {showRayon && (
-        <td className="hidden py-3 pr-4 text-muted-foreground sm:table-cell">
+        <TableCell className="hidden truncate text-muted-foreground sm:table-cell">
           {member.rayon_name}
-        </td>
+        </TableCell>
       )}
-      <td className="hidden py-3 pr-4 text-muted-foreground md:table-cell">{category ?? '—'}</td>
-      <td className="hidden py-3 pr-4 text-right tabular-nums md:table-cell">
+      <TableCell className="hidden truncate text-muted-foreground md:table-cell">
+        {category ?? '—'}
+      </TableCell>
+      <TableCell className="hidden text-right tabular-nums md:table-cell">
         {age ?? <span className="text-muted-foreground">—</span>}
-      </td>
-      <td className="hidden py-3 pr-4 text-muted-foreground xl:table-cell">
+      </TableCell>
+      <TableCell className="hidden truncate text-muted-foreground xl:table-cell">
         {sacramentSummary(member)}
-      </td>
-      <td className="py-2 pr-2 text-right">{menu}</td>
-    </tr>
-  )
-}
-
-function FilterField({ id, label, children }: { id: string; label: string; children: ReactNode }) {
-  return (
-    <div className="grid gap-1.5">
-      <Label htmlFor={id} className="text-xs font-normal text-muted-foreground">
-        {label}
-      </Label>
-      {children}
-    </div>
-  )
-}
-
-function MessageRow({ colSpan, children }: { colSpan: number; children: ReactNode }) {
-  return (
-    <tr className="border-t border-rule">
-      <td colSpan={colSpan} className="px-4 py-6 text-muted-foreground">
-        {children}
-      </td>
-    </tr>
-  )
-}
-
-function SkeletonRow({ showRayon }: { showRayon: boolean }) {
-  return (
-    <tr className="border-t border-rule" aria-hidden="true">
-      <td className="py-3 pr-4 pl-4">
-        <Skeleton className="h-5 w-44" />
-        <Skeleton className="mt-1.5 h-4 w-60 max-w-full" />
-      </td>
-      {showRayon && (
-        <td className="hidden py-3 pr-4 sm:table-cell">
-          <Skeleton className="h-5 w-20" />
-        </td>
-      )}
-      <td className="hidden py-3 pr-4 md:table-cell">
-        <Skeleton className="h-5 w-16" />
-      </td>
-      <td className="hidden py-3 pr-4 md:table-cell">
-        <Skeleton className="ml-auto h-5 w-6" />
-      </td>
-      <td className="hidden py-3 pr-4 xl:table-cell">
-        <Skeleton className="h-5 w-28" />
-      </td>
-      <td />
-    </tr>
+      </TableCell>
+      <TableCell className="py-1.5 pr-2 pl-0 text-right">{menu}</TableCell>
+    </TableRow>
   )
 }

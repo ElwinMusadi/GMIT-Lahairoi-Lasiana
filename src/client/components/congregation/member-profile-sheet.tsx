@@ -17,6 +17,8 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet'
+import { PersonAvatar } from '@/components/zenith/person-avatar'
+import { StatusBadge } from '@/components/zenith/status-badge'
 import { ageOn, categoricalLabel, familyName } from '@/lib/congregation'
 import { formatDate } from '@/lib/format'
 
@@ -77,19 +79,24 @@ function Profile({
 
   return (
     <>
-      <SheetHeader className="border-b px-5 pt-5 pb-4">
-        <SheetTitle className="flex flex-wrap items-center gap-2 pr-8 text-lg font-semibold">
-          {member.full_name}
-          {member.status !== 'ACTIVE' && (
-            <span className="rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground">
-              {MEMBER_STATUS_LABELS[member.status]}
-            </span>
-          )}
-        </SheetTitle>
-        <SheetDescription>
-          {FAMILY_RELATION_LABELS[member.family_relation]} di KK {familyName(member)} · Rayon{' '}
-          {member.rayon_name}
-        </SheetDescription>
+      <SheetHeader className="flex-row items-center gap-4 border-b px-5 pt-5 pb-4">
+        <PersonAvatar
+          name={member.full_name}
+          muted={member.status !== 'ACTIVE'}
+          className="size-12 text-sm"
+        />
+        <div className="grid min-w-0 gap-1">
+          <SheetTitle className="flex flex-wrap items-center gap-2 pr-8 text-lg font-semibold">
+            {member.full_name}
+            {member.status !== 'ACTIVE' && (
+              <StatusBadge>{MEMBER_STATUS_LABELS[member.status]}</StatusBadge>
+            )}
+          </SheetTitle>
+          <SheetDescription>
+            {FAMILY_RELATION_LABELS[member.family_relation]} di KK {familyName(member)} · Rayon{' '}
+            {member.rayon_name}
+          </SheetDescription>
+        </div>
       </SheetHeader>
 
       <div className="grid flex-1 content-start gap-6 overflow-y-auto px-5 py-5">
@@ -176,7 +183,7 @@ function Row({
 }) {
   const empty = children === null || children === undefined || children === '' || children === false
   return (
-    <div className="grid grid-cols-[8.5rem_minmax(0,1fr)] gap-3 border-t border-rule py-2 first:border-t-0">
+    <div className="grid grid-cols-[8.5rem_minmax(0,1fr)] gap-3 border-t py-2 first:border-t-0">
       <dt className="text-muted-foreground">{label}</dt>
       <dd className={empty ? 'text-muted-foreground' : figures ? 'tabular-nums' : undefined}>
         {empty ? '—' : children}

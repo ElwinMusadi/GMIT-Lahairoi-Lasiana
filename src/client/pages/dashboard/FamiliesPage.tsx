@@ -1,12 +1,28 @@
-import { useRef, useState, type ReactNode } from 'react'
-import { Plus, Search, X } from 'lucide-react'
+import { useRef, useState } from 'react'
+import { ChevronRight, Plus, X } from 'lucide-react'
 import { Link, useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import type { ApiList, ApiPage, Family, FamilyResponse, RayonListItem } from '@shared/types'
 import { FamilyFormDialog } from '@/components/congregation/family-form-dialog'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import {
+  SearchField,
+  SkeletonRows,
+  TableCard,
+  TableMessage,
+  TablePagination,
+} from '@/components/zenith/data-table'
+import { PageHeader } from '@/components/zenith/page-header'
+import { PersonAvatar } from '@/components/zenith/person-avatar'
 import { useCan, useCurrentUser } from '@/lib/session'
 import { useApiQuery } from '@/lib/use-api-query'
 import { useUrlFilters } from '@/lib/use-url-filters'
@@ -14,11 +30,9 @@ import { cn } from '@/lib/utils'
 
 const PER_PAGE = 50
 
-const controlClass =
-  'h-9 rounded-lg border border-input bg-card text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50'
-
 // Daftar Kartu Keluarga. Admin dan Pendeta melihat kelima rayon; Majelis hanya
-// rayonnya (dibatasi API). Rayon, pencarian, dan halaman disimpan di URL.
+// rayonnya (dibatasi API). Rayon, pencarian, dan halaman disimpan di URL. Rayon tampil
+// sebagai deret kartu angka (pilihan cakupan), daftarnya tabel data Zenith.
 export default function FamiliesPage() {
   const me = useCurrentUser()
   const canEdit = useCan(['ADMIN', 'ELDER'])
@@ -78,18 +92,18 @@ export default function FamiliesPage() {
   const result = families.data
   const items = result?.data ?? []
   const total = result?.meta.total ?? 0
-  const first = total === 0 ? 0 : (page - 1) * PER_PAGE + 1
-  const last = Math.min(page * PER_PAGE, total)
   const filtered = Boolean(q || rayonId || emptyOnly)
   const showRayonColumn = !isElder && !rayonId
 
+  const columns = showRayonColumn ? 4 : 3
+
   return (
     <div className="grid gap-6">
-      <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
-        <div className="grid gap-1">
-          <h1 className="text-2xl font-semibold tracking-[-0.02em]">Kartu Keluarga</h1>
-          {rayons.data && emptyCount !== undefined ? (
-            <p className="text-sm text-muted-foreground tabular-nums">
+      <PageHeader
+        title="Kartu Keluarga"
+        description={
+          rayons.data && emptyCount !== undefined ? (
+            <span className="tabular-nums">
               {myRayon &&
                 `Rayon ${myRayon.name} · ${(myRayon.family_count ?? 0).toLocaleString('id-ID')} KK · ${(myRayon.member_count ?? 0).toLocaleString('id-ID')} jiwa aktif · `}
               {emptyCount > 0 ? (
@@ -113,18 +127,20 @@ export default function FamiliesPage() {
               ) : (
                 'Semua KK sudah punya anggota tercatat.'
               )}
-            </p>
+            </span>
           ) : (
-            <Skeleton className="h-5 w-72" />
-          )}
-        </div>
-        {canEdit && (
-          <Button size="lg" onClick={() => setFormOpen(true)}>
-            <Plus data-icon="inline-start" />
-            Tambah KK
-          </Button>
-        )}
-      </header>
+            <span className="inline-block h-4 w-72 max-w-full animate-pulse rounded-md bg-muted align-middle" />
+          )
+        }
+        actions={
+          canEdit && (
+            <Button size="lg" onClick={() => setFormOpen(true)}>
+              <Plus data-icon="inline-start" />
+              Tambah KK
+            </Button>
+          )
+        }
+      />
 
       {!isElder && (
         <RayonStrip
@@ -135,141 +151,117 @@ export default function FamiliesPage() {
         />
       )}
 
-      <div className="grid gap-3">
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="relative w-full sm:w-80">
-            <Search
-              aria-hidden="true"
-              className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
-            />
-            <Input
-              type="search"
+      <TableCard
+        aria-label="Daftar Kartu Keluarga"
+        toolbar={
+          <div className="flex flex-wrap items-center gap-3">
+            <SearchField
               value={search}
-              onChange={(event) => handleSearch(event.target.value)}
-              placeholder="Cari nomor KK, kepala keluarga, anggota"
-              aria-label="Cari Kartu Keluarga"
-              className={`${controlClass} pl-9`}
+              onChange={handleSearch}
+              label="Cari Kartu Keluarga"
+              placeholder="Cari No. KK, kepala keluarga, anggota"
             />
-          </div>
-          {emptyOnly && (
-            <p className="flex items-center gap-1 text-sm">
-              Hanya KK tanpa anggota
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                onClick={() => update({ empty: '' })}
-                className="text-muted-foreground"
-              >
-                <X />
-                <span className="sr-only">Tampilkan semua KK</span>
-              </Button>
-            </p>
-          )}
-          <p className="ml-auto text-sm text-muted-foreground tabular-nums" aria-live="polite">
-            {result ? `${total.toLocaleString('id-ID')} KK` : ''}
-          </p>
-        </div>
-
-        <div className="rounded-lg border bg-card">
-          <table className="w-full table-fixed text-sm" aria-busy={families.loading}>
-            <caption className="sr-only">Daftar Kartu Keluarga</caption>
-            <thead>
-              <tr className="text-left text-xs text-muted-foreground">
-                <th scope="col" className="h-10 pr-4 pl-4 font-normal">
-                  Kepala keluarga
-                </th>
-                {showRayonColumn && (
-                  <th scope="col" className="hidden w-36 pr-4 font-normal sm:table-cell">
-                    Rayon
-                  </th>
-                )}
-                <th scope="col" className="w-24 pr-4 text-right font-normal">
-                  Jiwa aktif
-                </th>
-              </tr>
-            </thead>
-            <tbody className={cn('transition-opacity', families.loading && result && 'opacity-60')}>
-              {families.error && (
-                <MessageRow colSpan={showRayonColumn ? 3 : 2}>
-                  Daftar KK tidak dapat dimuat: {families.error}{' '}
-                  <button type="button" onClick={families.reload} className="font-medium underline">
-                    Coba lagi
-                  </button>
-                </MessageRow>
-              )}
-              {!result &&
-                !families.error &&
-                Array.from({ length: 6 }, (_, index) => (
-                  <SkeletonRow key={index} withRayon={showRayonColumn} />
-                ))}
-              {result && !families.error && items.length === 0 && (
-                <MessageRow colSpan={showRayonColumn ? 3 : 2}>
-                  {q ? (
-                    <>
-                      Tidak ada KK yang cocok dengan “{q}”.{' '}
-                      <button
-                        type="button"
-                        className="font-medium underline"
-                        onClick={() => clearSearch()}
-                      >
-                        Hapus pencarian
-                      </button>
-                    </>
-                  ) : filtered ? (
-                    'Belum ada KK di rayon ini.'
-                  ) : (
-                    'Belum ada Kartu Keluarga yang tercatat.'
-                  )}
-                  {canEdit && !q && (
-                    <>
-                      {' '}
-                      <button
-                        type="button"
-                        className="font-medium text-foreground underline"
-                        onClick={() => setFormOpen(true)}
-                      >
-                        Tambah KK
-                      </button>
-                    </>
-                  )}
-                </MessageRow>
-              )}
-              {!families.error &&
-                items.map((family) => (
-                  <FamilyRow key={family.id} family={family} showRayon={showRayonColumn} />
-                ))}
-            </tbody>
-          </table>
-
-          {result && total > 0 && (
-            <nav
-              aria-label="Halaman daftar KK"
-              className="flex flex-wrap items-center justify-between gap-3 border-t border-rule px-4 py-3"
-            >
-              <p className="text-sm text-muted-foreground tabular-nums">
-                {first.toLocaleString('id-ID')}–{last.toLocaleString('id-ID')} dari{' '}
-                {total.toLocaleString('id-ID')} KK
+            {emptyOnly && (
+              <p className="flex items-center gap-1 text-sm">
+                Hanya KK tanpa anggota
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  onClick={() => update({ empty: '' })}
+                  className="text-muted-foreground"
+                >
+                  <X />
+                  <span className="sr-only">Tampilkan semua KK</span>
+                </Button>
               </p>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  disabled={page <= 1}
-                  onClick={() => update({ page: String(page - 1) })}
-                >
-                  Sebelumnya
-                </Button>
-                <Button
-                  variant="outline"
-                  disabled={last >= total}
-                  onClick={() => update({ page: String(page + 1) })}
-                >
-                  Berikutnya
-                </Button>
-              </div>
-            </nav>
-          )}
-        </div>
-      </div>
+            )}
+            <p className="ml-auto text-sm text-muted-foreground tabular-nums" aria-live="polite">
+              {result ? `${total.toLocaleString('id-ID')} KK` : ''}
+            </p>
+          </div>
+        }
+        footer={
+          result && (
+            <TablePagination
+              label="Halaman daftar KK"
+              page={page}
+              perPage={PER_PAGE}
+              total={total}
+              unit="KK"
+              onPage={(next) => update({ page: String(next) })}
+            />
+          )
+        }
+      >
+        <Table className="table-fixed" aria-busy={families.loading}>
+          <caption className="sr-only">Daftar Kartu Keluarga</caption>
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead>Kepala keluarga</TableHead>
+              {showRayonColumn && (
+                <TableHead className="hidden w-36 sm:table-cell">Rayon</TableHead>
+              )}
+              <TableHead className="w-24 text-right">Jiwa aktif</TableHead>
+              <TableHead className="w-12">
+                <span className="sr-only">Buka</span>
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody
+            className={cn('transition-opacity', families.loading && result && 'opacity-60')}
+          >
+            {families.error && (
+              <TableMessage colSpan={columns}>
+                Daftar KK tidak dapat dimuat: {families.error}{' '}
+                <button type="button" onClick={families.reload} className="font-medium underline">
+                  Coba lagi
+                </button>
+              </TableMessage>
+            )}
+            {!result && !families.error && (
+              <SkeletonRows
+                cells={['', ...(showRayonColumn ? ['hidden sm:table-cell'] : []), '', '']}
+              />
+            )}
+            {result && !families.error && items.length === 0 && (
+              <TableMessage colSpan={columns}>
+                {q ? (
+                  <>
+                    Tidak ada KK yang cocok dengan “{q}”.{' '}
+                    <button
+                      type="button"
+                      className="font-medium underline"
+                      onClick={() => clearSearch()}
+                    >
+                      Hapus pencarian
+                    </button>
+                  </>
+                ) : filtered ? (
+                  'Belum ada KK di rayon ini.'
+                ) : (
+                  'Belum ada Kartu Keluarga yang tercatat.'
+                )}
+                {canEdit && !q && (
+                  <>
+                    {' '}
+                    <button
+                      type="button"
+                      className="font-medium text-foreground underline"
+                      onClick={() => setFormOpen(true)}
+                    >
+                      Tambah KK
+                    </button>
+                  </>
+                )}
+              </TableMessage>
+            )}
+            {!families.error &&
+              items.map((family) => (
+                <FamilyRow key={family.id} family={family} showRayon={showRayonColumn} />
+              ))}
+          </TableBody>
+        </Table>
+      </TableCard>
 
       {canEdit && (
         <FamilyFormDialog
@@ -311,7 +303,7 @@ function RayonStrip({
   return (
     <>
       <div className="grid gap-1.5 md:hidden">
-        <label htmlFor="pilih-rayon" className="text-xs text-muted-foreground">
+        <label htmlFor="pilih-rayon" className="text-sm text-muted-foreground">
           Rayon
         </label>
         <select
@@ -319,7 +311,7 @@ function RayonStrip({
           value={selected}
           disabled={loading}
           onChange={(event) => onSelect(event.target.value)}
-          className="h-10 w-full rounded-lg border border-input bg-card px-3 text-base tabular-nums outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+          className="h-10 w-full rounded-lg border border-input bg-background px-3 text-base tabular-nums shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
         >
           {options.map((option) => (
             <option key={option.id || 'all'} value={option.id}>
@@ -330,39 +322,41 @@ function RayonStrip({
         </select>
       </div>
       <nav aria-label="Rayon" className="hidden md:block">
-        <ul className="grid auto-cols-fr grid-flow-col divide-x divide-rule rounded-lg border bg-card">
+        <ul className="grid auto-cols-fr grid-flow-col gap-3">
           {loading
             ? Array.from({ length: 6 }, (_, index) => (
-                <li key={index} className="grid gap-1.5 px-4 py-3">
+                <li
+                  key={index}
+                  className="grid gap-2 rounded-xl px-4 py-3 ring-1 ring-foreground/10"
+                >
                   <Skeleton className="h-4 w-20" />
-                  <Skeleton className="h-6 w-14" />
+                  <Skeleton className="h-7 w-14" />
                 </li>
               ))
             : options.map((option) => {
                 const active = option.id === selected
                 return (
-                  <li key={option.id || 'all'} className="p-1">
+                  <li key={option.id || 'all'}>
+                    {/* Kartu angka yang juga pilihan: terpilih bergaris tebal warna teks. */}
                     <button
                       type="button"
                       aria-pressed={active}
                       onClick={() => onSelect(option.id)}
                       className={cn(
-                        'grid h-full w-full content-start gap-0.5 rounded-md px-3 py-2 text-left outline-offset-[-2px] hover:bg-muted/60',
-                        active && 'bg-accent hover:bg-accent',
+                        'grid h-full w-full content-start gap-1 rounded-xl bg-card px-4 py-3 text-left ring-1 ring-foreground/10 transition-shadow outline-none hover:shadow-md focus-visible:ring-3 focus-visible:ring-ring/50',
+                        active && 'ring-2 ring-foreground',
                       )}
                     >
                       <span
-                        className={cn('text-sm', active ? 'font-medium' : 'text-muted-foreground')}
+                        className={cn(
+                          'truncate text-sm',
+                          active ? 'font-medium' : 'text-muted-foreground',
+                        )}
                       >
                         {option.name}
                       </span>
-                      <span
-                        className={cn(
-                          'text-[0.8125rem] whitespace-nowrap tabular-nums',
-                          active ? 'text-foreground' : 'text-muted-foreground',
-                        )}
-                      >
-                        <span className="text-xl font-medium text-foreground">
+                      <span className="text-sm whitespace-nowrap text-muted-foreground tabular-nums">
+                        <span className="text-2xl font-bold tracking-tight text-foreground">
                           {(option.families ?? 0).toLocaleString('id-ID')}
                         </span>{' '}
                         KK · {(option.members ?? 0).toLocaleString('id-ID')} jiwa
@@ -379,62 +373,47 @@ function RayonStrip({
 
 function FamilyRow({ family, showRayon }: { family: Family; showRayon: boolean }) {
   const details = [family.kk_number ?? 'Tanpa nomor KK', family.address].filter(Boolean).join(' · ')
+  const to = `/dashboard/families/${family.id}`
   return (
-    <tr className="border-t border-rule align-top">
-      <td className="py-3 pr-4 pl-4">
-        <Link
-          to={`/dashboard/families/${family.id}`}
-          className="font-medium underline-offset-4 hover:underline"
-        >
-          {family.family_head_name}
-        </Link>
-        <p className="mt-0.5 truncate text-[0.8125rem] text-muted-foreground">
-          {showRayon && <span className="sm:hidden">{family.rayon_name} · </span>}
-          {details}
-        </p>
-      </td>
+    <TableRow>
+      <TableCell className="py-2.5">
+        <div className="flex min-w-0 items-center gap-3">
+          <PersonAvatar name={family.family_head_name} />
+          <div className="min-w-0">
+            <Link to={to} className="block truncate font-medium underline-offset-4 hover:underline">
+              {family.family_head_name}
+            </Link>
+            <p className="mt-0.5 truncate text-[0.8125rem] text-muted-foreground">
+              {showRayon && <span className="sm:hidden">{family.rayon_name} · </span>}
+              {details}
+            </p>
+          </div>
+        </div>
+      </TableCell>
       {showRayon && (
-        <td className="hidden py-3 pr-4 text-muted-foreground sm:table-cell">
+        <TableCell className="hidden truncate text-muted-foreground sm:table-cell">
           {family.rayon_name}
-        </td>
+        </TableCell>
       )}
-      <td
+      <TableCell
         className={cn(
-          'py-3 pr-4 text-right tabular-nums',
+          'text-right tabular-nums',
           family.member_count === 0 && 'text-muted-foreground',
         )}
       >
         {family.member_count}
-      </td>
-    </tr>
-  )
-}
-
-function MessageRow({ colSpan, children }: { colSpan: number; children: ReactNode }) {
-  return (
-    <tr className="border-t border-rule">
-      <td colSpan={colSpan} className="px-4 py-6 text-muted-foreground">
-        {children}
-      </td>
-    </tr>
-  )
-}
-
-function SkeletonRow({ withRayon }: { withRayon: boolean }) {
-  return (
-    <tr className="border-t border-rule" aria-hidden="true">
-      <td className="py-3 pr-4 pl-4">
-        <Skeleton className="h-5 w-48" />
-        <Skeleton className="mt-1.5 h-4 w-64 max-w-full" />
-      </td>
-      {withRayon && (
-        <td className="hidden py-3 pr-4 sm:table-cell">
-          <Skeleton className="h-5 w-24" />
-        </td>
-      )}
-      <td className="py-3 pr-4">
-        <Skeleton className="ml-auto h-5 w-8" />
-      </td>
-    </tr>
+      </TableCell>
+      <TableCell className="py-1.5 pr-2 pl-0 text-right">
+        {/* Penanda arah untuk tetikus; tautan yang sebenarnya ada di nama. */}
+        <Link
+          to={to}
+          tabIndex={-1}
+          aria-hidden="true"
+          className="inline-grid size-8 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+        >
+          <ChevronRight className="size-4" />
+        </Link>
+      </TableCell>
+    </TableRow>
   )
 }

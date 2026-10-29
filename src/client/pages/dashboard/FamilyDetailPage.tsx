@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react'
-import { ArrowLeft, History, Pencil, Plus, Trash2 } from 'lucide-react'
+import { History, Pencil, Plus, Trash2 } from 'lucide-react'
 import { Link, useNavigate, useParams } from 'react-router'
 import { toast } from 'sonner'
 import {
@@ -18,6 +18,18 @@ import { useMemberActions } from '@/components/congregation/use-member-actions'
 import { ConfirmDialog, type Confirmation } from '@/components/confirm-dialog'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { TableCard } from '@/components/zenith/data-table'
+import { PageHeader } from '@/components/zenith/page-header'
+import { PersonAvatar } from '@/components/zenith/person-avatar'
+import { StatusBadge } from '@/components/zenith/status-badge'
 import { api } from '@/lib/api'
 import { ageOn, categoricalLabel, sacramentSummary } from '@/lib/congregation'
 import { formatDate } from '@/lib/format'
@@ -26,7 +38,8 @@ import { useApiQuery } from '@/lib/use-api-query'
 import { cn } from '@/lib/utils'
 
 // Rincian satu Kartu Keluarga: seluruh anggotanya (termasuk yang pindah atau
-// meninggal) dan data KK. Dari sini Admin/Majelis menambah anggota keluarga.
+// meninggal) dan data KK. Dari sini Admin/Majelis menambah anggota keluarga. Data KK berupa
+// deret ringkas di atas, lalu tabel anggota selebar halaman.
 export default function FamilyDetailPage() {
   const { id } = useParams()
   const me = useCurrentUser()
@@ -43,19 +56,19 @@ export default function FamilyDetailPage() {
   if (!family) {
     return (
       <div className="grid gap-6">
-        <BackLink />
         {query.error ? (
-          <div className="grid gap-1">
-            <h1 className="text-2xl font-semibold tracking-[-0.02em]">
-              Kartu Keluarga tidak dapat dibuka
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              {query.error}{' '}
-              <button type="button" onClick={query.reload} className="font-medium underline">
-                Coba lagi
-              </button>
-            </p>
-          </div>
+          <PageHeader
+            back={BACK}
+            title="Kartu Keluarga tidak dapat dibuka"
+            description={
+              <>
+                {query.error}{' '}
+                <button type="button" onClick={query.reload} className="font-medium underline">
+                  Coba lagi
+                </button>
+              </>
+            }
+          />
         ) : (
           <DetailSkeleton />
         )}
@@ -98,41 +111,92 @@ export default function FamilyDetailPage() {
 
   return (
     <div className="grid gap-6">
-      <BackLink />
-      <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
-        <div className="grid min-w-0 gap-1">
-          <h1 className="text-2xl font-semibold tracking-[-0.02em]">
-            Keluarga {family.family_head_name}
-          </h1>
-          <p className="text-sm text-muted-foreground tabular-nums">
+      <PageHeader
+        back={BACK}
+        title={`Keluarga ${family.family_head_name}`}
+        description={
+          <span className="tabular-nums">
             {family.kk_number ? `KK ${family.kk_number}` : 'Tanpa nomor KK'} · Rayon{' '}
             {family.rayon_name} · {family.member_count} jiwa aktif
-          </p>
-        </div>
-        {canEdit && (
-          <div className="flex flex-wrap gap-2">
-            <Button variant="outline" size="lg" onClick={() => setEditing(true)}>
-              <Pencil data-icon="inline-start" />
-              Ubah KK
-            </Button>
-            <Button size="lg" onClick={() => actions.add({ family: familyChoice })}>
-              <Plus data-icon="inline-start" />
-              Tambah anggota
-            </Button>
-          </div>
-        )}
-      </header>
+          </span>
+        }
+        actions={
+          canEdit && (
+            <>
+              <Button variant="outline" size="lg" onClick={() => setEditing(true)}>
+                <Pencil data-icon="inline-start" />
+                Ubah KK
+              </Button>
+              <Button size="lg" onClick={() => actions.add({ family: familyChoice })}>
+                <Plus data-icon="inline-start" />
+                Tambah anggota
+              </Button>
+            </>
+          )
+        }
+      />
 
       {family.members.length > 0 && !activeHead && (
-        <p className="rounded-lg border border-warning-border bg-warning-soft px-4 py-3 text-sm text-warning-ink">
+        <p
+          role="status"
+          className="rounded-xl border border-warning-border bg-warning-soft px-4 py-3 text-sm text-warning-ink"
+        >
           KK ini belum punya Kepala Keluarga yang aktif.
           {canEdit && ' Ubah hubungan keluarga salah satu anggota menjadi Kepala Keluarga.'}
         </p>
       )}
 
-      <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
-        <section aria-labelledby="judul-anggota" className="rounded-lg border bg-card">
-          <div className="flex items-baseline justify-between gap-4 px-4 pt-4 pb-2">
+      {/* Data KK sebagai deret ringkas selebar halaman: label di atas nilai di layar lebar,
+          sebaris label–nilai di ponsel. */}
+      <section
+        aria-labelledby="judul-kk"
+        className="overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10"
+      >
+        <h2 id="judul-kk" className="sr-only">
+          Data KK
+        </h2>
+        <dl className="grid divide-y text-sm lg:grid-cols-5 lg:divide-x lg:divide-y-0">
+          <InfoRow label="Nomor KK">{family.kk_number}</InfoRow>
+          <InfoRow label="Rayon">{family.rayon_name}</InfoRow>
+          <InfoRow label="Alamat">{family.address}</InfoRow>
+          <InfoRow label="Telepon">
+            {family.phone && (
+              <a
+                href={`tel:${family.phone}`}
+                className="tabular-nums underline-offset-4 hover:underline"
+              >
+                {family.phone}
+              </a>
+            )}
+          </InfoRow>
+          <InfoRow label="Tercatat">{formatDate(family.created_at)}</InfoRow>
+        </dl>
+        {isAdmin && (
+          <div className="flex flex-wrap gap-x-2 border-t px-3 py-1.5">
+            <Button asChild variant="ghost" className="text-muted-foreground">
+              <Link to={`/dashboard/audit-logs?entity_type=families&entity_id=${family.id}`}>
+                <History data-icon="inline-start" />
+                Riwayat KK
+              </Link>
+            </Button>
+            {family.members.length === 0 && (
+              <Button
+                variant="ghost"
+                className="text-destructive hover:text-destructive"
+                onClick={() => confirmDelete(family)}
+              >
+                <Trash2 data-icon="inline-start" />
+                Hapus KK
+              </Button>
+            )}
+          </div>
+        )}
+      </section>
+
+      <TableCard
+        aria-labelledby="judul-anggota"
+        toolbar={
+          <div className="flex items-baseline justify-between gap-4">
             <h2 id="judul-anggota" className="text-base font-semibold">
               Anggota keluarga
             </h2>
@@ -140,99 +204,52 @@ export default function FamilyDetailPage() {
               {family.members.length} orang
             </span>
           </div>
-          {family.members.length === 0 ? (
-            <EmptyMembers
-              canEdit={canEdit}
-              headName={family.family_head_name}
-              onAddHead={() =>
-                actions.add({
-                  family: familyChoice,
-                  preset: { full_name: family.family_head_name, family_relation: 'HEAD' },
-                })
-              }
-              onAddOther={() => actions.add({ family: familyChoice })}
-            />
-          ) : (
-            <table className="w-full table-fixed text-sm">
-              <caption className="sr-only">Anggota keluarga {family.family_head_name}</caption>
-              <thead>
-                <tr className="text-left text-xs text-muted-foreground">
-                  <th scope="col" className="h-9 pr-4 pl-4 font-normal">
-                    Nama
-                  </th>
-                  <th scope="col" className="hidden w-28 pr-4 font-normal md:table-cell">
-                    Kategori
-                  </th>
-                  <th scope="col" className="hidden w-40 pr-4 font-normal sm:table-cell">
-                    Sakramen
-                  </th>
-                  <th scope="col" className="w-14 pr-2">
-                    <span className="sr-only">Tindakan</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {family.members.map((member) => (
-                  <FamilyMemberRow
-                    key={member.id}
-                    member={withFamily(member)}
-                    onView={() => actions.view(withFamily(member))}
-                    menu={
-                      <MemberMenu
-                        member={withFamily(member)}
-                        actions={actions}
-                        showFamilyLink={false}
-                      />
-                    }
-                  />
-                ))}
-              </tbody>
-            </table>
-          )}
-        </section>
-
-        <aside aria-labelledby="judul-kk" className="grid gap-2">
-          <h2 id="judul-kk" className="sr-only">
-            Data KK
-          </h2>
-          <dl className="rounded-lg border bg-card px-4 py-1 text-sm">
-            <InfoRow label="Nomor KK">{family.kk_number}</InfoRow>
-            <InfoRow label="Rayon">{family.rayon_name}</InfoRow>
-            <InfoRow label="Alamat">{family.address}</InfoRow>
-            <InfoRow label="Telepon">
-              {family.phone && (
-                <a
-                  href={`tel:${family.phone}`}
-                  className="tabular-nums underline-offset-4 hover:underline"
-                >
-                  {family.phone}
-                </a>
-              )}
-            </InfoRow>
-            <InfoRow label="Tercatat">{formatDate(family.created_at)}</InfoRow>
-          </dl>
-          {isAdmin && (
-            <div className="flex flex-wrap gap-x-2">
-              <Button asChild variant="ghost" className="text-muted-foreground">
-                <Link to={`/dashboard/audit-logs?entity_type=families&entity_id=${family.id}`}>
-                  <History data-icon="inline-start" />
-                  Riwayat KK
-                </Link>
-              </Button>
-              {family.members.length === 0 && (
-                <Button
-                  variant="ghost"
-                  className="text-destructive hover:text-destructive"
-                  onClick={() => confirmDelete(family)}
-                >
-                  <Trash2 data-icon="inline-start" />
-                  Hapus KK
-                </Button>
-              )}
-            </div>
-          )}
-        </aside>
-      </div>
+        }
+      >
+        {family.members.length === 0 ? (
+          <EmptyMembers
+            canEdit={canEdit}
+            headName={family.family_head_name}
+            onAddHead={() =>
+              actions.add({
+                family: familyChoice,
+                preset: { full_name: family.family_head_name, family_relation: 'HEAD' },
+              })
+            }
+            onAddOther={() => actions.add({ family: familyChoice })}
+          />
+        ) : (
+          <Table className="table-fixed">
+            <caption className="sr-only">Anggota keluarga {family.family_head_name}</caption>
+            <TableHeader>
+              <TableRow className="hover:bg-transparent">
+                <TableHead>Nama</TableHead>
+                <TableHead className="hidden w-32 md:table-cell">Kategori</TableHead>
+                <TableHead className="hidden w-40 sm:table-cell">Sakramen</TableHead>
+                <TableHead className="w-14">
+                  <span className="sr-only">Tindakan</span>
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {family.members.map((member) => (
+                <FamilyMemberRow
+                  key={member.id}
+                  member={withFamily(member)}
+                  onView={() => actions.view(withFamily(member))}
+                  menu={
+                    <MemberMenu
+                      member={withFamily(member)}
+                      actions={actions}
+                      showFamilyLink={false}
+                    />
+                  }
+                />
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </TableCard>
 
       {canEdit && (
         <FamilyFormDialog
@@ -271,41 +288,46 @@ function FamilyMemberRow({
     .join(' · ')
 
   return (
-    <tr className="border-t border-rule align-top">
-      <td className="py-3 pr-4 pl-4">
-        <div className="flex min-w-0 items-center gap-2">
-          <button
-            type="button"
-            onClick={onView}
-            className={cn(
-              'truncate text-left font-medium underline-offset-4 hover:underline',
-              inactive && 'text-muted-foreground',
-            )}
-          >
-            {member.full_name}
-          </button>
-          {inactive && (
-            <span className="flex-none rounded-full bg-secondary px-2 py-0.5 text-xs font-medium whitespace-nowrap text-secondary-foreground">
-              {MEMBER_STATUS_LABELS[member.status]}
-            </span>
-          )}
+    <TableRow>
+      <TableCell className="py-2.5">
+        <div className="flex min-w-0 items-center gap-3">
+          <PersonAvatar name={member.full_name} muted={inactive} />
+          <div className="min-w-0">
+            <div className="flex min-w-0 items-center gap-2">
+              <button
+                type="button"
+                onClick={onView}
+                className={cn(
+                  'truncate text-left font-medium underline-offset-4 hover:underline',
+                  inactive && 'text-muted-foreground',
+                )}
+              >
+                {member.full_name}
+              </button>
+              {inactive && (
+                <StatusBadge className="flex-none">
+                  {MEMBER_STATUS_LABELS[member.status]}
+                </StatusBadge>
+              )}
+            </div>
+            <p className="mt-0.5 truncate text-[0.8125rem] text-muted-foreground">
+              {line2}
+              <span className="sm:hidden">
+                {' · '}
+                {sacramentSummary(member)}
+              </span>
+            </p>
+          </div>
         </div>
-        <p className="mt-0.5 text-[0.8125rem] text-muted-foreground">
-          {line2}
-          <span className="sm:hidden">
-            {' · '}
-            {sacramentSummary(member)}
-          </span>
-        </p>
-      </td>
-      <td className="hidden py-3 pr-4 text-muted-foreground md:table-cell">
+      </TableCell>
+      <TableCell className="hidden truncate text-muted-foreground md:table-cell">
         {categoricalLabel(member.categorical_group) ?? '—'}
-      </td>
-      <td className="hidden py-3 pr-4 text-muted-foreground sm:table-cell">
+      </TableCell>
+      <TableCell className="hidden truncate text-muted-foreground sm:table-cell">
         {sacramentSummary(member)}
-      </td>
-      <td className="py-2 pr-2 text-right">{menu}</td>
-    </tr>
+      </TableCell>
+      <TableCell className="py-1.5 pr-2 pl-0 text-right">{menu}</TableCell>
+    </TableRow>
   )
 }
 
@@ -321,7 +343,7 @@ function EmptyMembers({
   onAddOther: () => void
 }) {
   return (
-    <div className="mx-4 mb-4 grid gap-3 rounded-lg border border-dashed px-4 py-4 text-sm">
+    <div className="m-4 grid gap-3 rounded-lg border border-dashed px-4 py-4 text-sm">
       <p className="text-muted-foreground">Belum ada anggota yang tercatat di KK ini.</p>
       {canEdit && (
         <div className="flex flex-wrap gap-2">
@@ -341,26 +363,16 @@ function EmptyMembers({
 function InfoRow({ label, children }: { label: string; children: ReactNode }) {
   const empty = children === null || children === undefined || children === '' || children === false
   return (
-    <div className="grid grid-cols-[6rem_minmax(0,1fr)] gap-3 border-t border-rule py-2.5 first:border-t-0">
-      <dt className="text-muted-foreground">{label}</dt>
-      <dd className={cn('break-words', empty && 'text-muted-foreground')}>
+    <div className="grid grid-cols-[6rem_minmax(0,1fr)] gap-3 px-4 py-2.5 lg:grid-cols-1 lg:content-start lg:gap-1 lg:px-5 lg:py-4">
+      <dt className="text-muted-foreground lg:text-xs">{label}</dt>
+      <dd className={cn('font-medium break-words', empty && 'font-normal text-muted-foreground')}>
         {empty ? '—' : children}
       </dd>
     </div>
   )
 }
 
-function BackLink() {
-  return (
-    <Link
-      to="/dashboard/families"
-      className="-mb-2 inline-flex w-fit items-center gap-1.5 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-    >
-      <ArrowLeft className="size-4" aria-hidden="true" />
-      Semua Kartu Keluarga
-    </Link>
-  )
-}
+const BACK = { to: '/dashboard/families', label: 'Semua Kartu Keluarga' }
 
 function DetailSkeleton() {
   return (
@@ -369,9 +381,9 @@ function DetailSkeleton() {
         <Skeleton className="h-8 w-72" />
         <Skeleton className="h-5 w-64" />
       </div>
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
-        <Skeleton className="h-64 rounded-lg" />
-        <Skeleton className="h-48 rounded-lg" />
+      <div className="grid gap-4">
+        <Skeleton className="h-20 rounded-xl" />
+        <Skeleton className="h-64 rounded-xl" />
       </div>
     </div>
   )

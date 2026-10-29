@@ -106,7 +106,14 @@ DashboardPack). Pengguna punya lisensinya tetapi belum mengunduh source React-ny
     `Panel`, donat komposisi jemaat, linimasa aktivitas (Admin), kurva kehadiran bergradasi.
   - Urutan blok per peran (D8, perbaikan tertunda #3): Bendahara keuangan dulu; Pendeta/Majelis
     jemaat lalu kehadiran; Admin jemaat, keuangan, lalu kehadiran + aktivitas.
-- **Berikutnya: Tahap 4 (Jemaat):** Anggota, KK + rincian, Rayon, Impor (wizard).
+- **Tahap 4 (Jemaat) selesai.**
+  - Komponen tabel bersama `components/zenith/data-table.tsx` (kartu tabel, pencarian,
+    paginasi, pesan, kerangka), `person-avatar.tsx`, dan `stepper.tsx`; dipakai lagi di
+    Tahap 5–7.
+  - Anggota: status bersegmen dan filter di bilah alat. KK: deret rayon berupa kartu angka.
+    Rincian KK: Data KK berupa deret di atas tabel anggota. Impor: wizard tiga langkah.
+- **Berikutnya: Tahap 5 (Keuangan):** Transaksi Kas, Pos Kas & RAPBJ, Laporan + cetak, serta
+  perbaikan tertunda #1 dan #2.
 
 ### Selesai: skala Portal Publik 90%
 

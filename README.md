@@ -386,8 +386,8 @@ GET /api/members?rayon_id=1&categorical_group=PEMUDA&sidi_status=false&status=AC
 Halaman ada di [src/client/pages/dashboard](src/client/pages/dashboard) dan komponennya di [src/client/components/congregation](src/client/components/congregation).
 
 - **Alur KK baru.** Tambah KK (pilih 1 dari 5 rayon) lalu halaman rincian KK langsung terbuka. Di sana tombol "Tambah {nama} sebagai Kepala Keluarga" mengisi nama dan hubungan keluarga, lalu "Tambah anggota" untuk anggota lain.
-- **Kartu Keluarga.** Kelima rayon tampil sebagai pilihan di atas daftar, lengkap dengan jumlah KK dan jiwa aktif (di ponsel menjadi satu pilihan Rayon). Kalimat di bawah judul menyebut KK yang belum punya anggota tercatat.
-- **Anggota Jemaat.** Pencarian dan filter Rayon, Kategori, Golongan darah, Baptis, Sidi, dan Status keanggotaan bisa dikombinasikan; semuanya tersimpan di URL. Bawaan menampilkan jemaat Aktif. Kalimat di bawah judul menyebut Pemuda aktif yang belum sidi (calon katekisasi).
+- **Kartu Keluarga.** Kelima rayon tampil sebagai kartu angka di atas daftar (jumlah KK dan jiwa aktif); menekan satu kartu menyaring daftar ke rayon itu (di ponsel menjadi satu pilihan Rayon). Kalimat di bawah judul menyebut KK yang belum punya anggota tercatat. Rincian KK menampilkan data KK sebagai deret ringkas di atas tabel anggota.
+- **Anggota Jemaat.** Status keanggotaan berupa kontrol bersegmen (Aktif, Pindah, Meninggal, Semua) di atas tabel. Pencarian dan filter Rayon, Kategori, Golongan darah, Baptis, dan Sidi ada di bilah alat tabel (di ponsel di balik tombol **Filter**). Semuanya bisa dikombinasikan dan tersimpan di URL. Bawaan menampilkan jemaat Aktif. Kalimat di bawah judul menyebut Pemuda aktif yang belum sidi (calon katekisasi).
 - **Profil anggota.** Nama di daftar membuka panel profil lengkap (hanya baca). Form profil memuat seluruh atribut tabel `members`: identitas, KK dan hubungan keluarga, status keanggotaan, kategori pelayanan, pendidikan, pekerjaan, baptis, sidi, dan pernikahan.
   - Aturan validasinya sama dengan API ([src/shared/congregation.ts](src/shared/congregation.ts)); kesalahan dari server (mis. NIK sudah dipakai) muncul di field-nya.
   - Kategori pelayanan diberi saran dari umur, jenis kelamin, dan status nikah (PAR di bawah 17 tahun, Pemuda sampai 35 tahun selama belum menikah, Lansia mulai 60 tahun). Saran hanya mengisi bila pengurus menekan "Pakai".
@@ -417,7 +417,7 @@ Halaman ada di [src/client/pages/dashboard](src/client/pages/dashboard) dan komp
 | Status nikah | `Belum menikah`/`Belum kawin`, `Menikah`/`Kawin`, `Cerai hidup`, `Cerai mati`/`Duda`/`Janda` |
 | Telepon | Nomor yang tersimpan sebagai angka di Excel (`81234567890`) dikembalikan menjadi `081234567890` |
 
-**Alur impor** (`/dashboard/members/import`, khusus Admin):
+**Alur impor** (`/dashboard/members/import`, khusus Admin). Halaman ini berupa wizard tiga langkah (Pilih berkas → Periksa pratinjau → Selesai):
 
 1. **Baca.** Browser membaca berkas `.xlsx` (lembar pertama) atau `.csv`.
    - Pemisah koma, titik koma (Excel berbahasa Indonesia), atau tab dikenali sendiri.

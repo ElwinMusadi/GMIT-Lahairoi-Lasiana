@@ -381,3 +381,58 @@ hanya 3,9:1 untuk lencana 12 px).
 | Typecheck, lint | Bersih |
 
 **Berikutnya: Tahap 4** (Jemaat).
+
+### Tahap 4 — Jemaat (29 Oktober 2026)
+
+**Komponen bersama baru** ([components/zenith](../src/client/components/zenith)), dipakai juga
+di Tahap 5–7:
+
+| Komponen | Isi |
+| --- | --- |
+| `data-table.tsx` | `TableCard` (bilah alat, tabel `ui/table`, kaki paginasi), `SearchField`, `selectClass`, `TablePagination` (rentang, "Halaman x dari y", tombol panah), `TableMessage`, `SkeletonRows` |
+| `person-avatar.tsx` | Avatar inisial berwarna identitas pucat (pindahan dari `user-menu`), abu-abu untuk jemaat pindah/meninggal |
+| `stepper.tsx` | Penunjuk langkah wizard (lingkaran bernomor, centang, garis penghubung, `aria-current="step"`) |
+
+**Halaman:**
+
+- **Anggota Jemaat:**
+  - `PageHeader` dengan temuan Pemuda belum sidi;
+  - tabel dalam `TableCard`:
+    - status keanggotaan berupa kontrol bersegmen (Aktif, Pindah, Meninggal, Semua);
+    - pencarian dan lima filter tanpa label terlihat, tetapi pilihan pertamanya menjelaskan diri
+      ("Semua gol. darah", "Baptis: semua"), dengan `aria-label`;
+    - di ponsel filter dilipat di balik tombol "Filter (n)";
+  - sel nama: avatar, nama, lencana status, lalu hubungan keluarga dan KK.
+- **Kartu Keluarga:** deret rayon menjadi kartu angka yang juga pilihan (terpilih bergaris
+  tebal); tabel dengan avatar kepala keluarga dan panah ke rincian.
+- **Rincian KK:**
+  - `PageHeader` dengan tombol kembali;
+  - Data KK berupa deret ringkas selebar halaman (label di atas nilai; di ponsel sebaris);
+  - tabel anggota selebar halaman.
+
+  Tata letak dua kolom (tabel + kartu samping) sempat dicoba. Inspector menandai tinggi yang tidak
+  sejajar, dan bila disamakan, ruang kosong di dalam kartu.
+- **Rayon:** tabel dengan garis porsi jiwa aktif di bawah nama rayon.
+- **Impor:**
+  - wizard tiga langkah (Pilih berkas → Periksa pratinjau → Selesai);
+  - zona unggah bergaris putus-putus;
+  - template di `Panel`;
+  - empat kartu angka sebagai pilihan tampilan, lencana `StatusBadge` (Siap/Sudah ada/Perlu
+    diperbaiki), dan sel rata atas.
+- **Panel profil jemaat:** avatar di kepala panel, lencana status `StatusBadge`.
+
+**Pemeriksaan** (database uji dicadangkan sebelum uji simpan impor, lalu dipulihkan):
+
+| Uji | Hasil |
+| --- | --- |
+| Admin, Pendeta, Majelis (1440 px) | Tabel 50 baris + avatar, paginasi "1–50 dari 178 jiwa, Halaman 1 dari 4". Majelis tanpa filter/kolom rayon dan tanpa deret rayon. Tanpa gulir menyamping |
+| Anggota | Segmen Pindah → `?status=MOVED` (3 baris berlencana); filter Pemuda → `?categorical_group=PEMUDA` (53); Hapus filter; halaman 2 → "51–100" |
+| Profil dan menu baris | Panel profil terbuka dari nama; menu: Lihat profil, Ubah profil, Buka KK, Riwayat, Hapus |
+| Kartu Keluarga | Pilih Golgota → `?rayon_id=2` (14 KK), kartu terpilih ditandai; rincian KK terbuka dari nama |
+| Impor | Langkah 1 → 2 (2 siap, 1 perlu diperbaiki, tampilan otomatis ke "Perlu diperbaiki") → 3 ("2 jemaat tersimpan") |
+| Ponsel 390 dan tablet 768 | Kolom menyusut ke nama + tindakan, keterangan pindah ke baris kedua; filter dua kolom di balik tombol |
+| Tema gelap | Tabel, segmen, dan filter mengikuti token |
+| Inspector `--app` | Anggota, KK, Rayon, Impor: 0 FAIL, 0 WARN. Rincian KK (6 anggota): 0/0. Rincian KK dengan 2 anggota: 1 WARN `hero-void`, karena isinya memang sedikit |
+| Typecheck, lint, prettier | Bersih |
+
+**Berikutnya: Tahap 5** (Keuangan, termasuk perbaikan tertunda #1 dan #2).

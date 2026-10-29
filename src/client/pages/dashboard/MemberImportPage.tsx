@@ -1,5 +1,5 @@
 import { useId, useRef, useState, type DragEvent, type ReactNode } from 'react'
-import { ArrowLeft, Download, FileSpreadsheet, Upload } from 'lucide-react'
+import { CircleCheck, Download, FileSpreadsheet, Upload } from 'lucide-react'
 import { Link } from 'react-router'
 import { toast } from 'sonner'
 import { IMPORT_COLUMNS, IMPORT_MAX_ROWS } from '@shared/member-import'
@@ -10,6 +10,19 @@ import {
   type MemberImportRow,
 } from '@shared/types'
 import { Button } from '@/components/ui/button'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { TableCard, TableMessage, TablePagination } from '@/components/zenith/data-table'
+import { PageHeader } from '@/components/zenith/page-header'
+import { Panel } from '@/components/zenith/panel'
+import { StatusBadge, type StatusTone } from '@/components/zenith/status-badge'
+import { Stepper } from '@/components/zenith/stepper'
 import { api, errorMessage } from '@/lib/api'
 import {
   downloadSkippedRows,
@@ -25,14 +38,17 @@ const PAGE_SIZE = 100
 type Loaded = { fileName: string; rows: ImportRows; ignored: string[] }
 type View = 'all' | ImportRowStatus
 
-const STATUS_PILL: Record<ImportRowStatus, { label: string; className: string }> = {
-  new: { label: 'Siap', className: 'bg-positive-soft text-positive-ink' },
-  duplicate: { label: 'Sudah ada', className: 'bg-secondary text-secondary-foreground' },
-  error: { label: 'Perlu diperbaiki', className: 'bg-negative-soft text-negative-ink' },
+const STATUS_PILL: Record<ImportRowStatus, { label: string; tone: StatusTone }> = {
+  new: { label: 'Siap', tone: 'success' },
+  duplicate: { label: 'Sudah ada', tone: 'neutral' },
+  error: { label: 'Perlu diperbaiki', tone: 'danger' },
 }
 
-// Impor data jemaat dari Excel/CSV (khusus Admin). Berkas dibaca di browser, diperiksa
-// API tanpa menyimpan (pratinjau), lalu baris yang siap disimpan sekaligus.
+const STEPS = ['Pilih berkas', 'Periksa pratinjau', 'Selesai']
+
+// Impor data jemaat dari Excel/CSV (khusus Admin), sebagai wizard Zenith tiga langkah.
+// Berkas dibaca di browser, diperiksa API tanpa menyimpan (pratinjau), lalu baris yang
+// siap disimpan sekaligus.
 export default function MemberImportPage() {
   const inputRef = useRef<HTMLInputElement>(null)
   const inputId = useId()
@@ -119,20 +135,17 @@ export default function MemberImportPage() {
 
   return (
     <div className="grid gap-6">
-      <Link
-        to="/dashboard/members"
-        className="-mb-2 inline-flex w-fit items-center gap-1.5 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-      >
-        <ArrowLeft className="size-4" aria-hidden="true" />
-        Anggota Jemaat
-      </Link>
-      <header className="grid gap-1">
-        <h1 className="text-2xl font-semibold tracking-[-0.02em]">Impor Data Jemaat</h1>
-        <p className="max-w-3xl text-sm text-muted-foreground">
-          Pindahkan data dari Excel lama. KK yang belum ada dibuat otomatis, nama rayon dicocokkan
-          tanpa membedakan huruf besar/kecil, dan Nomor Induk yang sudah terdaftar dilewati.
-        </p>
-      </header>
+      <PageHeader
+        back={{ to: '/dashboard/members', label: 'Anggota Jemaat' }}
+        title="Impor Data Jemaat"
+        description={
+          <span className="block max-w-3xl">
+            Pindahkan data dari Excel lama. KK yang belum ada dibuat otomatis, nama rayon dicocokkan
+            tanpa membedakan huruf besar/kecil, dan Nomor Induk yang sudah terdaftar dilewati.
+          </span>
+        }
+      />
+      <Stepper label="Langkah impor" steps={STEPS} current={saved ? 2 : result ? 1 : 0} />
 
       {!result ? (
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_22rem]">
@@ -145,11 +158,13 @@ export default function MemberImportPage() {
             onDragLeave={() => setDragging(false)}
             onDrop={handleDrop}
             className={cn(
-              'grid min-h-72 place-content-center justify-items-center gap-3 rounded-lg border border-dashed bg-card px-6 py-10 text-center',
+              'grid min-h-72 place-content-center justify-items-center gap-3 rounded-xl border-2 border-dashed bg-card px-6 py-10 text-center transition-colors',
               dragging && 'border-primary bg-accent',
             )}
           >
-            <FileSpreadsheet className="size-8 text-muted-foreground" aria-hidden="true" />
+            <span className="grid size-12 place-items-center rounded-full bg-muted">
+              <FileSpreadsheet className="size-6 text-muted-foreground" aria-hidden="true" />
+            </span>
             <h2 id="judul-unggah" className="text-base font-semibold">
               {busy === 'reading'
                 ? 'Membaca berkas…'
@@ -187,7 +202,7 @@ export default function MemberImportPage() {
         <>
           <section
             aria-label="Berkas"
-            className="flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-card px-4 py-3"
+            className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-card px-4 py-3 ring-1 ring-foreground/10"
           >
             <div className="flex min-w-0 items-center gap-3">
               <FileSpreadsheet
@@ -336,18 +351,19 @@ function PreviewTable({
 
   return (
     <section aria-label="Pratinjau impor" className="grid gap-3">
-      <div className="grid grid-cols-2 divide-rule overflow-hidden rounded-lg border bg-card md:grid-cols-4 md:divide-x">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {views.map((option) => {
           const active = option.id === view
           return (
-            <div key={option.id} className="p-1">
+            <div key={option.id}>
+              {/* Kartu angka yang juga pilihan tampilan tabel (seperti deret rayon di KK). */}
               <button
                 type="button"
                 aria-pressed={active}
                 onClick={() => onView(option.id)}
                 className={cn(
-                  'grid h-full w-full content-start gap-0.5 rounded-md px-3 py-2 text-left outline-offset-[-2px] hover:bg-muted/60',
-                  active && 'bg-accent hover:bg-accent',
+                  'grid h-full w-full content-start gap-1 rounded-xl bg-card px-4 py-3 text-left ring-1 ring-foreground/10 transition-shadow outline-none hover:shadow-md focus-visible:ring-3 focus-visible:ring-ring/50',
+                  active && 'ring-2 ring-foreground',
                 )}
               >
                 <span className={cn('text-sm', active ? 'font-medium' : 'text-muted-foreground')}>
@@ -355,7 +371,7 @@ function PreviewTable({
                 </span>
                 <span
                   className={cn(
-                    'text-xl font-medium tabular-nums',
+                    'text-2xl font-bold tracking-tight tabular-nums',
                     option.id === 'error' && option.count > 0 && 'text-negative-ink',
                   )}
                 >
@@ -375,59 +391,41 @@ function PreviewTable({
         })}
       </div>
 
-      <div className="rounded-lg border bg-card">
-        <table className="w-full table-fixed text-sm">
+      <TableCard
+        aria-label="Baris berkas"
+        footer={
+          pages > 1 && (
+            <TablePagination
+              label="Halaman pratinjau"
+              page={page}
+              perPage={PAGE_SIZE}
+              total={rows.length}
+              unit="baris"
+              onPage={onPage}
+            />
+          )
+        }
+      >
+        <Table className="table-fixed">
           <caption className="sr-only">Pratinjau baris berkas impor</caption>
-          <thead>
-            <tr className="text-left text-xs text-muted-foreground">
-              <th scope="col" className="h-10 w-16 pr-4 pl-4 text-right font-normal">
-                Baris
-              </th>
-              <th scope="col" className="pr-4 font-normal">
-                Jemaat
-              </th>
-              <th scope="col" className="hidden w-[26%] pr-4 font-normal xl:table-cell">
-                KK dan rayon
-              </th>
-              <th scope="col" className="hidden w-[34%] pr-4 font-normal sm:table-cell">
-                Keterangan
-              </th>
-            </tr>
-          </thead>
-          <tbody>
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead className="w-16 text-right">Baris</TableHead>
+              <TableHead>Jemaat</TableHead>
+              <TableHead className="hidden w-[26%] xl:table-cell">KK dan rayon</TableHead>
+              <TableHead className="hidden w-[34%] sm:table-cell">Keterangan</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {shown.length === 0 && (
-              <tr className="border-t border-rule">
-                <td colSpan={4} className="px-4 py-6 text-muted-foreground">
-                  Tidak ada baris di kelompok ini.
-                </td>
-              </tr>
+              <TableMessage colSpan={4}>Tidak ada baris di kelompok ini.</TableMessage>
             )}
             {shown.map((row) => (
               <PreviewRow key={row.row} row={row} />
             ))}
-          </tbody>
-        </table>
-        {pages > 1 && (
-          <nav
-            aria-label="Halaman pratinjau"
-            className="flex flex-wrap items-center justify-between gap-3 border-t border-rule px-4 py-3"
-          >
-            <p className="text-sm text-muted-foreground tabular-nums">
-              {((page - 1) * PAGE_SIZE + 1).toLocaleString('id-ID')}–
-              {Math.min(page * PAGE_SIZE, rows.length).toLocaleString('id-ID')} dari{' '}
-              {rows.length.toLocaleString('id-ID')} baris
-            </p>
-            <div className="flex gap-2">
-              <Button variant="outline" disabled={page <= 1} onClick={() => onPage(page - 1)}>
-                Sebelumnya
-              </Button>
-              <Button variant="outline" disabled={page >= pages} onClick={() => onPage(page + 1)}>
-                Berikutnya
-              </Button>
-            </div>
-          </nav>
-        )}
-      </div>
+          </TableBody>
+        </Table>
+      </TableCard>
     </section>
   )
 }
@@ -456,14 +454,7 @@ function PreviewRow({ row }: { row: MemberImportRow }) {
     : null
   const notes = (
     <>
-      <span
-        className={cn(
-          'inline-flex flex-none rounded-full px-2 py-0.5 text-xs font-medium whitespace-nowrap',
-          pill.className,
-        )}
-      >
-        {pill.label}
-      </span>
+      <StatusBadge tone={pill.tone}>{pill.label}</StatusBadge>
       {row.messages.length > 0 && (
         <ul className="mt-1 grid gap-0.5 text-[0.8125rem] text-muted-foreground">
           {row.messages.map((message) => (
@@ -477,9 +468,9 @@ function PreviewRow({ row }: { row: MemberImportRow }) {
   )
 
   return (
-    <tr className="border-t border-rule align-top">
-      <td className="py-3 pr-4 pl-4 text-right text-muted-foreground tabular-nums">{row.row}</td>
-      <td className="py-3 pr-4">
+    <TableRow className="[&>td]:align-top">
+      <TableCell className="text-right text-muted-foreground tabular-nums">{row.row}</TableCell>
+      <TableCell className="whitespace-normal">
         <p className={cn('font-medium break-words', !row.full_name && 'text-muted-foreground')}>
           {row.full_name || 'Nama kosong'}
         </p>
@@ -491,8 +482,8 @@ function PreviewRow({ row }: { row: MemberImportRow }) {
             KK {family.kk_number ?? family.head_name} · {familyLine}
           </p>
         )}
-      </td>
-      <td className="hidden py-3 pr-4 xl:table-cell">
+      </TableCell>
+      <TableCell className="hidden whitespace-normal xl:table-cell">
         {family ? (
           <>
             <p className="break-words">
@@ -506,9 +497,9 @@ function PreviewRow({ row }: { row: MemberImportRow }) {
         ) : (
           <span className="text-muted-foreground">—</span>
         )}
-      </td>
-      <td className="hidden py-3 pr-4 sm:table-cell">{notes}</td>
-    </tr>
+      </TableCell>
+      <TableCell className="hidden whitespace-normal sm:table-cell">{notes}</TableCell>
+    </TableRow>
   )
 }
 
@@ -525,9 +516,13 @@ function SavedPanel({
   return (
     <section
       aria-labelledby="judul-tersimpan"
-      className="grid gap-3 rounded-lg border bg-card px-5 py-4"
+      className="grid gap-3 rounded-xl bg-card px-5 py-5 ring-1 ring-foreground/10"
     >
-      <h2 id="judul-tersimpan" className="text-lg font-semibold tabular-nums">
+      <h2
+        id="judul-tersimpan"
+        className="flex items-center gap-2 text-lg font-semibold tabular-nums"
+      >
+        <CircleCheck className="size-5 text-positive" aria-hidden="true" />
         {summary.new_members.toLocaleString('id-ID')} jemaat tersimpan
       </h2>
       <p className="text-sm text-muted-foreground tabular-nums">
@@ -560,18 +555,12 @@ function SavedPanel({
 // Template dan penjelasan isian setiap kolom.
 function TemplateGuide() {
   return (
-    <section
-      aria-labelledby="judul-template"
-      className="grid content-start gap-3 rounded-lg border bg-card p-4"
+    <Panel
+      title="Template berkas"
+      description="Satu baris untuk satu jemaat. Baris dengan Nomor KK yang sama menjadi satu keluarga."
+      className="self-start"
+      contentClassName="grid gap-3"
     >
-      <div className="grid gap-1">
-        <h2 id="judul-template" className="text-base font-semibold">
-          Template berkas
-        </h2>
-        <p className="text-sm text-muted-foreground">
-          Satu baris untuk satu jemaat. Baris dengan Nomor KK yang sama menjadi satu keluarga.
-        </p>
-      </div>
       <div className="flex flex-wrap gap-2">
         <Button variant="outline" onClick={() => void downloadTemplate('xlsx')}>
           <Download data-icon="inline-start" />
@@ -582,7 +571,7 @@ function TemplateGuide() {
           Template CSV
         </Button>
       </div>
-      <div className="grid gap-1 border-t border-rule pt-3 text-sm">
+      <div className="grid gap-1 border-t pt-3 text-sm">
         <p className="font-medium">Wajib diisi di setiap baris</p>
         <ul className="grid gap-0.5 text-[0.8125rem] text-muted-foreground">
           <li>Nama Lengkap, Jenis Kelamin (L/P), Hubungan Keluarga</li>
@@ -602,7 +591,7 @@ function TemplateGuide() {
           ))}
         </dl>
       </details>
-    </section>
+    </Panel>
   )
 }
 
@@ -616,7 +605,7 @@ function GuideRow({
   children: ReactNode
 }) {
   return (
-    <div className="grid gap-0.5 border-t border-rule py-2 first:border-t-0">
+    <div className="grid gap-0.5 border-t py-2 first:border-t-0">
       <dt className="font-medium">
         {title}
         {required && <span className="font-normal text-muted-foreground"> · wajib</span>}
