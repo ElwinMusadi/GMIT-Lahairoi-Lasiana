@@ -90,27 +90,30 @@ export function daysBetween(from: string, to: string) {
   return Math.round((Date.parse(to) - Date.parse(from)) / DAY_MS)
 }
 
-const monthName = new Intl.DateTimeFormat('id-ID', { timeZone: 'UTC', month: 'long' })
+const monthNames = {
+  long: new Intl.DateTimeFormat('id-ID', { timeZone: 'UTC', month: 'long' }),
+  short: new Intl.DateTimeFormat('id-ID', { timeZone: 'UTC', month: 'short' }),
+}
 
-function parts(date: string) {
+function parts(date: string, month: keyof typeof monthNames = 'long') {
   const value = Date.parse(date)
   return {
     day: new Date(value).getUTCDate(),
-    month: monthName.format(value),
+    month: monthNames[month].format(value),
     year: date.slice(0, 4),
   }
 }
 
 // "2–8 November 2026", "26 Oktober–1 November 2026", "28 Desember 2026–3 Januari 2027";
-// tampilan Bulan: "November 2026".
-export function periodLabel(view: CalendarView, anchor: string) {
+// tampilan Bulan: "November 2026". `short` untuk ponsel: "26 Okt–1 Nov 2026".
+export function periodLabel(view: CalendarView, anchor: string, short = false) {
   if (view === 'bulan') {
     const { month, year } = parts(anchor)
     return `${month} ${year}`
   }
   const dates = weekDates(anchor)
-  const first = parts(dates[0])
-  const last = parts(dates[6])
+  const first = parts(dates[0], short ? 'short' : 'long')
+  const last = parts(dates[6], short ? 'short' : 'long')
   if (first.year !== last.year) {
     return `${first.day} ${first.month} ${first.year}–${last.day} ${last.month} ${last.year}`
   }
@@ -256,4 +259,31 @@ export function timeRows(worships: readonly Worship[]) {
   const times = [...new Set(worships.map((worship) => worship.worship_time))]
   const known = times.filter((time): time is string => time !== null).sort()
   return times.includes(null) ? [...known, null] : known
+}
+
+// Jam sekarang di Kupang (WITA), "HH:MM".
+export function witaTime(now = Date.now()) {
+  return new Date(now + 8 * 60 * 60 * 1000).toISOString().slice(11, 16)
+}
+
+// Ibadah berikutnya dari daftar mendatang (urut tanggal dan jam): ibadah hari ini yang jamnya
+// sudah lewat dilewati; ibadah hari ini tanpa jam tetap dihitung.
+export function nextWorship<T extends Worship>(
+  worships: readonly T[],
+  today: string,
+  time: string,
+) {
+  return (
+    worships.find(
+      (worship) =>
+        worship.worship_date > today ||
+        (worship.worship_date === today &&
+          (worship.worship_time === null || worship.worship_time >= time)),
+    ) ?? null
+  )
+}
+
+// Jumlah kelompok saringan yang aktif (jenis, rayon), untuk angka di tombol "Saring".
+export function activeFilterCount(state: Pick<CalendarState, 'kinds' | 'rayonId'>) {
+  return (state.kinds.length > 0 ? 1 : 0) + (state.rayonId !== null ? 1 : 0)
 }

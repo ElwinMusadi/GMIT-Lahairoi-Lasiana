@@ -106,6 +106,8 @@ export function useScheduleCalendar() {
     search,
     // Jadwal periode aktif yang lolos saringan, untuk tampilan Pekan, Agenda, dan Bulan.
     visible: inDates(filtered, dates),
+    // Seluruh jadwal periode aktif sebelum disaring.
+    periodTotal: inPeriod.length,
     // Titik kalender mini: seluruh kisi bulan, mengikuti saringan.
     days: daySummary(filtered),
     counts: {

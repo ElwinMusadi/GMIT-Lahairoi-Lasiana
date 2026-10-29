@@ -29,6 +29,10 @@
   --color-site-blue: var(--site-blue);
   --color-site-green: var(--site-green);
   --color-site-glass: var(--site-glass);
+  --color-site-kind-sunday: var(--site-kind-sunday);
+  --color-site-kind-rayon: var(--site-kind-rayon);
+  --color-site-kind-categorical: var(--site-kind-categorical);
+  --color-site-kind-special: var(--site-kind-special);
   --color-site-accent: #f08a2b;
   --color-site-night: #07151a;
   --color-site-panel: #111113;
@@ -258,6 +262,14 @@
   --site-blue: #00236f;
   --site-green: #355a3a;
   --site-glass: rgb(255 255 255 / 0.95);
+
+  /* Warna jenis ibadah di kalender Jadwal Ibadah: garis tepi kartu, titik kalender, dan kotak
+     saringan, selalu bersama label teks. Divalidasi dengan validator skill dataviz untuk
+     terang dan gelap (docs/rencana-redesign-jadwal-ibadah.md, Tahap 0). */
+  --site-kind-sunday: #2a78d6;
+  --site-kind-rayon: #008300;
+  --site-kind-categorical: #eda100;
+  --site-kind-special: #e87ba4;
   color-scheme: light;
 }
 
@@ -296,6 +308,11 @@
   --site-blue: #a9b9ff;
   --site-green: #6e9c76;
   --site-glass: rgb(17 27 31 / 0.92);
+
+  --site-kind-sunday: #3987e5;
+  --site-kind-rayon: #008300;
+  --site-kind-categorical: #c98500;
+  --site-kind-special: #d55181;
   color-scheme: dark;
 }
 @media (width >= 48rem) {

@@ -1,7 +1,7 @@
 # Rencana Implementasi: Kalender Jadwal Ibadah (Portal Publik)
 
 Disusun 30 Oktober 2026. Status: **disetujui** 30 Oktober 2026 (keputusan J1–J9 semua sesuai
-usulan, bagian 8). Tahap 0–2 (persiapan, API, lapisan data klien) selesai di branch
+usulan, bagian 8). Tahap 0–3 (persiapan, API, lapisan data klien, kerangka) selesai di branch
 `feat/kalender-jadwal-ibadah` (bagian 10).
 
 ## 1. Tujuan
@@ -567,4 +567,73 @@ America/Los_Angeles, Pacific/Kiritimati, UTC).
   - label lintas bulan dan tahun;
   - URL bolak-balik di desktop dan ponsel, tautan lama;
   - saringan J3 dan hitungan.
+- Typecheck dan lint lolos.
+
+### Tahap 3 — Kerangka (30 Oktober 2026)
+
+**Hero ringkas** (`HeroPanel size="compact"`, setinggi isinya, isinya sejajar pil header):
+
+- Judul satu baris "Jadwal Ibadah *jemaat.*". Kata "mendatang" diganti karena kalender juga
+  membuka jadwal yang sudah lewat (J5).
+- Tombol "Berikutnya: …" (`nextWorship`; ibadah hari ini yang jamnya lewat dilewati) memindahkan
+  kalender ke tanggalnya dan mengisi `jadwal=` untuk panel rincian Tahap 6.
+- Tinggi: desktop ±278 px (sebelumnya 436 px). Ponsel 376 px (sebelumnya 627 px); di ponsel
+  kalimat pengantar dipendekkan menjadi "Semua waktu dalam WITA."
+
+**Panel kalender** selebar hero: lempeng `bg-site-paper` (kaca: `glass-slab`) berisi dua kartu
+(`bg-site-canvas`, kaca: `glass-card`).
+
+**Sisi kiri** (19rem, dari 1024 px):
+
+- **Kalender mini** (`mini-month.tsx`):
+  - titik warna per jenis, hari ini dilingkari, pekan aktif disorot;
+  - label tanggal lengkap untuk pembaca layar, mis. "Jumat, 6 November 2026, 1 ibadah";
+  - panah, Home/End, dan PageUp/PageDown memindahkan fokus (roving tabindex); Enter memilih.
+- **Kolom cari.** Placeholder dipendekkan menjadi "Cari pelayan, tempat…" agar tidak terpotong;
+  label aksesibelnya menyebut semua kolom yang dicari.
+- **Saringan** (`schedule-filters.tsx`):
+  - jenis: kotak centang pilih banyak dengan jumlah di periode, dan centang terakhir dikunci;
+  - rayon: pilihan tunggal dengan catatan "Ibadah seluruh jemaat tetap tampil";
+  - "Hapus saringan".
+
+**Bilah alat** (`schedule-toolbar.tsx`):
+
+- Desktop dan tablet: satu baris ‹ › Hari ini, label, lalu pilihan tampilan.
+- Ponsel: baris "‹ 26 Okt–1 Nov 2026 ›", lalu baris Hari ini dan Agenda/Bulan.
+  - Label pendek dibuat dengan `periodLabel(…, true)`, dan pembaca layar tetap mendengar label
+    lengkap.
+  - Percobaan pertama memakai satu grid tiga kolom; label terpotong karena kolom kanan ikut
+    melebar mengikuti pilihan tampilan.
+
+**Di bawah 1024 px:**
+
+- Kolom cari dan tombol "Saring" (dengan angka saringan aktif) membuka lembar bawah berisi kalender
+  mini dan saringan, ditutup tombol "Tampilkan N ibadah".
+- **Chip saringan aktif:** satu chip per kelompok, dan melepasnya selalu memperluas hasil.
+  - Jenis disebut yang tampil bila paling banyak dua ("Ibadah Rayon & Ibadah Kategorial"); selain
+    itu yang disembunyikan ("Tanpa Ibadah Kategorial").
+  - Versi pertama memakai satu chip per jenis, sehingga melepas chip malah mempersempit hasil.
+
+**Ringkasan hasil** (`aria-live`): "10 ibadah", "4 dari 10 ibadah", dan "N jadwal mendatang untuk
+‘…’" saat mencari.
+
+**Sementara.** Area tampilan masih memakai papan daftar lama (`ScheduleBoard`) untuk jadwal
+periode atau hasil cari; diganti di Tahap 4–5.
+
+**Token warna jenis ibadah** `--site-kind-*` (terang/gelap) ada di `.theme-portal`, dengan utilitas
+`bg-site-kind-*`/`border-site-kind-*` (`components/portal/schedule/kinds.ts`).
+
+**Pemeriksaan:**
+
+- **Uji unit 60/60**, ditambah label pendek, `nextWorship`, dan `activeFilterCount`.
+- **Uji interaksi** di Chrome headless, data demo lokal:
+  - lembar Saring ponsel: saringan, URL, chip, dan "Hapus saringan";
+  - tautan lama `?jenis=rayon&rayon=2&page=3`;
+  - centang dan rayon di desktop;
+  - pekan berikutnya, tampilan Bulan, dan Hari ini;
+  - kalender mini: panah, Enter, PageDown.
+- **Tangkapan layar** 390/834/1440 px untuk tema Bawaan dan Glassmorphism × terang dan gelap.
+- **Halaman portal lain** tetap sama dengan tema bawaan.
+  - Perbedaan di Beranda dan daftar Renungan hanya tinggi seksi, karena renungan demo 30 Oktober
+    terbit pukul 05.00 WITA, setelah pengukuran awal; bukan dari kode.
 - Typecheck dan lint lolos.

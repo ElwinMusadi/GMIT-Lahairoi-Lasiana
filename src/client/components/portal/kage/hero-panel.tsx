@@ -12,8 +12,9 @@ import { cn } from '@/lib/utils'
 type Photo = { src: string; srcSet?: string; sizes?: string; position?: string }
 
 type Props = {
-  // full: hero Beranda setinggi ±92 % layar. page: hero ringkas halaman dalam.
-  size?: 'full' | 'page'
+  // full: hero Beranda setinggi ±92 % layar. page: hero ringkas halaman dalam. compact:
+  // setinggi isinya saja, untuk halaman alat seperti kalender Jadwal Ibadah.
+  size?: 'full' | 'page' | 'compact'
   labelledBy: string
   // null: panel gelap tanpa foto, mis. selama foto halaman masih ditentukan.
   photo?: Photo | null
@@ -47,7 +48,7 @@ export function HeroPanel({
           // Dibagi --site-zoom: tinggi di layar tetap sama saat portal di-zoom 90%.
           size === 'full'
             ? 'min-h-[calc(min(92svh,880px)/var(--site-zoom,1))]'
-            : 'min-h-[calc(min(48svh,440px)/var(--site-zoom,1))]',
+            : size === 'page' && 'min-h-[calc(min(48svh,440px)/var(--site-zoom,1))]',
           className,
         )}
       >
@@ -66,7 +67,8 @@ export function HeroPanel({
           )}
           <div className="site-hero-scrim absolute inset-0" />
         </div>
-        {size === 'full' ? (
+        {size !== 'page' ? (
+          // Beranda dan halaman alat: isi sejajar dengan pil header, selebar panel.
           <>
             <div ref={copy}>{display}</div>
             {children}
