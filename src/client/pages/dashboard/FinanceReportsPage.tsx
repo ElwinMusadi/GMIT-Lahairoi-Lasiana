@@ -11,8 +11,11 @@ import type {
   FinanceReportSummary,
 } from '@shared/types'
 import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
+import { selectClass } from '@/components/zenith/data-table'
+import { PageHeader } from '@/components/zenith/page-header'
+import { Segmented } from '@/components/zenith/segmented'
+import { StatStrip } from '@/components/zenith/stat-strip'
 import {
   addDays,
   formatLongDate,
@@ -31,9 +34,6 @@ import { useCurrentUser } from '@/lib/session'
 import { useApiQuery } from '@/lib/use-api-query'
 import { useUrlFilters } from '@/lib/use-url-filters'
 import { cn } from '@/lib/utils'
-
-const controlClass =
-  'h-9 w-full rounded-lg border border-input bg-card px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50'
 
 const CHURCH_NAME = 'GMIT Jemaat Lahairoi Tuak Sabu Lasiana'
 
@@ -56,8 +56,8 @@ function periodValue(period: ReportPeriod, params: URLSearchParams, today: strin
 }
 
 // Laporan Keuangan per Pos Kas untuk Warta Jemaat: saldo awal, rincian penerimaan dan
-// pengeluaran, saldo akhir. Lembar laporannya sama dengan hasil cetak; kontrol di
-// atasnya disembunyikan saat dicetak (lihat @media print di index.css).
+// pengeluaran, saldo akhir. Lembar laporannya sama dengan hasil cetak; kontrol dan deret
+// ringkasan di atasnya disembunyikan saat dicetak (lihat @media print di index.css).
 export default function FinanceReportsPage() {
   const me = useCurrentUser()
   const { params, update } = useUrlFilters()
@@ -145,11 +145,12 @@ export default function FinanceReportsPage() {
 
   return (
     <div className="grid gap-6 print:block">
-      <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4 print:hidden">
-        <div className="grid gap-1">
-          <h1 className="text-2xl font-semibold tracking-[-0.02em]">Laporan Keuangan</h1>
-          {data ? (
-            <p className="text-sm text-muted-foreground tabular-nums">
+      <PageHeader
+        className="print:hidden"
+        title="Laporan Keuangan"
+        description={
+          data ? (
+            <span className="tabular-nums">
               {periodLabel(period, value)}: {data.totals.transaction_count.toLocaleString('id-ID')}{' '}
               transaksi.{' '}
               {running ? (
@@ -160,124 +161,115 @@ export default function FinanceReportsPage() {
               ) : (
                 'Periode sudah lewat.'
               )}
-            </p>
+            </span>
           ) : (
-            <Skeleton className="h-5 w-80 max-w-full" />
-          )}
-        </div>
-        <Button size="lg" onClick={() => window.print()} disabled={!data}>
-          <Printer data-icon="inline-start" />
-          Cetak laporan
-        </Button>
-      </header>
+            <span className="inline-block h-4 w-80 max-w-full animate-pulse rounded-md bg-muted align-middle" />
+          )
+        }
+        actions={
+          <Button size="lg" onClick={() => window.print()} disabled={!data}>
+            <Printer data-icon="inline-start" />
+            Cetak laporan
+          </Button>
+        }
+      />
 
-      <div className="grid grid-cols-2 items-end gap-3 md:flex md:flex-wrap print:hidden">
-        <div className="col-span-2 grid gap-1.5">
-          <span className="text-xs text-muted-foreground" id="jenis-periode">
-            Jenis periode
-          </span>
-          <div
-            role="group"
-            aria-labelledby="jenis-periode"
-            className="grid h-9 grid-cols-3 rounded-lg border border-input bg-card p-0.5"
+      <div
+        role="group"
+        aria-label="Pilihan laporan"
+        className="flex flex-wrap items-center gap-2 print:hidden"
+      >
+        <Segmented
+          label="Jenis periode"
+          value={period}
+          onChange={setPeriod}
+          options={PERIODS.map((option) => ({ value: option.value, label: option.label }))}
+        />
+        <div className="flex w-full gap-1.5 sm:w-auto">
+          <Button
+            variant="outline"
+            size="icon-lg"
+            className="flex-none"
+            onClick={() => setValue(shiftPeriod(period, value, -1))}
           >
-            {PERIODS.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                aria-pressed={option.value === period}
-                onClick={() => setPeriod(option.value)}
-                className={cn(
-                  'rounded-md px-3 text-sm text-muted-foreground outline-none hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50',
-                  option.value === period &&
-                    'bg-primary font-medium text-primary-foreground hover:text-primary-foreground',
-                )}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className="col-span-2 grid gap-1.5 md:w-[21rem]">
-          <Label htmlFor="pilih-periode" className="text-xs font-normal text-muted-foreground">
-            Periode
-          </Label>
-          <div className="flex gap-1.5">
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-9 flex-none"
-              onClick={() => setValue(shiftPeriod(period, value, -1))}
-            >
-              <ChevronLeft />
-              <span className="sr-only">Periode sebelumnya</span>
-            </Button>
-            <select
-              id="pilih-periode"
-              value={value}
-              onChange={(event) => setValue(event.target.value)}
-              className={cn(controlClass, 'tabular-nums')}
-            >
-              {options.map((option) => (
-                <option key={option} value={option}>
-                  {periodLabel(period, option)}
-                  {option === current ? (period === 'week' ? ' (minggu ini)' : ' (berjalan)') : ''}
-                </option>
-              ))}
-            </select>
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-9 flex-none"
-              disabled={nextStartsLater}
-              onClick={() => setValue(next)}
-            >
-              <ChevronRight />
-              <span className="sr-only">Periode berikutnya</span>
-            </Button>
-          </div>
-        </div>
-        <div className="grid min-w-0 gap-1.5 md:w-60">
-          <Label htmlFor="pilih-pos" className="text-xs font-normal text-muted-foreground">
-            Pos Kas
-          </Label>
+            <ChevronLeft />
+            <span className="sr-only">Periode sebelumnya</span>
+          </Button>
           <select
-            id="pilih-pos"
-            value={fundId}
-            disabled={!funds.data}
-            onChange={(event) => update({ fund_id: event.target.value })}
-            className={controlClass}
+            aria-label="Periode"
+            value={value}
+            onChange={(event) => setValue(event.target.value)}
+            className={cn(selectClass, 'flex-1 tabular-nums sm:w-64 sm:flex-none')}
           >
-            <option value="">Semua Pos Kas</option>
-            {fundList.map((fund) => (
-              <option key={fund.id} value={fund.id}>
-                {fund.code} · {fund.name}
+            {options.map((option) => (
+              <option key={option} value={option}>
+                {periodLabel(period, option)}
+                {option === current ? (period === 'week' ? ' (minggu ini)' : ' (berjalan)') : ''}
               </option>
             ))}
           </select>
-        </div>
-        <div className="grid min-w-0 gap-1.5 md:w-48">
-          <Label htmlFor="pilih-rincian" className="text-xs font-normal text-muted-foreground">
-            Rincian
-          </Label>
-          <select
-            id="pilih-rincian"
-            value={detail}
-            onChange={(event) => update({ detail: event.target.value })}
-            className={controlClass}
+          <Button
+            variant="outline"
+            size="icon-lg"
+            className="flex-none"
+            disabled={nextStartsLater}
+            onClick={() => setValue(next)}
           >
-            <option value="entries">Per transaksi</option>
-            <option value="accounts">Per mata anggaran</option>
-          </select>
+            <ChevronRight />
+            <span className="sr-only">Periode berikutnya</span>
+          </Button>
         </div>
+        <select
+          aria-label="Pos Kas"
+          value={fundId}
+          disabled={!funds.data}
+          onChange={(event) => update({ fund_id: event.target.value })}
+          className={cn(selectClass, 'min-w-0 flex-1 sm:w-60 sm:flex-none')}
+        >
+          <option value="">Semua Pos Kas</option>
+          {fundList.map((fund) => (
+            <option key={fund.id} value={fund.id}>
+              {fund.code} · {fund.name}
+            </option>
+          ))}
+        </select>
+        <select
+          aria-label="Rincian"
+          value={detail}
+          onChange={(event) => update({ detail: event.target.value })}
+          className={cn(selectClass, 'min-w-0 flex-1 sm:w-56 sm:flex-none')}
+        >
+          <option value="entries">Rincian per transaksi</option>
+          <option value="accounts">Rincian per mata anggaran</option>
+        </select>
       </div>
+
+      {data && data.funds.length > 0 && (
+        <StatStrip
+          className="max-w-4xl print:hidden"
+          label="Ringkasan periode"
+          stats={[
+            { label: 'Saldo awal', value: formatRupiah(data.totals.opening_balance) },
+            {
+              label: 'Penerimaan',
+              value: `+${formatRupiah(data.totals.income)}`,
+              className: data.totals.income > 0 ? 'text-positive' : undefined,
+            },
+            { label: 'Pengeluaran', value: `−${formatRupiah(data.totals.expense)}` },
+            {
+              label: running ? 'Saldo akhir sementara' : 'Saldo akhir',
+              value: formatRupiah(data.totals.closing_balance),
+            },
+          ]}
+        />
+      )}
 
       <article
         aria-labelledby="judul-laporan"
         aria-busy={report.loading}
         className={cn(
-          'max-w-4xl min-w-0 rounded-lg border bg-card px-5 py-6 text-sm transition-opacity sm:px-10 sm:py-10',
-          'print:max-w-none print:rounded-none print:border-0 print:bg-transparent print:p-0 print:text-[10pt] print:text-black',
+          'max-w-4xl min-w-0 rounded-xl bg-card px-5 py-6 text-sm shadow-sm ring-1 ring-foreground/10 transition-opacity sm:px-10 sm:py-10',
+          'print:max-w-none print:rounded-none print:bg-transparent print:p-0 print:text-[10pt] print:text-black print:shadow-none print:ring-0',
           report.loading && data && 'opacity-60',
         )}
       >

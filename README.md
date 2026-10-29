@@ -474,14 +474,15 @@ POST /api/finance/transactions
 Halaman ada di [src/client/pages/dashboard](src/client/pages/dashboard) (`FinanceBudgetsPage`, `FinanceTransactionsPage`) dan komponennya di [src/client/components/finance](src/client/components/finance). Validasi form memakai fungsi yang sama dengan API (`parseFundInput`, `parseBudgetInput`, `parseTransactionInput`).
 
 - **Hak akses di layar.** Bendahara dan Admin melihat tombol tambah, menu ubah/nonaktifkan/hapus, dan form. Pendeta dan Majelis melihat data, rincian, dan kuitansi yang sama tanpa tombol-tombol itu.
-- **Pos Kas & RAPBJ** (`/dashboard/finance/budgets`). Tahun anggaran dan Pos Kas dipilih di atas tabel dan tersimpan di URL (`?year=2025&fund_id=2`); bawaannya tahun berjalan.
+- **Pos Kas & RAPBJ** (`/dashboard/finance/budgets`). Tahun anggaran dan Pos Kas dipilih di bilah alat tabel RAPBJ dan tersimpan di URL (`?year=2025&fund_id=2`); bawaannya tahun berjalan.
   - Mata anggaran dikelompokkan Penerimaan dan Pengeluaran, masing-masing dengan subtotal. Tiap baris menampilkan target, realisasi, dan bar capaian. Garis tegak pada bar menandai bagian tahun yang sudah berjalan, sebagai pembanding.
   - Pengeluaran yang melewati target ditandai "Lewat Rp…" dan kelebihannya digambar dengan warna negatif di ujung bar.
   - Kalimat di bawah judul merangkum capaian penerimaan, serapan pengeluaran, dan jumlah mata anggaran yang melewati batas.
   - Realisasi dihitung dari transaksi tercatat. Halaman memuat ulang saat tab kembali dibuka dan setiap 60 detik, jadi transaksi dari pengurus lain ikut terhitung.
-  - Panel Pos Kas menampilkan saldo tiap Pos Kas dan totalnya. Mata anggaran atau Pos Kas yang sudah dipakai transaksi hanya bisa dinonaktifkan; menu Hapus menyebut alasannya.
-- **Transaksi Kas** (`/dashboard/finance/transactions`). Filter Bulan (bawaan bulan berjalan, atau Semua bulan), Pos Kas, Jenis, Kuitansi, dan pencarian keterangan tersimpan di URL. Nama mata anggaran di halaman RAPBJ membuka transaksinya (`?budget_id=…&month=all`).
-  - Kas masuk, kas keluar, dan selisih di atas tabel dihitung dari seluruh hasil filter.
+  - Pos Kas tampil sebagai deret kartu saldo di atas tabel, dengan total saldonya. Tabel RAPBJ selebar halaman, sehingga nama mata anggaran tidak terpotong. Mata anggaran atau Pos Kas yang sudah dipakai transaksi hanya bisa dinonaktifkan; menu Hapus menyebut alasannya.
+- **Transaksi Kas** (`/dashboard/finance/transactions`). Jenis berupa kontrol bersegmen (Semua, Kas masuk, Kas keluar); Bulan (bawaan bulan berjalan, atau Semua bulan), Pos Kas, Kuitansi, dan pencarian keterangan ada di bilah alat tabel. Semuanya tersimpan di URL. Nama mata anggaran di halaman RAPBJ membuka transaksinya (`?budget_id=…&month=all`).
+  - Kas masuk, kas keluar, dan selisih tampil sebagai deret angka di atas tabel, dihitung dari seluruh hasil filter.
+  - Kolom Kuitansi berisi tautan "Buka" atau lencana "Belum ada". Di bawah 1024 px baris keterangan (Pos Kas, mata anggaran, pencatat) boleh membungkus, agar terbaca utuh.
   - Kalimat di bawah judul menyebut transaksi bulan itu yang belum berkuitansi, dengan tautan untuk menampilkannya.
   - "Catat transaksi" hanya menawarkan mata anggaran dengan Pos Kas, jenis, dan tahun yang cocok. Kuitansi (foto JPG/PNG/WebP atau PDF, maksimal 10 MB) langsung diunggah saat dipilih; tombol simpan menunggu unggahan selesai.
   - Uraian transaksi membuka panel rincian. Foto kuitansi tampil di panel; PDF tampil di bingkai dengan tautan untuk membukanya di tab baru.
@@ -500,7 +501,7 @@ Halaman ada di [src/client/pages/dashboard](src/client/pages/dashboard) (`Financ
 
 **Halaman** `/dashboard/finance/reports` ([FinanceReportsPage.tsx](src/client/pages/dashboard/FinanceReportsPage.tsx)):
 
-- **Periode** Mingguan, Bulanan, atau Tahunan, dengan tombol periode sebelum/berikutnya. Semua pilihan tersimpan di URL (`?period=month&month=2026-09&fund_id=1&detail=entries`).
+- **Periode** Mingguan, Bulanan, atau Tahunan (kontrol bersegmen), dengan tombol periode sebelum/berikutnya. Di atas lembar laporan ada deret saldo awal, penerimaan, pengeluaran, dan saldo akhir (tidak ikut tercetak). Semua pilihan tersimpan di URL (`?period=month&month=2026-09&fund_id=1&detail=entries`).
   - Minggu warta dihitung **Minggu–Sabtu**, sehingga kolekte hari Minggu membuka minggunya. Ubah `weekStart` di [src/client/lib/finance.ts](src/client/lib/finance.ts) bila gereja memakai minggu lain.
 - **Rincian** per transaksi (bawaan laporan mingguan) atau per mata anggaran (bawaan bulanan dan tahunan).
 - **Lembar laporan**: kop jemaat, ringkasan seluruh Pos Kas (bila lebih dari satu), lalu tiap Pos Kas dengan saldo awal, penerimaan, pengeluaran, dan saldo akhir. Di akhir ada kolom tanda tangan Ketua Majelis Jemaat dan Bendahara (nama Bendahara terisi bila yang mencetak Bendahara) serta waktu cetak.

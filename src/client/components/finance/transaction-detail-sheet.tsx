@@ -166,7 +166,7 @@ function Detail({
 function Row({ label, children }: { label: string; children: ReactNode }) {
   const empty = children === null || children === undefined || children === '' || children === false
   return (
-    <div className="grid grid-cols-[8.5rem_minmax(0,1fr)] gap-3 border-t border-rule py-2 text-sm first:border-t-0">
+    <div className="grid grid-cols-[8.5rem_minmax(0,1fr)] gap-3 border-t py-2 text-sm first:border-t-0">
       <dt className="text-muted-foreground">{label}</dt>
       <dd className={empty ? 'text-muted-foreground' : undefined}>{empty ? '—' : children}</dd>
     </div>

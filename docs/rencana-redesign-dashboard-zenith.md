@@ -436,3 +436,49 @@ di Tahap 5–7:
 | Typecheck, lint, prettier | Bersih |
 
 **Berikutnya: Tahap 5** (Keuangan, termasuk perbaikan tertunda #1 dan #2).
+
+### Tahap 5 — Keuangan (29 Oktober 2026)
+
+**Komponen baru:** `StatStrip` ([stat-strip.tsx](../src/client/components/zenith/stat-strip.tsx)).
+
+- Deret angka dalam satu kartu.
+- Di layar ≥1024 px tiap angka satu kolom dengan label di atasnya; di bawahnya menjadi baris
+  label–angka.
+- Angka mengecil lewat `clamp(…cqi…)`, agar nominal Rupiah muat di empat kolom.
+
+**Halaman:**
+
+- **Transaksi Kas** (pola Zenith Orders):
+  - deret Kas masuk / Kas keluar / Selisih di atas tabel;
+  - di bilah alat: jenis bersegmen, pencarian, filter Bulan, Pos Kas, dan Kuitansi;
+  - kolom Kuitansi: tautan "Buka" atau lencana "Belum ada".
+  - **Perbaikan tertunda #2:** di bawah 1024 px baris keterangan (Pos Kas, mata anggaran,
+    pencatat) membungkus, tidak dipotong; kolom nominal di ponsel lebih rapat agar uraian lebih
+    lebar.
+- **Pos Kas & RAPBJ:**
+  - Pos Kas menjadi deret kartu saldo (nama, saldo, kode dan pemakaian, menu) dengan total saldo di
+    judulnya;
+  - tabel RAPBJ selebar halaman, dengan tahun dan Pos Kas di bilah alat;
+  - lencana "Lewat Rp…" memakai `StatusBadge` bahaya; sel Capaian rata kanan.
+  - **Perbaikan tertunda #1:** panel samping 20rem dihapus, sehingga kolom nama mata anggaran di
+    1280 px melebar dari ±150 px ke ±500 px; nama boleh membungkus.
+- **Laporan Keuangan:**
+  - jenis periode bersegmen, navigasi periode, Pos Kas, dan Rincian dalam satu baris;
+  - deret saldo awal / penerimaan / pengeluaran / saldo akhir di atas lembar;
+  - lembar laporan berbingkai kartu.
+  - Deret, kendali, dan judul halaman tidak ikut tercetak; isi cetakan sama seperti sebelumnya.
+
+**Pemeriksaan:**
+
+| Uji | Hasil |
+| --- | --- |
+| 4 peran (1440 px) | Bendahara dan Admin: tombol Catat, menu baris. Pendeta dan Majelis: baca saja. Kartu Pos Kas, tabel RAPBJ 6 baris, laporan mingguan. Tanpa gulir menyamping |
+| Perbaikan #1 (1280 px, Bendahara dan Admin) | 0 sel nama mata anggaran terpotong |
+| Perbaikan #2 (390 px) | 0 baris keterangan terpotong; di 768 px juga 0 |
+| Interaksi | Segmen Kas masuk → `?type=INCOME` (deret ikut berubah); panel rincian transaksi; laporan Bulanan → `?period=month` |
+| Cetak (emulasi media print) | Judul halaman, kendali, dan deret tersembunyi; lembar laporan tampil tanpa bingkai, latar putih |
+| Tema gelap | Kartu, tabel, bar capaian, dan lencana mengikuti token |
+| Inspector `--app` (Bendahara) | Transaksi 0 FAIL/0 WARN. RAPBJ 0/0: WARN `numeric-align` lama dari Tahap 2 selesai. Laporan 0 FAIL, 1 WARN `panel-void`, yaitu ruang tanda tangan basah di atas garis nama yang memang disengaja |
+| Typecheck, lint, prettier | Bersih |
+
+**Berikutnya: Tahap 6** (Pelayanan).

@@ -112,8 +112,14 @@ DashboardPack). Pengguna punya lisensinya tetapi belum mengunduh source React-ny
     Tahap 5–7.
   - Anggota: status bersegmen dan filter di bilah alat. KK: deret rayon berupa kartu angka.
     Rincian KK: Data KK berupa deret di atas tabel anggota. Impor: wizard tiga langkah.
-- **Berikutnya: Tahap 5 (Keuangan):** Transaksi Kas, Pos Kas & RAPBJ, Laporan + cetak, serta
-  perbaikan tertunda #1 dan #2.
+- **Tahap 5 (Keuangan) selesai.**
+  - Komponen baru `components/zenith/stat-strip.tsx` (deret angka dalam satu kartu).
+  - Transaksi Kas: deret jumlah, jenis bersegmen, filter di bilah alat, kolom Kuitansi.
+  - Pos Kas & RAPBJ: Pos Kas menjadi deret kartu saldo di atas tabel RAPBJ selebar halaman.
+  - Laporan: kendali bersegmen dan deret saldo di atas lembar; cetakan tidak berubah.
+  - Perbaikan tertunda #1 dan #2 selesai.
+- **Berikutnya: Tahap 6 (Pelayanan):** Jadwal Ibadah + editor, Sakramen + rincian + sertifikat,
+  Arsip Surat, Inventaris.
 
 ### Selesai: skala Portal Publik 90%
 
@@ -286,8 +292,10 @@ dan empat peran. Laporannya ada di `.taste-skill/inspect-audit/` (tidak di-commi
   Semua ini ditangani oleh redesign.
 - **Dashboard:** 28 layar lolos pengukuran tanpa FAIL. Tiga perbaikan masih tertunda, dikerjakan
   setelah redesign portal:
-  1. **Pos Kas & RAPBJ (1280px):** nama mata anggaran terpotong ("P1 Persembah…").
-  2. **Transaksi Kas di ponsel:** nama Pos Kas dan mata anggaran terpotong di baris keterangan.
+  1. ~~**Pos Kas & RAPBJ (1280px):** nama mata anggaran terpotong ("P1 Persembah…").~~ Selesai di
+     redesign Zenith Tahap 5: Pos Kas pindah ke deret kartu, tabel RAPBJ selebar halaman.
+  2. ~~**Transaksi Kas di ponsel:** nama Pos Kas dan mata anggaran terpotong di baris keterangan.~~
+     Selesai di Tahap 5: baris keterangan membungkus di bawah 1024 px.
   3. ~~**Ringkasan untuk Bendahara:** blok keuangan baru terlihat setelah digulir.~~ Selesai di
      redesign Zenith Tahap 3: urutan blok menyesuaikan peran.
 - **Identitas visual belum seragam:** portal biru tua dengan amber, halaman login biru tua dengan

@@ -33,6 +33,17 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Skeleton } from '@/components/ui/skeleton'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { SkeletonRows, TableCard, TableMessage, selectClass } from '@/components/zenith/data-table'
+import { PageHeader } from '@/components/zenith/page-header'
+import { StatusBadge } from '@/components/zenith/status-badge'
 import { api, errorMessage } from '@/lib/api'
 import { FINANCE_WRITERS, formatPercent, overBudget, realization, yearElapsed } from '@/lib/finance'
 import { formatTime } from '@/lib/format'
@@ -42,13 +53,12 @@ import { useLiveReload } from '@/lib/use-live-reload'
 import { useUrlFilters } from '@/lib/use-url-filters'
 import { cn } from '@/lib/utils'
 
-const selectClass =
-  'h-9 rounded-lg border border-input bg-card px-2.5 text-sm tabular-nums outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50'
-
 type Totals = { target_amount: number; realized_amount: number; type: FinanceType }
 
 // Pos Kas dan RAPBJ: target tiap mata anggaran setahun dan realisasinya, dihitung dari
 // transaksi yang tercatat. Bendahara dan Admin mengubah; Pendeta dan Majelis membaca.
+// Pos Kas tampil sebagai deret kartu saldo di atas, tabel RAPBJ selebar halaman di bawahnya
+// (sebelumnya panel samping menyempitkan kolom nama mata anggaran di 1280 px).
 export default function FinanceBudgetsPage() {
   const canEdit = useCan(FINANCE_WRITERS)
   const { params, update } = useUrlFilters()
@@ -182,11 +192,11 @@ export default function FinanceBudgetsPage() {
 
   return (
     <div className="grid gap-6">
-      <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
-        <div className="grid gap-1">
-          <h1 className="text-2xl font-semibold tracking-[-0.02em]">Pos Kas & RAPBJ</h1>
-          {loading ? (
-            <Skeleton className="h-5 w-80 max-w-full" />
+      <PageHeader
+        title="Pos Kas & RAPBJ"
+        description={
+          loading ? (
+            <span className="inline-block h-4 w-80 max-w-full animate-pulse rounded-md bg-muted align-middle" />
           ) : (
             <Finding
               year={year}
@@ -195,32 +205,48 @@ export default function FinanceBudgetsPage() {
               overCount={overCount}
               elapsed={year === currentYear ? elapsed : null}
             />
-          )}
-        </div>
-        {canEdit && funds.data && (
-          <Button size="lg" onClick={() => openBudgetForm()}>
-            <Plus data-icon="inline-start" />
-            {hasActiveFund ? 'Tambah mata anggaran' : 'Tambah Pos Kas'}
-          </Button>
-        )}
-      </header>
+          )
+        }
+        actions={
+          canEdit &&
+          funds.data && (
+            <Button size="lg" onClick={() => openBudgetForm()}>
+              <Plus data-icon="inline-start" />
+              {hasActiveFund ? 'Tambah mata anggaran' : 'Tambah Pos Kas'}
+            </Button>
+          )
+        }
+      />
 
-      <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
-        <section aria-labelledby="rapbj-heading" className="grid min-w-0 gap-3">
-          <h2 id="rapbj-heading" className="sr-only">
-            Mata anggaran RAPBJ {year}
-          </h2>
-          <div className="flex flex-wrap items-end gap-3">
-            <label className="grid gap-1.5">
-              <span className="text-xs text-muted-foreground">Tahun anggaran</span>
+      <FundCards
+        funds={fundList}
+        loading={!funds.data}
+        error={funds.data ? null : funds.error}
+        onRetry={reloadFunds}
+        canEdit={canEdit}
+        onAdd={() => setFundForm({})}
+        onEdit={(fund) => setFundForm({ fund })}
+        onToggle={toggleFund}
+        onDelete={confirmDeleteFund}
+      />
+
+      <div className="grid gap-3">
+        <TableCard
+          aria-labelledby="rapbj-heading"
+          toolbar={
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 id="rapbj-heading" className="mr-2 text-base font-semibold">
+                RAPBJ {year}
+              </h2>
               <select
+                aria-label="Tahun anggaran"
                 value={year}
                 onChange={(event) =>
                   update({
                     year: event.target.value === String(currentYear) ? '' : event.target.value,
                   })
                 }
-                className={cn(selectClass, 'w-28')}
+                className={cn(selectClass, 'w-28 tabular-nums')}
               >
                 {years.map((option) => (
                   <option key={option} value={option}>
@@ -228,14 +254,12 @@ export default function FinanceBudgetsPage() {
                   </option>
                 ))}
               </select>
-            </label>
-            <label className="grid min-w-0 flex-1 gap-1.5 sm:max-w-64">
-              <span className="text-xs text-muted-foreground">Pos Kas</span>
               <select
+                aria-label="Pos Kas"
                 value={fundId}
                 disabled={!funds.data}
                 onChange={(event) => update({ fund_id: event.target.value })}
-                className={cn(selectClass, 'w-full')}
+                className={cn(selectClass, 'min-w-0 flex-1 sm:max-w-64 sm:flex-none')}
               >
                 <option value="">Semua Pos Kas</option>
                 {fundList.map((fund) => (
@@ -244,116 +268,100 @@ export default function FinanceBudgetsPage() {
                   </option>
                 ))}
               </select>
-            </label>
-            <p className="ml-auto hidden pb-2 text-sm text-muted-foreground tabular-nums sm:block">
-              {budgets.data ? `${rows.length} mata anggaran` : ''}
-            </p>
-          </div>
-
-          <div className="rounded-lg border bg-card">
-            <table className="w-full table-fixed text-sm">
-              <caption className="sr-only">
-                Target dan realisasi mata anggaran RAPBJ {year}
-                {selectedFund ? `, ${selectedFund.name}` : ''}
-              </caption>
-              <thead>
-                <tr className="text-left text-xs text-muted-foreground">
-                  <th scope="col" className="h-10 pr-4 pl-4 font-normal">
-                    Mata anggaran
-                  </th>
-                  <th scope="col" className="hidden w-32 pr-4 text-right font-normal md:table-cell">
-                    Target
-                  </th>
-                  <th scope="col" className="hidden w-32 pr-4 text-right font-normal md:table-cell">
-                    Realisasi
-                  </th>
-                  <th scope="col" className="w-32 pr-4 font-normal sm:w-44">
-                    Capaian
-                  </th>
+              <p className="ml-auto hidden text-sm text-muted-foreground tabular-nums sm:block">
+                {budgets.data ? `${rows.length} mata anggaran` : ''}
+              </p>
+            </div>
+          }
+        >
+          <Table className="table-fixed">
+            <caption className="sr-only">
+              Target dan realisasi mata anggaran RAPBJ {year}
+              {selectedFund ? `, ${selectedFund.name}` : ''}
+            </caption>
+            <TableHeader>
+              <TableRow className="hover:bg-transparent">
+                <TableHead>Mata anggaran</TableHead>
+                <TableHead className="hidden w-36 text-right md:table-cell">Target</TableHead>
+                <TableHead className="hidden w-36 text-right md:table-cell">Realisasi</TableHead>
+                <TableHead className="w-36 sm:w-52">Capaian</TableHead>
+                {canEdit && (
+                  <TableHead className="w-12">
+                    <span className="sr-only">Tindakan</span>
+                  </TableHead>
+                )}
+              </TableRow>
+            </TableHeader>
+            {budgets.error && !budgets.data ? (
+              <TableBody>
+                <TableMessage colSpan={colSpan}>
+                  RAPBJ tidak dapat dimuat: {budgets.error}{' '}
+                  <button type="button" onClick={reloadAll} className="font-medium underline">
+                    Coba lagi
+                  </button>
+                </TableMessage>
+              </TableBody>
+            ) : loading ? (
+              <TableBody>
+                <SkeletonRows
+                  cells={[
+                    '',
+                    'hidden md:table-cell',
+                    'hidden md:table-cell',
+                    '',
+                    ...(canEdit ? [''] : []),
+                  ]}
+                />
+              </TableBody>
+            ) : rows.length === 0 ? (
+              <TableBody>
+                <TableMessage colSpan={colSpan}>
+                  {fundList.length === 0
+                    ? 'Belum ada Pos Kas. Buat Pos Kas dulu, lalu susun mata anggaran RAPBJ-nya.'
+                    : `Belum ada mata anggaran RAPBJ ${year}${selectedFund ? ` di ${selectedFund.name}` : ''}.`}
                   {canEdit && (
-                    <th scope="col" className="w-12 pr-2">
-                      <span className="sr-only">Tindakan</span>
-                    </th>
+                    <>
+                      {' '}
+                      <button
+                        type="button"
+                        className="font-medium text-foreground underline"
+                        onClick={() => openBudgetForm()}
+                      >
+                        {hasActiveFund ? 'Tambah mata anggaran' : 'Tambah Pos Kas'}
+                      </button>
+                    </>
                   )}
-                </tr>
-              </thead>
-              {budgets.error && !budgets.data ? (
-                <tbody>
-                  <MessageRow colSpan={colSpan}>
-                    RAPBJ tidak dapat dimuat: {budgets.error}{' '}
-                    <button type="button" onClick={reloadAll} className="font-medium underline">
-                      Coba lagi
-                    </button>
-                  </MessageRow>
-                </tbody>
-              ) : loading ? (
-                <tbody>
-                  {Array.from({ length: 6 }, (_, index) => (
-                    <SkeletonRow key={index} withMenu={canEdit} />
-                  ))}
-                </tbody>
-              ) : rows.length === 0 ? (
-                <tbody>
-                  <MessageRow colSpan={colSpan}>
-                    {fundList.length === 0
-                      ? 'Belum ada Pos Kas. Buat Pos Kas dulu, lalu susun mata anggaran RAPBJ-nya.'
-                      : `Belum ada mata anggaran RAPBJ ${year}${selectedFund ? ` di ${selectedFund.name}` : ''}.`}
-                    {canEdit && (
-                      <>
-                        {' '}
-                        <button
-                          type="button"
-                          className="font-medium text-foreground underline"
-                          onClick={() => openBudgetForm()}
-                        >
-                          {hasActiveFund ? 'Tambah mata anggaran' : 'Tambah Pos Kas'}
-                        </button>
-                      </>
-                    )}
-                  </MessageRow>
-                </tbody>
-              ) : (
-                groups.map((group) => (
-                  <BudgetGroup
-                    key={group.type}
-                    type={group.type}
-                    rows={group.rows}
-                    showFund={!fundId}
-                    elapsed={elapsed}
-                    canEdit={canEdit}
-                    onAdd={() => openBudgetForm(group.type)}
-                    onEdit={(budget) => setBudgetForm({ budget })}
-                    onToggle={toggleBudget}
-                    onDelete={confirmDeleteBudget}
-                  />
-                ))
-              )}
-            </table>
-          </div>
-          {budgets.data && rows.length > 0 && (
-            <p className="text-[0.8125rem] text-muted-foreground">
-              Realisasi dihitung otomatis dari kas masuk dan kas keluar yang dicatat pada tiap mata
-              anggaran
-              {budgets.updatedAt &&
-                `, diperbarui pukul ${formatTime(new Date(budgets.updatedAt).toISOString())}`}
-              .
-              {year === currentYear &&
-                ` Garis tegak pada bar menandai ${formatPercent(elapsed)} tahun yang sudah berjalan.`}
-            </p>
-          )}
-        </section>
-
-        <FundPanel
-          funds={fundList}
-          loading={!funds.data}
-          error={funds.data ? null : funds.error}
-          onRetry={reloadFunds}
-          canEdit={canEdit}
-          onAdd={() => setFundForm({})}
-          onEdit={(fund) => setFundForm({ fund })}
-          onToggle={toggleFund}
-          onDelete={confirmDeleteFund}
-        />
+                </TableMessage>
+              </TableBody>
+            ) : (
+              groups.map((group) => (
+                <BudgetGroup
+                  key={group.type}
+                  type={group.type}
+                  rows={group.rows}
+                  showFund={!fundId}
+                  elapsed={elapsed}
+                  canEdit={canEdit}
+                  onAdd={() => openBudgetForm(group.type)}
+                  onEdit={(budget) => setBudgetForm({ budget })}
+                  onToggle={toggleBudget}
+                  onDelete={confirmDeleteBudget}
+                />
+              ))
+            )}
+          </Table>
+        </TableCard>
+        {budgets.data && rows.length > 0 && (
+          <p className="text-[0.8125rem] text-muted-foreground">
+            Realisasi dihitung otomatis dari kas masuk dan kas keluar yang dicatat pada tiap mata
+            anggaran
+            {budgets.updatedAt &&
+              `, diperbarui pukul ${formatTime(new Date(budgets.updatedAt).toISOString())}`}
+            .
+            {year === currentYear &&
+              ` Garis tegak pada bar menandai ${formatPercent(elapsed)} tahun yang sudah berjalan.`}
+          </p>
+        )}
       </div>
 
       {canEdit && (
@@ -426,7 +434,7 @@ function Finding({
   }
 
   return (
-    <p className="text-sm text-muted-foreground tabular-nums">
+    <span className="tabular-nums">
       RAPBJ {year}
       {fund && ` · ${fund.name}`}
       {parts.length === 0
@@ -437,7 +445,7 @@ function Finding({
               {part}
             </span>
           ))}
-    </p>
+    </span>
   )
 }
 
@@ -468,9 +476,9 @@ function BudgetGroup({
   // Kelompok tanpa mata anggaran tidak punya jumlah; tanda pisah, bukan Rp0.
   const figure = (amount: number) => (empty ? '—' : formatRupiah(amount))
   return (
-    <tbody>
-      <tr className="border-t border-rule bg-muted/50 align-top">
-        <th scope="rowgroup" className="py-2.5 pr-4 pl-4 text-left font-medium">
+    <TableBody>
+      <TableRow className="bg-muted/50 hover:bg-muted/50 [&>*]:align-top">
+        <th scope="rowgroup" className="px-4 py-2.5 text-left font-semibold">
           {label}
           {!empty && (
             <span className="block text-[0.8125rem] font-normal text-muted-foreground tabular-nums md:hidden">
@@ -478,29 +486,29 @@ function BudgetGroup({
             </span>
           )}
         </th>
-        <td
+        <TableCell
           className={cn(
-            'hidden py-2.5 pr-4 text-right font-medium tabular-nums md:table-cell',
+            'hidden py-2.5 text-right font-semibold tabular-nums md:table-cell',
             empty && 'font-normal text-muted-foreground',
           )}
         >
           {figure(totals.target_amount)}
-        </td>
-        <td
+        </TableCell>
+        <TableCell
           className={cn(
-            'hidden py-2.5 pr-4 text-right font-medium tabular-nums md:table-cell',
+            'hidden py-2.5 text-right font-semibold tabular-nums md:table-cell',
             empty && 'font-normal text-muted-foreground',
           )}
         >
           {figure(totals.realized_amount)}
-        </td>
-        <td className="py-2.5 pr-4">
+        </TableCell>
+        <TableCell className="py-2.5 text-right">
           {rows.length > 0 && <Meter totals={totals} elapsed={elapsed} strong />}
-        </td>
-        {canEdit && <td />}
-      </tr>
+        </TableCell>
+        {canEdit && <TableCell />}
+      </TableRow>
       {rows.length === 0 ? (
-        <MessageRow colSpan={canEdit ? 5 : 4}>
+        <TableMessage colSpan={canEdit ? 5 : 4}>
           Belum ada mata anggaran {label.toLowerCase()}.
           {canEdit && (
             <>
@@ -514,7 +522,7 @@ function BudgetGroup({
               </button>
             </>
           )}
-        </MessageRow>
+        </TableMessage>
       ) : (
         rows.map((budget) => (
           <BudgetRow
@@ -529,7 +537,7 @@ function BudgetGroup({
           />
         ))
       )}
-    </tbody>
+    </TableBody>
   )
 }
 
@@ -555,11 +563,10 @@ function BudgetRow({
   const details = [showFund && budget.fund_code, !budget.is_active && 'Nonaktif'].filter(Boolean)
 
   return (
-    <tr
-      className={cn('border-t border-rule align-top', !budget.is_active && 'text-muted-foreground')}
-    >
-      <td className="py-3 pr-4 pl-4">
-        <p className="md:truncate" title={`${budget.account_code} ${budget.account_name}`}>
+    <TableRow className={cn('[&>td]:align-top', !budget.is_active && 'text-muted-foreground')}>
+      <TableCell className="whitespace-normal">
+        {/* Nama mata anggaran boleh membungkus; kolom ini kini selebar sisa tabel. */}
+        <p className="break-words">
           <span className="text-muted-foreground tabular-nums">{budget.account_code}</span>{' '}
           <Link to={transactionsLink} className="font-medium underline-offset-4 hover:underline">
             {budget.account_name}
@@ -572,33 +579,31 @@ function BudgetRow({
           </span>
           {details.join(' · ')}
           {over && (
-            <span
-              className={cn(
-                'ml-1.5 inline-block rounded-full bg-negative-soft px-2 py-0.5 text-xs font-medium whitespace-nowrap text-negative-ink',
-                details.length === 0 && 'md:ml-0',
-              )}
+            <StatusBadge
+              tone="danger"
+              className={cn('ml-1.5 align-middle', details.length === 0 && 'md:ml-0')}
             >
               Lewat {formatRupiah(budget.realized_amount - budget.target_amount)}
-            </span>
+            </StatusBadge>
           )}
         </p>
-      </td>
-      <td className="hidden py-3 pr-4 text-right tabular-nums md:table-cell">
+      </TableCell>
+      <TableCell className="hidden text-right tabular-nums md:table-cell">
         {formatRupiah(budget.target_amount)}
-      </td>
-      <td
+      </TableCell>
+      <TableCell
         className={cn(
-          'hidden py-3 pr-4 text-right tabular-nums md:table-cell',
+          'hidden text-right tabular-nums md:table-cell',
           budget.realized_amount === 0 && 'text-muted-foreground',
         )}
       >
         {formatRupiah(budget.realized_amount)}
-      </td>
-      <td className="py-3 pr-4">
+      </TableCell>
+      <TableCell className="text-right">
         <Meter totals={budget} elapsed={elapsed} />
-      </td>
+      </TableCell>
       {canEdit && (
-        <td className="py-2 pr-2 text-right">
+        <TableCell className="py-1.5 pr-2 pl-0 text-right">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="size-10 sm:size-8">
@@ -640,9 +645,9 @@ function BudgetRow({
               )}
             </DropdownMenuContent>
           </DropdownMenu>
-        </td>
+        </TableCell>
       )}
-    </tr>
+    </TableRow>
   )
 }
 
@@ -706,7 +711,8 @@ function Meter({
   )
 }
 
-function FundPanel({
+// Pos Kas sebagai deret kartu saldo (Zenith): nama, saldo, kode dan pemakaiannya, menu.
+function FundCards({
   funds,
   loading,
   error,
@@ -729,62 +735,61 @@ function FundPanel({
 }) {
   const total = funds.reduce((sum, fund) => sum + fund.current_balance, 0)
   return (
-    <section aria-labelledby="funds-heading" className="rounded-lg border bg-card">
-      <div className="flex items-center justify-between gap-3 px-4 pt-3 pb-2">
-        <h2 id="funds-heading" className="text-sm font-semibold">
+    <section aria-labelledby="funds-heading" className="grid gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+        <h2 id="funds-heading" className="text-base font-semibold">
           Pos Kas
+          {!loading && !error && funds.length > 0 && (
+            <span className="ml-2 font-normal text-muted-foreground tabular-nums">
+              Total saldo{' '}
+              <span className="font-semibold text-foreground">{formatRupiah(total)}</span>
+            </span>
+          )}
         </h2>
         {canEdit && (
-          <Button variant="outline" size="sm" onClick={onAdd}>
+          <Button variant="outline" onClick={onAdd}>
             <Plus data-icon="inline-start" />
             Tambah Pos Kas
           </Button>
         )}
       </div>
       {error ? (
-        <p className="border-t border-rule px-4 py-6 text-sm text-muted-foreground">
+        <p className="rounded-xl px-4 py-6 text-sm text-muted-foreground ring-1 ring-foreground/10">
           Pos Kas tidak dapat dimuat: {error}{' '}
           <button type="button" onClick={onRetry} className="font-medium underline">
             Coba lagi
           </button>
         </p>
       ) : loading ? (
-        <ul aria-hidden="true">
-          {Array.from({ length: 3 }, (_, index) => (
-            <li key={index} className="grid gap-1.5 border-t border-rule px-4 py-3">
-              <Skeleton className="h-5 w-40" />
-              <Skeleton className="h-4 w-28" />
+        <ul
+          aria-hidden="true"
+          className="grid grid-cols-[repeat(auto-fill,minmax(15rem,1fr))] gap-3"
+        >
+          {Array.from({ length: 4 }, (_, index) => (
+            <li key={index} className="grid gap-2 rounded-xl p-4 ring-1 ring-foreground/10">
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-7 w-40" />
+              <Skeleton className="h-3.5 w-36" />
             </li>
           ))}
         </ul>
       ) : funds.length === 0 ? (
-        <p className="border-t border-rule px-4 py-6 text-sm text-muted-foreground">
+        <p className="rounded-xl border border-dashed px-4 py-6 text-sm text-muted-foreground">
           Belum ada Pos Kas. Contohnya Kas Umum, Kas Pembangunan, dan Kas Diakonia.
         </p>
       ) : (
-        <>
-          <ul>
-            {funds.map((fund) => (
-              <FundItem
-                key={fund.id}
-                fund={fund}
-                canEdit={canEdit}
-                onEdit={() => onEdit(fund)}
-                onToggle={() => onToggle(fund)}
-                onDelete={() => onDelete(fund)}
-              />
-            ))}
-          </ul>
-          <div
-            className={cn(
-              'flex items-baseline justify-between gap-3 border-t px-4 py-3',
-              canEdit && 'pr-14',
-            )}
-          >
-            <p className="text-sm text-muted-foreground">Total saldo</p>
-            <p className="text-base font-semibold tabular-nums">{formatRupiah(total)}</p>
-          </div>
-        </>
+        <ul className="grid grid-cols-[repeat(auto-fill,minmax(15rem,1fr))] gap-3">
+          {funds.map((fund) => (
+            <FundItem
+              key={fund.id}
+              fund={fund}
+              canEdit={canEdit}
+              onEdit={() => onEdit(fund)}
+              onToggle={() => onToggle(fund)}
+              onDelete={() => onDelete(fund)}
+            />
+          ))}
+        </ul>
       )}
     </section>
   )
@@ -813,38 +818,36 @@ function FundItem({
   return (
     <li
       className={cn(
-        'flex items-start gap-2 border-t border-rule py-3 pl-4',
+        'flex items-start gap-2 rounded-xl bg-card py-4 pl-4 ring-1 ring-foreground/10',
         canEdit ? 'pr-2' : 'pr-4',
+        !fund.is_active && 'bg-muted/40',
       )}
     >
       <div className="min-w-0 flex-1">
-        <div className="flex items-baseline justify-between gap-3">
-          <Link
-            to={transactionsLink}
-            className={cn(
-              'min-w-0 font-medium break-words underline-offset-4 hover:underline',
-              !fund.is_active && 'text-muted-foreground',
-            )}
-          >
-            {fund.name}
-          </Link>
-          <p
-            className={cn(
-              'flex-none tabular-nums',
-              fund.current_balance < 0 && 'font-medium text-negative-ink',
-            )}
-          >
-            {formatRupiah(fund.current_balance)}
-          </p>
-        </div>
-        <p className="mt-0.5 truncate text-[0.8125rem] text-muted-foreground">
-          {details.join(' · ')}
+        <Link
+          to={transactionsLink}
+          className={cn(
+            'text-sm break-words underline-offset-4 hover:underline',
+            fund.is_active ? 'text-muted-foreground' : 'text-muted-foreground/80',
+          )}
+        >
+          {fund.name}
+        </Link>
+        <p
+          className={cn(
+            'mt-1 text-xl font-bold tracking-tight tabular-nums',
+            fund.current_balance < 0 && 'text-negative-ink',
+            !fund.is_active && 'text-muted-foreground',
+          )}
+        >
+          {formatRupiah(fund.current_balance)}
         </p>
+        <p className="mt-1 text-[0.8125rem] text-muted-foreground">{details.join(' · ')}</p>
       </div>
       {canEdit && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="-my-1 size-10 flex-none sm:size-8">
+            <Button variant="ghost" size="icon" className="-mt-2 size-10 flex-none sm:size-8">
               <EllipsisVertical />
               <span className="sr-only">Tindakan untuk Pos Kas {fund.code}</span>
             </Button>
@@ -885,36 +888,5 @@ function FundItem({
         </DropdownMenu>
       )}
     </li>
-  )
-}
-
-function MessageRow({ colSpan, children }: { colSpan: number; children: ReactNode }) {
-  return (
-    <tr className="border-t border-rule">
-      <td colSpan={colSpan} className="px-4 py-6 text-muted-foreground">
-        {children}
-      </td>
-    </tr>
-  )
-}
-
-function SkeletonRow({ withMenu }: { withMenu: boolean }) {
-  return (
-    <tr className="border-t border-rule" aria-hidden="true">
-      <td className="py-3 pr-4 pl-4">
-        <Skeleton className="h-5 w-48 max-w-full" />
-        <Skeleton className="mt-1.5 h-4 w-20" />
-      </td>
-      <td className="hidden py-3 pr-4 md:table-cell">
-        <Skeleton className="ml-auto h-5 w-24" />
-      </td>
-      <td className="hidden py-3 pr-4 md:table-cell">
-        <Skeleton className="ml-auto h-5 w-24" />
-      </td>
-      <td className="py-3 pr-4">
-        <Skeleton className="h-5 w-full" />
-      </td>
-      {withMenu && <td />}
-    </tr>
   )
 }

@@ -1,15 +1,5 @@
-import { useRef, useState, type ReactNode } from 'react'
-import {
-  EllipsisVertical,
-  Eye,
-  FileText,
-  Paperclip,
-  Pencil,
-  Plus,
-  Search,
-  Trash2,
-  X,
-} from 'lucide-react'
+import { useRef, useState } from 'react'
+import { EllipsisVertical, Eye, FileText, Paperclip, Pencil, Plus, Trash2, X } from 'lucide-react'
 import { Link } from 'react-router'
 import { toast } from 'sonner'
 import { witaToday } from '@shared/dates'
@@ -34,9 +24,26 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Skeleton } from '@/components/ui/skeleton'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import {
+  SearchField,
+  SkeletonRows,
+  TableCard,
+  TableMessage,
+  TablePagination,
+  selectClass,
+} from '@/components/zenith/data-table'
+import { PageHeader } from '@/components/zenith/page-header'
+import { Segmented } from '@/components/zenith/segmented'
+import { StatStrip } from '@/components/zenith/stat-strip'
+import { StatusBadge } from '@/components/zenith/status-badge'
 import { api } from '@/lib/api'
 import { FINANCE_WRITERS, monthLabel, monthRange, recentMonths, signedAmount } from '@/lib/finance'
 import { formatDate } from '@/lib/format'
@@ -47,14 +54,12 @@ import { cn } from '@/lib/utils'
 
 const PER_PAGE = 50
 
-const controlClass =
-  'h-9 w-full rounded-lg border border-input bg-card px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50'
-
 const MONTH_PATTERN = /^\d{4}-(0[1-9]|1[0-2])$/
 
 // Transaksi kas masuk dan keluar per bulan, dengan bukti kuitansinya. Bendahara dan
 // Admin mencatat, mengubah, dan menghapus; Pendeta dan Majelis hanya melihat.
-// Filter disimpan di URL; tanpa `month` yang ditampilkan bulan berjalan.
+// Filter disimpan di URL; tanpa `month` yang ditampilkan bulan berjalan. Pola Zenith
+// Orders: deret jumlah di atas, jenis bersegmen dan filter di bilah alat tabel.
 export default function FinanceTransactionsPage() {
   const me = useCurrentUser()
   const canEdit = useCan(FINANCE_WRITERS)
@@ -123,8 +128,6 @@ export default function FinanceTransactionsPage() {
   const result = transactions.data
   const items = result?.data ?? []
   const total = result?.meta.total ?? 0
-  const first = total === 0 ? 0 : (page - 1) * PER_PAGE + 1
-  const last = Math.min(page * PER_PAGE, total)
   const filtered = Boolean(fundId || budgetId || type || receipt || q)
   const missingCount = missing.data?.meta.total
   const colSpan = canEdit ? 5 : 4
@@ -213,11 +216,11 @@ export default function FinanceTransactionsPage() {
 
   return (
     <div className="grid gap-6">
-      <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
-        <div className="grid gap-1">
-          <h1 className="text-2xl font-semibold tracking-[-0.02em]">Transaksi Kas</h1>
-          {missingCount !== undefined && result ? (
-            <p className="text-sm text-muted-foreground tabular-nums">
+      <PageHeader
+        title="Transaksi Kas"
+        description={
+          missingCount !== undefined && result ? (
+            <span className="tabular-nums">
               {period}
               {selectedFund && ` · ${selectedFund.name}`}
               {': '}
@@ -244,12 +247,13 @@ export default function FinanceTransactionsPage() {
               ) : (
                 'belum ada transaksi.'
               )}
-            </p>
+            </span>
           ) : (
-            <Skeleton className="h-5 w-72" />
-          )}
-        </div>
-        {canEdit &&
+            <span className="inline-block h-4 w-72 max-w-full animate-pulse rounded-md bg-muted align-middle" />
+          )
+        }
+        actions={
+          canEdit &&
           funds.data &&
           (hasActiveFund ? (
             <Button size="lg" onClick={() => setForm({})}>
@@ -263,155 +267,153 @@ export default function FinanceTransactionsPage() {
                 Buat Pos Kas dulu
               </Link>
             </Button>
-          ))}
-      </header>
+          ))
+        }
+      />
 
-      <div className="grid gap-3">
-        <div className="grid grid-cols-2 items-end gap-3 md:grid-cols-4">
-          <FilterField id="filter-bulan" label="Bulan">
-            <select
-              id="filter-bulan"
-              value={month || 'all'}
-              onChange={(event) =>
-                update({ month: event.target.value === thisMonth ? '' : event.target.value })
-              }
-              className={controlClass}
-            >
-              {months.map((option) => (
-                <option key={option} value={option}>
-                  {monthLabel(option)}
-                </option>
-              ))}
-              <option value="all">Semua bulan</option>
-            </select>
-          </FilterField>
-          <FilterField id="filter-pos" label="Pos Kas">
-            <select
-              id="filter-pos"
-              value={fundId}
-              disabled={!funds.data}
-              onChange={(event) => update({ fund_id: event.target.value, budget_id: '' })}
-              className={controlClass}
-            >
-              <option value="">Semua Pos Kas</option>
-              {fundList.map((fund) => (
-                <option key={fund.id} value={fund.id}>
-                  {fund.code} · {fund.name}
-                </option>
-              ))}
-            </select>
-          </FilterField>
-          <FilterField id="filter-jenis" label="Jenis">
-            <select
-              id="filter-jenis"
-              value={type}
-              onChange={(event) => update({ type: event.target.value })}
-              className={controlClass}
-            >
-              <option value="">Semua jenis</option>
-              <option value="INCOME">{TRANSACTION_TYPE_LABELS.INCOME}</option>
-              <option value="EXPENSE">{TRANSACTION_TYPE_LABELS.EXPENSE}</option>
-            </select>
-          </FilterField>
-          <FilterField id="filter-kuitansi" label="Kuitansi">
-            <select
-              id="filter-kuitansi"
-              value={receipt}
-              onChange={(event) => update({ receipt: event.target.value })}
-              className={controlClass}
-            >
-              <option value="">Semua</option>
-              <option value="with">Sudah berkuitansi</option>
-              <option value="without">Belum berkuitansi</option>
-            </select>
-          </FilterField>
-        </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="relative w-full sm:w-80">
-            <Search
-              aria-hidden="true"
-              className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
-            />
-            <Input
-              type="search"
-              value={search}
-              onChange={(event) => handleSearch(event.target.value)}
-              placeholder="Cari keterangan transaksi"
-              aria-label="Cari transaksi"
-              className={cn(controlClass, 'pl-9')}
-            />
-          </div>
-          {budgetId && (
-            <p className="flex min-w-0 items-center gap-1 text-sm">
-              <span className="truncate">
-                Mata anggaran{' '}
-                {selectedBudget
-                  ? `${selectedBudget.account_code} · ${selectedBudget.account_name} (${selectedBudget.fiscal_year})`
-                  : 'terpilih'}
-              </span>
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                onClick={() => update({ budget_id: '' })}
-                className="text-muted-foreground"
-              >
-                <X />
-                <span className="sr-only">Tampilkan semua mata anggaran</span>
-              </Button>
-            </p>
-          )}
-          <div className="ml-auto flex items-center gap-2">
-            {(filtered || monthParam) && (
-              <Button
-                variant="ghost"
-                onClick={() =>
-                  clearSearch({ month: '', fund_id: '', budget_id: '', type: '', receipt: '' })
-                }
-              >
-                Hapus filter
-              </Button>
-            )}
-            <p className="text-sm text-muted-foreground tabular-nums" aria-live="polite">
-              {result ? `${total.toLocaleString('id-ID')} transaksi` : ''}
-            </p>
-          </div>
-        </div>
-      </div>
+      <Totals result={result} label={`Jumlah transaksi ${periodPhrase}`} />
 
-      <div className="rounded-lg border bg-card">
-        <Totals result={result} />
-        <table className="w-full table-fixed border-t text-sm" aria-busy={transactions.loading}>
+      <TableCard
+        aria-label="Daftar transaksi kas"
+        toolbar={
+          <>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <Segmented
+                label="Jenis transaksi"
+                value={type || 'ALL'}
+                onChange={(value) => update({ type: value === 'ALL' ? '' : value })}
+                options={[
+                  { value: 'ALL', label: 'Semua' },
+                  { value: 'INCOME', label: TRANSACTION_TYPE_LABELS.INCOME },
+                  { value: 'EXPENSE', label: TRANSACTION_TYPE_LABELS.EXPENSE },
+                ]}
+              />
+              <p className="text-sm text-muted-foreground tabular-nums" aria-live="polite">
+                {result ? `${total.toLocaleString('id-ID')} transaksi` : ''}
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <SearchField
+                value={search}
+                onChange={handleSearch}
+                label="Cari transaksi"
+                placeholder="Cari keterangan transaksi"
+              />
+              <div
+                role="group"
+                aria-label="Filter"
+                className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap"
+              >
+                <select
+                  aria-label="Bulan"
+                  value={month || 'all'}
+                  onChange={(event) =>
+                    update({ month: event.target.value === thisMonth ? '' : event.target.value })
+                  }
+                  className={cn(selectClass, 'col-span-2 sm:col-span-1')}
+                >
+                  {months.map((option) => (
+                    <option key={option} value={option}>
+                      {monthLabel(option)}
+                    </option>
+                  ))}
+                  <option value="all">Semua bulan</option>
+                </select>
+                <select
+                  aria-label="Pos Kas"
+                  value={fundId}
+                  disabled={!funds.data}
+                  onChange={(event) => update({ fund_id: event.target.value, budget_id: '' })}
+                  className={cn(selectClass, 'sm:max-w-56')}
+                >
+                  <option value="">Semua Pos Kas</option>
+                  {fundList.map((fund) => (
+                    <option key={fund.id} value={fund.id}>
+                      {fund.code} · {fund.name}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  aria-label="Kuitansi"
+                  value={receipt}
+                  onChange={(event) => update({ receipt: event.target.value })}
+                  className={selectClass}
+                >
+                  <option value="">Kuitansi: semua</option>
+                  <option value="with">Sudah berkuitansi</option>
+                  <option value="without">Belum berkuitansi</option>
+                </select>
+              </div>
+              {budgetId && (
+                <p className="flex min-w-0 items-center gap-1 text-sm">
+                  <span className="truncate">
+                    Mata anggaran{' '}
+                    {selectedBudget
+                      ? `${selectedBudget.account_code} · ${selectedBudget.account_name} (${selectedBudget.fiscal_year})`
+                      : 'terpilih'}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={() => update({ budget_id: '' })}
+                    className="text-muted-foreground"
+                  >
+                    <X />
+                    <span className="sr-only">Tampilkan semua mata anggaran</span>
+                  </Button>
+                </p>
+              )}
+              {(filtered || monthParam) && (
+                <Button
+                  variant="ghost"
+                  size="lg"
+                  onClick={() =>
+                    clearSearch({ month: '', fund_id: '', budget_id: '', type: '', receipt: '' })
+                  }
+                >
+                  <X data-icon="inline-start" />
+                  Hapus filter
+                </Button>
+              )}
+            </div>
+          </>
+        }
+        footer={
+          result && (
+            <TablePagination
+              label="Halaman daftar transaksi"
+              page={page}
+              perPage={PER_PAGE}
+              total={total}
+              unit="transaksi"
+              onPage={(next) => update({ page: String(next) })}
+            />
+          )
+        }
+      >
+        <Table className="table-fixed" aria-busy={transactions.loading}>
           <caption className="sr-only">
             Transaksi kas {periodPhrase}
             {selectedFund ? `, ${selectedFund.name}` : ''}
           </caption>
-          <thead>
-            <tr className="text-left text-xs text-muted-foreground">
-              <th scope="col" className="hidden h-10 w-32 pl-4 font-normal sm:table-cell">
-                Tanggal
-              </th>
-              <th scope="col" className="h-10 pr-4 pl-4 font-normal sm:pl-0">
-                Uraian
-              </th>
-              <th scope="col" className="hidden w-10 font-normal sm:table-cell">
-                <Paperclip className="size-3.5" aria-hidden="true" />
-                <span className="sr-only">Kuitansi</span>
-              </th>
-              <th scope="col" className="w-32 pr-4 text-right font-normal sm:w-40">
-                Nominal
-              </th>
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead className="hidden w-32 sm:table-cell">Tanggal</TableHead>
+              <TableHead>Uraian</TableHead>
+              <TableHead className="hidden w-28 md:table-cell">Kuitansi</TableHead>
+              <TableHead className="w-32 pl-2 text-right sm:w-40 sm:pl-4">Nominal</TableHead>
               {canEdit && (
-                <th scope="col" className="w-12 pr-2">
+                <TableHead className="w-12">
                   <span className="sr-only">Tindakan</span>
-                </th>
+                </TableHead>
               )}
-            </tr>
-          </thead>
-          <tbody
+            </TableRow>
+          </TableHeader>
+          <TableBody
             className={cn('transition-opacity', transactions.loading && result && 'opacity-60')}
           >
             {transactions.error && (
-              <MessageRow colSpan={colSpan}>
+              <TableMessage colSpan={colSpan}>
                 Transaksi tidak dapat dimuat: {transactions.error}{' '}
                 <button
                   type="button"
@@ -420,15 +422,22 @@ export default function FinanceTransactionsPage() {
                 >
                   Coba lagi
                 </button>
-              </MessageRow>
+              </TableMessage>
             )}
-            {!result &&
-              !transactions.error &&
-              Array.from({ length: 8 }, (_, index) => (
-                <SkeletonRow key={index} withMenu={canEdit} />
-              ))}
+            {!result && !transactions.error && (
+              <SkeletonRows
+                rows={8}
+                cells={[
+                  'hidden sm:table-cell',
+                  '',
+                  'hidden md:table-cell',
+                  '',
+                  ...(canEdit ? [''] : []),
+                ]}
+              />
+            )}
             {result && !transactions.error && items.length === 0 && (
-              <MessageRow colSpan={colSpan}>
+              <TableMessage colSpan={colSpan}>
                 {funds.data && fundList.length === 0 ? (
                   canEdit ? (
                     <>
@@ -473,7 +482,7 @@ export default function FinanceTransactionsPage() {
                     )}
                   </>
                 )}
-              </MessageRow>
+              </TableMessage>
             )}
             {!transactions.error &&
               items.map((transaction) => (
@@ -487,37 +496,9 @@ export default function FinanceTransactionsPage() {
                   onDelete={() => confirmDelete(transaction)}
                 />
               ))}
-          </tbody>
-        </table>
-
-        {result && total > 0 && (
-          <nav
-            aria-label="Halaman daftar transaksi"
-            className="flex flex-wrap items-center justify-between gap-3 border-t border-rule px-4 py-3"
-          >
-            <p className="text-sm text-muted-foreground tabular-nums">
-              {first.toLocaleString('id-ID')}–{last.toLocaleString('id-ID')} dari{' '}
-              {total.toLocaleString('id-ID')} transaksi
-            </p>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                disabled={page <= 1}
-                onClick={() => update({ page: String(page - 1) })}
-              >
-                Sebelumnya
-              </Button>
-              <Button
-                variant="outline"
-                disabled={last >= total}
-                onClick={() => update({ page: String(page + 1) })}
-              >
-                Berikutnya
-              </Button>
-            </div>
-          </nav>
-        )}
-      </div>
+          </TableBody>
+        </Table>
+      </TableCard>
 
       <TransactionDetailSheet
         transaction={detail}
@@ -546,38 +527,35 @@ export default function FinanceTransactionsPage() {
 }
 
 // Jumlah kas masuk, kas keluar, dan selisihnya untuk seluruh hasil filter (bukan hanya
-// halaman ini), sebagai kepala tabel.
-function Totals({ result }: { result: FinanceTransactionPage | undefined }) {
+// halaman ini), sebagai deret angka di atas tabel.
+function Totals({ result, label }: { result: FinanceTransactionPage | undefined; label: string }) {
   const income = result?.totals.income ?? 0
   const expense = result?.totals.expense ?? 0
   const net = income - expense
-  const cells = [
-    { label: 'Kas masuk', value: income > 0 ? `+${formatRupiah(income)}` : formatRupiah(0) },
-    { label: 'Kas keluar', value: expense > 0 ? `−${formatRupiah(expense)}` : formatRupiah(0) },
-    {
-      label: 'Selisih',
-      value: `${net > 0 ? '+' : net < 0 ? '−' : ''}${formatRupiah(Math.abs(net))}`,
-    },
-  ]
+  const loading = (
+    <span className="inline-block h-6 w-32 animate-pulse rounded-md bg-muted align-middle" />
+  )
   return (
-    <dl className="grid divide-y divide-rule sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-      {cells.map((cell, index) => (
-        <div
-          key={cell.label}
-          className="flex items-baseline justify-between gap-3 px-4 py-3 sm:grid sm:gap-1"
-        >
-          <dt className="text-sm text-muted-foreground">{cell.label}</dt>
-          <dd
-            className={cn(
-              'text-lg font-semibold tabular-nums sm:text-2xl',
-              index === 0 && income > 0 && 'text-positive',
-            )}
-          >
-            {result ? cell.value : <Skeleton className="h-7 w-32" />}
-          </dd>
-        </div>
-      ))}
-    </dl>
+    <StatStrip
+      label={label}
+      stats={[
+        {
+          label: 'Kas masuk',
+          value: result ? (income > 0 ? `+${formatRupiah(income)}` : formatRupiah(0)) : loading,
+          className: income > 0 ? 'text-positive' : undefined,
+        },
+        {
+          label: 'Kas keluar',
+          value: result ? (expense > 0 ? `−${formatRupiah(expense)}` : formatRupiah(0)) : loading,
+        },
+        {
+          label: 'Selisih',
+          value: result
+            ? `${net > 0 ? '+' : net < 0 ? '−' : ''}${formatRupiah(Math.abs(net))}`
+            : loading,
+        },
+      ]}
+    />
   )
 }
 
@@ -604,11 +582,11 @@ function TransactionRow({
   ].filter(Boolean)
 
   return (
-    <tr className="border-t border-rule align-top">
-      <td className="hidden py-3 pl-4 whitespace-nowrap tabular-nums sm:table-cell">
+    <TableRow className="[&>td]:align-top">
+      <TableCell className="hidden whitespace-nowrap tabular-nums sm:table-cell">
         {formatDate(transaction.transaction_date)}
-      </td>
-      <td className="py-3 pr-4 pl-4 sm:pl-0">
+      </TableCell>
+      <TableCell className="pr-2 sm:pr-4">
         <button
           type="button"
           onClick={onView}
@@ -620,7 +598,8 @@ function TransactionRow({
           {transaction.description ??
             `${TRANSACTION_TYPE_LABELS[transaction.type]} tanpa keterangan`}
         </button>
-        <p className="mt-0.5 truncate text-[0.8125rem] text-muted-foreground">
+        {/* Di bawah 1024 px baris ini boleh membungkus agar Pos Kas dan mata anggaran terbaca utuh. */}
+        <p className="mt-0.5 text-[0.8125rem] break-words whitespace-normal text-muted-foreground lg:truncate">
           <span className="tabular-nums sm:hidden">
             {transaction.receipt_url && (
               <>
@@ -636,35 +615,33 @@ function TransactionRow({
           </span>
           {details.join(' · ')}
         </p>
-      </td>
-      <td className="hidden py-3 sm:table-cell">
+      </TableCell>
+      <TableCell className="hidden md:table-cell">
         {transaction.receipt_url ? (
           <a
             href={transaction.receipt_url}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex size-6 items-center justify-center rounded-md text-foreground hover:bg-muted"
-            title="Buka kuitansi"
+            className="inline-flex items-center gap-1.5 rounded-md text-sm font-medium underline-offset-4 hover:underline"
           >
-            <Paperclip className="size-4" aria-hidden="true" />
-            <span className="sr-only">Buka kuitansi (tab baru)</span>
+            <Paperclip className="size-3.5" aria-hidden="true" />
+            Buka
+            <span className="sr-only">kuitansi (tab baru)</span>
           </a>
         ) : (
-          <span className="text-muted-foreground">
-            —<span className="sr-only">Belum ada kuitansi</span>
-          </span>
+          <StatusBadge>Belum ada</StatusBadge>
         )}
-      </td>
-      <td
+      </TableCell>
+      <TableCell
         className={cn(
-          'py-3 pr-4 text-right font-medium whitespace-nowrap tabular-nums',
+          'pl-2 text-right font-medium whitespace-nowrap tabular-nums sm:pl-4',
           income && 'text-positive',
         )}
       >
         {signedAmount(transaction.type, transaction.amount)}
-      </td>
+      </TableCell>
       {canEdit && (
-        <td className="py-2 pr-2 text-right">
+        <TableCell className="py-1.5 pr-2 pl-0 text-right">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="size-10 sm:size-8">
@@ -699,50 +676,8 @@ function TransactionRow({
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        </td>
+        </TableCell>
       )}
-    </tr>
-  )
-}
-
-function FilterField({ id, label, children }: { id: string; label: string; children: ReactNode }) {
-  return (
-    <div className="grid min-w-0 gap-1.5">
-      <Label htmlFor={id} className="text-xs font-normal text-muted-foreground">
-        {label}
-      </Label>
-      {children}
-    </div>
-  )
-}
-
-function MessageRow({ colSpan, children }: { colSpan: number; children: ReactNode }) {
-  return (
-    <tr className="border-t border-rule">
-      <td colSpan={colSpan} className="px-4 py-6 text-muted-foreground">
-        {children}
-      </td>
-    </tr>
-  )
-}
-
-function SkeletonRow({ withMenu }: { withMenu: boolean }) {
-  return (
-    <tr className="border-t border-rule" aria-hidden="true">
-      <td className="hidden py-3 pl-4 sm:table-cell">
-        <Skeleton className="h-5 w-24" />
-      </td>
-      <td className="py-3 pr-4 pl-4 sm:pl-0">
-        <Skeleton className="h-5 w-56 max-w-full" />
-        <Skeleton className="mt-1.5 h-4 w-40 max-w-full" />
-      </td>
-      <td className="hidden py-3 sm:table-cell">
-        <Skeleton className="size-5" />
-      </td>
-      <td className="py-3 pr-4">
-        <Skeleton className="ml-auto h-5 w-24" />
-      </td>
-      {withMenu && <td />}
-    </tr>
+    </TableRow>
   )
 }
