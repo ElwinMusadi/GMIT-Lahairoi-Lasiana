@@ -99,7 +99,7 @@ export default function ProfilePage() {
             <Link
               key={href}
               to={href}
-              className="inline-flex h-11 items-center rounded-full bg-white/[0.12] px-4 text-sm font-semibold text-white transition-colors outline-none hover:bg-white/20 focus-visible:ring-3 focus-visible:ring-site-accent"
+              className="inline-flex h-11 items-center rounded-full bg-white/[0.12] px-4 text-sm font-semibold text-white transition-colors outline-none hover:bg-white/20 focus-visible:ring-3 focus-visible:ring-site-accent glass:glass-frost"
             >
               {label}
             </Link>
@@ -309,8 +309,8 @@ function VisionCard({
       className={cn(
         'grid content-start gap-5 rounded-3xl p-8 md:p-10',
         dark
-          ? 'bg-site-night text-white shadow-site-broad dark:border dark:border-white/10'
-          : 'bg-site-canvas',
+          ? 'bg-site-night text-white shadow-site-broad dark:border dark:border-white/10 glass:glass-panel'
+          : 'bg-site-canvas glass:glass-card',
       )}
     >
       {showTitle && (
@@ -362,7 +362,7 @@ function Roster({ content }: { content: PublicContent }) {
             <Reveal
               as="li"
               key={`${entry.name}-${index}`}
-              className="flex h-full items-center gap-4 rounded-2xl bg-site-canvas p-4"
+              className="flex h-full items-center gap-4 rounded-2xl bg-site-canvas p-4 glass:glass-card"
             >
               <span
                 aria-hidden="true"

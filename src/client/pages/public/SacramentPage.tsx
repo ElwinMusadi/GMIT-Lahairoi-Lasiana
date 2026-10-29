@@ -411,7 +411,7 @@ function FormSection({
         <div
           role="tablist"
           aria-label="Jenis layanan"
-          className="grid max-w-[720px] grid-cols-3 gap-1 rounded-[22px] bg-site-canvas p-1.5"
+          className="grid max-w-[720px] grid-cols-3 gap-1 rounded-[22px] bg-site-canvas p-1.5 glass:glass-card"
         >
           {SERVICE_ORDER.map((type, index) => {
             const active = type === selected
@@ -446,7 +446,7 @@ function FormSection({
           role="tabpanel"
           aria-labelledby={`tab-${SERVICES[type].slug}`}
           hidden={type !== selected}
-          className="mt-8 min-w-0 rounded-3xl bg-site-canvas p-5 sm:p-8 lg:p-10"
+          className="mt-8 min-w-0 rounded-3xl bg-site-canvas p-5 sm:p-8 lg:p-10 glass:glass-card"
         >
           <ApplicationForm
             type={type}

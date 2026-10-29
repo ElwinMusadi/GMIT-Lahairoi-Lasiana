@@ -125,7 +125,10 @@ function ArticleList({ kind }: { kind: ArticleKind }) {
     body = (
       <div aria-hidden="true" className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 6 }, (_, index) => (
-          <div key={index} className="h-80 animate-pulse rounded-3xl bg-site-paper" />
+          <div
+            key={index}
+            className="h-80 animate-pulse rounded-3xl bg-site-paper glass:glass-slab"
+          />
         ))}
       </div>
     )
@@ -208,7 +211,7 @@ function FeaturedArticle({ item, base }: { item: PublicContent; base: string }) 
     <Reveal
       as="article"
       aria-labelledby={`judul-${item.id}`}
-      className="group grid overflow-hidden rounded-3xl bg-site-paper lg:grid-cols-2"
+      className="group grid overflow-hidden rounded-3xl bg-site-paper lg:grid-cols-2 glass:glass-card"
     >
       {item.thumbnail_url && (
         <Link to={to} tabIndex={-1} aria-hidden="true">
@@ -282,7 +285,7 @@ function ArticleCard({
   return (
     <article
       className={cn(
-        'group relative flex h-full flex-col gap-4 rounded-3xl bg-site-paper p-4 md:p-5',
+        'group relative flex h-full flex-col gap-4 rounded-3xl bg-site-paper p-4 md:p-5 glass:glass-card',
         className,
       )}
     >
@@ -378,9 +381,9 @@ function ArticleDetail({ kind }: { kind: ArticleKind }) {
     return (
       <SiteSection className="pt-8 lg:pt-12">
         <div aria-hidden="true" className="mx-auto grid max-w-[1040px] gap-6">
-          <div className="h-9 w-40 animate-pulse rounded-full bg-site-paper" />
-          <div className="h-14 w-2/3 animate-pulse rounded-2xl bg-site-paper" />
-          <div className="h-80 animate-pulse rounded-3xl bg-site-paper" />
+          <div className="h-9 w-40 animate-pulse rounded-full bg-site-paper glass:glass-slab" />
+          <div className="h-14 w-2/3 animate-pulse rounded-2xl bg-site-paper glass:glass-slab" />
+          <div className="h-80 animate-pulse rounded-3xl bg-site-paper glass:glass-slab" />
         </div>
       </SiteSection>
     )

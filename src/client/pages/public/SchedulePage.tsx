@@ -117,7 +117,7 @@ export default function SchedulePage() {
               aria-labelledby="label-rayon"
               value={rayonId}
               onChange={(event) => update({ rayon: event.target.value }, KEEP)}
-              className="h-11 min-w-0 flex-1 rounded-full bg-white/[0.12] px-4 text-base font-semibold text-white [color-scheme:dark] outline-none focus-visible:ring-3 focus-visible:ring-site-accent sm:hidden"
+              className="h-11 min-w-0 flex-1 rounded-full bg-white/[0.12] px-4 text-base font-semibold text-white [color-scheme:dark] outline-none focus-visible:ring-3 focus-visible:ring-site-accent sm:hidden glass:glass-frost"
             >
               <option value="">Semua rayon</option>
               {rayonList.map((item) => (

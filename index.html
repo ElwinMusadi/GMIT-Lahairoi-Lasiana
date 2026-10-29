@@ -22,12 +22,26 @@
       // lib/dashboard-theme.ts); masing-masing punya pilihan sendiri.
       var dashboard = location.pathname.startsWith('/dashboard')
       document.documentElement.classList.add(dashboard ? 'theme-dashboard' : 'theme-portal')
+      // Di portal juga tema pilihan Admin (Glassmorphism: kelas portal-glass): nilai terakhir
+      // di perangkat ini dulu, lalu yang terbaru diminta sejak sekarang, sebelum bundle selesai
+      // dimuat. lib/portal-theme.ts memakai jawaban permintaan yang sama.
+      var glass = false
       try {
-        if (localStorage.getItem(dashboard ? 'gmit-lahairoi:tema-dashboard' : 'gmit-lahairoi:tema-portal') === 'dark') {
-          document.documentElement.classList.add('dark')
-          document.querySelector('meta[name="theme-color"]').content = dashboard ? '#030303' : '#0a1215'
+        glass = !dashboard && localStorage.getItem('gmit-lahairoi:gaya-portal') === 'GLASS'
+        if (glass) document.documentElement.classList.add('portal-glass')
+        var dark = localStorage.getItem(dashboard ? 'gmit-lahairoi:tema-dashboard' : 'gmit-lahairoi:tema-portal') === 'dark'
+        if (dark) document.documentElement.classList.add('dark')
+        if (dark || glass) {
+          document.querySelector('meta[name="theme-color"]').content = dashboard
+            ? '#030303'
+            : glass ? (dark ? '#061317' : '#f3eee8') : '#0a1215'
         }
       } catch (e) {}
+      if (!dashboard) {
+        window.portalSettings = fetch('/api/public/settings')
+          .then(function (response) { return response.ok ? response.json() : null })
+          .catch(function () { return null })
+      }
       // Foto gereja di hero (dan panel login) diminta sejak awal, sebelum bundle selesai
       // dimuat. Galeri memakai foto dokumentasi terbaru; halaman baca artikel tanpa hero.
       var path = location.pathname

@@ -9,9 +9,10 @@ import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from '@/com
 import { activePortalLink, portalNav, type PortalLink } from '@/lib/navigation'
 import { cn } from '@/lib/utils'
 
-// Pil kaca bahasa kage: putih tembus pandang di tema terang, gelap di tema gelap.
+// Pil kaca bahasa kage: putih tembus pandang di tema terang, gelap di tema gelap; di tema
+// Glassmorphism lebih bening dan buram.
 const glassPill =
-  'inline-flex h-11 flex-none items-center gap-2 rounded-full border border-site-rule bg-site-glass px-4 text-sm font-semibold text-site-ink shadow-sm transition-colors outline-none hover:border-site-ink/40 focus-visible:ring-3 focus-visible:ring-ring'
+  'inline-flex h-11 flex-none items-center gap-2 rounded-full border border-site-rule bg-site-glass px-4 text-sm font-semibold text-site-ink shadow-sm transition-colors outline-none hover:border-site-ink/40 focus-visible:ring-3 focus-visible:ring-ring glass:glass-bar'
 
 function subscribeScroll(onChange: () => void) {
   window.addEventListener('scroll', onChange, { passive: true })
@@ -89,7 +90,7 @@ function MobileMenu({ scrolled }: { scrolled: boolean }) {
         side="top"
         showCloseButton={false}
         aria-describedby={undefined}
-        className="gap-0 border-0 bg-site-canvas p-0 text-site-ink shadow-none data-[side=top]:h-svh"
+        className="gap-0 border-0 bg-site-canvas p-0 text-site-ink shadow-none data-[side=top]:h-svh glass:site-aurora"
       >
         {/* Bilah atas di posisi yang sama dengan header agar menu terasa terbuka di tempat. */}
         <div

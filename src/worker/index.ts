@@ -23,6 +23,7 @@ import publicRoutes from './routes/public'
 import publicSacraments from './routes/public-sacraments'
 import rayons from './routes/rayons'
 import sacraments from './routes/sacraments'
+import settings from './routes/settings'
 import uploads from './routes/uploads'
 import users from './routes/users'
 import worships from './routes/worships'
@@ -61,6 +62,7 @@ app.route('/mails', mails)
 app.route('/assets', assets)
 app.route('/asset-loans', assetLoans)
 app.route('/analytics', analytics)
+app.route('/settings', settings)
 
 app.notFound((c) => c.json<ApiErrorBody>({ error: 'Endpoint tidak ditemukan' }, 404))
 

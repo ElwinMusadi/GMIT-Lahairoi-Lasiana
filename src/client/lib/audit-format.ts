@@ -12,6 +12,7 @@ import {
   MAIL_DIRECTION_LABELS,
   MARRIAGE_STATUS_LABELS,
   MEMBER_STATUS_LABELS,
+  PORTAL_THEME_LABELS,
   ROLE_LABELS,
   SACRAMENT_STATUS_LABELS,
   SACRAMENT_TYPE_LABELS,
@@ -41,6 +42,7 @@ export const ENTITY_LABELS: Record<string, string> = {
   mail_archives: 'arsip surat',
   assets: 'aset',
   asset_loans: 'peminjaman aset',
+  site_settings: 'pengaturan',
 }
 
 export const ACTION_LABELS: Record<string, string> = {
@@ -149,6 +151,7 @@ const FIELD_LABELS: Record<string, string> = {
   due_date: 'Batas kembali',
   return_date: 'Tanggal kembali',
   return_condition: 'Kondisi kembali',
+  portal_theme: 'Tema portal',
 }
 
 // Field yang sudah tersebut lewat label entitas di kalimat ringkasan.
@@ -193,6 +196,7 @@ const VALUE_LABELS: Record<string, Record<string, Record<string, string>>> = {
   mail_archives: { direction: MAIL_DIRECTION_LABELS, category: MAIL_CATEGORY_LABELS },
   assets: { condition: ASSET_CONDITION_LABELS },
   asset_loans: { status: LOAN_STATUS_LABELS, return_condition: ASSET_CONDITION_LABELS },
+  site_settings: { portal_theme: PORTAL_THEME_LABELS },
 }
 
 export type AuditDescription = {
@@ -337,6 +341,7 @@ const ENTITY_MODULE: Record<string, string> = {
   mail_archives: 'mails',
   assets: 'assets',
   asset_loans: 'assets',
+  site_settings: 'settings/appearance',
 }
 
 export function auditIcon(item: AuditLogItem): LucideIcon {

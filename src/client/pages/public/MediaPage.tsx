@@ -54,7 +54,10 @@ export default function MediaPage() {
     body = (
       <div aria-hidden="true" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 6 }, (_, index) => (
-          <div key={index} className="aspect-[4/3] animate-pulse rounded-[20px] bg-site-paper" />
+          <div
+            key={index}
+            className="aspect-[4/3] animate-pulse rounded-[20px] bg-site-paper glass:glass-slab"
+          />
         ))}
       </div>
     )

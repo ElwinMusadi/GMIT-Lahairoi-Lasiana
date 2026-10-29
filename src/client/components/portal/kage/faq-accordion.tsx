@@ -29,7 +29,7 @@ export function FaqAccordion({
         <AccordionPrimitive.Item
           key={item.question}
           value={`faq-${index}`}
-          className="group rounded-2xl bg-site-paper"
+          className="group rounded-2xl bg-site-paper glass:glass-card"
         >
           <AccordionPrimitive.Header>
             <AccordionPrimitive.Trigger className="flex w-full items-center justify-between gap-4 rounded-2xl p-5 text-left outline-none focus-visible:ring-3 focus-visible:ring-ring md:p-6">

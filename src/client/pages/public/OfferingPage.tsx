@@ -31,10 +31,13 @@ export default function OfferingPage() {
   } else if (!info.data) {
     body = (
       <div aria-hidden="true" className="grid gap-8 lg:grid-cols-12">
-        <div className="h-[32rem] animate-pulse rounded-[32px] bg-site-paper lg:col-span-5" />
+        <div className="h-[32rem] animate-pulse rounded-[32px] bg-site-paper lg:col-span-5 glass:glass-slab" />
         <div className="grid content-start gap-4 lg:col-span-7">
           {Array.from({ length: 3 }, (_, index) => (
-            <div key={index} className="h-36 animate-pulse rounded-3xl bg-site-paper" />
+            <div
+              key={index}
+              className="h-36 animate-pulse rounded-3xl bg-site-paper glass:glass-slab"
+            />
           ))}
         </div>
       </div>
@@ -58,7 +61,7 @@ export default function OfferingPage() {
               Kode QRIS belum tersedia. Gunakan transfer bank di samping.
             </p>
           ) : (
-            <Reveal className="grid gap-4 rounded-[32px] bg-site-panel p-4 shadow-site-panel md:p-6 dark:border dark:border-white/10">
+            <Reveal className="grid gap-4 rounded-[32px] bg-site-panel p-4 shadow-site-panel md:p-6 dark:border dark:border-white/10 glass:glass-panel">
               {qris.map((item) => (
                 <QrisCard key={item.id} item={item} />
               ))}
@@ -83,7 +86,7 @@ export default function OfferingPage() {
               ))}
             </ul>
           )}
-          <div className="grid gap-1 rounded-3xl bg-site-paper p-6">
+          <div className="grid gap-1 rounded-3xl bg-site-paper p-6 glass:glass-card">
             <p className="font-site-display text-lg font-bold">Simpan bukti transfer Anda</p>
             <p className="text-base text-site-ink/80">
               Tuliskan keperluan persembahan pada berita transfer. Bendahara Jemaat mencatat setiap
@@ -182,7 +185,7 @@ function AccountCard({ item }: { item: PublicContent }) {
   return (
     <article
       aria-labelledby={`rekening-${item.id}`}
-      className="grid gap-4 rounded-3xl bg-site-paper p-5 md:p-6"
+      className="grid gap-4 rounded-3xl bg-site-paper p-5 md:p-6 glass:glass-card"
     >
       <div className="flex items-center gap-3">
         <span

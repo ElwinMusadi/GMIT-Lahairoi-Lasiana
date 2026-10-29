@@ -11,7 +11,9 @@ export default function PublicLayout() {
   const theme = usePortalThemeValue()
 
   return (
-    <div className="flex min-h-[calc(100svh/var(--site-zoom,1))] flex-col bg-site-canvas font-site-body text-site-ink">
+    <div className="flex min-h-[calc(100svh/var(--site-zoom,1))] flex-col bg-site-canvas font-site-body text-site-ink glass:bg-transparent">
+      {/* Tema Glassmorphism: latar senja yang diam di belakang seluruh halaman. */}
+      <div aria-hidden="true" className="site-aurora fixed inset-0 -z-10 hidden glass:block" />
       <a
         href="#konten"
         className="sr-only z-50 rounded-full bg-site-ink px-5 py-3 text-sm font-semibold text-site-canvas focus:not-sr-only focus:fixed focus:top-3 focus:left-3"

@@ -17,7 +17,7 @@ const pillVariants = cva(
         dark: 'bg-site-ink text-site-canvas hover:opacity-90',
         // Kaca di atas foto.
         glass:
-          'border border-white/30 bg-white/12 text-white hover:border-white/50 hover:bg-white/20',
+          'border border-white/30 bg-white/12 text-white hover:border-white/50 hover:bg-white/20 glass:glass-blur',
         // Bertepi tipis di kanvas.
         outline: 'border border-site-rule bg-site-canvas text-site-ink hover:border-site-ink',
         // Di dalam panel gelap.

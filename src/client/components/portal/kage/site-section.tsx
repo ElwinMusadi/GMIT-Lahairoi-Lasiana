@@ -4,7 +4,9 @@ import { TwoToneHeading } from '@/components/portal/kage/two-tone-heading'
 import { cn } from '@/lib/utils'
 
 // Seksi halaman rancangan kage: ritme vertikal lapang (120 px di desktop), lebar isi
-// 1180 px, dan latar kanvas atau putih tulang yang berselang-seling.
+// 1180 px, dan latar kanvas atau putih tulang yang berselang-seling. Di tema Glassmorphism
+// seksi kanvas tembus ke latar senja, dan seksi putih tulang menjadi lempeng kaca berjarak
+// dari tepi layar seperti panel hero.
 
 export function SiteSection({
   id,
@@ -25,7 +27,9 @@ export function SiteSection({
       aria-labelledby={labelledBy}
       className={cn(
         'scroll-mt-24 px-6 py-20 lg:py-[120px]',
-        tone === 'paper' ? 'bg-site-paper' : 'bg-site-canvas',
+        tone === 'paper'
+          ? 'bg-site-paper glass:mx-(--site-hero-gap) glass:rounded-[32px] glass:glass-slab'
+          : 'bg-site-canvas glass:bg-transparent',
         className,
       )}
     >
