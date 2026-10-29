@@ -309,8 +309,8 @@ function VisionCard({
       className={cn(
         'grid content-start gap-5 rounded-3xl p-8 md:p-10',
         dark
-          ? 'bg-site-night text-white shadow-site-broad dark:border dark:border-white/10'
-          : 'bg-site-canvas',
+          ? 'bg-site-night text-white shadow-site-broad dark:border dark:border-white/10 glass:glass-panel'
+          : 'bg-site-canvas glass:glass-card',
       )}
     >
       {showTitle && (
@@ -362,7 +362,7 @@ function Roster({ content }: { content: PublicContent }) {
             <Reveal
               as="li"
               key={`${entry.name}-${index}`}
-              className="flex h-full items-center gap-4 rounded-2xl bg-site-canvas p-4"
+              className="flex h-full items-center gap-4 rounded-2xl bg-site-canvas p-4 glass:glass-card"
             >
               <span
                 aria-hidden="true"

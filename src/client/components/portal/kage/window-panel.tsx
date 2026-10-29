@@ -32,7 +32,9 @@ export function WindowPanel({
         // min-w-0: judul mono yang panjang dipotong, bukan melebarkan kolom grid induknya.
         // Tepi hanya di tema gelap, agar panel tetap terpisah dari kanvas yang gelap.
         'min-w-0 overflow-hidden text-left text-white dark:border dark:border-white/10',
-        compact ? 'rounded-xl bg-site-panel-2' : 'rounded-3xl bg-site-panel shadow-site-panel',
+        compact
+          ? 'rounded-xl bg-site-panel-2 glass:bg-white/[0.07] glass:ring-1 glass:ring-white/10 glass:ring-inset'
+          : 'rounded-3xl bg-site-panel shadow-site-panel glass:glass-panel',
         className,
       )}
     >

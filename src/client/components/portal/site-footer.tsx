@@ -28,13 +28,15 @@ const COLUMNS = [
 }))
 
 // Footer Portal Publik rancangan kage: foto gedung gereja di belakang scrim teal gelap,
-// bergeser pelan mengikuti gulir (±420 px), dengan tepi gerigi di atasnya.
+// bergeser pelan mengikuti gulir (±420 px), dengan tepi gerigi di atasnya. Di tema
+// Glassmorphism footer menjadi panel membulat yang berjarak dari tepi, menutup halaman
+// seperti panel hero membukanya.
 export function SiteFooter() {
   const photo = useRef<HTMLImageElement>(null)
   useBackgroundParallax(photo, 420)
 
   return (
-    <footer className="relative mt-24 overflow-hidden bg-site-night text-white">
+    <footer className="relative mt-24 overflow-hidden bg-site-night text-white glass:mx-(--site-hero-gap) glass:mb-(--site-hero-gap) glass:rounded-3xl">
       <img
         ref={photo}
         data-parallax-bg
@@ -48,7 +50,7 @@ export function SiteFooter() {
       <div aria-hidden="true" className="site-footer-scrim absolute inset-0" />
       <div
         aria-hidden="true"
-        className="site-sawtooth absolute inset-x-0 top-0 h-4 bg-site-canvas"
+        className="site-sawtooth absolute inset-x-0 top-0 h-4 bg-site-canvas glass:hidden"
       />
 
       <div className="relative mx-auto flex min-h-[520px] max-w-[1180px] flex-col justify-between gap-16 px-6 pt-24 pb-10">

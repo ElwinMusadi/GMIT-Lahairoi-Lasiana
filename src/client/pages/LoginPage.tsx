@@ -79,7 +79,9 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="grid min-h-[calc(100svh/var(--site-zoom,1))] bg-site-canvas font-site-body text-site-ink lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:grid-rows-[auto_1fr_auto]">
+    <div className="grid min-h-[calc(100svh/var(--site-zoom,1))] bg-site-canvas font-site-body text-site-ink lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:grid-rows-[auto_1fr_auto] glass:bg-transparent">
+      {/* Tema Glassmorphism: latar senja yang sama dengan portal. */}
+      <div aria-hidden="true" className="site-aurora fixed inset-0 -z-10 hidden glass:block" />
       <header className="flex items-center justify-between gap-2 px-(--site-inset) pt-(--site-header-top) lg:col-start-1 lg:row-start-1">
         <BrandPill />
         <ThemeToggle />
@@ -213,7 +215,7 @@ export default function LoginPage() {
 
       <aside
         aria-labelledby="judul-peran"
-        className="relative z-10 mx-(--site-hero-gap) mb-(--site-hero-gap) grid gap-6 rounded-3xl bg-site-paper p-6 md:p-8 lg:col-start-2 lg:row-start-3 lg:m-[calc(var(--site-hero-gap)+24px)] lg:max-w-[600px] lg:self-end lg:bg-site-glass lg:shadow-site-panel"
+        className="relative z-10 mx-(--site-hero-gap) mb-(--site-hero-gap) grid gap-6 rounded-3xl bg-site-paper p-6 md:p-8 lg:col-start-2 lg:row-start-3 lg:m-[calc(var(--site-hero-gap)+24px)] lg:max-w-[600px] lg:self-end lg:bg-site-glass lg:shadow-site-panel glass:glass-card lg:glass:bg-site-glass/90"
       >
         <Reveal as="h2" id="judul-peran" className="font-site-display text-xl font-bold">
           Siapa yang bisa masuk

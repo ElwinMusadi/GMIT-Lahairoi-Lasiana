@@ -3,6 +3,10 @@
 @import "shadcn/tailwind.css";
 
 @custom-variant dark (&:is(.dark *));
+/* Tema Portal Glassmorphism (Pengaturan > Tampilan): kelas portal-glass di <html>, dipasang
+   lib/portal-theme.ts. Komponen portal menulis perlakuan kacanya lewat varian ini, jadi tema
+   bawaan tidak terpengaruh sama sekali. */
+@custom-variant glass (&:is(.portal-glass *));
 
 @theme inline {
   /* Geist (OFL) di-host sendiri; dimuat oleh lib/dashboard-theme.ts. Portal memakai huruf
@@ -318,6 +322,136 @@
     zoom: var(--site-zoom);
   }
 }
+/*
+ * Tema Portal Glassmorphism, pilihan Admin di Pengaturan > Tampilan (lib/portal-theme.ts
+ * memasang kelas portal-glass). Panel kaca buram melayang di atas latar warna senja Pantai
+ * Lasiana: jingga dan koral dari matahari terbenam, teal dari Laut Sawu, biru tua GMIT.
+ * Latarnya gradasi halus, jadi permukaan lebar (seksi) cukup selapis putih tanpa blur; blur
+ * dipakai di permukaan yang menutupi isi atau foto (header, menu, kartu, panel).
+ * Kontras teks di titik warna terpekat latar, terang: utama ≥11,8:1, sekunder ≥5,3:1; gelap:
+ * utama ≥9,6:1, sekunder ≥4,9:1. Teks putih di panel berasap ≥12,8:1 (putih 55 % ≥5:1).
+ */
+.theme-portal.portal-glass {
+  --site-muted: #4d4d4d;
+  --site-rule: rgb(17 17 19 / 0.12);
+
+  --site-glass-filter: blur(18px) saturate(1.6);
+  --site-glass-card: rgb(255 255 255 / 0.56);
+  --site-glass-slab: rgb(255 255 255 / 0.38);
+  --site-glass-bar: rgb(255 255 255 / 0.78);
+  --site-glass-edge: rgb(255 255 255 / 0.75);
+  --site-glass-shadow: 0 12px 40px -12px rgb(40 30 25 / 0.22);
+  --site-glass-panel: rgb(8 22 27 / 0.86);
+  --site-glass-panel-edge: rgb(255 255 255 / 0.12);
+}
+.theme-portal.portal-glass.dark {
+  --site-muted: #a7b1b4;
+  --site-rule: rgb(242 242 238 / 0.14);
+
+  --site-glass-card: rgb(255 255 255 / 0.07);
+  --site-glass-slab: rgb(255 255 255 / 0.04);
+  --site-glass-bar: rgb(8 18 22 / 0.8);
+  --site-glass-edge: rgb(255 255 255 / 0.14);
+  --site-glass-shadow: 0 12px 40px -12px rgb(0 0 0 / 0.55);
+  --site-glass-panel: rgb(3 8 10 / 0.6);
+  --site-glass-panel-edge: rgb(255 255 255 / 0.12);
+
+  --site-aurora-base: #061317;
+  --site-aurora-1: rgb(240 138 43 / 0.2);
+  --site-aurora-2: rgb(232 93 79 / 0.12);
+  --site-aurora-3: rgb(26 150 170 / 0.26);
+  --site-aurora-4: rgb(90 100 220 / 0.2);
+}
+/* Pengunjung yang meminta kurangi transparansi: permukaan kembali padat seperti tema bawaan. */
+@media (prefers-reduced-transparency: reduce) {
+  .theme-portal.portal-glass {
+    --site-glass-filter: none;
+    --site-glass-card: var(--site-canvas);
+    --site-glass-slab: var(--site-paper);
+    --site-glass-bar: var(--site-canvas);
+    --site-glass-panel: #111113;
+  }
+}
+
+/* Latar senja: gradasi lebar di atas pasir hangat. Nilai terangnya ada di sini sebagai nilai
+   cadangan, sehingga pratinjau di dashboard (tanpa token portal) memakai versi terang; tema
+   gelap menimpanya lewat token --site-aurora-* di atas. */
+@utility site-aurora {
+  background:
+    radial-gradient(70% 55% at 6% 0%, var(--site-aurora-1, rgb(240 138 43 / 0.36)), transparent 70%),
+    radial-gradient(55% 50% at 100% 28%, var(--site-aurora-2, rgb(232 93 79 / 0.2)), transparent 70%),
+    radial-gradient(65% 55% at 0% 100%, var(--site-aurora-3, rgb(26 150 170 / 0.3)), transparent 70%),
+    radial-gradient(60% 50% at 96% 100%, var(--site-aurora-4, rgb(0 35 111 / 0.16)), transparent 70%),
+    var(--site-aurora-base, #f3eee8);
+}
+
+/* Permukaan kaca. Dipakai hanya lewat varian glass: (mis. glass:glass-card), sehingga di
+   tema bawaan kelas ini tidak menghasilkan apa pun. */
+/* Kartu dan bilah terang: putih tembus pandang, tepi terang 1 px, bayangan lembut. */
+@utility glass-card {
+  background-color: var(--site-glass-card);
+  -webkit-backdrop-filter: var(--site-glass-filter);
+  backdrop-filter: var(--site-glass-filter);
+  box-shadow:
+    inset 0 0 0 1px var(--site-glass-edge),
+    var(--site-glass-shadow);
+}
+/* Seksi berlatar putih tulang menjadi lempeng kaca lebar; tanpa blur karena latarnya polos. */
+@utility glass-slab {
+  background-color: var(--site-glass-slab);
+  box-shadow: inset 0 0 0 1px var(--site-glass-edge);
+}
+/* Header dan menu yang melayang di atas isi halaman: lebih pekat agar teks sekunder tetap
+   ≥4,5:1 di atas latar apa pun (panel gelap, foto terang). Tepinya tetap border-site-rule,
+   yang di tema ini tembus pandang. */
+@utility glass-bar {
+  background-color: var(--site-glass-bar);
+  -webkit-backdrop-filter: var(--site-glass-filter);
+  backdrop-filter: var(--site-glass-filter);
+}
+/* Bilah yang memuat menu tarik-turun (navigasi utama): kacanya dipasang di ::before. Elemen
+   ber-backdrop-filter menjadi akar latar bagi isinya, sehingga menu di dalamnya tidak bisa
+   memburamkan halaman di belakangnya; dengan lapisan terpisah, menu tetap buram. Bilahnya
+   harus relative. */
+@utility glass-bar-behind {
+  background-color: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background-color: var(--site-glass-bar);
+    -webkit-backdrop-filter: var(--site-glass-filter);
+    backdrop-filter: var(--site-glass-filter);
+  }
+}
+/* Hanya buram, untuk unsur yang sudah tembus pandang (mis. pil kaca di atas foto). */
+@utility glass-blur {
+  -webkit-backdrop-filter: var(--site-glass-filter);
+  backdrop-filter: var(--site-glass-filter);
+}
+/* Panel gelap (papan jadwal, warta, persembahan): kaca berasap, teks putih tetap di atas
+   permukaan gelap. Tepi tema gelap diganti tepi kaca. */
+@utility glass-panel {
+  background-color: var(--site-glass-panel);
+  border-color: transparent;
+  -webkit-backdrop-filter: var(--site-glass-filter);
+  backdrop-filter: var(--site-glass-filter);
+  box-shadow:
+    inset 0 0 0 1px var(--site-glass-panel-edge),
+    var(--site-glass-shadow);
+}
+/* Kaca di atas foto (kartu di hero dan band foto). */
+@utility glass-photo {
+  background-color: rgb(255 255 255 / 0.12);
+  -webkit-backdrop-filter: var(--site-glass-filter);
+  backdrop-filter: var(--site-glass-filter);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.22);
+}
+
 /* Toast portal: sonner memasang 13 px (tombol 12 px) sendiri; ikut lantai teks kecil. */
 html.theme-portal [data-sonner-toast][data-styled='true'],
 html.theme-portal [data-sonner-toast][data-styled='true'] [data-button] {

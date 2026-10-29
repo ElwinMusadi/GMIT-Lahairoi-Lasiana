@@ -194,7 +194,7 @@ function QuickAction({
     'grid min-h-16 content-center gap-0.5 rounded-2xl px-3.5 py-3 text-left md:px-4 transition-colors outline-none focus-visible:ring-3 focus-visible:ring-site-accent',
     primary
       ? 'bg-white text-site-panel hover:bg-site-paper'
-      : 'bg-white/[0.12] text-white hover:bg-white/20',
+      : 'bg-white/[0.12] text-white hover:bg-white/20 glass:glass-blur',
   )
   const body = (
     <>
@@ -234,7 +234,7 @@ function ThemeCard({ worship, today }: { worship: PublicWorshipItem; today: stri
     <article
       aria-labelledby="judul-tema"
       aria-describedby="label-tema"
-      className="grid gap-3 rounded-3xl bg-white/[0.12] p-5 md:p-6"
+      className="grid gap-3 rounded-3xl bg-white/[0.12] p-5 md:p-6 glass:glass-photo"
     >
       <h2 id="judul-tema" className="font-site-serif text-[28px] leading-tight font-normal italic">
         “{worship.theme}”
@@ -325,7 +325,7 @@ function Agenda({
                   'grid gap-1 rounded-2xl border p-4 text-left transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring sm:w-[200px]',
                   active
                     ? 'border-site-ink bg-site-ink text-site-canvas'
-                    : 'border-transparent bg-site-paper text-site-ink hover:border-site-ink',
+                    : 'border-transparent bg-site-paper text-site-ink hover:border-site-ink glass:glass-card',
                 )}
               >
                 <span className="flex items-center justify-between gap-2 font-site-display text-sm font-bold">
@@ -545,11 +545,11 @@ function Publications({
             <>
               <div
                 aria-hidden="true"
-                className="h-[420px] animate-pulse rounded-3xl bg-site-paper"
+                className="h-[420px] animate-pulse rounded-3xl bg-site-paper glass:glass-slab"
               />
               <div
                 aria-hidden="true"
-                className="h-[420px] animate-pulse rounded-3xl bg-site-paper"
+                className="h-[420px] animate-pulse rounded-3xl bg-site-paper glass:glass-slab"
               />
             </>
           )}
@@ -564,7 +564,7 @@ function NewsCard({ news }: { news: PublicContent[] }) {
     <Reveal
       as="article"
       aria-labelledby="judul-berita"
-      className="flex flex-col gap-7 rounded-3xl bg-site-paper p-8 md:p-10"
+      className="flex flex-col gap-7 rounded-3xl bg-site-paper p-8 md:p-10 glass:glass-card"
     >
       <div className="grid gap-1">
         <h3 id="judul-berita" className="font-site-display text-2xl font-bold">
@@ -616,7 +616,7 @@ function WartaCard({
     <Reveal
       as="article"
       aria-labelledby="judul-warta"
-      className="flex flex-col gap-7 rounded-3xl bg-site-night p-8 text-white shadow-site-broad md:p-10 dark:border dark:border-white/10"
+      className="flex flex-col gap-7 rounded-3xl bg-site-night p-8 text-white shadow-site-broad md:p-10 dark:border dark:border-white/10 glass:glass-panel"
     >
       <div className="grid gap-1">
         <h3 id="judul-warta" className="font-site-display text-2xl font-bold">
@@ -694,7 +694,7 @@ function ServicesBand() {
           <Reveal
             as="li"
             key={service.title}
-            className="flex flex-col rounded-3xl bg-site-night/75 p-8 md:min-h-[340px]"
+            className="flex flex-col rounded-3xl bg-site-night/75 p-8 md:min-h-[340px] glass:glass-panel"
           >
             <span
               aria-hidden="true"
@@ -743,7 +743,7 @@ function Rayons({
       />
       <div className="mx-auto mt-14 max-w-[960px]">
         <RayonTable rayons={rayons} error={error} onRetry={onRetry} />
-        <div className="mt-14 flex flex-col items-start justify-between gap-4 rounded-3xl bg-site-paper p-6 sm:flex-row sm:items-center md:p-8">
+        <div className="mt-14 flex flex-col items-start justify-between gap-4 rounded-3xl bg-site-paper p-6 sm:flex-row sm:items-center md:p-8 glass:glass-card">
           <p className="grid gap-1">
             <span className="font-site-display text-lg font-bold">Baru di Lahairoi?</span>
             <span className="text-base text-site-muted">
@@ -891,7 +891,7 @@ function Offering({
 
   return (
     <SiteSection labelledBy="judul-persembahan">
-      <Reveal className="rounded-[32px] bg-site-panel px-6 py-12 text-center text-white shadow-site-panel dark:border dark:border-white/10 md:p-16">
+      <Reveal className="rounded-[32px] bg-site-panel px-6 py-12 text-center text-white shadow-site-panel dark:border dark:border-white/10 md:p-16 glass:glass-panel">
         {metrics.length > 0 && (
           <ul className="mx-auto mb-12 grid max-w-[640px] gap-8 sm:grid-cols-2">
             {metrics.map((metric) => (

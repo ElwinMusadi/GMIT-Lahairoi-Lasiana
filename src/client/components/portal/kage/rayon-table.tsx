@@ -20,7 +20,10 @@ export function RayonTable({
     return (
       <div aria-hidden="true" className="grid gap-4">
         {Array.from({ length: 5 }, (_, index) => (
-          <div key={index} className="h-14 animate-pulse rounded-xl bg-site-paper" />
+          <div
+            key={index}
+            className="h-14 animate-pulse rounded-xl bg-site-paper glass:glass-slab"
+          />
         ))}
       </div>
     )

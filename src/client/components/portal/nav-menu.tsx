@@ -24,7 +24,7 @@ export function PortalNavMenu({ className }: { className?: string }) {
       aria-label="Navigasi utama"
       delayDuration={120}
       className={cn(
-        'relative h-11 flex-none rounded-full border border-site-rule bg-site-glass p-1 shadow-sm backdrop-blur-md',
+        'relative h-11 flex-none rounded-full border border-site-rule bg-site-glass p-1 shadow-sm backdrop-blur-md glass:glass-bar-behind',
         className,
       )}
     >
@@ -56,7 +56,7 @@ export function PortalNavMenu({ className }: { className?: string }) {
               </Nav.Trigger>
               <Nav.Content
                 className={cn(
-                  'absolute top-full mt-2.5 w-80 rounded-2xl border border-site-rule bg-site-canvas p-2 text-site-ink shadow-site-broad duration-150 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95',
+                  'absolute top-full mt-2.5 w-80 rounded-2xl border border-site-rule bg-site-canvas p-2 text-site-ink shadow-site-broad duration-150 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 glass:glass-bar',
                   // Panel menu terakhir dirapatkan ke kanan agar tidak keluar layar.
                   index === lastIndex ? 'right-0 origin-top-right' : 'left-0 origin-top-left',
                 )}

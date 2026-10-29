@@ -44,7 +44,10 @@ export default function WartaPage() {
   } else if (!list.data) {
     body = (
       <SiteSection className="pt-12 lg:pt-16">
-        <div aria-hidden="true" className="h-[28rem] animate-pulse rounded-3xl bg-site-paper" />
+        <div
+          aria-hidden="true"
+          className="h-[28rem] animate-pulse rounded-3xl bg-site-paper glass:glass-slab"
+        />
       </SiteSection>
     )
   } else if (total === 0 && !q) {
@@ -90,7 +93,7 @@ export default function WartaPage() {
                 <Reveal
                   as="li"
                   key={warta.id}
-                  className="grid gap-4 rounded-2xl bg-site-paper p-5 md:grid-cols-[180px_minmax(0,1fr)_auto] md:items-center md:gap-6 md:p-6"
+                  className="grid gap-4 rounded-2xl bg-site-paper p-5 md:grid-cols-[180px_minmax(0,1fr)_auto] md:items-center md:gap-6 md:p-6 glass:glass-card"
                 >
                   <div className="grid min-w-0 gap-1">
                     <h3 className="font-site-display text-lg leading-snug font-bold">

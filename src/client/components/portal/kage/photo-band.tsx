@@ -3,7 +3,8 @@ import { CHURCH_PHOTO } from '@/lib/portal'
 import { useBackgroundParallax } from '@/lib/portal-motion'
 
 // Band selebar layar di atas foto rancangan kage: foto di-pan setinggi aslinya (±340 px)
-// di belakang scrim 60 %, isinya kartu tembus pandang.
+// di belakang scrim 60 %, isinya kartu tembus pandang. Di tema Glassmorphism band menjadi
+// panel membulat yang berjarak dari tepi layar, sejajar dengan lempeng kaca di sekitarnya.
 export function PhotoBand({ labelledBy, children }: { labelledBy: string; children: ReactNode }) {
   const photo = useRef<HTMLImageElement>(null)
   useBackgroundParallax(photo, 340)
@@ -11,7 +12,7 @@ export function PhotoBand({ labelledBy, children }: { labelledBy: string; childr
   return (
     <section
       aria-labelledby={labelledBy}
-      className="relative isolate overflow-hidden bg-site-night px-6 py-24 text-white md:py-[100px]"
+      className="relative isolate overflow-hidden bg-site-night px-6 py-24 text-white md:py-[100px] glass:mx-(--site-hero-gap) glass:rounded-[32px]"
     >
       <img
         ref={photo}

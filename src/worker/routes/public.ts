@@ -9,10 +9,12 @@ import {
   type ApiPage,
   type PublicContent,
   type PublicHome,
+  type PublicSettings,
   type PublicWorship,
   type PublicWorshipItem,
 } from '../../shared/types'
 import { PUBLIC_VISIBLE, publicSelect, toPublicContent } from '../lib/contents'
+import { publicSettings, readSettings } from '../lib/settings'
 import {
   containsPattern,
   invalid,
@@ -38,6 +40,7 @@ import type { AppEnv } from '../types'
 // GET /worships            Papan Jadwal Ibadah: jadwal publik mulai `from` (bawaan hari
 //                          ini, WITA), beserta seluruh petugas; query opsional category,
 //                          rayon_id, from, to, page, per_page
+// GET /settings            pengaturan tampilan portal yang dipilih Admin (tema portal)
 const publicRoutes = new Hono<AppEnv>()
 
 // Isi portal boleh disimpan browser sebentar; konten baru tampil paling lambat semenit.
@@ -233,6 +236,10 @@ publicRoutes.get('/worships', async (c) => {
     data,
     meta: { page, per_page: perPage, total: (total.results[0] as { n: number }).n },
   })
+})
+
+publicRoutes.get('/settings', async (c) => {
+  return c.json<PublicSettings>(publicSettings(await readSettings(c.env.DB)))
 })
 
 export default publicRoutes

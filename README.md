@@ -123,6 +123,7 @@ npm run db:seed:demo
 | `/dashboard/assets`  | `DashboardLayout` | Inventaris (Admin, Majelis): tab Katalog Inventaris dengan filter kategori, lokasi, kondisi; tab Peminjaman Barang dengan tanda terlambat; catat peminjaman dan konfirmasi pengembalian |
 | `/dashboard/users`   | `DashboardLayout` | Akun Pengurus (Admin): tambah, ubah peran/rayon, atur ulang kata sandi, nonaktifkan |
 | `/dashboard/audit-logs` | `DashboardLayout` | Log Aktivitas (Admin): riwayat per hari, filter tanggal/aksi/data/pengguna di URL |
+| `/dashboard/settings/appearance` | `DashboardLayout` | Pengaturan > Tampilan (Admin): tema Portal Publik, Bawaan atau Glassmorphism, dengan pratinjau |
 | `/dashboard/*`       | `DashboardLayout` | Halaman modul lain (kerangka); ditolak bila peran tidak berhak    |
 
 - **PublicLayout**: navbar (wordmark, 4 tautan, tombol Persembahan); di bawah 1024px menjadi tombol "Menu" yang membuka menu layar penuh. Footer membawa tanda Lahairoi, tautan, dan alamat.
@@ -153,6 +154,7 @@ Desain dibuat dengan skill `design-taste-frontend` dan `ui-ux-pro-max` di `.clau
   - **Huruf:** judul dua nada Plus Jakarta Sans + Instrument Serif miring, teks Inter, dan JetBrains Mono untuk jam, kode registrasi, dan nomor rekening (Google Fonts).
   - **Token** `site-*` (mis. `bg-site-canvas`, `text-site-ink`, `bg-site-panel`) ada di [index.css](src/client/index.css), dengan nilai terang di `.theme-portal` dan gelap di `.theme-portal.dark`. Komponen bersama ada di [components/portal/kage/](src/client/components/portal/kage).
   - **Tema terang/gelap:** tombol di header. Bawaannya selalu terang, pilihan disimpan di perangkat ([lib/portal-theme.ts](src/client/lib/portal-theme.ts)). Dashboard punya pilihan temanya sendiri.
+  - **Tema portal Glassmorphism** (pilihan Admin di Pengaturan > Tampilan, untuk semua pengunjung; terang/gelap tetap pilihan pengunjung). Lihat [Pengaturan tampilan portal](#pengaturan-tampilan-portal).
   - **Gerak** ([lib/portal-motion.ts](src/client/lib/portal-motion.ts)): gulir halus Lenis, parallax hero dan foto latar, elemen yang muncul saat digulir, dan elemen melayang. Semuanya transform/opacity dan mati bila pengguna meminta kurangi gerak.
   - **Skala desktop 90%** ([docs/rencana-skala-portal-90.md](docs/rencana-skala-portal-90.md)): di layar ≥1024 px dengan tetikus/trackpad, portal tampil 90% lewat `zoom: var(--site-zoom)` pada `html.theme-portal`. Ponsel, tablet, dan dashboard tetap 100%.
     - Tinggi relatif layar ditulis `calc(<tinggi>/var(--site-zoom,1))`, bukan `svh`/`vh` langsung, agar hero, login, dan jendela galeri tetap memenuhi layar.
@@ -175,6 +177,27 @@ node .claude/skills/design-taste-frontend/scripts/inspect.mjs http://localhost:5
 ```
 
 Untuk dashboard tambahkan `--app`. Karena dashboard butuh login sedangkan inspector membuka browsernya sendiri, jalankan inspector lewat proxy lokal yang menyisipkan cookie sesi akun uji (hanya untuk database lokal). Inspector selalu membaca `.taste-skill/direction.json` (arah portal), jadi untuk dashboard jalankan dari folder yang berisi salinan `.taste-skill/app/direction.json` sebagai `.taste-skill/direction.json`. Berkas arah aplikasi itu berasal dari rancangan dashboard sebelumnya dan kini hanya dipakai sebagai masukan inspector (huruf Geist dan aturan layar aplikasi). Jika Chrome gagal diluncurkan di Windows, set `CHROME_PATH` ke `msedge.exe`.
+
+### Pengaturan tampilan portal
+
+Admin memilih tema Portal Publik di **Pengaturan > Tampilan** ([AppearanceSettingsPage.tsx](src/client/pages/dashboard/AppearanceSettingsPage.tsx)): **Bawaan** (rancangan kage di atas) atau **Glassmorphism**. Setiap pilihan punya pratinjau mini. Perubahan berlaku untuk semua pengunjung dan tercatat di Log Aktivitas.
+
+- **Tampilan Glassmorphism:** panel kaca buram di atas latar warna senja Pantai Lasiana (jingga dan koral, teal Laut Sawu, biru tua GMIT), di mode terang maupun gelap.
+  - Seksi putih tulang, band foto, dan footer menjadi panel membulat yang berjarak dari tepi layar, seperti panel hero.
+  - Kartu menjadi kaca putih, panel gelap menjadi kaca berasap, dan header serta menu lebih buram.
+  - Kontras teks tetap ≥4,5:1 di titik warna terpekat latar. Pengunjung yang meminta kurangi transparansi (`prefers-reduced-transparency`) mendapat permukaan padat.
+- **Cara kerja:**
+  - [lib/portal-theme.ts](src/client/lib/portal-theme.ts) memasang kelas `portal-glass` di `<html>`.
+  - Komponen portal menulis perlakuan kacanya lewat varian `glass:` (mis. `glass:glass-card`, `glass:glass-panel`), dengan utilitas dan token `--site-glass-*` di [index.css](src/client/index.css). Tanpa kelas itu varian tidak menghasilkan apa pun, jadi tema bawaan tidak berubah.
+  - Unsur yang memuat menu tarik-turun memakai `glass-bar-behind` (kaca di `::before`). Elemen ber-`backdrop-filter` menjadi akar latar bagi isinya, sehingga menu di dalamnya tidak bisa memburamkan halaman.
+- **Tanpa kedip:**
+  - Tema terakhir disimpan di perangkat, dan skrip di `index.html` memasangnya sebelum React dimuat.
+  - Skrip yang sama sudah meminta `/api/public/settings`, dan jawabannya dipakai `portal-theme.ts`.
+  - Setelah Admin menyimpan, tema langsung berganti saat kembali ke portal, dan salinan respons di cache browser diperbarui. Pengunjung lain melihatnya paling lambat semenit kemudian (cache 60 detik).
+- **API:** [settings.ts](src/worker/routes/settings.ts), tabel `site_settings` (migrasi 0012, satu baris per kunci; kunci yang belum disimpan memakai nilai bawaan di [lib/settings.ts](src/worker/lib/settings.ts)).
+  - `GET /api/settings` (Admin): seluruh pengaturan beserta waktu dan nama pengubah terakhir.
+  - `PUT /api/settings` (Admin): `{ "portal_theme": "DEFAULT" | "GLASS" }`. Nilai lain → `400` dengan `details`. Nilai yang sama tidak dicatat ulang.
+  - `GET /api/public/settings` (publik): `{ "portal_theme": … }`.
 
 ## Memanggil API dari frontend
 
@@ -578,6 +601,7 @@ Rute: [contents.ts](src/worker/routes/contents.ts) (CMS, perlu login) dan [publi
 - `GET /api/public/contents?category=&q=&page=&per_page=`: daftar tanpa isi lengkap. Bila ringkasan kosong, `summary` berisi cuplikan awal isi. Profil dan Info Persembahan urut sesuai waktu dibuat; kategori lain terbaru dulu.
   - `with_body=true` menyertakan isi lengkap (maks. 50 per halaman), dipakai halaman Profil dan Persembahan. Bersama isi lengkap, `summary` tetap apa adanya (tanpa cuplikan otomatis).
 - `GET /api/public/contents/:slug`: satu konten lengkap; `404` untuk draf dan konten terjadwal.
+- `GET /api/public/settings`: tema portal pilihan Admin (lihat [Pengaturan tampilan portal](#pengaturan-tampilan-portal)).
 - `GET /api/public/worships?category=&rayon_id=&from=&to=&page=&per_page=`: jadwal ibadah publik untuk Papan Jadwal.
   - Bawaan mulai hari ini (WITA), urut tanggal lalu jam; jadwal tanpa jam di akhir harinya. `from`/`to` (YYYY-MM-DD) bisa menampilkan rentang lain, termasuk yang lampau.
   - `category` salah satu `SUNDAY_SERVICE`, `RAYON`, `CATEGORICAL`, `SPECIAL` (huruf kecil diterima); `rayon_id` id rayon. Keduanya bisa digabung.
@@ -1007,6 +1031,7 @@ const berkas = await uploadFile(file, { folder: 'kuitansi', onProgress: setPerse
 | 0009    | `sessions` (+ trigger penghapus sesi akun nonaktif)               | Autentikasi & Hak Akses       |
 | 0010    | Index unik: satu Kepala Keluarga aktif per KK                     | Database Jemaat & KK          |
 | 0011    | `sacrament_applications`: jadwal konseling, jam pelaksanaan, mempelai kedua | Sakramen & Persuratan |
+| 0012    | `site_settings` (tema Portal Publik)                              | Pengaturan tampilan           |
 
 Konvensi yang dipakai di semua tabel:
 
@@ -1106,6 +1131,9 @@ Komponen akan ditulis ke `src/client/components/ui/`. Preset yang dipakai: `radi
 | GET    | `/api/public/contents` | Publik | Konten terbit per kategori, dengan pencarian dan paging |
 | GET    | `/api/public/contents/:slug` | Publik | Satu konten terbit lengkap |
 | GET    | `/api/public/worships` | Publik | Papan Jadwal: jadwal ibadah publik dengan saringan jenis dan rayon, beserta petugas |
+| GET    | `/api/public/settings` | Publik | Tema Portal Publik pilihan Admin |
+| GET    | `/api/settings` | Admin | Pengaturan situs beserta pengubah terakhir |
+| PUT    | `/api/settings` | Admin | Ubah tema Portal Publik (`DEFAULT` atau `GLASS`) |
 | GET    | `/api/contents` | Admin, Pendeta | Daftar CMS termasuk draf dan terjadwal (Pendeta: renungannya) |
 | GET    | `/api/contents/:id` | Admin, Pendeta | Satu konten untuk diubah |
 | POST   | `/api/contents` | Admin, Pendeta | Tambah konten (Pendeta: Renungan) |

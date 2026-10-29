@@ -30,6 +30,7 @@ const modulePages: Record<string, PageLoader> = {
   sacraments: () => import('@/pages/dashboard/SacramentsPage'),
   mails: () => import('@/pages/dashboard/MailsPage'),
   assets: () => import('@/pages/dashboard/AssetsPage'),
+  'settings/appearance': () => import('@/pages/dashboard/AppearanceSettingsPage'),
 }
 
 const loadContentEditor = () => import('@/pages/dashboard/ContentEditorPage')

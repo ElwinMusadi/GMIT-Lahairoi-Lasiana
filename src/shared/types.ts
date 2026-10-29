@@ -922,6 +922,34 @@ export type PublicHome = {
   payment_info: PublicContent[]
 }
 
+// ---------- Pengaturan situs (tabel site_settings, migrasi 0012) ----------
+
+// Tema Portal Publik, dipilih Admin di Pengaturan > Tampilan dan berlaku untuk semua
+// pengunjung. Terang atau gelap tetap pilihan masing-masing pengunjung di kedua tema.
+export const PORTAL_THEMES = ['DEFAULT', 'GLASS'] as const
+export type PortalThemeCode = (typeof PORTAL_THEMES)[number]
+export const PORTAL_THEME_LABELS: Record<PortalThemeCode, string> = {
+  DEFAULT: 'Bawaan',
+  GLASS: 'Glassmorphism',
+}
+
+// GET /api/public/settings: pengaturan yang dibaca Portal Publik.
+export type PublicSettings = {
+  portal_theme: PortalThemeCode
+}
+
+// GET dan PUT /api/settings (khusus Admin).
+export type SiteSettings = PublicSettings & {
+  // Perubahan terakhir pada pengaturan mana pun; null bila semuanya masih bawaan.
+  updated_at: string | null
+  updated_by_name: string | null
+}
+
+// Field yang tidak dikirim tidak diubah.
+export type SiteSettingsRequest = Partial<PublicSettings>
+
+export type SiteSettingsResponse = { settings: SiteSettings }
+
 // POST /api/members/import (khusus Admin). Berkas dibaca di browser; setiap baris
 // dikirim dengan judul kolom yang sudah dicocokkan (lihat src/shared/member-import.ts).
 // dry_run: true hanya memeriksa (pratinjau); false menyimpan baris yang siap.

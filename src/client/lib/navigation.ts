@@ -13,6 +13,7 @@ import {
   LayoutGrid,
   MapPin,
   Package,
+  Palette,
   PenLine,
   Upload,
   UserCog,
@@ -261,6 +262,19 @@ export const moduleGroups: ModuleGroup[] = [
         roles: ['ADMIN'],
         phase: 1,
         description: 'Riwayat perubahan data penting: siapa mengubah apa, dan kapan.',
+      },
+    ],
+  },
+  {
+    label: 'Pengaturan',
+    items: [
+      {
+        title: 'Tampilan',
+        path: 'settings/appearance',
+        icon: Palette,
+        roles: ['ADMIN'],
+        phase: 1,
+        description: 'Tema Portal Publik untuk semua pengunjung: bawaan atau Glassmorphism.',
       },
     ],
   },

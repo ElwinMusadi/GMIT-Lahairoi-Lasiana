@@ -3,8 +3,8 @@
 > Dokumen ini merangkum seluruh informasi proyek sampai status terakhir. Bacalah lebih dulu
 > sebelum melanjutkan pekerjaan, termasuk sesi Claude Code yang baru.
 >
-> **Terakhir diperbarui:** 28 Oktober 2026
-> **Branch aktif:** `feat/redesign-portal-kage` (dibuat dari `main` di `f88480c`)
+> **Terakhir diperbarui:** 30 Oktober 2026
+> **Branch aktif:** `main`
 > **Repositori:** <https://github.com/ElwinMusadi/GMIT-Lahairoi-Lasiana> (publik)
 
 Rincian teknis per modul (aturan data, endpoint, perilaku layar) ada di [README.md](README.md).
@@ -60,6 +60,7 @@ dan tergabung di `main`.
 | Dashboard Eksekutif: API agregasi + UI + widget ulang tahun | 3 | Selesai | `cdf6930`, `f88480c` |
 | Redesign Portal Publik bergaya kage (rancangan 10), isi 08 tetap | – | Selesai | `90e5a7a` (merge) |
 | Redesign dashboard pengurus bergaya Zenith, logika dan API tetap | – | Selesai | `c7855e8` (merge) |
+| Pengaturan > Tampilan: tema Portal Publik Bawaan atau Glassmorphism | – | Selesai | branch `feat/tema-portal-glassmorphism` |
 
 Catatan status:
 
@@ -350,7 +351,7 @@ dan empat peran. Laporannya ada di `.taste-skill/inspect-audit/` (tidak di-commi
 | --- | --- |
 | Frontend | React 19, Vite 8, TypeScript ~7, Tailwind CSS v4, shadcn/ui (preset `radix-nova`), React Router 8, sonner, lucide-react |
 | Backend | Hono 4 di Cloudflare Workers (`src/worker/index.ts`, basePath `/api`) |
-| Database | Cloudflare D1 (binding `DB`), migrasi SQL di `migrations/` (0001–0011) |
+| Database | Cloudflare D1 (binding `DB`), migrasi SQL di `migrations/` (0001–0012) |
 | Berkas | Cloudflare R2 (binding `FILES`, bucket `gmit-lahairoi-files`) |
 | Build/dev | `@cloudflare/vite-plugin`: SPA dan Worker berbagi satu origin, tanpa proxy maupun CORS |
 | Lint | oxlint (`.oxlintrc.json`), typecheck `tsc -b` |
@@ -406,6 +407,7 @@ sebenarnya selalu ditegakkan API dengan `requireRole`.
 | Inventaris | ✓ (hapus aset hanya Admin) | – | – | ✓ |
 | Warta & Konten (CMS) | ✓ | – | Renungan Saya | – |
 | Akun Pengurus, Log Aktivitas | ✓ | – | – | – |
+| Pengaturan > Tampilan (tema Portal Publik) | ✓ | – | – | – |
 
 Catatan keamanan:
 
@@ -433,6 +435,7 @@ Catatan keamanan:
 | 0009 | `sessions` |
 | 0010 | indeks unik: satu Kepala Keluarga aktif per KK |
 | 0011 | jadwal konseling, jam pelaksanaan, mempelai kedua di `sacrament_applications` |
+| 0012 | `site_settings`: pengaturan situs per kunci (kini `portal_theme`) |
 
 Konvensi yang wajib diikuti:
 
@@ -481,6 +484,17 @@ bersubmenu. Rencana, keputusan K1–K6, dan catatan per tahap ada di
   gelap disimpan di perangkat ([src/client/lib/portal-theme.ts](src/client/lib/portal-theme.ts)).
 - Foto: satu foto gedung gereja (Keputusan K5) di `public/images/gereja-gmit-lahairoi-*.webp`
   (640/960/1254 px). Catatan gerak asli ada di [design/stitch/manifest.json](design/stitch/manifest.json).
+- **Tema Glassmorphism** (30 Oktober 2026), dipilih Admin di Pengaturan > Tampilan untuk semua
+  pengunjung; terang/gelap tetap pilihan pengunjung. Uraian lengkap ada di README bagian
+  "Pengaturan tampilan portal".
+  - Panel kaca buram di atas latar warna senja Pantai Lasiana (`site-aurora`).
+  - Kelas `portal-glass` di `<html>`; komponen memakai varian `glass:` dan utilitas
+    `glass-card`, `glass-slab`, `glass-bar`, `glass-bar-behind`, `glass-panel`, `glass-photo`,
+    `glass-blur`.
+  - Tema bawaan dijaga tetap identik: perbandingan gaya terhitung di 9 halaman, 2 lebar layar,
+    terang dan gelap menghasilkan 0 perbedaan.
+  - Jebakan: elemen ber-`backdrop-filter` menjadi akar latar bagi isinya. Bilah yang memuat
+    menu tarik-turun memakai `glass-bar-behind` (kaca di `::before`).
 
 ### Dashboard — gaya Zenith
 
