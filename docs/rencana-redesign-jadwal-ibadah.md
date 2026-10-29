@@ -1,8 +1,8 @@
 # Rencana Implementasi: Kalender Jadwal Ibadah (Portal Publik)
 
 Disusun 30 Oktober 2026. Status: **disetujui** 30 Oktober 2026 (keputusan J1–J9 semua sesuai
-usulan, bagian 8). Tahap 0 selesai kecuali data uji hari padat. Prasyaratnya terpenuhi: branch
-`feat/tema-portal-glassmorphism` sudah di-merge ke `main` (`48c6415`).
+usulan, bagian 8). Tahap 0 dan Tahap 1 (API) selesai di branch `feat/kalender-jadwal-ibadah`
+(bagian 10).
 
 ## 1. Tujuan
 
@@ -477,3 +477,38 @@ diakhiri tangkapan layar dan menunggu persetujuan sebelum commit.
 
 **Sisa Tahap 0.** Data uji hari padat (6–8 ibadah per hari, pola Natal) disiapkan di database uji
 scratch pada awal Tahap 1, bukan di database lokal pengguna.
+
+### Tahap 1 — API (30 Oktober 2026)
+
+Dikerjakan di branch `feat/kalender-jadwal-ibadah` dari `main` (`0c56522`). Rinciannya ada di
+README bagian "Konten Portal Publik (CMS)".
+
+- **Pencarian `q`** di `GET /api/public/worships`.
+  - Setiap kata harus cocok di salah satu kolom: judul, sebutan jenis, tempat, tema, bacaan,
+    nama rayon, atau nama petugas.
+  - Sebutan jenis ikut dicari agar "rayon golgota" dan "kebaktian" menemukan jadwalnya: judul ibadah
+    rayon sendiri tidak memuat kata "rayon" ("Ibadah Rumah Tangga").
+  - Pencocokan memakai `instr(lower(kolom), kata)`, bukan `LIKE`: tidak terkena batas pola 50 byte
+    D1, dan `%`/`_` dibaca harfiah. Kotak cari lain masih memakai `containsPattern` (usulan
+    terpisah, bagian 4.6).
+- **Mode rentang.** `from` + `to` paling lama 42 hari boleh `per_page` sampai 300.
+  - `readPaging` mendapat batas opsional; rute lain tetap maks. 100.
+- **`GET /api/public/worships/:id`** (`PublicWorshipResponse`).
+  - Bentuknya sama persis dengan item daftar, termasuk jadwal yang sudah lewat.
+  - `404` untuk jadwal internal dan id yang salah.
+  - Pengurutan petugas dipakai bersama dengan daftar (`sortServants`).
+- **Data uji** di D1 scratch `kalender-test`, bukan database lokal pengguna:
+  - 10 jadwal sekitar hari ini dengan petugas yang dicari;
+  - satu rapat internal dan satu jadwal tanpa jam;
+  - hari padat Natal: 7 ibadah pada 24 Desember dan 4 pada 25 Desember;
+  - 126 ibadah dalam rentang 42 hari (1 Februari–14 Maret 2027) untuk mode rentang.
+
+  Ini sekaligus menutup sisa Tahap 0.
+- **Uji API: 48/48 lolos.**
+  - Regresi saringan, paging, dan cache.
+  - Pencarian per kolom, termasuk kata 60 karakter tanpa `500` serta `%` dan `_` harfiah.
+  - Batas mode rentang: 42 hari lolos, 43 hari ditolak, `per_page` 301 ditolak.
+  - Hari padat urut jam.
+  - Rincian per id dan `404`.
+- **Regresi lain.** Batas 100 per halaman tetap di `/api/public/contents`, Beranda normal, halaman
+  Jadwal lama tetap jalan. Typecheck dan lint lolos.

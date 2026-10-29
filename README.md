@@ -603,11 +603,16 @@ Rute: [contents.ts](src/worker/routes/contents.ts) (CMS, perlu login) dan [publi
   - `with_body=true` menyertakan isi lengkap (maks. 50 per halaman), dipakai halaman Profil dan Persembahan. Bersama isi lengkap, `summary` tetap apa adanya (tanpa cuplikan otomatis).
 - `GET /api/public/contents/:slug`: satu konten lengkap; `404` untuk draf dan konten terjadwal.
 - `GET /api/public/settings`: tema portal pilihan Admin (lihat [Pengaturan tampilan portal](#pengaturan-tampilan-portal)).
-- `GET /api/public/worships?category=&rayon_id=&from=&to=&page=&per_page=`: jadwal ibadah publik untuk Papan Jadwal.
+- `GET /api/public/worships?category=&rayon_id=&from=&to=&q=&page=&per_page=`: jadwal ibadah publik untuk Papan Jadwal dan kalender Jadwal Ibadah.
   - Bawaan mulai hari ini (WITA), urut tanggal lalu jam; jadwal tanpa jam di akhir harinya. `from`/`to` (YYYY-MM-DD) bisa menampilkan rentang lain, termasuk yang lampau.
   - `category` salah satu `SUNDAY_SERVICE`, `RAYON`, `CATEGORICAL`, `SPECIAL` (huruf kecil diterima); `rayon_id` id rayon. Keduanya bisa digabung.
+  - `q` (maks. 100 karakter, 5 kata): setiap kata harus cocok di salah satu dari judul, sebutan jenis ("kebaktian", "rayon"), tempat, tema, bacaan, nama rayon, atau nama petugas.
+    - Tidak membedakan huruf besar/kecil; `%` dan `_` dibaca harfiah.
+    - Memakai `instr()`, bukan `LIKE`, jadi kata panjang tidak terkena batas pola 50 byte D1.
+  - **Mode rentang** (kalender): bila `from` dan `to` diisi dan rentangnya paling lama 42 hari, `per_page` boleh sampai 300, sehingga satu pekan atau satu kisi bulan dimuat dalam satu permintaan. Di luar itu tetap maks. 100.
   - Setiap jadwal membawa `rayon_id`, `rayon_name`, `preacher`, dan `servants` (peran dan nama petugas, urut seperti tata ibadah).
   - Saringan yang tidak sah → `400` dengan `details` per kolom.
+- `GET /api/public/worships/:id`: satu jadwal publik dengan bentuk yang sama (`{ worship }`), termasuk yang sudah lewat, untuk tautan langsung ke rinciannya. Jadwal internal (`is_public = 0`) atau id yang salah → `404`.
 
 **Halaman portal** ([src/client/pages/public](src/client/pages/public)), semuanya tanpa login dan responsif:
 
@@ -1131,7 +1136,8 @@ Komponen akan ditulis ke `src/client/components/ui/`. Preset yang dipakai: `radi
 | GET    | `/api/public/home` | Publik | Beranda portal: jadwal ibadah terdekat, warta terbaru, renungan hari ini, berita, rekening/QRIS |
 | GET    | `/api/public/contents` | Publik | Konten terbit per kategori, dengan pencarian dan paging |
 | GET    | `/api/public/contents/:slug` | Publik | Satu konten terbit lengkap |
-| GET    | `/api/public/worships` | Publik | Papan Jadwal: jadwal ibadah publik dengan saringan jenis dan rayon, beserta petugas |
+| GET    | `/api/public/worships` | Publik | Papan Jadwal dan kalender: jadwal ibadah publik dengan saringan jenis, rayon, tanggal, dan kata cari (`q`), beserta petugas |
+| GET    | `/api/public/worships/:id` | Publik | Satu jadwal ibadah publik beserta petugasnya |
 | GET    | `/api/public/settings` | Publik | Tema Portal Publik pilihan Admin |
 | GET    | `/api/settings` | Admin | Pengaturan situs beserta pengubah terakhir |
 | PUT    | `/api/settings` | Admin | Ubah tema Portal Publik (`DEFAULT` atau `GLASS`) |
