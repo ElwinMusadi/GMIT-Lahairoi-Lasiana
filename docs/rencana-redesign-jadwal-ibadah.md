@@ -1,8 +1,9 @@
 # Rencana Implementasi: Kalender Jadwal Ibadah (Portal Publik)
 
 Disusun 30 Oktober 2026. Status: **disetujui** 30 Oktober 2026 (keputusan J1–J9 semua sesuai
-usulan, bagian 8). Tahap 0–3 (persiapan, API, lapisan data klien, kerangka) selesai di branch
-`feat/kalender-jadwal-ibadah` (bagian 10).
+usulan, bagian 8; J1 disesuaikan di Tahap 4). Tahap 0–4 (persiapan, API, lapisan data klien,
+kerangka, tampilan Pekan dan Agenda) selesai di branch `feat/kalender-jadwal-ibadah`
+(bagian 10).
 
 ## 1. Tujuan
 
@@ -415,7 +416,7 @@ Bentuk respons tetap `ApiPage<PublicWorshipItem>`, jadi Beranda tidak terpengaru
 
 | # | Keputusan | Usulan |
 | --- | --- | --- |
-| J1 | Tampilan bawaan | Pekan di desktop/tablet, Agenda di ponsel |
+| J1 | Tampilan bawaan | Pekan di desktop/tablet, Agenda di ponsel. Disesuaikan di Tahap 4: Pekan bawaan mulai 1024 px; di tablet tegak Agenda bawaan, Pekan tetap bisa dipilih |
 | J2 | Hero | Dipadatkan (±240 px) dengan kalimat "Berikutnya: …"; saringan pindah ke panel kalender |
 | J3 | Arti saringan rayon | Hanya menyaring ibadah rayon; ibadah seluruh jemaat tetap tampil |
 | J4 | Cakupan cari | Judul, tempat, tema, bacaan, nama rayon, dan nama semua petugas; hanya jadwal mendatang |
@@ -637,3 +638,69 @@ periode atau hasil cari; diganti di Tahap 4–5.
   - Perbedaan di Beranda dan daftar Renungan hanya tinggi seksi, karena renungan demo 30 Oktober
     terbit pukul 05.00 WITA, setelah pengukuran awal; bukan dari kode.
 - Typecheck dan lint lolos.
+
+### Tahap 4 — Tampilan Pekan dan Agenda (30 Oktober 2026)
+
+**Pekan** (`week-table.tsx`): `<table>` dengan `<caption>`, judul kolom hari (Sen–Min, nama hari
+lengkap untuk pembaca layar), dan judul baris jam.
+
+- Baris hanya untuk jam yang dipakai pekan itu, ditambah "Jam menyusul" di akhir bila ada.
+- Kolom Minggu bernuansa, dan hari ini ditandai di judulnya.
+- Sel lebih dari 3 jadwal menampilkan 2 kartu dan "+N lainnya", yang membuka Agenda dan menggulir
+  ke hari itu.
+- **Satu pekan muat satu layar** di 1440×900, diukur pada tiga pekan data demo: tabel 316–673 px,
+  kartu kalender 825 px.
+
+**Kartu ringkas** (`worship-card.tsx`): garis warna jenis, judul, jenis, tempat, dan Pelayan
+Firman (dua terakhir mulai 1024 px).
+
+- Ibadah rayon semuanya berjudul "Ibadah Rumah Tangga", jadi **nama rayon menjadi baris utama**
+  ("Rayon Golgota") dan judulnya di baris kedua.
+
+**Agenda** (`agenda-list.tsx`): daftar per hari (hari kosong dilewati).
+
+- Baris ringkas: jam mono, judul, titik warna + jenis/rayon, tempat, Pelayan Firman dan Liturgos
+  (Liturgos mulai 640 px), serta ikon bila ada tata ibadah.
+- **Pita pekan** di ponsel: tujuh hari bertitik warna; mengetuk hari menggulir Agenda ke hari itu
+  (`scrollToElement`, menghormati Lenis dan `scroll-margin`).
+
+**Mengetuk jadwal** mengisi `?jadwal=` dengan `push`; panel rinciannya menyusul di Tahap 6.
+
+**Keadaan:**
+
+- **Memuat:** kerangka seukuran tampilan (kisi 7 kolom untuk Pekan, baris untuk Agenda).
+- **Gagal:** "Jadwal tidak dapat dimuat. Coba lagi".
+- **Pekan kosong:** "Belum ada ibadah yang diumumkan untuk pekan ini." dengan tombol "Pekan
+  berikutnya: …".
+- **Saringan tanpa hasil:** pesan dan "Hapus saringan".
+
+**Penyesuaian dari rencana:**
+
+- **J1 (tampilan bawaan).** Di tablet tegak (768–1023 px) tujuh kolom hanya ±85 px, sehingga nama
+  seperti "Kapernaum" patah di tengah kata.
+  - Agenda kini bawaan di bawah 1024 px, dan Pekan tetap bisa dipilih mulai 768 px.
+  - Di bawah 768 px Pekan tidak tersedia, dan tautan `?tampilan=pekan` dibuka sebagai Agenda.
+- **Sisi kiri mulai 1280 px** (rencana: 1024 px). Dengan sisi kiri di 1024 px, kartu Pekan justru
+  paling sempit (77 px); tanpa sisi kiri menjadi 118 px. Di bawah 1280 px kalender mini dan
+  saringan ada di lembar "Saring".
+- **Agenda tidak menambah pekan di bawahnya** (rencana 4.2). Tombol "Pekan berikutnya: …" di akhir
+  daftar memindahkan periode dan menggulir kembali ke atas panel.
+  - Daftar tetap pendek, sejalan dengan tujuan halaman.
+  - Pekan di luar kisi bulan tidak perlu dimuat terpisah.
+- **Penanda jadwal yang sudah lewat** tidak memakai `opacity` 60% (kontras teks sekunder turun di
+  bawah 4,5:1). Gantinya judul berwarna sekunder dan kartu tanpa latar; pembaca layar mendengar
+  "(sudah lewat)".
+- **Pita pekan tidak menempel di atas** saat digulir: di ponsel area atas sudah dipakai pil header
+  yang melayang.
+
+**Pemeriksaan:**
+
+- **Uji interaksi:**
+  - klik kartu menambah riwayat;
+  - "+N lainnya" diuji dengan data yang digandakan lewat penyadapan;
+  - pekan kosong, saringan nol, kerangka memuat, dan gagal muat;
+  - `?tampilan=pekan` di ponsel;
+  - pita pekan dan "Pekan berikutnya";
+  - tampilan bawaan di 390/834/1024/1440 px.
+- Tangkapan layar 390/768/834/1024/1280/1440 px, Bawaan dan Glassmorphism, terang dan gelap.
+- Uji unit 60/60, typecheck dan lint lolos.

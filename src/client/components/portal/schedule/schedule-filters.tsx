@@ -20,7 +20,8 @@ import { cn } from '@/lib/utils'
 
 // Saringan kalender Jadwal Ibadah: jenis ibadah (pilih banyak, dengan jumlah di periode),
 // rayon (pilih satu; ibadah seluruh jemaat tetap tampil, keputusan J3), chip saringan aktif,
-// dan lembar "Saring" untuk layar di bawah 1024 px.
+// dan lembar "Saring" untuk layar di bawah 1280 px (sisi kiri baru muncul dari 1280 px agar
+// tujuh kolom tampilan Pekan tetap lega di 1024 px).
 
 type Change = (changes: Partial<CalendarState>) => void
 

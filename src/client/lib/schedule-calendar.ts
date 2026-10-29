@@ -24,7 +24,8 @@ export type CalendarState = {
   openId: number | null
 }
 
-// Ponsel memakai Agenda sebagai bawaan, layar lebih lebar memakai Pekan (keputusan J1).
+// `narrow`: layar yang memakai Agenda sebagai bawaan (di bawah 1024 px); lebih lebar memakai
+// Pekan (keputusan J1, disesuaikan di Tahap 4).
 export type CalendarContext = { today: string; narrow: boolean }
 
 export const SEARCH_MAX_LENGTH = 100

@@ -21,31 +21,36 @@ import { useApiQuery } from '@/lib/use-api-query'
 // sehingga tautannya bisa dibagikan dan tombol Kembali berfungsi. Data dimuat per kisi bulan;
 // saringan jenis dan rayon dihitung di browser tanpa memuat ulang.
 
-// Ponsel (<768 px) memakai Agenda sebagai bawaan; tablet ke atas Pekan.
-const NARROW_QUERY = '(max-width: 767px)'
+// Di bawah 1024 px Agenda menjadi tampilan bawaan: di tablet tegak tujuh kolom Pekan hanya
+// ±85 px, terlalu sempit untuk nama seperti "Kapernaum". Pekan tetap bisa dipilih dari 768 px;
+// di bawahnya Pekan tidak tersedia sama sekali.
+const AGENDA_FIRST_QUERY = '(max-width: 1023px)'
+const NO_WEEK_QUERY = '(max-width: 767px)'
 // Satu kisi bulan (42 hari) sekali minta; batas mode rentang API.
 const RANGE_PER_PAGE = 300
 export const SEARCH_PER_PAGE = 50
 
-function subscribeNarrow(onChange: () => void) {
-  const mql = window.matchMedia(NARROW_QUERY)
-  mql.addEventListener('change', onChange)
-  return () => mql.removeEventListener('change', onChange)
-}
-
-function useNarrow() {
+function useMedia(query: string) {
   return useSyncExternalStore(
-    subscribeNarrow,
-    () => window.matchMedia(NARROW_QUERY).matches,
+    (onChange) => {
+      const mql = window.matchMedia(query)
+      mql.addEventListener('change', onChange)
+      return () => mql.removeEventListener('change', onChange)
+    },
+    () => window.matchMedia(query).matches,
     () => false,
   )
 }
 
 export function useScheduleCalendar() {
   const [params, setParams] = useSearchParams()
-  const narrow = useNarrow()
+  const agendaFirst = useMedia(AGENDA_FIRST_QUERY)
+  const narrow = useMedia(NO_WEEK_QUERY)
   const [today] = useState(witaToday)
-  const context = useMemo<CalendarContext>(() => ({ today, narrow }), [today, narrow])
+  const context = useMemo<CalendarContext>(
+    () => ({ today, narrow: agendaFirst }),
+    [today, agendaFirst],
+  )
   const state = useMemo(() => parseCalendarParams(params, context), [params, context])
   const range = loadRange(state.anchor)
   const searching = state.query !== ''
@@ -99,6 +104,7 @@ export function useScheduleCalendar() {
   return {
     state,
     today,
+    // Di bawah 768 px: tampilan Pekan tidak tersedia.
     narrow,
     searching,
     dates,

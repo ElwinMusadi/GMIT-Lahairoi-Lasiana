@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
+import { ArrowRight } from 'lucide-react'
 import type { ApiList, ApiPage, PublicWorshipItem, RayonListItem } from '@shared/types'
 import { HeroPanel } from '@/components/portal/kage/hero-panel'
 import { SearchField } from '@/components/portal/kage/list-controls'
@@ -6,6 +7,7 @@ import { PillButton } from '@/components/portal/kage/pill'
 import { ScheduleBoard } from '@/components/portal/kage/schedule-board'
 import { LoadError } from '@/components/portal/kage/site-section'
 import { TwoToneHeading } from '@/components/portal/kage/two-tone-heading'
+import { AgendaList, WeekStrip } from '@/components/portal/schedule/agenda-list'
 import { MiniMonth } from '@/components/portal/schedule/mini-month'
 import {
   ActiveFilters,
@@ -15,13 +17,17 @@ import {
   RayonFilter,
 } from '@/components/portal/schedule/schedule-filters'
 import { ScheduleToolbar } from '@/components/portal/schedule/schedule-toolbar'
+import { WeekTable } from '@/components/portal/schedule/week-table'
 import { worshipWhen } from '@/lib/portal'
+import { scrollToElement } from '@/lib/portal-motion'
 import {
   activeFilterCount,
   addMonths,
   nextWorship,
+  periodLabel,
   shiftAnchor,
   witaTime,
+  type CalendarView,
 } from '@/lib/schedule-calendar'
 import { useApiQuery } from '@/lib/use-api-query'
 import { useScheduleCalendar } from '@/lib/use-schedule-calendar'
@@ -31,11 +37,25 @@ const PERIOD_TITLE = 'judul-periode'
 
 // Kalender Jadwal Ibadah (docs/rencana-redesign-jadwal-ibadah.md): hero ringkas dengan ibadah
 // berikutnya, lalu panel kalender berisi kalender mini dan saringan (sisi kiri, atau lembar
-// "Saring" di bawah 1024 px) serta bilah alat. Keadaan halaman tersimpan di URL.
-// Tahap 3: tampilan Pekan, Agenda, dan Bulan masih memakai papan daftar sementara.
+// "Saring" di bawah 1280 px), bilah alat, dan tampilan Pekan atau Agenda. Keadaan halaman
+// tersimpan di URL. Tampilan Bulan dan hasil cari masih memakai papan daftar sementara
+// (Tahap 5).
 export default function SchedulePage() {
   const calendar = useScheduleCalendar()
   const { state, update, today } = calendar
+  // Di bawah 768 px Pekan diganti Agenda (tujuh kolom terlalu sempit), juga untuk tautan
+  // ?tampilan=pekan yang dibuka di ponsel.
+  const view: CalendarView = calendar.narrow && state.view === 'pekan' ? 'agenda' : state.view
+  // Hari yang dituju Agenda (pita pekan, "+N lainnya" di Pekan); dikosongkan setelah digulir.
+  const [jumpTo, setJumpTo] = useState<string | null>(null)
+  const clearJump = useCallback(() => setJumpTo(null), [])
+  const openWorship = (worship: PublicWorshipItem) => update({ openId: worship.id }, { push: true })
+  const nextWeek = shiftAnchor('agenda', state.anchor, 1)
+  function goNextWeek() {
+    update({ anchor: nextWeek })
+    const panel = document.getElementById('kalender')
+    if (panel) scrollToElement(panel)
+  }
   const rayons = useApiQuery<ApiList<RayonListItem>>('/rayons')
   const rayonList = rayons.data?.data ?? []
   const upcoming = useApiQuery<ApiPage<PublicWorshipItem>>('/public/worships', { per_page: 6 })
@@ -69,7 +89,7 @@ export default function SchedulePage() {
     <MiniMonth
       anchor={state.anchor}
       today={today}
-      view={state.view}
+      view={view}
       days={calendar.days}
       onSelect={(date) => update({ anchor: date })}
       onMonth={(direction) => update({ anchor: addMonths(state.anchor, direction) })}
@@ -85,6 +105,55 @@ export default function SchedulePage() {
     />
   )
 
+  // Pekan dan Agenda.
+  const period = calendar.period
+  const periodContent =
+    period.error && !period.data ? (
+      <LoadError message="Jadwal tidak dapat dimuat." onRetry={period.reload} />
+    ) : !period.data ? (
+      <PeriodSkeleton view={view} />
+    ) : calendar.visible.length === 0 ? (
+      <div className="grid justify-items-start gap-2 rounded-2xl border border-dashed border-site-rule p-5 md:p-6">
+        <p className="text-base text-site-ink">
+          {filtering
+            ? 'Tidak ada ibadah yang cocok dengan saringan di pekan ini.'
+            : 'Belum ada ibadah yang diumumkan untuk pekan ini.'}
+        </p>
+        {filtering ? (
+          <ClearFilters onChange={update} className="h-11 px-0" />
+        ) : (
+          <NextWeekButton label={periodLabel('agenda', nextWeek)} onClick={goNextWeek} />
+        )}
+      </div>
+    ) : view === 'pekan' ? (
+      <WeekTable
+        dates={calendar.dates}
+        worships={calendar.visible}
+        today={today}
+        onOpen={openWorship}
+        onDay={(date) => {
+          update({ view: 'agenda' })
+          setJumpTo(date)
+        }}
+      />
+    ) : (
+      <>
+        <AgendaList
+          worships={calendar.visible}
+          today={today}
+          onOpen={openWorship}
+          jumpTo={jumpTo}
+          onJumped={clearJump}
+        />
+        <NextWeekButton
+          label={periodLabel('agenda', nextWeek)}
+          onClick={goNextWeek}
+          className="mt-6"
+        />
+      </>
+    )
+
+  // Tahap 5 menggantikan papan sementara untuk tampilan Bulan dan hasil cari.
   const board = calendar.searching ? calendar.search : calendar.period
   const worships = calendar.searching ? (calendar.search.data?.data ?? []) : calendar.visible
   const status =
@@ -156,10 +225,10 @@ export default function SchedulePage() {
         aria-labelledby={PERIOD_TITLE}
         className="mx-(--site-hero-gap) scroll-mt-24 rounded-[28px] bg-site-paper p-2 sm:p-3 glass:glass-slab"
       >
-        <div className="grid gap-2 sm:gap-3 lg:grid-cols-[19rem_minmax(0,1fr)]">
+        <div className="grid gap-2 sm:gap-3 xl:grid-cols-[19rem_minmax(0,1fr)]">
           <aside
             aria-label="Kalender dan saringan"
-            className="hidden content-start gap-6 rounded-[22px] bg-site-canvas p-4 lg:grid glass:glass-card"
+            className="hidden content-start gap-6 rounded-[22px] bg-site-canvas p-4 xl:grid glass:glass-card"
           >
             {miniMonth}
             {search('sm:w-full')}
@@ -169,17 +238,17 @@ export default function SchedulePage() {
 
           <div className="min-w-0 rounded-[22px] bg-site-canvas p-3 sm:p-5 md:p-6 glass:glass-card">
             <ScheduleToolbar
-              view={state.view}
+              view={view}
               anchor={state.anchor}
               today={today}
               titleId={PERIOD_TITLE}
               onShift={(direction) =>
-                update({ anchor: shiftAnchor(state.view, state.anchor, direction) })
+                update({ anchor: shiftAnchor(view, state.anchor, direction) })
               }
               onToday={() => update({ anchor: today })}
               onView={(view) => update({ view })}
             />
-            <div className="mt-4 flex items-center gap-2 lg:hidden">
+            <div className="mt-4 flex items-center gap-2 xl:hidden">
               {search('min-w-0 flex-1 sm:w-auto')}
               <FilterSheet
                 active={activeFilterCount(state)}
@@ -193,27 +262,95 @@ export default function SchedulePage() {
               state={state}
               rayons={rayonList}
               onChange={update}
-              className="mt-3 lg:hidden"
+              className="mt-3 xl:hidden"
             />
             <p aria-live="polite" className="mt-4 text-sm text-site-muted">
               {summary}
             </p>
 
-            {/* Tahap 3: papan daftar sementara sampai tampilan Pekan/Agenda/Bulan dibangun. */}
-            <div
-              aria-busy={board.loading}
-              className={cn('mt-4 transition-opacity', board.loading && board.data && 'opacity-60')}
-            >
-              <ScheduleBoard
-                worships={worships}
+            {!calendar.searching && view === 'agenda' && period.data && (
+              <WeekStrip
+                dates={calendar.dates}
                 today={today}
-                status={status}
-                className="shadow-none"
+                days={calendar.days}
+                onDay={setJumpTo}
+                className="mt-3 md:hidden"
               />
-            </div>
+            )}
+
+            {calendar.searching || view === 'bulan' ? (
+              <div
+                aria-busy={board.loading}
+                className={cn(
+                  'mt-4 transition-opacity',
+                  board.loading && board.data && 'opacity-60',
+                )}
+              >
+                <ScheduleBoard
+                  worships={worships}
+                  today={today}
+                  status={status}
+                  className="shadow-none"
+                />
+              </div>
+            ) : (
+              <div
+                aria-busy={period.loading}
+                className={cn(
+                  'mt-4 transition-opacity',
+                  period.loading && period.data && 'opacity-60',
+                )}
+              >
+                {periodContent}
+              </div>
+            )}
           </div>
         </div>
       </section>
     </>
+  )
+}
+
+function NextWeekButton({
+  label,
+  onClick,
+  className,
+}: {
+  label: string
+  onClick: () => void
+  className?: string
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        'inline-flex min-h-11 items-center gap-2 rounded-full border border-site-rule px-4 text-sm font-semibold text-site-ink transition-colors outline-none hover:border-site-ink focus-visible:ring-3 focus-visible:ring-ring',
+        className,
+      )}
+    >
+      Pekan berikutnya: {label}
+      <ArrowRight className="size-4" aria-hidden="true" />
+    </button>
+  )
+}
+
+// Kerangka memuat seukuran tampilannya: kisi tujuh kolom untuk Pekan, baris untuk Agenda.
+function PeriodSkeleton({ view }: { view: CalendarView }) {
+  return (
+    <div
+      aria-hidden="true"
+      className={cn('grid gap-2', view === 'pekan' && 'grid-cols-[3rem_repeat(7,1fr)]')}
+    >
+      {Array.from({ length: view === 'pekan' ? 24 : 5 }, (_, index) => (
+        <div
+          key={index}
+          className={cn(
+            'animate-pulse rounded-lg bg-site-ink/[0.06]',
+            view === 'pekan' ? (index % 8 === 0 ? 'h-6' : 'h-20') : 'h-16',
+          )}
+        />
+      ))}
+    </div>
   )
 }
