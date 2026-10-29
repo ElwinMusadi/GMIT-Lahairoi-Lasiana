@@ -86,8 +86,15 @@ DashboardPack). Pengguna punya lisensinya tetapi belum mengunduh source React-ny
 - **Branch:** `feat/redesign-dashboard-zenith`, di-merge `--no-ff` setelah semua tahap selesai (D10).
 - **Tahap 0 (persiapan):** acuan HRIS diinventaris; baseline dashboard per peran ada di
   `.taste-skill/inspect-dashboard-baseline/` (tidak di-commit).
-- **Berikutnya: Tahap 1 (fondasi):** token terang/gelap, Geist, primitif (kartu, tabel, lencana,
-  kontrol bersegmen, KPI), dan keputusan pustaka grafik (D7).
+- **Tahap 1 (fondasi) selesai.**
+  - Token `.theme-dashboard` terang/gelap (nama token shadcn yang sama, jadi halaman lama ikut).
+  - `lib/dashboard-theme.ts` dan Geist yang di-host sendiri.
+  - Komponen `components/zenith/`: `PageHeader`, `KpiCard`, `Sparkline`, `StatusBadge`,
+    `Segmented`, `Kbd`, ditambah `ui/table.tsx`.
+  - D7: tetap grafik SVG sendiri (Chart.js menambah gzip 67 KB).
+  - Dashboard sungguhan belum memakai tema baru.
+- **Berikutnya: Tahap 2 (kerangka):** sidebar, topbar (Ctrl+K, tema, menu pengguna), judul halaman,
+  skrip anti-kedip, dan peralihan `font-sans` ke Geist (Roundo dicabut).
 
 ### Selesai: skala Portal Publik 90%
 

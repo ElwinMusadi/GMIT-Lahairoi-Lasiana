@@ -159,6 +159,123 @@
 }
 
 /*
+ * Dashboard pengurus bergaya Zenith (docs/rencana-redesign-dashboard-zenith.md), tema terang.
+ * Palet netral oklch tanpa kroma seperti Zenith dan penerapannya di HRIS: kanvas putih, tombol
+ * utama hitam, garis abu tipis. Crimson GMIT hanya untuk data (D3). Dipasang di <html> oleh
+ * lib/dashboard-theme.ts (kelas theme-dashboard), sehingga isi Radix di <body> ikut.
+ */
+.theme-dashboard {
+  --radius: 0.625rem;
+  --font-dashboard: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.965 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --rule: oklch(0.945 0 0);
+  --input: oklch(0.87 0 0);
+  --ring: oklch(0.708 0 0);
+  --brand: #b11226;
+  --brand-foreground: #ffffff;
+  --field: oklch(0.205 0 0);
+  --field-foreground: oklch(0.985 0 0);
+  --positive: #2e7d32;
+  --positive-soft: #dcfae5;
+  --positive-ink: #04250e;
+  --negative-soft: #ffedea;
+  --negative-ink: #831c1e;
+  --warning: #92400e;
+  --warning-soft: #fffbeb;
+  --warning-border: #fde68a;
+  --warning-ink: #92400e;
+  /* Seri grafik: crimson + abu tervalidasi (dataviz), lalu abu-abu pembanding. */
+  --chart-1: #b11226;
+  --chart-2: #8a8a8a;
+  --chart-3: #141414;
+  --chart-4: #b5b3af;
+  --chart-5: #3d3d3d;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.955 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+  color-scheme: light;
+}
+
+/*
+ * Dashboard, tema gelap: hanya bila pengurus memilihnya dan hanya di layar (@media screen),
+ * sehingga cetakan laporan dan sertifikat selalu terang. Crimson + abu grafik divalidasi ulang
+ * untuk kanvas gelap (#e5484d + #8a8a8a: ΔE buta warna 9,1, kontras ≥3:1).
+ */
+@media screen {
+  .theme-dashboard.dark {
+    --background: oklch(0.1 0 0);
+    --foreground: oklch(0.985 0 0);
+    --card: oklch(0.165 0 0);
+    --card-foreground: oklch(0.985 0 0);
+    --popover: oklch(0.165 0 0);
+    --popover-foreground: oklch(0.985 0 0);
+    --primary: oklch(0.922 0 0);
+    --primary-foreground: oklch(0.205 0 0);
+    --secondary: oklch(0.235 0 0);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.21 0 0);
+    --muted-foreground: oklch(0.708 0 0);
+    --accent: oklch(0.235 0 0);
+    --accent-foreground: oklch(0.985 0 0);
+    --destructive: oklch(0.704 0.191 22.216);
+    --border: oklch(0.28 0 0);
+    --rule: oklch(0.24 0 0);
+    --input: oklch(0.34 0 0);
+    --ring: oklch(0.556 0 0);
+    --brand: #e5484d;
+    --brand-foreground: #ffffff;
+    --field: oklch(0.922 0 0);
+    --field-foreground: oklch(0.205 0 0);
+    --positive: #34c38f;
+    --positive-soft: color-mix(in oklab, #34c38f 16%, transparent);
+    --positive-ink: #86efac;
+    --negative-soft: color-mix(in oklab, #f0685f 16%, transparent);
+    --negative-ink: #fca5a5;
+    --warning: #f0b44c;
+    --warning-soft: color-mix(in oklab, #f0b44c 12%, transparent);
+    --warning-border: color-mix(in oklab, #f0b44c 35%, transparent);
+    --warning-ink: #fcd34d;
+    --chart-1: #e5484d;
+    --chart-2: #8a8a8a;
+    --chart-3: #ededed;
+    --chart-4: #525252;
+    --chart-5: #a3a3a3;
+    --sidebar: oklch(0.125 0 0);
+    --sidebar-foreground: oklch(0.985 0 0);
+    --sidebar-primary: oklch(0.922 0 0);
+    --sidebar-primary-foreground: oklch(0.205 0 0);
+    --sidebar-accent: oklch(0.21 0 0);
+    --sidebar-accent-foreground: oklch(0.985 0 0);
+    --sidebar-border: oklch(0.28 0 0);
+    --sidebar-ring: oklch(0.556 0 0);
+    color-scheme: dark;
+  }
+}
+.theme-dashboard body {
+  font-family: var(--font-dashboard);
+}
+
+/*
  * Portal Publik, rancangan kage (design/stitch/10-portal-publik-kage), tema terang.
  * Dipasang di <html> oleh PublicLayout agar konten Radix di luar layout (sheet menu,
  * dialog) ikut memakai token yang sama. Komponen shadcn mengikuti warna kage: tombol

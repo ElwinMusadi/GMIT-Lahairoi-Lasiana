@@ -172,7 +172,7 @@ HRIS (Laravel 13, Blade, Alpine.js, Chart.js) menerjemahkan gaya Zenith ke kompo
 | D4 | Pengatur tema (kepadatan, tata letak, lebar) | Dipakai / tidak | **Tidak**; cukup tombol tema. Fitur itu menambah kerumitan tanpa kebutuhan pengurus |
 | D5 | Pencarian ⌘K dan notifikasi | (a) ⌘K untuk lompat ke modul dan cari jemaat, notifikasi ditunda; (b) keduanya; (c) tidak keduanya | **(a)**: notifikasi butuh sumber data baru (mis. pendaftaran sakramen baru) yang belum ada |
 | D6 | Tampilan kalender untuk Jadwal Ibadah | Ditambah / tidak | **Tidak** di tahap ini; tabel tetap, kalender bisa menyusul |
-| D7 | Komponen tabel dan grafik | Ikuti pustaka Zenith (mis. TanStack Table, Recharts) / tetap buatan sendiri dengan gaya Zenith | Diputuskan setelah membaca source dan mengukur bundel |
+| D7 | Komponen tabel dan grafik | Ikuti pustaka Zenith (mis. TanStack Table, Recharts) / tetap buatan sendiri dengan gaya Zenith | **Tetap buatan sendiri** (Tahap 1): Chart.js seperti HRIS, hanya garis/batang/donat, menambah 191 KB (gzip 67 KB); grafik SVG sendiri dengan palet tervalidasi diberi gaya Zenith. Tabel memakai primitif shadcn `ui/table.tsx` |
 | D8 | Urutan blok Ringkasan | Sama untuk semua peran / menyesuaikan peran (Bendahara: keuangan di atas) | **Menyesuaikan peran** (perbaikan tertunda #3) |
 | D9 | Halaman login | Tetap bergaya portal / ikut Zenith | **Tetap portal**, sesuai redesign portal |
 | D10 | Cara kerja | (a) branch `feat/redesign-dashboard-zenith` + merge `--no-ff`; (b) langsung di `main` | **(a)**: perubahannya besar dan berlangsung beberapa hari |
@@ -219,3 +219,54 @@ Setiap tahap: implementasi, verifikasi, penjelasan, lalu commit setelah "Ya, com
   | Majelis | 6 | 18 |
 
 - **Berikutnya: Tahap 1** (fondasi).
+
+### Tahap 1 — Fondasi (29 Oktober 2026)
+
+**Token** ([index.css](../src/client/index.css)):
+
+- Blok `.theme-dashboard` (terang) dan `.theme-dashboard.dark` (gelap) memakai nama token shadcn
+  yang sudah dipakai semua halaman dashboard (`background`, `foreground`, `card`, `muted`,
+  `muted-foreground`, `rule`, `border`, `input`, `ring`, `brand`, `positive`, `warning`, `chart-*`,
+  `sidebar-*`). Halaman lama ikut berganti rupa tanpa ditulis ulang.
+- **Terang:** palet netral oklch seperti Zenith/HRIS (kanvas putih, tombol utama
+  `oklch(0.205 0 0)`, garis `oklch(0.922 0 0)`, teks redup `oklch(0.556 0 0)` 4,7:1), radius
+  0,625 rem.
+- **Gelap:** kanvas `oklch(0.1)`, kartu `oklch(0.165)`, tombol utama terang. Hanya di
+  `@media screen`, sehingga cetakan selalu terang.
+- **Seri grafik:** terang crimson `#b11226` + abu `#8a8a8a`; gelap `#e5484d` + `#8a8a8a`.
+  Divalidasi ulang dengan validator dataviz: ΔE buta warna 9,1, normal 19,3, kontras ≥3:1.
+
+**Tema** ([dashboard-theme.ts](../src/client/lib/dashboard-theme.ts)):
+
+- Pola sama dengan `portal-theme.ts`: kelas `theme-dashboard` + `dark` di `<html>`, kunci
+  `gmit-lahairoi:tema-dashboard`, bawaan terang, dilepas saat meninggalkan dashboard.
+- Dashboard sungguhan baru memakainya di Tahap 2 (bersama skrip anti-kedip di `index.html`).
+
+**Huruf:** Geist (`@fontsource-variable/geist` 5.3.0, OFL-1.1) di-host sendiri dan diimpor oleh
+`dashboard-theme.ts`. CSS-nya hanya ikut chunk dashboard (1,5 KB), dan browser hanya mengunduh
+subset Latin (29 KB). Utilitas `font-sans`/`font-heading` masih Roundo, karena nilainya ditulis
+langsung oleh `@theme inline`. Peralihan ke Geist dan pencabutan Roundo dikerjakan di Tahap 2,
+agar dashboard yang sekarang tidak jatuh ke huruf sistem.
+
+**Komponen** ([components/zenith](../src/client/components/zenith)):
+
+| Komponen | Isi |
+| --- | --- |
+| `PageHeader` | Judul tebal 2xl, deskripsi, aksi di kanan, tombol kembali opsional |
+| `KpiCard` | Label, angka besar, ikon dalam kotak (crimson untuk angka utama, netral untuk pendamping), perubahan hijau/merah dengan arah baik yang bisa dibalik (mis. kas keluar), grafik mini opsional, seluruh kartu bisa jadi tautan |
+| `Sparkline` | Garis + isian bergradasi `currentColor`, hanya hiasan (`aria-hidden`) |
+| `StatusBadge` | Solid seperti Zenith: sukses `emerald-700`, peringatan `amber-400` teks gelap, bahaya `red-600`, info hitam/terang, brand crimson, netral. Teks putih ≥4,5:1 pada 12 px |
+| `Segmented` | Grup tombol `aria-pressed`, dengan jumlah opsional |
+| `Kbd` | Tombol keyboard kecil |
+| `ui/table.tsx` | Primitif shadcn bergaya tabel Zenith |
+| `ui/card.tsx` | Judul kartu kini semibold seperti Zenith (komponen ini belum dipakai di halaman mana pun) |
+
+**Pemeriksaan:** halaman uji lokal `/zenith-lab` (tidak di-commit, disimpan di folder sementara).
+
+| Uji | Hasil |
+| --- | --- |
+| Tema terang dan gelap, 1440 dan 390 px | Token, Geist, tombol, KPI, tabel, kontrol bersegmen, dan lencana sesuai Zenith; tanpa gulir menyamping |
+| Dashboard sungguhan | Belum berubah: kelas `theme-dashboard` belum dipasang |
+| Typecheck, lint | Bersih |
+
+**Berikutnya: Tahap 2** (kerangka).
