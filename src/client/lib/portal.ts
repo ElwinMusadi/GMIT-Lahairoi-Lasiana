@@ -1,9 +1,34 @@
-import type { PublicContent, WorshipCategory } from '@shared/types'
+import type { PublicContent } from '@shared/types'
 
 // Tampilan data Portal Publik: tanggal ibadah, paragraf konten, daftar majelis, dan
 // salin ke clipboard.
 
 const DAY_MS = 86_400_000
+
+// Foto gedung gereja (Keputusan K5) dalam tiga lebar, untuk hero, band, dan footer.
+const PHOTO = '/images/gereja-gmit-lahairoi'
+export const CHURCH_PHOTO = {
+  src: `${PHOTO}-1254.webp`,
+  srcSet: `${PHOTO}-640.webp 640w, ${PHOTO}-960.webp 960w, ${PHOTO}-1254.webp 1254w`,
+  sizes: '100vw',
+}
+
+// Tanggal YYYY-MM-DD ditambah sejumlah hari.
+export function addDays(date: string, days: number) {
+  return new Date(Date.parse(date) + days * DAY_MS).toISOString().slice(0, 10)
+}
+
+const shortDay = new Intl.DateTimeFormat('id-ID', {
+  timeZone: 'UTC',
+  day: 'numeric',
+  month: 'short',
+})
+
+// Rentang tanggal untuk bilah jendela papan jadwal: "29 Okt s.d. 1 Nov".
+export function dateRange(first: string, last: string) {
+  const from = shortDay.format(Date.parse(first))
+  return first === last ? from : `${from} s.d. ${shortDay.format(Date.parse(last))}`
+}
 
 // Tanggal tanpa jam (YYYY-MM-DD) diformat apa adanya, tanpa geser zona waktu.
 const weekdayDate = new Intl.DateTimeFormat('id-ID', {
@@ -31,12 +56,16 @@ export function publishedDate(iso: string) {
   return longDate.format(new Date(iso))
 }
 
-// Warna kartu jadwal per jenis ibadah, seperti rancangan portal (garis kiri + label).
-export const WORSHIP_TONE: Record<WorshipCategory, { bar: string; pill: string }> = {
-  SUNDAY_SERVICE: { bar: 'bg-portal-amber', pill: 'bg-portal-amber-soft text-portal-amber-ink' },
-  RAYON: { bar: 'bg-portal-navy', pill: 'bg-portal-blue-soft text-portal-blue-ink' },
-  CATEGORICAL: { bar: 'bg-portal-green', pill: 'bg-portal-green-soft text-portal-green' },
-  SPECIAL: { bar: 'bg-portal-indigo', pill: 'bg-portal-high text-portal-navy' },
+const compactDate = new Intl.DateTimeFormat('id-ID', {
+  timeZone: 'Asia/Makassar',
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+})
+
+// Waktu terbit ISO → "28 Okt 2026" (WITA), untuk keterangan yang sempit.
+export function compactPublishedDate(iso: string) {
+  return compactDate.format(new Date(iso))
 }
 
 // Isi konten (teks biasa) → paragraf; paragraf dipisah baris kosong.
@@ -153,6 +182,13 @@ export function youTubeId(url: string | null | undefined): string | null {
   } catch {
     return null
   }
+}
+
+// Gambar sampul dokumentasi: foto yang diunggah, atau pratinjau YouTube untuk video saja.
+export function mediaCover(item: Pick<PublicContent, 'thumbnail_url' | 'attachment_url'>) {
+  if (item.thumbnail_url) return item.thumbnail_url
+  const video = youTubeId(item.attachment_url)
+  return video ? `https://i.ytimg.com/vi/${video}/hqdefault.jpg` : null
 }
 
 // Cuplikan awal isi untuk kartu artikel (±200 karakter, dipotong di batas kata).

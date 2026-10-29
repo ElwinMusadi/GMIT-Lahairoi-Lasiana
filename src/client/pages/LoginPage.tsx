@@ -1,22 +1,33 @@
-import { useRef, useState, type CSSProperties, type FormEvent } from 'react'
-import { Eye, EyeOff } from 'lucide-react'
-import { Link, Navigate, useLocation, useNavigate } from 'react-router'
-import { WellMark, Wordmark } from '@/components/brand/well'
-import { portalButton } from '@/components/portal/site-header'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { useRef, useState, type FormEvent } from 'react'
+import { ArrowLeft, Eye, EyeOff } from 'lucide-react'
+import { Navigate, useLocation, useNavigate } from 'react-router'
+import { siteInput } from '@/components/portal/kage/field'
+import { PillButton, PillLink } from '@/components/portal/kage/pill'
+import { Reveal } from '@/components/portal/kage/reveal'
+import { TwoToneHeading } from '@/components/portal/kage/two-tone-heading'
+import { BrandPill } from '@/components/portal/site-header'
+import { ThemeToggle } from '@/components/portal/theme-toggle'
 import { ApiError, errorMessage } from '@/lib/api'
+import { CHURCH_PHOTO } from '@/lib/portal'
+import { useBackgroundParallax, usePortalMotion } from '@/lib/portal-motion'
 import { usePortalTheme } from '@/lib/portal-theme'
 import { useSession } from '@/lib/session'
 import { cn } from '@/lib/utils'
 
-const fieldClass = 'h-12 rounded-full border-input bg-card px-5 text-base md:text-base dark:bg-card'
-
 type FieldErrors = { identifier?: string; password?: string }
 
+// Bagian halaman muncul berurutan (seperti halaman login 08), 80 ms per langkah.
+const stagger = (step: number) => ({ transitionDelay: `${step * 80}ms` })
+
+// Masuk pengurus bergaya kage. Desktop: formulir di kolom kiri, panel foto gereja di kanan
+// dengan kartu kaca "Siapa yang bisa masuk". Ponsel: foto menjadi pita pendek di atas
+// formulir dan kartu peran pindah ke bawahnya. Tema dan lapisan gerak mengikuti portal.
 export default function LoginPage() {
   usePortalTheme()
+  usePortalMotion()
+  const photo = useRef<HTMLImageElement>(null)
+  useBackgroundParallax(photo, 120)
+
   const { status, login } = useSession()
   const navigate = useNavigate()
   const location = useLocation()
@@ -68,34 +79,54 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-svh flex-col px-4 py-5 sm:px-6 lg:px-8">
-      <header>
-        <Wordmark className="rise-in" />
+    <div className="grid min-h-svh bg-site-canvas font-site-body text-site-ink lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:grid-rows-[auto_1fr_auto]">
+      <header className="flex items-center justify-between gap-2 px-(--site-inset) pt-(--site-inset) lg:col-start-1 lg:row-start-1">
+        <BrandPill />
+        <ThemeToggle />
       </header>
 
-      <main className="grid flex-1 content-center gap-x-8 gap-y-16 py-16 lg:grid-cols-12">
-        <div className="grid gap-10 lg:col-span-5">
-          <div className="rise-in grid gap-6 [--rise-delay:80ms]">
-            <h1 className="text-step-display leading-[0.95] font-medium tracking-[-0.035em]">
-              Masuk
-              <br />
-              pengurus
-            </h1>
-            <p className="text-step-lead leading-snug">
+      {/* Foto gereja: pita pendek di ponsel, kolom kanan setinggi layar di desktop. Kartu
+          peran di bawah menumpang di atasnya pada sel grid yang sama. */}
+      <div
+        aria-hidden="true"
+        className="px-(--site-hero-gap) pt-4 lg:col-start-2 lg:row-span-3 lg:row-start-1 lg:p-(--site-hero-gap)"
+      >
+        <div className="relative h-40 overflow-hidden rounded-3xl bg-site-night sm:h-56 lg:h-full">
+          <img
+            ref={photo}
+            data-parallax-bg
+            src={CHURCH_PHOTO.src}
+            srcSet={CHURCH_PHOTO.srcSet}
+            sizes="(min-width: 1024px) 58vw, 100vw"
+            alt=""
+            fetchPriority="high"
+            decoding="async"
+          />
+          <div className="site-login-scrim absolute inset-0 hidden lg:block" />
+        </div>
+      </div>
+
+      <main className="px-(--site-inset) py-12 md:py-16 lg:col-start-1 lg:row-span-2 lg:row-start-2 lg:self-center">
+        <div className="mx-auto grid max-w-[440px] gap-8 lg:mx-0">
+          <Reveal className="grid gap-4">
+            <TwoToneHeading as="h1" size="card" lead="Masuk" accent="pengurus." />
+            <p className="text-lg leading-relaxed text-site-ink/80">
               Untuk Admin, Bendahara, Pendeta, dan Majelis GMIT Jemaat Lahairoi.
             </p>
-          </div>
+          </Reveal>
 
-          <form
+          <Reveal
+            as="form"
             noValidate
             onSubmit={handleSubmit}
-            className="rise-in grid gap-6 [--rise-delay:160ms]"
+            style={stagger(1)}
+            className="grid gap-5"
           >
-            <div className="grid gap-2.5">
-              <Label htmlFor="identifier" className="text-step-body">
+            <div className="grid gap-2">
+              <label htmlFor="identifier" className="text-sm font-semibold">
                 Email atau username
-              </Label>
-              <Input
+              </label>
+              <input
                 ref={identifierRef}
                 id="identifier"
                 name="identifier"
@@ -105,21 +136,21 @@ export default function LoginPage() {
                 spellCheck={false}
                 aria-invalid={Boolean(fieldErrors.identifier)}
                 aria-describedby={fieldErrors.identifier ? 'identifier-error' : undefined}
-                className={fieldClass}
+                className={siteInput}
               />
               {fieldErrors.identifier && (
-                <p id="identifier-error" className="text-step-body text-destructive">
+                <p id="identifier-error" className="text-sm text-destructive">
                   {fieldErrors.identifier}
                 </p>
               )}
             </div>
 
-            <div className="grid gap-2.5">
-              <Label htmlFor="password" className="text-step-body">
+            <div className="grid gap-2">
+              <label htmlFor="password" className="text-sm font-semibold">
                 Kata sandi
-              </Label>
+              </label>
               <div className="relative">
-                <Input
+                <input
                   ref={passwordRef}
                   id="password"
                   name="password"
@@ -127,23 +158,21 @@ export default function LoginPage() {
                   autoComplete="current-password"
                   aria-invalid={Boolean(fieldErrors.password)}
                   aria-describedby={fieldErrors.password ? 'password-error' : undefined}
-                  className={cn(fieldClass, 'pr-14')}
+                  className={cn(siteInput, 'pr-14')}
                 />
-                <Button
+                <button
                   type="button"
-                  variant="ghost"
-                  size="icon"
                   aria-label={showPassword ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
                   aria-pressed={showPassword}
                   aria-controls="password"
                   onClick={() => setShowPassword((shown) => !shown)}
-                  className="absolute top-1/2 right-1 size-10 -translate-y-1/2 rounded-full"
+                  className="absolute top-1/2 right-0.5 inline-flex size-11 -translate-y-1/2 items-center justify-center rounded-[10px] text-site-muted transition-colors outline-none hover:bg-site-paper hover:text-site-ink focus-visible:ring-3 focus-visible:ring-ring [&_svg]:size-5"
                 >
-                  {showPassword ? <EyeOff /> : <Eye />}
-                </Button>
+                  {showPassword ? <EyeOff aria-hidden="true" /> : <Eye aria-hidden="true" />}
+                </button>
               </div>
               {fieldErrors.password && (
-                <p id="password-error" className="text-step-body text-destructive">
+                <p id="password-error" className="text-sm text-destructive">
                   {fieldErrors.password}
                 </p>
               )}
@@ -151,60 +180,61 @@ export default function LoginPage() {
 
             <div role="alert" aria-live="assertive">
               {formError && (
-                <p className="flex items-start gap-3 text-step-body text-destructive">
-                  <WellMark className="mt-1.5 size-3 shrink-0" />
+                <p className="rounded-2xl bg-destructive/10 px-4 py-3 text-base text-destructive ring-1 ring-destructive/30">
                   {formError}
                 </p>
               )}
             </div>
 
-            <div className="grid gap-4 sm:flex sm:items-center sm:gap-8">
-              <Button
+            <div className="grid gap-4 sm:flex sm:items-center sm:gap-6">
+              <PillButton
                 type="submit"
+                size="lg"
+                arrow={!submitting}
                 disabled={submitting}
-                className={cn(portalButton, 'sm:min-w-40')}
+                className="sm:min-w-36"
               >
                 {submitting ? 'Memeriksa…' : 'Masuk'}
-              </Button>
-              <p className="text-step-body text-muted-foreground">
+              </PillButton>
+              <p className="text-base leading-snug text-site-muted">
                 Lupa kata sandi? Minta Admin jemaat mengatur ulang.
               </p>
             </div>
-          </form>
+          </Reveal>
 
-          <Link to="/" className="justify-self-start text-step-body underline underline-offset-8">
-            Kembali ke portal
-          </Link>
+          <Reveal style={stagger(2)} className="justify-self-start">
+            <PillLink to="/" tone="outline">
+              <ArrowLeft aria-hidden="true" />
+              Kembali ke portal
+            </PillLink>
+          </Reveal>
         </div>
-
-        <section
-          aria-labelledby="judul-peran"
-          className="grid content-start gap-6 lg:col-span-6 lg:col-start-7 lg:self-end"
-        >
-          <h2
-            id="judul-peran"
-            className="rise-in text-step-lead font-medium [--rise-delay:240ms]"
-          >
-            Siapa yang bisa masuk
-          </h2>
-          <ul className="grid gap-6">
-            {ROLE_ACCESS.map((item, index) => (
-              <li
-                key={item.role}
-                style={{ '--rise-delay': `${300 + index * 70}ms` } as CSSProperties}
-                className="rise-in grid grid-cols-[1.25rem_1fr] gap-x-3 gap-y-1"
-              >
-                <WellMark className="mt-1.5 size-3.5 text-brand" />
-                <span className="text-step-body font-semibold">{item.role}</span>
-                <span className="col-start-2 text-step-body">{item.access}</span>
-              </li>
-            ))}
-          </ul>
-          <p className="text-step-body text-muted-foreground">
-            Warga jemaat tidak perlu akun: warta, jadwal ibadah, dan renungan terbuka di portal.
-          </p>
-        </section>
       </main>
+
+      <aside
+        aria-labelledby="judul-peran"
+        className="relative z-10 mx-(--site-hero-gap) mb-(--site-hero-gap) grid gap-6 rounded-3xl bg-site-paper p-6 md:p-8 lg:col-start-2 lg:row-start-3 lg:m-[calc(var(--site-hero-gap)+24px)] lg:max-w-[600px] lg:self-end lg:bg-site-glass lg:shadow-site-panel"
+      >
+        <Reveal as="h2" id="judul-peran" className="font-site-display text-xl font-bold">
+          Siapa yang bisa masuk
+        </Reveal>
+        <ul className="grid gap-5 sm:grid-cols-2 sm:gap-x-8">
+          {ROLE_ACCESS.map((item, index) => (
+            <Reveal
+              as="li"
+              key={item.role}
+              style={stagger(index + 1)}
+              className="grid content-start gap-1"
+            >
+              <span className="font-site-display text-base font-bold">{item.role}</span>
+              <span className="text-base leading-snug text-site-ink/80">{item.access}</span>
+            </Reveal>
+          ))}
+        </ul>
+        <Reveal as="p" style={stagger(5)} className="text-base leading-snug text-site-muted">
+          Warga jemaat tidak perlu akun: warta, jadwal ibadah, dan renungan terbuka di portal.
+        </Reveal>
+      </aside>
     </div>
   )
 }

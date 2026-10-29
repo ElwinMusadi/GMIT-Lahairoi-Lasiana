@@ -31,28 +31,27 @@
   --font-sans: "Roundo", ui-sans-serif, system-ui, sans-serif;
   --font-heading: var(--font-sans);
 
-  /* Portal Publik (rancangan design/stitch/08): Inter untuk teks, Plus Jakarta Sans
-     untuk judul, biru tua dengan aksen amber di permukaan kebiruan terang. */
-  --font-portal: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-portal-heading: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
-  --color-portal-navy: #00236f;
-  --color-portal-indigo: #1e3a8a;
-  --color-portal-ink: #131b2e;
-  --color-portal-muted: #444651;
-  --color-portal-surface: #faf8ff;
-  --color-portal-low: #f2f3ff;
-  --color-portal-mid: #eaedff;
-  --color-portal-high: #e2e7ff;
-  --color-portal-highest: #dae2fd;
-  --color-portal-blue-soft: #dce1ff;
-  --color-portal-blue-ink: #00164e;
-  --color-portal-blue-light: #b6c4ff;
-  --color-portal-amber: #904d00;
-  --color-portal-amber-soft: #ffdcc3;
-  --color-portal-amber-ink: #2f1500;
-  --color-portal-amber-light: #ffb77d;
-  --color-portal-green: #004a32;
-  --color-portal-green-soft: #85f8c4;
+  /* Portal Publik rancangan kage (design/stitch/10-portal-publik-kage). Warna yang berganti
+     antara tema terang dan gelap dibaca dari variabel di .theme-portal / .theme-portal.dark;
+     panel gelap, aksen, dan teal tetap sama di kedua tema. */
+  --font-site-display: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-site-serif: "Instrument Serif", ui-serif, Georgia, serif;
+  --font-site-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-site-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --color-site-canvas: var(--site-canvas);
+  --color-site-paper: var(--site-paper);
+  --color-site-ink: var(--site-ink);
+  --color-site-muted: var(--site-muted);
+  --color-site-rule: var(--site-rule);
+  --color-site-blue: var(--site-blue);
+  --color-site-green: var(--site-green);
+  --color-site-glass: var(--site-glass);
+  --color-site-accent: #f08a2b;
+  --color-site-night: #07151a;
+  --color-site-panel: #111113;
+  --color-site-panel-2: #1c1c1e;
+  --shadow-site-panel: 0 32px 72px -16px rgb(0 0 0 / 0.4);
+  --shadow-site-broad: 0 24px 60px -12px rgb(7 21 26 / 0.25);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -103,13 +102,6 @@
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) * 1.4);
-
-  /* Skala tipe Portal Publik (lembar arah one-motif): lima ukuran. */
-  --text-step-small: clamp(0.8125rem, 0.79rem + 0.1vw, 0.875rem);
-  --text-step-body: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
-  --text-step-lead: clamp(1.25rem, 1.1rem + 0.7vw, 1.625rem);
-  --text-step-head: clamp(2rem, 1.3rem + 3.2vw, 4rem);
-  --text-step-display: clamp(3.5rem, 1rem + 8vw, 8.5rem);
 }
 
 /*
@@ -167,81 +159,192 @@
 }
 
 /*
- * Portal Publik: rancangan design/stitch/08-portal-publik-warta (terang, biru tua dan
- * amber). Dipasang di <html> oleh PublicLayout agar konten Radix di luar layout (sheet
- * menu) ikut memakai token yang sama.
+ * Portal Publik, rancangan kage (design/stitch/10-portal-publik-kage), tema terang.
+ * Dipasang di <html> oleh PublicLayout agar konten Radix di luar layout (sheet menu,
+ * dialog) ikut memakai token yang sama. Komponen shadcn mengikuti warna kage: tombol
+ * utama hitam, garis abu tipis. Cincin fokus jingga tua (4,2:1 di putih), karena jingga
+ * kage (2,5:1) terlalu pucat untuk penanda fokus di kanvas terang.
  */
 .theme-portal {
-  --background: #faf8ff;
-  --foreground: #131b2e;
+  --background: #ffffff;
+  --foreground: #111113;
   --card: #ffffff;
-  --card-foreground: #131b2e;
+  --card-foreground: #111113;
   --popover: #ffffff;
-  --popover-foreground: #131b2e;
-  --primary: #00236f;
+  --popover-foreground: #111113;
+  --primary: #111113;
   --primary-foreground: #ffffff;
-  --secondary: #eaedff;
-  --secondary-foreground: #00236f;
-  --muted: #f2f3ff;
-  --muted-foreground: #444651;
-  --accent: #e2e7ff;
-  --accent-foreground: #131b2e;
+  --secondary: #f6f6f4;
+  --secondary-foreground: #111113;
+  --muted: #f6f6f4;
+  --muted-foreground: #6b6b6b;
+  --accent: #efefec;
+  --accent-foreground: #111113;
   --destructive: #ba1a1a;
-  --border: #e2e7ff;
-  --input: #c5c5d3;
-  --ring: #4059aa;
-  --brand: #00236f;
+  --border: #e7e7e7;
+  --input: #c9c9c4;
+  --ring: #c2620a;
+  --brand: #111113;
   --brand-foreground: #ffffff;
-  --field: #00236f;
+  --field: #111113;
   --field-foreground: #ffffff;
+
+  /* Jarak header dan isi hero dari tepi layar; panel hero berjarak 12–16 px dari tepi,
+     sisanya bantalan di dalam panel. Header dan hero memakai nilai yang sama agar sejajar. */
+  --site-inset: 32px;
+  --site-hero-gap: 12px;
+
+  /* Token kage, tema terang (bawaan). */
+  --site-canvas: #ffffff;
+  --site-paper: #f6f6f4;
+  --site-ink: #111113;
+  --site-muted: #6b6b6b;
+  --site-rule: #e7e7e7;
+  --site-blue: #00236f;
+  --site-green: #355a3a;
+  --site-glass: rgb(255 255 255 / 0.95);
+  color-scheme: light;
 }
+
+/*
+ * Portal Publik, tema gelap: hanya bila pengunjung memilihnya (lib/portal-theme.ts);
+ * bawaannya selalu terang. Kontras teks di kanvas: utama 16,9:1, sekunder 7,5:1, biru
+ * 10,0:1, jingga 7,5:1. Foto, QRIS, dan PDF tidak ikut digelapkan.
+ */
+.theme-portal.dark {
+  --background: #0a1215;
+  --foreground: #f2f2ee;
+  --card: #111b1f;
+  --card-foreground: #f2f2ee;
+  --popover: #111b1f;
+  --popover-foreground: #f2f2ee;
+  --primary: #f2f2ee;
+  --primary-foreground: #111113;
+  --secondary: #1a262b;
+  --secondary-foreground: #f2f2ee;
+  --muted: #111b1f;
+  --muted-foreground: #9ba5a8;
+  --accent: #1a262b;
+  --accent-foreground: #f2f2ee;
+  --destructive: #ff8a80;
+  --border: #24323a;
+  --input: #34454e;
+  --ring: #f08a2b;
+  --brand: #f2f2ee;
+  --brand-foreground: #111113;
+  --field: #f2f2ee;
+  --field-foreground: #111113;
+
+  --site-canvas: #0a1215;
+  --site-paper: #111b1f;
+  --site-ink: #f2f2ee;
+  --site-muted: #9ba5a8;
+  --site-rule: #24323a;
+  --site-blue: #a9b9ff;
+  --site-green: #6e9c76;
+  --site-glass: rgb(17 27 31 / 0.92);
+  color-scheme: dark;
+}
+@media (width >= 48rem) {
+  .theme-portal {
+    --site-inset: 48px;
+    --site-hero-gap: 16px;
+  }
+}
+@media (width >= 80rem) {
+  .theme-portal {
+    --site-inset: 64px;
+  }
+}
+
+/* Bantalan isi panel hero: tepi kiri isi sejajar dengan pil header, dan bagian atasnya
+   memberi ruang untuk header (44 px) yang melayang di atas foto. */
+.site-hero-pad {
+  --pad: calc(var(--site-inset) - var(--site-hero-gap));
+  padding: calc(var(--pad) + 84px) var(--pad) var(--pad);
+}
+
+/* Scrim foto hero (manifest 75/45/85) dan band (60 %), teal sangat gelap yang nyaris
+   netral seperti scrim footer. Bagian tengah hero dinaikkan ke 55 % agar kalimat besar
+   tetap terbaca di atas dinding gereja yang putih. */
+.site-hero-scrim {
+  background: linear-gradient(
+    to bottom,
+    rgb(8 18 21 / 0.75),
+    rgb(8 18 21 / 0.55) 45%,
+    rgb(8 18 21 / 0.88)
+  );
+}
+.site-band-scrim {
+  background: rgb(8 18 21 / 0.62);
+}
+/* Panel foto login: hanya bagian bawah digelapkan, agar kartu peran yang putih tetap
+   terpisah dari dinding gereja yang juga putih. */
+.site-login-scrim {
+  background: linear-gradient(to bottom, rgb(8 18 21 / 0) 40%, rgb(8 18 21 / 0.55));
+}
+
+/* Scrim foto footer: teal sangat gelap yang nyaris netral. Pita teratas lebih terang agar
+   foto gereja terlihat; mulai baris teks pertama (±88 px) cukup gelap untuk teks putih di
+   atas dinding gereja yang putih. */
+.site-footer-scrim {
+  background: linear-gradient(
+    to bottom,
+    rgb(8 18 21 / 0.45),
+    rgb(8 18 21 / 0.78) 88px,
+    rgb(8 18 21 / 0.82) 60%,
+    rgb(8 18 21 / 0.92)
+  );
+}
+
+/* Tepi gerigi di atas footer kage: gigi segitiga berwarna kanvas, berulang mendatar. */
+.site-sawtooth {
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='16'%3E%3Cpath d='M0 16 14 0l14 16z'/%3E%3C/svg%3E")
+    0 0 / 28px 16px repeat-x;
+}
+/* Isi Radix yang dirender langsung di <body> (menu ponsel, jendela galeri, toast) ikut huruf
+   teks portal. */
 .theme-portal body {
-  font-family: var(--font-portal);
+  @apply font-site-body;
 }
 
-/* Lapisan gerak Portal Publik: hanya transform dan opacity. Konten tetap terlihat bila
-   animasi tidak didukung, dan gerak dimatikan bila pengguna memintanya. */
-@keyframes rise-in {
-  from {
+/* Lapisan gerak kage (lib/portal-motion.ts). Elemen "muncul" hanya disembunyikan selama
+   html.portal-motion aktif, yaitu saat JavaScript gerak berjalan dan pengguna tidak
+   meminta kurangi gerak; selain itu langsung tampil. */
+@media (prefers-reduced-motion: no-preference) {
+  .portal-motion [data-reveal] {
     opacity: 0;
-    transform: translateY(24px);
+    transform: translate3d(0, 25px, 0);
+    transition:
+      opacity 0.6s ease,
+      transform 0.6s ease;
+  }
+  .portal-motion [data-reveal].is-visible {
+    opacity: 1;
+    transform: none;
   }
 }
-/* Untuk gerak yang dipicu scroll: tanpa opacity agar konten tidak pernah tersembunyi. */
-@keyframes drift-up {
-  from {
-    transform: translateY(48px);
-  }
-}
-@keyframes ring-in {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
+/* Selama Lenis menggulir, scroll anchoring browser dimatikan. Isi yang berubah tinggi saat
+   meluncur (mis. hasil cek status) membuat browser menggeser posisi gulir, dan pergeseran itu
+   terbaca sebagai gulir dari luar sehingga luncuran berhenti. */
+html.lenis-scrolling {
+  overflow-anchor: none;
 }
 
-@layer utilities {
-  .rise-in {
-    animation: rise-in 700ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
-    animation-delay: var(--rise-delay, 0ms);
-  }
-  .ring-in {
-    animation: ring-in 1100ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
-  }
-  @supports (animation-timeline: view()) {
-    .scroll-rise {
-      animation: drift-up linear both;
-      animation-timeline: view();
-      animation-range: entry 5% cover 25%;
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .rise-in,
-    .ring-in,
-    .scroll-rise {
-      animation: none;
-    }
-  }
+/* Foto latar parallax: posisi diamnya tepat di tengah bingkai (bingkai: relative +
+   overflow-hidden). Saat bergerak, tinggi minimum dan transform diatur portal-motion. */
+[data-parallax-bg] {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  height: auto;
+  min-height: 100%;
+  object-fit: cover;
+  transform: translate3d(0, -50%, 0);
+  will-change: transform;
+  pointer-events: none;
+  user-select: none;
 }
 
 @layer base {

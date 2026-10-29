@@ -1,11 +1,17 @@
-import { useRef, useState } from 'react'
-import { Download, ExternalLink, FileText, Search } from 'lucide-react'
+import type { ReactNode } from 'react'
+import { Download, ExternalLink } from 'lucide-react'
 import type { ApiPage, PublicContent } from '@shared/types'
-import { EmptyNote, PageIntro, Pager, PortalCard, PortalSection } from '@/components/portal/parts'
-import { Skeleton } from '@/components/ui/skeleton'
+import { HeroPanel } from '@/components/portal/kage/hero-panel'
+import { SearchField, SitePager } from '@/components/portal/kage/list-controls'
+import { PillLink } from '@/components/portal/kage/pill'
+import { Reveal } from '@/components/portal/kage/reveal'
+import { LoadError, SiteSection } from '@/components/portal/kage/site-section'
+import { TwoToneHeading } from '@/components/portal/kage/two-tone-heading'
+import { WindowPanel } from '@/components/portal/kage/window-panel'
 import { publishedDate } from '@/lib/portal'
 import { useApiQuery } from '@/lib/use-api-query'
 import { useUrlFilters } from '@/lib/use-url-filters'
+import { cn } from '@/lib/utils'
 
 const PER_PAGE = 12
 
@@ -15,13 +21,6 @@ export default function WartaPage() {
   const { params, update } = useUrlFilters()
   const q = params.get('q') ?? ''
   const page = Math.max(1, Number(params.get('page')) || 1)
-  const [search, setSearch] = useState(q)
-  const [syncedQ, setSyncedQ] = useState(q)
-  if (q !== syncedQ) {
-    setSyncedQ(q)
-    if (q !== search.trim()) setSearch(q)
-  }
-  const timer = useRef<number | undefined>(undefined)
 
   const list = useApiQuery<ApiPage<PublicContent>>('/public/contents', {
     category: 'WARTA',
@@ -35,162 +34,200 @@ export default function WartaPage() {
   const featured = page === 1 && !q ? items[0] : undefined
   const archive = featured ? items.slice(1) : items
 
+  let body: ReactNode
+  if (list.error && !list.data) {
+    body = (
+      <SiteSection className="pt-12 lg:pt-16">
+        <LoadError message="Warta tidak dapat dimuat." onRetry={list.reload} />
+      </SiteSection>
+    )
+  } else if (!list.data) {
+    body = (
+      <SiteSection className="pt-12 lg:pt-16">
+        <div aria-hidden="true" className="h-[28rem] animate-pulse rounded-3xl bg-site-paper" />
+      </SiteSection>
+    )
+  } else if (total === 0 && !q) {
+    body = (
+      <SiteSection className="pt-12 lg:pt-16">
+        <p className="text-lg text-site-muted">Warta Jemaat belum diterbitkan.</p>
+      </SiteSection>
+    )
+  } else {
+    body = (
+      <>
+        {featured && (
+          <SiteSection labelledBy="judul-warta-terbaru" className="pt-12 pb-0 lg:pt-16 lg:pb-0">
+            <FeaturedWarta warta={featured} />
+          </SiteSection>
+        )}
+        <SiteSection labelledBy="judul-arsip-warta" className={cn(!featured && 'pt-12 lg:pt-16')}>
+          <div className="flex flex-wrap items-end justify-between gap-6">
+            <Reveal>
+              <TwoToneHeading
+                id="judul-arsip-warta"
+                size="card"
+                lead={featured ? 'Arsip warta' : 'Warta Jemaat'}
+              />
+            </Reveal>
+            <SearchField
+              value={q}
+              onSearch={(value) => update({ q: value }, { keepScroll: true })}
+              label="Cari warta"
+              placeholder="Cari judul warta"
+            />
+          </div>
+          {archive.length === 0 ? (
+            <p className="mt-10 text-lg text-site-muted">
+              {q ? `Tidak ada warta yang cocok dengan “${q}”.` : 'Belum ada warta sebelumnya.'}
+            </p>
+          ) : (
+            <ul
+              aria-busy={list.loading}
+              className={cn('mt-10 grid gap-3 transition-opacity', list.loading && 'opacity-60')}
+            >
+              {archive.map((warta) => (
+                <Reveal
+                  as="li"
+                  key={warta.id}
+                  className="grid gap-4 rounded-2xl bg-site-paper p-5 md:grid-cols-[180px_minmax(0,1fr)_auto] md:items-center md:gap-6 md:p-6"
+                >
+                  <div className="grid min-w-0 gap-1">
+                    <h3 className="font-site-display text-lg leading-snug font-bold">
+                      {warta.title}
+                    </h3>
+                    {warta.summary && (
+                      <p className="line-clamp-2 text-base text-site-ink/80">{warta.summary}</p>
+                    )}
+                  </div>
+                  <p className="text-sm font-medium text-site-muted md:order-first">
+                    {publishedDate(warta.published_at)}
+                  </p>
+                  <PdfActions warta={warta} compact />
+                </Reveal>
+              ))}
+            </ul>
+          )}
+          <SitePager
+            page={page}
+            perPage={PER_PAGE}
+            total={total}
+            noun="warta"
+            onPage={(next) => update({ page: String(next) })}
+            className="mt-10"
+          />
+        </SiteSection>
+      </>
+    )
+  }
+
   return (
     <>
-      <PageIntro
-        id="judul-warta"
-        eyebrow="Publikasi mingguan"
-        title="Warta Jemaat"
-        lead="Warta mingguan lengkap dalam PDF: pengumuman, jadwal pelayan, dan kabar jemaat. Baca langsung atau unduh untuk disimpan."
-      />
-
-      <PortalSection labelledBy="judul-warta-terbaru">
-        {list.error && !list.data ? (
-          <EmptyNote>
-            Warta tidak dapat dimuat.{' '}
-            <button
-              type="button"
-              onClick={list.reload}
-              className="font-semibold text-portal-navy underline"
-            >
-              Coba lagi
-            </button>
-          </EmptyNote>
-        ) : !list.data ? (
-          <Skeleton className="h-80 rounded-xl" />
-        ) : total === 0 && !q ? (
-          <EmptyNote>Warta Jemaat belum diterbitkan.</EmptyNote>
-        ) : (
-          <>
-            {featured && <FeaturedWarta warta={featured} />}
-
-            <div className="flex flex-wrap items-end justify-between gap-3 pt-2">
-              <h2
-                id="judul-warta-terbaru"
-                className="font-portal-heading text-2xl font-bold text-portal-navy"
-              >
-                {featured ? 'Arsip warta' : 'Warta Jemaat'}
-              </h2>
-              <div className="relative w-full sm:w-72">
-                <Search
-                  aria-hidden="true"
-                  className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-portal-muted"
-                />
-                <input
-                  type="search"
-                  value={search}
-                  onChange={(event) => {
-                    const value = event.target.value
-                    setSearch(value)
-                    window.clearTimeout(timer.current)
-                    timer.current = window.setTimeout(() => update({ q: value.trim() }), 300)
-                  }}
-                  placeholder="Cari judul warta"
-                  aria-label="Cari warta"
-                  className="h-10 w-full rounded-lg border-0 bg-white pr-3 pl-9 text-sm text-portal-ink shadow-sm outline-none focus-visible:ring-3 focus-visible:ring-portal-blue-light"
-                />
-              </div>
-            </div>
-
-            {archive.length === 0 ? (
-              <EmptyNote>
-                {q ? `Tidak ada warta yang cocok dengan “${q}”.` : 'Belum ada warta sebelumnya.'}
-              </EmptyNote>
-            ) : (
-              <ul className="grid gap-3">
-                {archive.map((warta) => (
-                  <li key={warta.id}>
-                    <WartaRow warta={warta} />
-                  </li>
-                ))}
-              </ul>
-            )}
-            <Pager
-              page={page}
-              perPage={PER_PAGE}
-              total={total}
-              noun="warta"
-              onPage={(next) => update({ page: String(next) })}
+      <HeroPanel
+        labelledBy="judul-warta"
+        display={
+          <div className="grid max-w-[760px] gap-5">
+            <TwoToneHeading
+              as="h1"
+              id="judul-warta"
+              size="page"
+              onDark
+              lead="Warta Jemaat"
+              accent="tiap Minggu."
             />
-          </>
-        )}
-      </PortalSection>
+            <p className="max-w-[60ch] text-base leading-relaxed text-white/85 md:text-lg">
+              Warta mingguan lengkap dalam PDF: pengumuman, jadwal pelayan, dan kabar jemaat. Baca
+              langsung atau unduh untuk disimpan.
+            </p>
+          </div>
+        }
+      />
+      {body}
     </>
   )
 }
 
-function PdfButtons({ warta }: { warta: PublicContent }) {
+function PdfActions({
+  warta,
+  onDark = false,
+  compact = false,
+}: {
+  warta: PublicContent
+  onDark?: boolean
+  // Baris arsip: tombol teks saja, tanpa ikon.
+  compact?: boolean
+}) {
   if (!warta.attachment_url) return null
   return (
     <div className="flex flex-wrap gap-2">
-      <a
-        href={warta.attachment_url}
+      <PillLink
+        to={warta.attachment_url}
         download={`${warta.slug}.pdf`}
-        className="inline-flex items-center gap-1.5 rounded-lg bg-portal-amber px-4 py-2 text-sm font-bold text-white hover:opacity-90"
+        tone={onDark ? 'light' : 'dark'}
+        size="sm"
       >
-        <Download className="size-4" aria-hidden="true" />
+        {!compact && <Download aria-hidden="true" />}
         Unduh PDF
-      </a>
-      <a
-        href={warta.attachment_url}
+      </PillLink>
+      <PillLink
+        to={warta.attachment_url}
         target="_blank"
         rel="noreferrer"
-        className="inline-flex items-center gap-1.5 rounded-lg bg-portal-mid px-4 py-2 text-sm font-semibold text-portal-navy hover:bg-portal-high"
+        tone={onDark ? 'glass' : 'outline'}
+        size="sm"
       >
-        <ExternalLink className="size-4" aria-hidden="true" />
+        {!compact && <ExternalLink aria-hidden="true" />}
         Baca di tab baru
-      </a>
+      </PillLink>
     </div>
   )
 }
 
+// Warta terbaru dalam panel jendela, dengan pratinjau PDF di layar lebar. Peramban ponsel
+// umumnya tidak menampilkan PDF dalam bingkai, jadi di sana cukup tombol baca dan unduh.
 function FeaturedWarta({ warta }: { warta: PublicContent }) {
   return (
-    <PortalCard as="article" className="grid overflow-hidden lg:grid-cols-12">
-      <div className="grid content-start gap-4 bg-portal-navy p-6 text-white lg:col-span-4">
-        <span className="flex size-12 items-center justify-center rounded-lg bg-white/10 text-portal-amber-soft">
-          <FileText className="size-7" aria-hidden="true" />
-        </span>
-        <div className="grid gap-1">
-          <span className="text-xs font-bold tracking-wider text-portal-amber-soft uppercase">
-            Warta terbaru · {publishedDate(warta.published_at)}
-          </span>
-          <h2 className="font-portal-heading text-2xl leading-8 font-bold">{warta.title}</h2>
-          {warta.summary && <p className="text-white/80">{warta.summary}</p>}
-        </div>
-        <PdfButtons warta={warta} />
-      </div>
-      {warta.attachment_url && (
-        // Pratinjau di layar lebar; peramban ponsel umumnya tidak menampilkan PDF dalam
-        // bingkai, jadi di sana cukup tombol baca dan unduh.
-        <iframe
-          src={warta.attachment_url}
-          title={`Pratinjau ${warta.title}`}
-          className="hidden h-[36rem] w-full border-0 bg-portal-low lg:col-span-8 lg:block"
-        />
-      )}
-    </PortalCard>
-  )
-}
-
-function WartaRow({ warta }: { warta: PublicContent }) {
-  return (
-    <PortalCard className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex min-w-0 items-start gap-3">
-        <span className="flex size-10 flex-none items-center justify-center rounded-lg bg-portal-blue-soft text-portal-navy">
-          <FileText className="size-5" aria-hidden="true" />
-        </span>
-        <div className="grid min-w-0">
-          <span className="text-xs font-semibold text-portal-amber">
-            {publishedDate(warta.published_at)}
-          </span>
-          <h3 className="font-bold text-portal-ink">{warta.title}</h3>
-          {warta.summary && (
-            <p className="line-clamp-2 text-sm text-portal-muted">{warta.summary}</p>
+    <Reveal>
+      <WindowPanel
+        bodyClassName="p-0 md:p-0"
+        footer={
+          warta.attachment_url ? (
+            <>
+              <span className="min-w-0 truncate font-site-mono text-[13px] text-white/70">
+                {warta.slug}.pdf
+              </span>
+              <PdfActions warta={warta} onDark />
+            </>
+          ) : undefined
+        }
+      >
+        <article aria-labelledby="judul-warta-terbaru" className="grid lg:grid-cols-12">
+          <div className="grid content-start gap-5 p-6 md:p-8 lg:col-span-5">
+            <h2
+              id="judul-warta-terbaru"
+              className="font-site-display text-[28px] leading-tight font-bold tracking-tight md:text-[32px]"
+            >
+              {warta.title}
+            </h2>
+            <p className="inline-flex items-center gap-2 text-sm font-medium text-white/75">
+              <span aria-hidden="true" className="size-1.5 rounded-full bg-site-accent" />
+              Warta terbaru · {publishedDate(warta.published_at)}
+            </p>
+            {warta.summary && (
+              <p className="text-base leading-relaxed text-white/85">{warta.summary}</p>
+            )}
+          </div>
+          {warta.attachment_url && (
+            <div className="hidden p-4 lg:col-span-7 lg:block lg:pl-0">
+              <iframe
+                src={warta.attachment_url}
+                title={`Pratinjau ${warta.title}`}
+                className="h-[36rem] w-full rounded-xl border-0 bg-white"
+              />
+            </div>
           )}
-        </div>
-      </div>
-      <PdfButtons warta={warta} />
-    </PortalCard>
+        </article>
+      </WindowPanel>
+    </Reveal>
   )
 }

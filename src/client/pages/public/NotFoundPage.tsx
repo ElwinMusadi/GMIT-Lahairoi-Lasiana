@@ -1,24 +1,34 @@
-import { ArrowLeft } from 'lucide-react'
-import { Link } from 'react-router'
-import { PortalSection, SectionHeading } from '@/components/portal/parts'
+import { Home } from 'lucide-react'
+import { HeroPanel } from '@/components/portal/kage/hero-panel'
+import { PillLink } from '@/components/portal/kage/pill'
+import { TwoToneHeading } from '@/components/portal/kage/two-tone-heading'
 
 export default function NotFoundPage() {
   return (
-    <PortalSection tone="low" labelledBy="judul-404" className="py-16">
-      <SectionHeading
-        id="judul-404"
-        level={1}
-        eyebrow="Halaman tidak ditemukan"
-        title="Alamat ini tidak ada"
-        lead="Alamat yang Anda buka tidak ada atau sudah dipindahkan. Mulai lagi dari beranda."
-      />
-      <Link
-        to="/"
-        className="inline-flex w-fit items-center gap-1.5 rounded-lg bg-portal-navy px-4 py-2.5 text-sm font-semibold text-white hover:bg-portal-indigo"
-      >
-        <ArrowLeft className="size-4" aria-hidden="true" />
-        Ke beranda
-      </Link>
-    </PortalSection>
+    <HeroPanel
+      labelledBy="judul-404"
+      display={
+        <div className="grid max-w-[760px] gap-5">
+          <TwoToneHeading
+            as="h1"
+            id="judul-404"
+            size="page"
+            onDark
+            lead="Alamat ini"
+            accent="tidak ada."
+          />
+          <p className="max-w-[60ch] text-base leading-relaxed text-white/85 md:text-lg">
+            Alamat yang Anda buka tidak ada atau sudah dipindahkan. Mulai lagi dari beranda.
+          </p>
+        </div>
+      }
+    >
+      <div className="mt-auto flex flex-wrap gap-2 pt-10">
+        <PillLink to="/" tone="light">
+          <Home aria-hidden="true" />
+          Ke beranda
+        </PillLink>
+      </div>
+    </HeroPanel>
   )
 }

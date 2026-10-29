@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Outlet, ScrollRestoration, useMatches } from 'react-router'
+import { Outlet, ScrollRestoration, useMatches, type Location } from 'react-router'
 import type { RouteHandle } from '@/router'
 
 const SITE_NAME = 'GMIT Lahairoi Tuak Sabu Lasiana'
@@ -17,7 +17,14 @@ export default function RootLayout() {
   return (
     <>
       <Outlet />
-      <ScrollRestoration />
+      <ScrollRestoration getKey={scrollKey} />
     </>
   )
+}
+
+// Setiap muat penuh (alamat diketik, tautan <a> biasa, muat ulang) memakai kunci lokasi
+// "default" yang sama, sehingga halaman baru ikut dipulihkan ke posisi gulir halaman lain.
+// Muat penuh dikunci per alamat; navigasi di dalam aplikasi tetap per entri riwayat.
+function scrollKey(location: Location) {
+  return location.key === 'default' ? location.pathname : location.key
 }

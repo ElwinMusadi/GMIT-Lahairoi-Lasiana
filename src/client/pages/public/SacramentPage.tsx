@@ -10,7 +10,6 @@ import {
 import {
   Check,
   CircleAlert,
-  CircleCheck,
   Copy,
   FileCheck2,
   FileUp,
@@ -41,10 +40,18 @@ import {
   type SacramentApplyResponse,
   type SacramentType,
 } from '@shared/types'
-import { Eyebrow, PageIntro, PortalCard, PortalSection } from '@/components/portal/parts'
+import { FaqAccordion } from '@/components/portal/kage/faq-accordion'
+import { siteInput } from '@/components/portal/kage/field'
+import { HeroPanel } from '@/components/portal/kage/hero-panel'
+import { PillButton, PillLink } from '@/components/portal/kage/pill'
+import { Reveal } from '@/components/portal/kage/reveal'
+import { SectionIntro, SiteSection } from '@/components/portal/kage/site-section'
+import { TwoToneHeading } from '@/components/portal/kage/two-tone-heading'
+import { WindowPanel } from '@/components/portal/kage/window-panel'
 import { ApiError, errorMessage } from '@/lib/api'
 import { formatDate, formatTime } from '@/lib/format'
 import { copyText } from '@/lib/portal'
+import { scrollToElement } from '@/lib/portal-motion'
 import {
   NOTES_FIELD,
   SERVICES,
@@ -60,57 +67,69 @@ import {
   type FieldView,
   type SavedCode,
 } from '@/lib/sacraments'
+import { SACRAMENT_FAQ } from '@/lib/sacrament-faq'
 import { formatBytes, validateUpload } from '@/lib/upload'
 import { useApiQuery } from '@/lib/use-api-query'
 import { cn } from '@/lib/utils'
 
 const LETTERS = 'ABCDE'
 
-const inputClass =
-  'h-11 w-full rounded-lg border border-portal-highest bg-portal-surface px-3 text-base text-portal-ink outline-none placeholder:text-portal-muted/70 focus-visible:border-portal-indigo focus-visible:ring-3 focus-visible:ring-portal-blue-light/60 aria-invalid:border-destructive'
+// Pesan eror di atas panel gelap: merah muda terang agar terbaca (destructive tema terang
+// terlalu gelap di atas panel).
+const darkError = 'text-[#ff8a80]'
 
 // Layanan Sakramen (PRD: Formulir Pendaftaran Online Baptis, Sidi, Nikah dengan kode
-// lacak), tanpa login. Struktur mengikuti rancangan design/stitch/05: Cek Status di
-// atas, formulir bertab per layanan, lalu pedoman.
+// lacak), tanpa login: Cek Status di atas, formulir bertab per layanan, lalu tanya-jawab.
 export default function SacramentPage() {
   const tracker = useTracker()
+  // Kode yang tersimpan di perangkat ini; diperbarui begitu pendaftaran baru terkirim.
+  const [saved, setSaved] = useState<SavedCode[]>(savedCodes)
 
   function checkFromSuccess(code: string) {
     void tracker.check(code)
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    document
-      .getElementById('cek-status')
-      ?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' })
+    const section = document.getElementById('cek-status')
+    if (section) scrollToElement(section)
   }
 
   return (
     <>
-      <PageIntro
-        id="judul-sakramen"
-        eyebrow="Layanan gerejawi"
-        title="Layanan Sakramen & Pelacakan Berkas"
-        lead="Daftarkan Baptisan Kudus, Katekisasi/Sidi, atau Pemberkatan Nikah tanpa perlu akun. Simpan kode registrasi yang Anda terima untuk memantau verifikasi berkas dan jadwal penggembalaan."
+      <HeroPanel
+        labelledBy="judul-sakramen"
+        display={
+          <div className="grid max-w-[760px] gap-5">
+            <TwoToneHeading
+              as="h1"
+              id="judul-sakramen"
+              size="page"
+              onDark
+              lead="Layanan Sakramen"
+              accent="& pelacakan berkas."
+            />
+            <p className="max-w-[60ch] text-base leading-relaxed text-white/85 md:text-lg">
+              Daftarkan Baptisan Kudus, Katekisasi/Sidi, atau Pemberkatan Nikah tanpa perlu akun.
+              Simpan kode registrasi yang Anda terima untuk memantau verifikasi berkas dan jadwal
+              penggembalaan.
+            </p>
+          </div>
+        }
       >
-        <div className="flex flex-wrap gap-2">
-          <a
-            href="#formulir"
-            className="inline-flex items-center gap-1.5 rounded-lg bg-portal-navy px-5 py-2.5 text-sm font-semibold text-white hover:bg-portal-indigo"
-          >
-            <Send className="size-4" aria-hidden="true" />
+        <div className="mt-auto flex flex-wrap gap-2 pt-10">
+          <PillLink to="#formulir" tone="light">
+            <Send aria-hidden="true" />
             Daftar sekarang
-          </a>
-          <a
-            href="#cek-status"
-            className="inline-flex items-center gap-1.5 rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-portal-navy shadow-sm hover:bg-portal-high"
-          >
-            <Search className="size-4" aria-hidden="true" />
+          </PillLink>
+          <PillLink to="#cek-status" tone="glass">
+            <Search aria-hidden="true" />
             Cek status pendaftaran
-          </a>
+          </PillLink>
         </div>
-      </PageIntro>
-      <TrackSection tracker={tracker} />
-      <FormSection onCheck={checkFromSuccess} />
-      <GuideSection />
+      </HeroPanel>
+      <TrackSection tracker={tracker} saved={saved} />
+      <FormSection onCheck={checkFromSuccess} onSaved={() => setSaved(savedCodes())} />
+      <SiteSection labelledBy="judul-tanya">
+        <SectionIntro id="judul-tanya" lead="Pertanyaan seputar" accent="pendaftaran sakramen." />
+        <FaqAccordion items={SACRAMENT_FAQ} className="mx-auto mt-12 max-w-[760px] text-left" />
+      </SiteSection>
     </>
   )
 }
@@ -157,84 +176,81 @@ function useTracker() {
 
 type Tracker = ReturnType<typeof useTracker>
 
-function TrackSection({ tracker }: { tracker: Tracker }) {
-  const [saved] = useState<SavedCode[]>(savedCodes)
-
+// Cek status dalam panel jendela gelap bermotif terminal.
+function TrackSection({ tracker, saved }: { tracker: Tracker; saved: SavedCode[] }) {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     void tracker.check(tracker.input)
   }
 
   return (
-    <PortalSection id="cek-status" labelledBy="judul-cek-status">
-      <PortalCard as="div" className="grid gap-6 border-t-4 border-portal-amber p-5 sm:p-6">
-        <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,28rem)] lg:items-start">
-          <div className="grid gap-1">
-            <h2
-              id="judul-cek-status"
-              className="flex items-center gap-2 font-portal-heading text-xl font-bold text-portal-navy sm:text-2xl"
-            >
-              <Search className="size-5 text-portal-amber" aria-hidden="true" />
-              Cek Status Pendaftaran
-            </h2>
-            <p className="text-portal-muted">
-              Masukkan kode registrasi yang Anda terima setelah mendaftar untuk melihat tahap
-              verifikasi berkas, jadwal penggembalaan, dan tanggal pelaksanaan.
-            </p>
-          </div>
-          <form onSubmit={handleSubmit} className="grid gap-2" noValidate>
-            <label htmlFor="kode-registrasi" className="text-sm font-semibold text-portal-ink">
-              Kode registrasi
-            </label>
-            <div className="flex gap-2">
-              <input
-                id="kode-registrasi"
-                value={tracker.input}
-                onChange={(event) => tracker.setInput(event.target.value)}
-                placeholder="BPT-XXXX-XXXX"
-                autoComplete="off"
-                autoCapitalize="characters"
-                spellCheck={false}
-                aria-invalid={Boolean(tracker.error)}
-                aria-describedby={tracker.error ? 'kode-error' : undefined}
-                className={cn(inputClass, 'min-w-0 font-mono tracking-wider uppercase')}
-              />
-              <button
-                type="submit"
-                disabled={tracker.loading}
-                className="inline-flex h-11 flex-none items-center gap-1.5 rounded-lg bg-portal-navy px-4 text-sm font-semibold text-white hover:bg-portal-indigo disabled:opacity-60"
-              >
-                {tracker.loading ? 'Memeriksa…' : 'Lacak status'}
-              </button>
-            </div>
-            {tracker.error && (
-              <p id="kode-error" role="alert" className="text-sm text-destructive">
-                {tracker.error}
-              </p>
-            )}
-            {saved.length > 0 && (
-              <div className="flex flex-wrap items-center gap-2 pt-1 text-sm text-portal-muted">
-                <span>Tersimpan di perangkat ini:</span>
-                {saved.map((item) => (
-                  <button
-                    key={item.code}
-                    type="button"
-                    onClick={() => void tracker.check(item.code)}
-                    className="rounded-md bg-portal-low px-2 py-1 font-mono text-xs font-semibold text-portal-navy hover:bg-portal-high"
-                    title={SACRAMENT_TYPE_LABELS[item.type]}
-                  >
-                    {item.code}
-                  </button>
-                ))}
+    <SiteSection id="cek-status" labelledBy="judul-cek-status" className="pt-12 lg:pt-16">
+      <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+        <div className="grid content-start gap-6 lg:col-span-5">
+          <Reveal>
+            <TwoToneHeading id="judul-cek-status" lead="Cek status" accent="pendaftaran." />
+          </Reveal>
+          <p className="max-w-[52ch] text-lg leading-relaxed text-site-ink/80">
+            Masukkan kode registrasi yang Anda terima setelah mendaftar untuk melihat tahap
+            verifikasi berkas, jadwal penggembalaan, dan tanggal pelaksanaan.
+          </p>
+        </div>
+        <Reveal className="lg:col-span-7">
+          <WindowPanel title="cek-status" badge="WITA">
+            <form onSubmit={handleSubmit} className="grid gap-3" noValidate>
+              <label htmlFor="kode-registrasi" className="text-sm font-semibold text-white/85">
+                Kode registrasi
+              </label>
+              <div className="flex min-w-0 items-center gap-2 rounded-full bg-site-panel-2 p-1.5 pl-5 shadow-inner focus-within:ring-3 focus-within:ring-site-accent">
+                <input
+                  id="kode-registrasi"
+                  value={tracker.input}
+                  onChange={(event) => tracker.setInput(event.target.value)}
+                  placeholder="BPT-XXXX-XXXX"
+                  autoComplete="off"
+                  autoCapitalize="characters"
+                  spellCheck={false}
+                  aria-invalid={Boolean(tracker.error)}
+                  aria-describedby={tracker.error ? 'kode-error' : undefined}
+                  className="h-10 min-w-0 flex-1 bg-transparent font-site-mono text-base tracking-wider text-white uppercase outline-none placeholder:text-white/45"
+                />
+                <button
+                  type="submit"
+                  disabled={tracker.loading}
+                  className="inline-flex h-10 flex-none items-center rounded-full bg-white px-4 text-sm font-semibold text-site-panel transition-colors outline-none hover:bg-site-paper focus-visible:ring-3 focus-visible:ring-site-accent disabled:opacity-70"
+                >
+                  {tracker.loading ? 'Memeriksa…' : 'Lacak status'}
+                </button>
               </div>
-            )}
-          </form>
-        </div>
-        <div aria-live="polite" className="empty:hidden">
-          {tracker.result && <TrackResult status={tracker.result} />}
-        </div>
-      </PortalCard>
-    </PortalSection>
+              {tracker.error && (
+                <p id="kode-error" role="alert" className={cn('text-sm', darkError)}>
+                  {tracker.error}
+                </p>
+              )}
+              {saved.length > 0 && (
+                <div className="flex flex-wrap items-center gap-2 pt-1 text-sm text-white/70">
+                  <span>Tersimpan di perangkat ini:</span>
+                  {saved.map((item) => (
+                    <button
+                      key={item.code}
+                      type="button"
+                      onClick={() => void tracker.check(item.code)}
+                      title={SACRAMENT_TYPE_LABELS[item.type]}
+                      className="rounded-full bg-white/10 px-3 py-1.5 font-site-mono text-[13px] text-white transition-colors outline-none hover:bg-white/20 focus-visible:ring-3 focus-visible:ring-site-accent"
+                    >
+                      {item.code}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </form>
+            <div aria-live="polite" className="empty:hidden">
+              {tracker.result && <TrackResult status={tracker.result} />}
+            </div>
+          </WindowPanel>
+        </Reveal>
+      </div>
+    </SiteSection>
   )
 }
 
@@ -265,23 +281,24 @@ function TrackResult({ status }: { status: PublicSacramentStatus }) {
   ]
 
   return (
-    <div className="grid gap-4 rounded-xl bg-portal-low p-4 sm:p-5">
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-        <span className="rounded-full bg-portal-amber-soft px-3 py-0.5 text-xs font-bold text-portal-amber-ink">
-          {SACRAMENT_TYPE_LABELS[status.type]}
-        </span>
-        <span className="font-mono font-semibold text-portal-navy">{status.registration_code}</span>
-        <span className="text-sm text-portal-muted">· {status.applicant_name}</span>
-        <span className="text-sm text-portal-muted sm:ml-auto">
+    <div className="mt-8 grid gap-6 rounded-2xl bg-white/[0.05] p-5 md:p-6">
+      <div className="grid gap-2">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-white/75">
+          <span className="rounded-full bg-site-accent px-3 py-1 text-[13px] font-bold text-site-panel">
+            {SACRAMENT_TYPE_LABELS[status.type]}
+          </span>
+          <span className="font-site-mono text-base text-white">{status.registration_code}</span>
+          <span>· {status.applicant_name}</span>
+        </div>
+        <p className="font-site-display text-2xl font-bold text-white">
+          Status: {SACRAMENT_STATUS_LABELS[status.status]}
+        </p>
+        <p className="text-sm text-white/70">
           Diperbarui {formatDate(status.updated_at)}, {formatTime(status.updated_at)} WITA
-        </span>
+        </p>
       </div>
 
-      <p className="font-portal-heading text-lg font-bold text-portal-navy">
-        Status: {SACRAMENT_STATUS_LABELS[status.status]}
-      </p>
-
-      <ol className="grid gap-2 md:grid-cols-5">
+      <ol className="grid gap-4">
         {TRACK_STEPS.map((title, index) => {
           const done = index < current
           const active = index === current
@@ -289,34 +306,31 @@ function TrackResult({ status }: { status: PublicSacramentStatus }) {
             <li
               key={title}
               aria-current={active ? 'step' : undefined}
-              className={cn(
-                'grid content-start gap-1 rounded-lg bg-white p-3 text-sm',
-                active && !revision && 'ring-2 ring-portal-amber',
-                active && revision && 'ring-2 ring-destructive',
-                !done && !active && 'opacity-70',
-              )}
+              className={cn('grid grid-cols-[auto_1fr] gap-x-4', !done && !active && 'opacity-60')}
             >
-              <span className="flex items-center gap-2">
-                <span
-                  className={cn(
-                    'flex size-6 flex-none items-center justify-center rounded-full text-xs font-bold',
-                    done
-                      ? 'bg-portal-green-soft text-portal-green'
-                      : active
-                        ? revision
-                          ? 'bg-destructive text-white'
-                          : 'bg-portal-amber text-white'
-                        : 'bg-portal-mid text-portal-muted',
-                  )}
-                >
-                  {done ? <Check className="size-3.5" aria-hidden="true" /> : index + 1}
-                </span>
-                <span className="font-semibold text-portal-ink">{title}</span>
-                <span className="sr-only">
-                  {done ? '(selesai)' : active ? '(tahap sekarang)' : '(belum)'}
-                </span>
+              <span
+                className={cn(
+                  'flex size-8 items-center justify-center rounded-full font-site-mono text-[13px] font-semibold',
+                  done
+                    ? 'bg-site-green text-white'
+                    : active
+                      ? revision
+                        ? 'bg-[#ff8a80] text-site-panel'
+                        : 'bg-site-accent text-site-panel'
+                      : 'bg-white/10 text-white/70',
+                )}
+              >
+                {done ? <Check className="size-4" aria-hidden="true" /> : index + 1}
               </span>
-              <span className="pl-8 text-portal-muted">{details[index]}</span>
+              <span className="grid gap-0.5 pt-1">
+                <span className="text-base font-semibold text-white">
+                  {title}
+                  <span className="sr-only">
+                    {done ? ' (selesai)' : active ? ' (tahap sekarang)' : ' (belum)'}
+                  </span>
+                </span>
+                <span className="text-sm text-white/70">{details[index]}</span>
+              </span>
             </li>
           )
         })}
@@ -325,22 +339,19 @@ function TrackResult({ status }: { status: PublicSacramentStatus }) {
       {status.notes && (
         <div
           className={cn(
-            'flex items-start gap-3 rounded-lg p-4 text-sm',
-            revision ? 'bg-white ring-2 ring-destructive/40' : 'bg-white',
+            'flex items-start gap-3 rounded-2xl p-4 text-sm',
+            revision ? 'bg-[#ff8a80]/15 ring-1 ring-[#ff8a80]/50' : 'bg-white/[0.06]',
           )}
         >
           <CircleAlert
-            className={cn(
-              'mt-0.5 size-5 flex-none',
-              revision ? 'text-destructive' : 'text-portal-amber',
-            )}
+            className={cn('mt-0.5 size-5 flex-none', revision ? darkError : 'text-site-accent')}
             aria-hidden="true"
           />
           <div className="grid gap-1">
-            <span className="font-semibold text-portal-ink">Catatan dari Majelis</span>
-            <p className="whitespace-pre-line text-portal-muted">{status.notes}</p>
+            <span className="font-semibold text-white">Catatan dari Majelis</span>
+            <p className="whitespace-pre-line text-white/80">{status.notes}</p>
             {revision && (
-              <p className="text-portal-muted">
+              <p className="text-white/80">
                 Serahkan perbaikan berkas ke kantor jemaat atau ikuti petunjuk di atas, dengan
                 menyebutkan kode registrasi Anda.
               </p>
@@ -349,7 +360,7 @@ function TrackResult({ status }: { status: PublicSacramentStatus }) {
         </div>
       )}
 
-      <p className="text-sm text-portal-muted">
+      <p className="text-sm text-white/70">
         Berkas diterima:{' '}
         {status.documents.length > 0
           ? status.documents.map((document) => document.label).join(', ')
@@ -362,7 +373,13 @@ function TrackResult({ status }: { status: PublicSacramentStatus }) {
 
 // ---------- Formulir
 
-function FormSection({ onCheck }: { onCheck: (code: string) => void }) {
+function FormSection({
+  onCheck,
+  onSaved,
+}: {
+  onCheck: (code: string) => void
+  onSaved: () => void
+}) {
   const [params, setParams] = useSearchParams()
   const selected =
     SERVICE_ORDER.find((type) => SERVICES[type].slug === params.get('layanan')) ?? 'BAPTISM'
@@ -385,22 +402,16 @@ function FormSection({ onCheck }: { onCheck: (code: string) => void }) {
   }
 
   return (
-    <PortalSection id="formulir" tone="low" labelledBy="judul-formulir">
-      {/* min-w-0: baris tab yang bisa digeser tidak boleh melebarkan kolom section. */}
-      <div className="flex min-w-0 flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div className="grid gap-1">
-          <Eyebrow>Pendaftaran online</Eyebrow>
-          <h2
-            id="judul-formulir"
-            className="font-portal-heading text-2xl font-bold text-portal-navy sm:text-[2rem] sm:leading-10"
-          >
-            Formulir Pendaftaran Sakramen
-          </h2>
-        </div>
+    <SiteSection id="formulir" tone="paper" labelledBy="judul-formulir">
+      <div className="grid gap-8">
+        <Reveal>
+          <TwoToneHeading id="judul-formulir" lead="Formulir" accent="pendaftaran sakramen." />
+        </Reveal>
+        {/* Tiga kolom tetap; label tab membungkus di ponsel, jadi tidak ada yang terpotong. */}
         <div
           role="tablist"
           aria-label="Jenis layanan"
-          className="flex max-w-full gap-2 overflow-x-auto rounded-xl bg-white p-1 shadow-sm [scrollbar-width:none]"
+          className="grid max-w-[720px] grid-cols-3 gap-1 rounded-[22px] bg-site-canvas p-1.5"
         >
           {SERVICE_ORDER.map((type, index) => {
             const active = type === selected
@@ -416,10 +427,8 @@ function FormSection({ onCheck }: { onCheck: (code: string) => void }) {
                 onClick={() => select(type)}
                 onKeyDown={handleKey}
                 className={cn(
-                  'flex-none rounded-lg px-4 py-2.5 text-sm font-semibold whitespace-nowrap transition-colors',
-                  active
-                    ? 'bg-portal-indigo text-white'
-                    : 'text-portal-muted hover:bg-portal-high hover:text-portal-ink',
+                  'min-h-12 rounded-2xl px-2 py-2.5 text-center text-sm leading-tight font-semibold transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring sm:px-4',
+                  active ? 'bg-site-ink text-site-canvas' : 'text-site-ink/80 hover:bg-site-paper',
                 )}
               >
                 {index + 1}. {SERVICES[type].tab}
@@ -437,14 +446,17 @@ function FormSection({ onCheck }: { onCheck: (code: string) => void }) {
           role="tabpanel"
           aria-labelledby={`tab-${SERVICES[type].slug}`}
           hidden={type !== selected}
-          className="min-w-0"
+          className="mt-8 min-w-0 rounded-3xl bg-site-canvas p-5 sm:p-8 lg:p-10"
         >
-          <PortalCard className="grid gap-6 p-5 sm:p-8">
-            <ApplicationForm type={type} rayons={rayons.data?.data ?? []} onCheck={onCheck} />
-          </PortalCard>
+          <ApplicationForm
+            type={type}
+            rayons={rayons.data?.data ?? []}
+            onCheck={onCheck}
+            onSaved={onSaved}
+          />
         </div>
       ))}
-    </PortalSection>
+    </SiteSection>
   )
 }
 
@@ -454,10 +466,12 @@ function ApplicationForm({
   type,
   rayons,
   onCheck,
+  onSaved,
 }: {
   type: SacramentType
   rayons: RayonListItem[]
   onCheck: (code: string) => void
+  onSaved: () => void
 }) {
   const [today] = useState(witaToday)
   const [values, setValues] = useState<Values>({})
@@ -547,6 +561,8 @@ function ApplicationForm({
     try {
       const result = await submitApplication(form, setProgress)
       rememberCode({ code: result.registration_code, type, saved_at: result.submitted_at })
+      // Kode baru langsung tampil di Cek Status, tanpa muat ulang (perbaikan 08).
+      onSaved()
       setDone({ result, phone: fields.phone })
     } catch (err) {
       if (err instanceof ApiError && Object.keys(err.details).length > 0) {
@@ -571,13 +587,14 @@ function ApplicationForm({
   }
 
   return (
-    <form noValidate onSubmit={handleSubmit} className="grid gap-8">
-      <p className="flex items-start gap-3 rounded-xl bg-portal-blue-soft/60 p-4 text-sm text-portal-blue-ink">
-        <Info className="mt-0.5 size-5 flex-none text-portal-navy" aria-hidden="true" />
+    <form noValidate onSubmit={handleSubmit} className="grid gap-10">
+      <p className="flex items-start gap-3 rounded-2xl bg-site-paper p-4 text-base md:p-5">
+        <Info className="mt-0.5 size-5 flex-none" aria-hidden="true" />
         <span>
-          <span className="block font-semibold">{SACRAMENT_TYPE_LABELS[type]}</span>
-          {SERVICES[type].intro} Kolom bertanda <span className="text-portal-amber">*</span> wajib
-          diisi.
+          <span className="block font-site-display font-bold">{SACRAMENT_TYPE_LABELS[type]}</span>
+          <span className="text-site-ink/80">
+            {SERVICES[type].intro} Kolom bertanda <span className="text-ring">*</span> wajib diisi.
+          </span>
         </span>
       </p>
 
@@ -589,13 +606,13 @@ function ApplicationForm({
         className="empty:hidden focus:outline-none"
       >
         {(errorCount > 0 || formError) && (
-          <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-destructive ring-1 ring-destructive/30">
+          <p className="rounded-2xl bg-destructive/10 px-4 py-3 text-base text-destructive ring-1 ring-destructive/30">
             {formError ?? `Periksa ${errorCount} isian yang ditandai.`}
           </p>
         )}
       </div>
 
-      <div className={cn('grid gap-8', type === 'MARRIAGE' && 'lg:grid-cols-2 lg:gap-x-10')}>
+      <div className={cn('grid gap-10', type === 'MARRIAGE' && 'lg:grid-cols-2 lg:gap-x-10')}>
         {sections.map((section, index) => (
           <FormBlock
             key={section.title}
@@ -622,7 +639,7 @@ function ApplicationForm({
       </div>
 
       <FormBlock letter={LETTERS[sections.length]} title="Berkas persyaratan">
-        <p className="-mt-2 text-sm text-portal-muted">
+        <p className="-mt-2 max-w-[65ch] text-base text-site-muted">
           Foto atau pindaian yang jelas, format PDF, JPG, PNG, atau WebP, maksimal 10 MB per berkas.
           Berkas hanya dapat dibuka Pendeta dan pengurus jemaat.
         </p>
@@ -658,31 +675,22 @@ function ApplicationForm({
         </div>
       </FormBlock>
 
-      <div className="flex flex-col gap-4 border-t border-portal-high pt-6 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm text-portal-muted">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <p className="max-w-[48ch] text-base text-site-muted">
           Setelah terkirim Anda menerima kode registrasi untuk mengecek status di halaman ini.
         </p>
-        <div className="flex flex-none gap-2">
-          <button
-            type="button"
-            onClick={reset}
-            disabled={progress !== null}
-            className="rounded-lg bg-portal-mid px-5 py-3 text-sm font-semibold text-portal-navy hover:bg-portal-high disabled:opacity-60"
-          >
+        <div className="flex flex-none flex-wrap gap-2">
+          <PillButton tone="outline" onClick={reset} disabled={progress !== null}>
             Kosongkan
-          </button>
-          <button
-            type="submit"
-            disabled={progress !== null}
-            className="inline-flex items-center gap-2 rounded-lg bg-portal-navy px-5 py-3 text-sm font-semibold text-white hover:bg-portal-indigo disabled:opacity-80"
-          >
-            <Send className="size-4" aria-hidden="true" />
+          </PillButton>
+          <PillButton type="submit" tone="dark" disabled={progress !== null}>
+            <Send aria-hidden="true" />
             {progress === null
               ? 'Kirim pendaftaran'
               : progress < 100
                 ? `Mengirim berkas… ${progress}%`
                 : 'Menyimpan…'}
-          </button>
+          </PillButton>
         </div>
       </div>
     </form>
@@ -702,9 +710,9 @@ function FormBlock({
 }) {
   return (
     <fieldset className={cn('grid min-w-0 gap-5', className)}>
-      <legend className="mb-5 flex items-center gap-3 font-portal-heading text-lg font-bold text-portal-navy">
+      <legend className="mb-5 flex items-center gap-3 font-site-display text-xl font-bold">
         <span
-          className="flex size-7 flex-none items-center justify-center rounded-full bg-portal-navy text-sm text-white"
+          className="flex size-8 flex-none items-center justify-center rounded-full bg-site-ink font-site-mono text-sm text-site-canvas"
           aria-hidden="true"
         >
           {letter}
@@ -747,7 +755,7 @@ function Field({
     <>
       {field.label}
       {field.required && (
-        <span className="text-portal-amber" aria-hidden="true">
+        <span className="text-ring" aria-hidden="true">
           {' '}
           *
         </span>
@@ -759,13 +767,13 @@ function Field({
   if (field.kind === 'gender') {
     return (
       <fieldset className="grid content-start gap-2" aria-describedby={describedBy}>
-        <legend className="mb-2 text-sm font-semibold text-portal-ink">{label}</legend>
+        <legend className="mb-2 text-sm font-semibold">{label}</legend>
         <div className="grid grid-cols-2 gap-2">
           {GENDERS.map((gender, index) => (
             <label
               key={gender}
               className={cn(
-                'flex h-11 cursor-pointer items-center gap-2 rounded-lg border border-portal-highest bg-portal-surface px-3 text-base has-checked:border-portal-indigo has-checked:bg-portal-blue-soft/60 has-checked:font-semibold has-focus-visible:ring-3 has-focus-visible:ring-portal-blue-light/60',
+                'flex h-12 cursor-pointer items-center gap-2 rounded-xl border border-site-muted bg-site-canvas px-4 text-base has-checked:border-site-ink has-checked:bg-site-paper has-checked:font-semibold has-focus-visible:ring-3 has-focus-visible:ring-ring',
                 error && 'border-destructive',
               )}
             >
@@ -776,7 +784,7 @@ function Field({
                 value={gender}
                 checked={value === gender}
                 onChange={() => onChange(gender)}
-                className="size-4 accent-portal-indigo"
+                className="size-4 accent-site-ink"
               />
               {GENDER_LABELS[gender]}
             </label>
@@ -796,7 +804,7 @@ function Field({
         {...common}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className={inputClass}
+        className={siteInput}
       >
         <option value="">Bukan warga Jemaat Lahairoi / belum tahu</option>
         {rayons.map((rayon) => (
@@ -814,7 +822,7 @@ function Field({
         value={value}
         maxLength={field.max}
         onChange={(event) => onChange(event.target.value)}
-        className={cn(inputClass, 'h-auto py-2.5')}
+        className={cn(siteInput, 'h-auto py-3')}
       />
     )
   } else {
@@ -833,19 +841,19 @@ function Field({
         placeholder={field.placeholder}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className={inputClass}
+        className={siteInput}
       />
     )
   }
 
   return (
     <div className={cn('grid content-start gap-2', field.wide && 'sm:col-span-2')}>
-      <label htmlFor={id} className="text-sm font-semibold text-portal-ink">
+      <label htmlFor={id} className="text-sm font-semibold">
         {label}
       </label>
       {control}
       {field.hint && (
-        <p id={`${id}-hint`} className="text-sm text-portal-muted">
+        <p id={`${id}-hint`} className="text-sm text-site-muted">
           {field.hint}
         </p>
       )}
@@ -858,6 +866,7 @@ function Field({
   )
 }
 
+// Ubin unggah: zona seret-lepas sungguhan, jadi tetap bergaris putus-putus.
 function DocumentTile({
   id,
   number,
@@ -874,7 +883,15 @@ function DocumentTile({
   onChange: (file: File | null) => void
 }) {
   const inputRef = useRef<HTMLInputElement>(null)
+  const pickRef = useRef<HTMLButtonElement>(null)
   const [dragging, setDragging] = useState(false)
+
+  // Tombol Hapus ikut hilang bersama berkasnya; fokus dipindah ke "Pilih berkas" yang
+  // menggantikannya agar pengguna keyboard tidak kehilangan posisi.
+  function remove() {
+    onChange(null)
+    requestAnimationFrame(() => pickRef.current?.focus())
+  }
 
   function handleDrop(event: DragEvent<HTMLDivElement>) {
     event.preventDefault()
@@ -885,15 +902,15 @@ function DocumentTile({
 
   return (
     <div className="grid content-start gap-2">
-      <span className="text-sm font-semibold text-portal-ink" id={`${id}-label`}>
+      <span className="text-sm font-semibold" id={`${id}-label`}>
         {number}. {document.label}
         {document.required ? (
-          <span className="text-portal-amber" aria-hidden="true">
+          <span className="text-ring" aria-hidden="true">
             {' '}
             *
           </span>
         ) : (
-          <span className="font-normal text-portal-muted"> (opsional)</span>
+          <span className="font-normal text-site-muted"> (opsional)</span>
         )}
       </span>
       <input
@@ -919,48 +936,39 @@ function DocumentTile({
         onDragLeave={() => setDragging(false)}
         onDrop={handleDrop}
         className={cn(
-          'grid min-h-32 place-items-center gap-2 rounded-xl border-2 border-dashed p-4 text-center text-sm transition-colors',
-          file
-            ? 'border-portal-green/40 bg-portal-green-soft/30'
-            : 'border-portal-highest bg-portal-low',
-          dragging && 'border-portal-indigo bg-portal-blue-soft/50',
-          error && 'border-destructive/60',
+          'grid min-h-36 place-items-center gap-2 rounded-2xl border-2 border-dashed p-4 text-center text-sm transition-colors',
+          file ? 'border-site-green/60 bg-site-green/10' : 'border-site-muted/50 bg-site-paper',
+          dragging && 'border-site-ink',
+          error && 'border-destructive/70',
         )}
       >
         {file ? (
           <>
-            <FileCheck2 className="size-6 text-portal-green" aria-hidden="true" />
+            <FileCheck2 className="size-6 text-site-green" aria-hidden="true" />
             <span className="grid gap-0.5">
-              <span className="font-semibold break-all text-portal-ink">{file.name}</span>
-              <span className="text-portal-muted">{formatBytes(file.size)} · siap dikirim</span>
+              <span className="font-semibold break-all">{file.name}</span>
+              <span className="text-site-muted">{formatBytes(file.size)} · siap dikirim</span>
             </span>
             <span className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => inputRef.current?.click()}
-                className="rounded-md bg-white px-3 py-1.5 font-semibold text-portal-navy shadow-sm hover:bg-portal-high"
-              >
+              <PillButton tone="outline" size="sm" onClick={() => inputRef.current?.click()}>
                 Ganti
                 <span className="sr-only"> {document.label}</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => onChange(null)}
-                className="rounded-md px-3 py-1.5 font-semibold text-portal-muted hover:bg-white hover:text-portal-ink"
-              >
+              </PillButton>
+              <PillButton tone="outline" size="sm" onClick={remove}>
                 Hapus
                 <span className="sr-only"> {document.label}</span>
-              </button>
+              </PillButton>
             </span>
           </>
         ) : (
           <button
+            ref={pickRef}
             type="button"
             onClick={() => inputRef.current?.click()}
-            className="grid w-full place-items-center gap-2 rounded-lg py-2 text-portal-muted outline-none focus-visible:ring-3 focus-visible:ring-portal-blue-light/60"
+            className="grid w-full place-items-center gap-2 rounded-xl py-2 text-site-muted outline-none focus-visible:ring-3 focus-visible:ring-ring"
           >
-            <FileUp className="size-6 text-portal-navy" aria-hidden="true" />
-            <span className="font-semibold text-portal-navy">Pilih berkas</span>
+            <FileUp className="size-6 text-site-ink" aria-hidden="true" />
+            <span className="font-semibold text-site-ink">Pilih berkas</span>
             <span className="sr-only"> untuk {document.label}</span>
             <span className="hidden sm:block">atau seret ke sini</span>
           </button>
@@ -975,6 +983,8 @@ function DocumentTile({
   )
 }
 
+// Panel sukses: jendela gelap dengan kode registrasi besar. Fokus dan gulir langsung ke
+// sini, agar pembaca layar dan pengguna papan ketik tiba di hasil pendaftaran.
 function SuccessPanel({
   result,
   phone,
@@ -989,11 +999,11 @@ function SuccessPanel({
   const [copied, setCopied] = useState(false)
   const timer = useRef<number | undefined>(undefined)
   const headingRef = useRef<HTMLHeadingElement>(null)
-  // Pembaca layar dan pengguna papan ketik langsung tiba di hasil pendaftaran.
   useEffect(() => {
     headingRef.current?.focus()
     headingRef.current?.scrollIntoView({ block: 'center' })
   }, [])
+  useEffect(() => () => window.clearTimeout(timer.current), [])
   const label = SACRAMENT_TYPE_LABELS[result.type]
   const canShare = typeof navigator !== 'undefined' && typeof navigator.share === 'function'
 
@@ -1021,118 +1031,64 @@ function SuccessPanel({
   }
 
   return (
-    <div className="grid justify-items-center gap-5 py-4 text-center" role="status">
-      <CircleCheck className="size-12 text-portal-green" aria-hidden="true" />
-      <div className="grid gap-1">
-        <h3
-          className="font-portal-heading text-2xl font-bold text-portal-navy focus:outline-none"
-          tabIndex={-1}
-          ref={headingRef}
-        >
-          Pendaftaran {label} terkirim
-        </h3>
-        <p className="max-w-xl text-portal-muted">
-          Simpan kode registrasi di bawah. Gunakan kode ini di bagian Cek Status untuk melihat
-          verifikasi berkas dan jadwal penggembalaan.
-        </p>
-      </div>
-      <div className="grid w-full max-w-md gap-2 rounded-2xl border-t-4 border-portal-amber bg-portal-low p-5">
-        <span className="text-xs font-bold tracking-wider text-portal-amber uppercase">
-          Kode registrasi
+    <WindowPanel title="pendaftaran-terkirim" badge="WITA">
+      <div className="grid justify-items-center gap-6 py-2 text-center" role="status">
+        <span className="flex size-12 items-center justify-center rounded-full bg-site-green text-white">
+          <Check className="size-6" aria-hidden="true" />
         </span>
-        <output
-          aria-label={`Kode registrasi ${result.registration_code.split('').join(' ')}`}
-          className="font-mono text-3xl font-bold tracking-[0.12em] break-all text-portal-navy select-all sm:text-4xl"
-        >
-          {result.registration_code}
-        </output>
-        <span className="text-sm text-portal-muted">
-          Dikirim {formatDate(result.submitted_at)}, {formatTime(result.submitted_at)} WITA
-        </span>
-      </div>
-      <div className="flex flex-wrap justify-center gap-2">
-        <button
-          type="button"
-          onClick={() => void copy()}
-          className="inline-flex items-center gap-2 rounded-lg bg-portal-navy px-5 py-3 text-sm font-semibold text-white hover:bg-portal-indigo"
-        >
-          {copied ? (
-            <Check className="size-4" aria-hidden="true" />
-          ) : (
-            <Copy className="size-4" aria-hidden="true" />
-          )}
-          {copied ? 'Tersalin' : 'Salin kode'}
-        </button>
-        {canShare && (
-          <button
-            type="button"
-            onClick={() => void share()}
-            className="inline-flex items-center gap-2 rounded-lg bg-portal-mid px-5 py-3 text-sm font-semibold text-portal-navy hover:bg-portal-high"
+        <div className="grid gap-2">
+          <h3
+            className="font-site-display text-2xl font-bold focus:outline-none md:text-[28px]"
+            tabIndex={-1}
+            ref={headingRef}
           >
-            <Share2 className="size-4" aria-hidden="true" />
-            Kirim ke WhatsApp/aplikasi lain
-          </button>
-        )}
+            Pendaftaran {label} terkirim
+          </h3>
+          <p className="mx-auto max-w-[52ch] text-base text-white/80">
+            Simpan kode registrasi di bawah. Gunakan kode ini di bagian Cek Status untuk melihat
+            verifikasi berkas dan jadwal penggembalaan.
+          </p>
+        </div>
+        <div className="grid w-full max-w-md gap-2 rounded-2xl bg-site-panel-2 p-5">
+          <span className="text-[13px] font-medium text-white/70">Kode registrasi</span>
+          <output
+            aria-label={`Kode registrasi ${result.registration_code.split('').join(' ')}`}
+            className="font-site-mono text-3xl font-medium tracking-[0.12em] break-all text-white select-all sm:text-4xl"
+          >
+            {result.registration_code}
+          </output>
+          <span className="text-sm text-white/70">
+            Dikirim {formatDate(result.submitted_at)}, {formatTime(result.submitted_at)} WITA
+          </span>
+        </div>
+        <div className="flex flex-wrap justify-center gap-2">
+          <PillButton tone="light" onClick={() => void copy()}>
+            {copied ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}
+            {copied ? 'Tersalin' : 'Salin kode'}
+          </PillButton>
+          {canShare && (
+            <PillButton tone="glass" onClick={() => void share()}>
+              <Share2 aria-hidden="true" />
+              Kirim ke WhatsApp/aplikasi lain
+            </PillButton>
+          )}
+          <PillButton tone="glass" onClick={onCheck}>
+            <Search aria-hidden="true" />
+            Cek status sekarang
+          </PillButton>
+        </div>
+        <p className="mx-auto max-w-[52ch] text-sm text-white/75">
+          Kode juga tersimpan di peramban ini. Majelis akan menghubungi {phone} untuk langkah
+          berikutnya.
+        </p>
         <button
           type="button"
-          onClick={onCheck}
-          className="inline-flex items-center gap-2 rounded-lg bg-portal-mid px-5 py-3 text-sm font-semibold text-portal-navy hover:bg-portal-high"
+          onClick={onAnother}
+          className="rounded-sm text-sm font-semibold text-white underline underline-offset-4 outline-none focus-visible:ring-3 focus-visible:ring-site-accent"
         >
-          <Search className="size-4" aria-hidden="true" />
-          Cek status sekarang
+          Daftarkan layanan lain
         </button>
       </div>
-      <p className="max-w-xl text-sm text-portal-muted">
-        Kode juga tersimpan di peramban ini. Majelis akan menghubungi {phone} untuk langkah
-        berikutnya.
-      </p>
-      <button
-        type="button"
-        onClick={onAnother}
-        className="text-sm font-semibold text-portal-navy underline underline-offset-4"
-      >
-        Daftarkan layanan lain
-      </button>
-    </div>
-  )
-}
-
-// ---------- Pedoman
-
-function GuideSection() {
-  const items = [
-    {
-      question: 'Apa yang terjadi setelah formulir terkirim?',
-      answer:
-        'Majelis memeriksa data dan berkas Anda. Statusnya berubah menjadi Revisi berkas bila ada yang perlu diperbaiki, lalu Konseling/penggembalaan, Disetujui dengan tanggal pelaksanaan, dan Selesai setelah sakramen dilayankan.',
-    },
-    {
-      question: 'Bagaimana jika berkas perlu diperbaiki?',
-      answer:
-        'Catatan dari Majelis tampil di Cek Status. Serahkan berkas perbaikan ke kantor jemaat atau ikuti petunjuk dalam catatan, dengan menyebutkan kode registrasi Anda.',
-    },
-    {
-      question: 'Kode registrasi hilang?',
-      answer:
-        'Kode yang dikirim dari perangkat ini tersimpan di bagian Cek Status. Bila tidak ada, hubungi kantor jemaat dengan menyebutkan nama dan nomor HP yang didaftarkan.',
-    },
-  ]
-  return (
-    <PortalSection labelledBy="judul-pedoman">
-      <div className="grid gap-1">
-        <Eyebrow>Pedoman</Eyebrow>
-        <h2 id="judul-pedoman" className="font-portal-heading text-2xl font-bold text-portal-navy">
-          Pertanyaan seputar pendaftaran
-        </h2>
-      </div>
-      <div className="grid gap-4 md:grid-cols-3">
-        {items.map((item) => (
-          <PortalCard key={item.question} as="article" className="grid content-start gap-2 p-5">
-            <h3 className="font-semibold text-portal-ink">{item.question}</h3>
-            <p className="text-sm text-portal-muted">{item.answer}</p>
-          </PortalCard>
-        ))}
-      </div>
-    </PortalSection>
+    </WindowPanel>
   )
 }

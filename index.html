@@ -14,13 +14,38 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=Instrument+Serif:ital@1&family=JetBrains+Mono:wght@400;500&display=swap"
     />
+    <meta name="theme-color" content="#ffffff" />
     <title>GMIT Lahairoi Tuak Sabu Lasiana</title>
     <script>
-      // Pasang tema portal sebelum React dimuat agar warna tidak berkedip.
+      // Pasang tema portal sebelum React dimuat agar warna tidak berkedip. Tema gelap
+      // hanya bila pengunjung memilihnya (lib/portal-theme.ts); dashboard selalu terang.
       if (!location.pathname.startsWith('/dashboard')) {
         document.documentElement.classList.add('theme-portal')
+        try {
+          if (localStorage.getItem('gmit-lahairoi:tema-portal') === 'dark') {
+            document.documentElement.classList.add('dark')
+            document.querySelector('meta[name="theme-color"]').content = '#0a1215'
+          }
+        } catch (e) {}
+      }
+      // Foto gereja di hero (dan panel login) diminta sejak awal, sebelum bundle selesai
+      // dimuat. Galeri memakai foto dokumentasi terbaru; halaman baca artikel tanpa hero.
+      var path = location.pathname
+      if (!/^\/(dashboard|media)(\/|$)|^\/(renungan|berita)\/./.test(path)) {
+        var hero = document.createElement('link')
+        hero.rel = 'preload'
+        hero.as = 'image'
+        hero.href = '/images/gereja-gmit-lahairoi-1254.webp'
+        hero.setAttribute(
+          'imagesrcset',
+          '/images/gereja-gmit-lahairoi-640.webp 640w, /images/gereja-gmit-lahairoi-960.webp 960w, /images/gereja-gmit-lahairoi-1254.webp 1254w',
+        )
+        // Sama dengan atribut sizes gambarnya, agar browser memilih berkas yang sama.
+        hero.setAttribute('imagesizes', path === '/login' ? '(min-width: 1024px) 58vw, 100vw' : '100vw')
+        hero.setAttribute('fetchpriority', 'high')
+        document.head.appendChild(hero)
       }
     </script>
   </head>

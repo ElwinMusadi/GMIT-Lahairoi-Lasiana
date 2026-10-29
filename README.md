@@ -29,7 +29,7 @@ Proyek ini berbentuk **full-stack dalam satu paket**. `@cloudflare/vite-plugin` 
 │   │   ├── components/
 │   │   │   ├── ui/             # Komponen shadcn/ui (dikelola via CLI shadcn)
 │   │   │   ├── brand/          # Motif cincin sumur Lahai-roi & wordmark
-│   │   │   ├── portal/         # Header, footer, dan potongan tata letak Portal Publik
+│   │   │   ├── portal/         # Header, footer, navigasi, tombol tema, dan komponen kage/ Portal Publik
 │   │   │   ├── dashboard/      # Sidebar per peran dan menu profil
 │   │   │   ├── users/          # Dialog form akun dan kata sandi sementara
 │   │   │   ├── congregation/   # Form KK, profil anggota, rayon; panel profil; pemilih KK
@@ -132,7 +132,14 @@ Contoh nyata: blok "Aktivitas terbaru" di Ringkasan hanya tampil (dan hanya dimu
 
 Desain dibuat dengan skill `design-taste-frontend` dan `ui-ux-pro-max` di `.claude/skills/`. Arah desain tersimpan di `.taste-skill/` dan dipakai lagi untuk halaman berikutnya.
 
-- **Portal Publik** mengikuti rancangan [design/stitch/08-portal-publik-warta.html](design/stitch/08-portal-publik-warta.html): terang, biru tua `#00236f` dengan aksen amber `#904d00` di permukaan kebiruan `#faf8ff`, kartu putih berbayang halus, label kecil amber di atas judul, dan header putih yang menempel. Huruf: Plus Jakarta Sans untuk judul dan Inter untuk teks (Google Fonts). Token `portal-*` (mis. `bg-portal-navy`, `text-portal-amber`) ada di `@theme` [index.css](src/client/index.css); potongan tata letaknya di [components/portal/parts.tsx](src/client/components/portal/parts.tsx). Cincin sumur Lahai-roi tetap dipakai sebagai tanda merek. Inspector dan lint skill menandai label kecil, bayangan, dan garis sebagai pelanggaran gaya bawaannya; itu ciri rancangan 08 yang dipilih.
+- **Portal Publik** mengikuti rancangan [design/stitch/10-portal-publik-kage.html](design/stitch/10-portal-publik-kage.html) dengan seluruh isi portal sebelumnya (rancangan 08). Rencana dan catatan pelaksanaannya ada di [docs/rencana-redesign-portal-kage.md](docs/rencana-redesign-portal-kage.md).
+  - **Tampilan:** kanvas putih, panel hero membulat berlatar foto gereja dengan header pil yang melayang di atasnya, panel gelap bergaya jendela (papan jadwal, cek status, panel sukses), dan footer foto bertepi gerigi.
+  - **Huruf:** judul dua nada Plus Jakarta Sans + Instrument Serif miring, teks Inter, dan JetBrains Mono untuk jam, kode registrasi, dan nomor rekening (Google Fonts).
+  - **Token** `site-*` (mis. `bg-site-canvas`, `text-site-ink`, `bg-site-panel`) ada di [index.css](src/client/index.css), dengan nilai terang di `.theme-portal` dan gelap di `.theme-portal.dark`. Komponen bersama ada di [components/portal/kage/](src/client/components/portal/kage).
+  - **Tema terang/gelap:** tombol di header. Bawaannya selalu terang, pilihan disimpan di perangkat ([lib/portal-theme.ts](src/client/lib/portal-theme.ts)). Dashboard selalu terang.
+  - **Gerak** ([lib/portal-motion.ts](src/client/lib/portal-motion.ts)): gulir halus Lenis, parallax hero dan foto latar, elemen yang muncul saat digulir, dan elemen melayang. Semuanya transform/opacity dan mati bila pengguna meminta kurangi gerak.
+  - **Inspector:** pengecualian yang disengaja (bayangan panel, huruf mono, judul dua nada, satu foto gereja) dicatat di bagian 8 rencana dan di `.taste-skill/direction.json`.
+  - Cincin sumur Lahai-roi tetap dipakai sebagai tanda merek.
 - **Dashboard**, gaya *achromatic ledger* (seed 442642274): chrome tanpa warna, dasar batu karang `#f4f3f1`, tombol utama hampir hitam, dan crimson hanya untuk elemen data utama.
 - Token warna ada di [src/client/index.css](src/client/index.css): `:root` untuk dashboard, `.theme-portal` untuk portal. Pakai token (`bg-background`, `text-muted-foreground`, `text-brand`, …), bukan kode warna langsung.
 
@@ -552,7 +559,7 @@ Rute: [contents.ts](src/worker/routes/contents.ts) (CMS, perlu login) dan [publi
 
 **Halaman portal** ([src/client/pages/public](src/client/pages/public)), semuanya tanpa login dan responsif:
 
-- **Beranda** (`/`): pita pengumuman terkini, hero dengan tema Kebaktian Minggu terdekat dan empat tautan cepat (unduh warta PDF terbaru, jadwal, persembahan, profil), foto Galeri terbaru (tanpa foto: makna nama Lahai-roi), kartu jadwal ibadah terdekat dengan saringan jenis, renungan hari ini (dibaca utuh, tombol Bagikan), kotak unduh warta, berita & pengumuman, dan ajakan persembahan.
+- **Beranda** (`/`): hero foto gereja dengan makna nama Lahai-roi, nama gereja, pita pengumuman terkini, tema Kebaktian Minggu terdekat, dan empat tautan cepat (unduh warta PDF terbaru, jadwal, persembahan, profil). Di bawahnya papan jadwal ibadah terdekat dengan saringan jenis (`#jadwal`), renungan hari ini (dibaca utuh, tombol Bagikan; `#renungan`), warta dan berita & pengumuman (`#warta`), band tiga layanan jemaat, lima rayon, dokumentasi Galeri terbaru, rekening & QRIS persembahan, dan tanya-jawab pendaftaran sakramen.
 - **Jadwal Ibadah** (`/jadwal`): jadwal publik mendatang dikelompokkan per hari (Hari ini, Besok, lalu tanggal), dengan petugas, tema, bacaan, dan tautan tata ibadah bila ada.
   - Saringan jenis ibadah (Kebaktian Minggu, Ibadah Rayon, Ibadah Kategorial, Ibadah Khusus) dan lima rayon; di ponsel rayon menjadi satu pilihan. Saringan tersimpan di URL, mis. `/jadwal?jenis=rayon&rayon=2`, agar tautannya bisa dibagikan.
 - **Warta Jemaat** (`/warta`): warta terbaru ditonjolkan dengan **Unduh PDF**, **Baca di tab baru**, dan pratinjau PDF di layar lebar (di ponsel cukup kedua tombol, karena peramban ponsel umumnya tidak menampilkan PDF dalam bingkai). Di bawahnya arsip warta dengan pencarian judul dan paging.
@@ -561,7 +568,8 @@ Rute: [contents.ts](src/worker/routes/contents.ts) (CMS, perlu login) dan [publi
 - **Profil & Sejarah** (`/profil`): konten Profil di CMS masuk ke bagiannya menurut judul atau alamat: memuat "Sejarah" → Sejarah, "Visi"/"Misi" → Visi & Misi, "Majelis"/"Pendeta" → Pendeta & Majelis; lainnya di bagian akhir. Lima rayon dari `GET /api/rayons` (nama, koordinator, wilayah).
   - Daftar Pendeta & Majelis ditulis satu baris per orang, `Jabatan: Nama` (mis. `Ketua Majelis Jemaat: Pdt. …`), dan tampil sebagai kartu; baris lain menjadi catatan. Foto konten itu menjadi foto bersama majelis.
 - **Persembahan** (`/persembahan`): gambar QRIS (konten Rekening & QRIS bergambar) dengan tombol simpan gambar, dan kartu rekening per pos kas (bank, keperluan, nomor, atas nama). **Salin No. Rek** menyalin angka nomor rekening saja, menampilkan notifikasi, dan berubah menjadi "Tersalin" sebentar; tanpa Clipboard API (mis. bukan HTTPS) memakai cara salin lama.
-- **Layanan Sakramen** (`/layanan-sakramen`, [SacramentPage.tsx](src/client/pages/public/SacramentPage.tsx)), mengikuti struktur rancangan `design/stitch/05`. Uraiannya di bagian [Layanan sakramen](#layanan-sakramen).
+- **Layanan Sakramen** (`/layanan-sakramen`, [SacramentPage.tsx](src/client/pages/public/SacramentPage.tsx)). Uraiannya di bagian [Layanan sakramen](#layanan-sakramen).
+- **Masuk pengurus** (`/login`) mengikuti tema dan lapisan gerak portal: formulir di kiri, panel foto gereja dengan daftar peran di kanan. Alamat yang tidak ada menampilkan halaman 404 portal.
 
 ## Jadwal ibadah, petugas & kehadiran
 
@@ -674,7 +682,7 @@ Rute: [public-sacraments.ts](src/worker/routes/public-sacraments.ts) (`/api/publ
   - **Salin kode** (berubah menjadi "Tersalin");
   - **Kirim ke WhatsApp/aplikasi lain** bila peramban mendukung Web Share;
   - **Cek status sekarang**, yang langsung melacak kode itu di bagian atas.
-- Menu portal mendapat tautan **Sakramen**.
+- Menu portal **Pelayanan** memuat Layanan Sakramen, Cek Status Pendaftaran (`/layanan-sakramen#cek-status`), dan Persembahan.
 
 **Lacak status.** `GET /api/public/sacraments/track/:code`:
 
