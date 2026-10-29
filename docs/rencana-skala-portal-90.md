@@ -1,7 +1,7 @@
 # Rencana Implementasi: Skala Portal Publik 90%
 
-Disusun 29 Oktober 2026. Status: **disetujui** 29 Oktober 2026 (keputusan S1–S4 di bagian 8);
-dikerjakan langsung di `main`.
+Disusun 29 Oktober 2026. Status: **selesai** 29 Oktober 2026 (keputusan S1–S4 di bagian 8),
+dikerjakan langsung di `main`. Uji Safari macOS menunggu pengguna (bagian 10, Tahap 3).
 
 ## 1. Tujuan
 
@@ -303,4 +303,49 @@ di 12 halaman, sambil menggulir dari atas ke bawah.
 | Ponsel 390 px, 12 halaman dan menu | Tidak berubah: 13 / 14 / 16 px seperti sebelum skala |
 | Typecheck, lint | Bersih |
 
-**Berikutnya: Tahap 3** (QA menyeluruh dan dokumentasi; uji Safari dan Firefox oleh pengguna).
+### Tahap 3 — QA & dokumentasi (29 Oktober 2026)
+
+**Firefox 150** (asli, lewat WebDriver BiDi, profil sementara terpisah):
+
+| Uji | Hasil |
+| --- | --- |
+| Ukuran | `zoom` 0,9, pil header 40 px, jarak tepi 58 px, hero 828 px, tanpa gulir menyamping |
+| Jangkar sehalaman (Lenis) | `#jadwal` meluncur 0 → 209 → 553 → … → 770 px, berhenti di 86 px; `#cek-status` meluncur 1600 → 392 px, berhenti di 87 px |
+| Jangkar muat langsung | `/profil#majelis` dan `/profil#rayon` 86 px, `/layanan-sakramen#cek-status` 87 px |
+| Parallax | Foto band dan footer selalu menutupi bingkainya |
+| Tinggi layar | Login penuh 900 px; jendela galeri 16–884 px |
+| Teks | Terkecil 13 px (Jadwal) |
+| Ambang | 1023 px: `zoom` 1, pil 44 px |
+
+Kesimpulan: geometri `zoom` di Firefox sama dengan Chrome, jadi risiko R1 tertutup untuk Firefox.
+
+**Chrome** (pada skala 90%):
+
+| Uji | Hasil |
+| --- | --- |
+| Inspector, 13 halaman × 3 lebar | Sama dengan Tahap 10. Warta dan Galeri berkurang satu temuan (`off-centre`, `still-page`). Profil mendapat WARN `lopsided`. Halaman baca renungan: `still-page` naik dari WARN (9 elemen bergerak) ke FAIL (6), karena halaman 19% lebih pendek di layar; jumlah reveal (4) dan parallax sama |
+| Navigasi dan keyboard | Penanda aktif, submenu (hover, Enter, Spasi, panah, Tab, Esc mengembalikan fokus, ketuk), menu ponsel (13 tautan, gulir di dalam), "Lewati ke konten" memindahkan fokus |
+| Pembaca layar dasar | 13 halaman: satu h1, tanpa lompatan judul, tanpa gambar tanpa `alt`, tanpa tombol/tautan/isian tanpa nama |
+| Tema | Bawaan terang walau OS gelap, tanpa kedip, pilihan diingat; semua halaman terbaca di tema gelap pada 1440 px |
+| Kurangi gerak | Lenis, parallax, dan reveal mati; isi tampil |
+| Cat pertama | `zoom` sudah 0,9 sejak bingkai pertama (Beranda, Jadwal, Login): tanpa lompatan ukuran |
+| Lighthouse desktop | Beranda kinerja 99, Sakramen 97; aksesibilitas 100; LCP 0,8–1,0 s |
+| Lighthouse ponsel | Beranda 87 (Tahap 10: 86), aksesibilitas 100: tidak terpengaruh |
+| Footer, toast | Footer lengkap; toast di bawah tengah, 13 px |
+
+**Uji Safari macOS (oleh pengguna).** Safari tidak tersedia di lingkungan ini. Di Mac, buka
+portal di jendela Safari selebar ≥1024 px, lalu periksa:
+
+1. Ukuran portal tampak lebih kecil daripada di jendela kurang dari 1024 px; kecilkan jendela
+   untuk membandingkan.
+2. Beranda: hero memenuhi layar pertama tanpa pita putih di bawahnya.
+3. Klik "Jadwal Ibadah" di hero Beranda: halaman meluncur halus (bukan melompat), dan judul
+   "Jadwal ibadah terdekat" berhenti tepat di bawah header, tidak tertutup.
+4. Ketik `/profil#rayon` langsung di bilah alamat: judul "Lima rayon" berhenti tepat di bawah
+   header.
+5. Gulir ke footer: foto footer bergeser pelan tanpa celah di tepi atas/bawahnya.
+6. `/login`: halaman penuh satu layar tanpa pita putih di bawah.
+7. Galeri: buka satu dokumentasi; jendelanya muat di layar.
+
+Bila poin 3–5 meleset (posisi berhenti terlalu tinggi/rendah ±10%, atau foto bercelah), catat
+halaman dan tangkapan layarnya; perbaikannya memakai pendekatan cadangan R1.

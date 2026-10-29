@@ -138,7 +138,10 @@ Desain dibuat dengan skill `design-taste-frontend` dan `ui-ux-pro-max` di `.clau
   - **Token** `site-*` (mis. `bg-site-canvas`, `text-site-ink`, `bg-site-panel`) ada di [index.css](src/client/index.css), dengan nilai terang di `.theme-portal` dan gelap di `.theme-portal.dark`. Komponen bersama ada di [components/portal/kage/](src/client/components/portal/kage).
   - **Tema terang/gelap:** tombol di header. Bawaannya selalu terang, pilihan disimpan di perangkat ([lib/portal-theme.ts](src/client/lib/portal-theme.ts)). Dashboard selalu terang.
   - **Gerak** ([lib/portal-motion.ts](src/client/lib/portal-motion.ts)): gulir halus Lenis, parallax hero dan foto latar, elemen yang muncul saat digulir, dan elemen melayang. Semuanya transform/opacity dan mati bila pengguna meminta kurangi gerak.
-  - **Inspector:** pengecualian yang disengaja (bayangan panel, huruf mono, judul dua nada, satu foto gereja) dicatat di bagian 8 rencana dan di `.taste-skill/direction.json`.
+  - **Skala desktop 90%** ([docs/rencana-skala-portal-90.md](docs/rencana-skala-portal-90.md)): di layar ≥1024 px dengan tetikus/trackpad, portal tampil 90% lewat `zoom: var(--site-zoom)` pada `html.theme-portal`. Ponsel, tablet, dan dashboard tetap 100%.
+    - Tinggi relatif layar ditulis `calc(<tinggi>/var(--site-zoom,1))`, bukan `svh`/`vh` langsung, agar hero, login, dan jendela galeri tetap memenuhi layar.
+    - Teks kecil tetap ≥13 px di layar: pakai `text-sm` (variabel `--text-sm` diberi lantai di `.theme-portal`) atau `text-(length:--site-text-xs)`, bukan `text-[13px]`.
+  - **Inspector:** pengecualian yang disengaja (bayangan panel, huruf mono, judul dua nada, satu foto gereja) dicatat di bagian 8 rencana dan di `.taste-skill/direction.json`. Ukuran yang dilaporkan inspector (dan `getComputedStyle`) adalah ukuran sebelum zoom; di desktop, ukuran di layar 90%-nya.
   - Cincin sumur Lahai-roi tetap dipakai sebagai tanda merek.
 - **Dashboard**, gaya *achromatic ledger* (seed 442642274): chrome tanpa warna, dasar batu karang `#f4f3f1`, tombol utama hampir hitam, dan crimson hanya untuk elemen data utama.
 - Token warna ada di [src/client/index.css](src/client/index.css): `:root` untuk dashboard, `.theme-portal` untuk portal. Pakai token (`bg-background`, `text-muted-foreground`, `text-brand`, …), bukan kode warna langsung.

@@ -91,8 +91,14 @@ ponsel, tablet, dan dashboard tetap 100%. Rencana dan keputusan S1–S4 ada di
   - Ukuran font kecil baru di portal: pakai `text-sm` atau `text-(length:--site-text-xs)`,
     bukan `text-[13px]` atau utilitas bernama seperti `text-site-sm`, karena `cn` menganggapnya
     warna.
-- **Berikutnya: Tahap 3 (QA & dokumentasi):** pemeriksaan menyeluruh, README, dan uji Safari
-  serta Firefox oleh pengguna.
+- **Tahap 3 (QA & dokumentasi) selesai.**
+  - Firefox 150 diuji langsung (WebDriver BiDi) dengan hasil sama seperti Chrome: ukuran,
+    luncuran jangkar, parallax, tinggi layar, dan lantai teks.
+  - Chrome: inspector 13 halaman setara Tahap 10, navigasi/keyboard/pembaca layar/tema/kurangi
+    gerak lolos, tanpa lompatan ukuran saat dimuat, Lighthouse desktop 97–99 (aksesibilitas 100).
+  - README bagian Desain diperbarui.
+- **Menunggu pengguna:** uji Safari macOS dengan daftar di rencana skala bagian 10 (Tahap 3).
+  Commit skala belum di-push.
 - **Aturan baru untuk kode portal:** tinggi relatif layar ditulis
   `calc(<tinggi>/var(--site-zoom,1))`, bukan `svh`/`vh` langsung.
 

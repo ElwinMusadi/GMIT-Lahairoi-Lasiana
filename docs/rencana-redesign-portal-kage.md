@@ -732,6 +732,14 @@ Peringatan (WARN) yang dipertahankan dengan alasan:
 Yang **tidak** dikecualikan: teks di bawah 13 px, teks bacaan di bawah 16 px, label kicker
 huruf kapital di atas judul, gradien selain scrim foto, dan gulir menyamping.
 
+**Catatan skala 90%** ([rencana-skala-portal-90.md](rencana-skala-portal-90.md), 29 Oktober 2026):
+di desktop, portal di-zoom 0,9.
+
+- Inspector dan `getComputedStyle` melaporkan ukuran sebelum zoom. Aturan "teks di bawah 13 px"
+  karena itu diperiksa dengan ukuran terhitung × zoom.
+- `still-page` di halaman baca bergantung pada panjang halaman: halaman 19% lebih pendek di layar,
+  sehingga inspector menghitung lebih sedikit gerak, walaupun reveal dan parallax-nya sama.
+
 Semua pengecualian dicatat dengan alasannya di `allowReasons`. Tahap 1 juga memperbarui [.taste-skill/direction.json](../.taste-skill/direction.json), yang saat
 ini masih memuat arah lama dengan huruf Roundo. Isinya diganti huruf kage dan daftar `allow`
 untuk pengecualian di atas. Dengan begitu inspector tidak lagi melaporkan `font-not-dealt`, dan
