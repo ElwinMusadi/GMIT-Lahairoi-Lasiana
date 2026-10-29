@@ -76,6 +76,22 @@ npm run dev                # http://localhost:5173
 
 Buka `/` untuk Portal Publik dan `/dashboard` untuk dashboard pengurus.
 
+### Data demo (khusus lokal)
+
+Untuk melihat portal dan dashboard dengan data lengkap, isi database lokal yang masih kosong dengan data demo:
+
+```bash
+npm run db:seed:demo
+```
+
+- **Isinya** ([scripts/seed-demo.ts](scripts/seed-demo.ts), teks di [scripts/demo/texts.ts](scripts/demo/texts.ts)): potret jemaat akhir Oktober 2026.
+  - ±330 KK dan ±1.200 jiwa di lima rayon, beserta koordinator dan wilayahnya.
+  - Jadwal ibadah 2026 dengan petugas dan kehadiran; renungan 20 Oktober–5 November; berita; warta mingguan (PDF); galeri; profil; rekening dan QRIS contoh.
+  - Keuangan 2026 per Pos Kas (RAPBJ, transaksi, kuitansi PDF), layanan sakramen, arsip surat, inventaris dan peminjaman, akun pengurus contoh, dan log aktivitas.
+- **Yang nyata dan yang contoh:** perikop Alkitab, bacaan Minggu (leksionari), HUT GMIT (31 Oktober 1947), Reformasi, dan wilayah Lasiana sesuai fakta. Nama orang, nomor rekening, nomor RT, QRIS, dan kejadian jemaat adalah contoh. Gambar galeri dan berita memakai potongan foto gedung gereja.
+- **Akun contoh:** kata sandinya ditulis ke `scripts/demo-accounts.local` (diabaikan git).
+- **Hanya lokal:** skrip menolak `--remote` dan berhenti bila database sudah berisi data jemaat. Kosongkan dengan `npm run db:reset:local` sebelum mengisi ulang. Data demo tidak pernah dipakai di production.
+
 ## Rute dan layout
 
 | Rute                 | Layout            | Isi                                                               |
