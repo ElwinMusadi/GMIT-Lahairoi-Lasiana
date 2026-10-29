@@ -34,8 +34,10 @@ export function AppSidebar() {
     setOpenMobile(false)
   }, [pathname, setOpenMobile])
 
+  // z-40: wadah sidebar harus di atas topbar (sticky z-30), kalau tidak setengah tombol
+  // ciut yang menjorok ke area utama tertutup topbar yang buram.
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" className="z-40">
       <SidebarHeader className="h-16 justify-center border-b border-sidebar-border">
         <SidebarMenu>
           <SidebarMenuItem>
@@ -144,6 +146,8 @@ function NavGroup({ group, pathname }: { group: ModuleGroup; pathname: string })
 }
 
 // Tombol bulat di tepi sidebar (Zenith/HRIS) untuk menciutkan ke ikon; hanya di desktop.
+// Pusatnya tepat di pertemuan garis header dan garis tepi; z-30 agar di atas SidebarRail
+// (z-20) yang menumpang di tepi yang sama.
 function CollapseButton() {
   const { state, toggleSidebar } = useSidebar()
   const collapsed = state === 'collapsed'
@@ -153,7 +157,7 @@ function CollapseButton() {
       onClick={toggleSidebar}
       aria-label={collapsed ? 'Lebarkan sidebar' : 'Ciutkan sidebar'}
       title={collapsed ? 'Lebarkan sidebar' : 'Ciutkan sidebar'}
-      className="absolute top-[3.25rem] -right-3 z-20 hidden size-6 place-items-center rounded-full border border-sidebar-border bg-background text-muted-foreground shadow-xs transition-colors outline-none hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50 lg:grid print:hidden"
+      className="absolute top-16 -right-3 z-30 hidden size-6 -translate-y-1/2 cursor-pointer place-items-center rounded-full border border-sidebar-border bg-background text-muted-foreground shadow-xs transition-colors outline-none hover:bg-accent hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50 lg:grid print:hidden"
     >
       <ChevronLeft
         className={cn('size-3.5 transition-transform', collapsed && 'rotate-180')}
