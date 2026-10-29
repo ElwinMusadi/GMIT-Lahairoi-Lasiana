@@ -93,8 +93,16 @@ DashboardPack). Pengguna punya lisensinya tetapi belum mengunduh source React-ny
     `Segmented`, `Kbd`, ditambah `ui/table.tsx`.
   - D7: tetap grafik SVG sendiri (Chart.js menambah gzip 67 KB).
   - Dashboard sungguhan belum memakai tema baru.
-- **Berikutnya: Tahap 2 (kerangka):** sidebar, topbar (Ctrl+K, tema, menu pengguna), judul halaman,
-  skrip anti-kedip, dan peralihan `font-sans` ke Geist (Roundo dicabut).
+- **Tahap 2 (kerangka) selesai.**
+  - Dashboard kini memakai tema Zenith: `theme-dashboard` di `<html>`, skrip anti-kedip, dan tombol
+    tema terang/gelap.
+  - Sidebar berkelompok (grup bisa dilipat, ciut ke ikon diingat di perangkat, kartu pengguna
+    di bawah); topbar lengket dengan pencarian, tombol "Buat" sesuai peran, tema, dan avatar.
+  - Palet Ctrl+K: halaman, aksi "Buat", dan pencarian anggota jemaat atau KK.
+  - `font-sans` kini Geist; Roundo dicabut; `useLogout` pindah ke `lib/session.ts`.
+  - Inspector `--app` harus dijalankan dengan arah aplikasi (lihat rencana bagian 9, Tahap 2).
+- **Berikutnya: Tahap 3 (Ringkasan):** kartu KPI, grafik bergaya Zenith, widget, dan urutan blok
+  per peran (D8).
 
 ### Selesai: skala Portal Publik 90%
 
@@ -418,7 +426,7 @@ bersubmenu. Rencana, keputusan K1–K6, dan catatan per tahap ada di
 
 - Arahnya di `.taste-skill/app/direction.json` (seed 442642274): chrome tanpa warna, dasar
   `#f4f3f1`, tombol utama hampir hitam, dan crimson `--brand` `#b11226` hanya untuk data utama.
-- Huruf Roundo di-host sendiri (`public/fonts/roundo`).
+- Huruf Geist (`@fontsource-variable/geist`, OFL) di-host sendiri dan hanya dimuat bundel dashboard; Roundo sudah dicabut (redesign Zenith, D2).
 - Grafik dashboard dibuat sendiri dengan SVG, tanpa pustaka chart:
   - komponennya di `src/client/components/analytics/`;
   - palet crimson + abu `--chart-2` `#8a8a8a` sudah divalidasi dengan validator skill `dataviz`.

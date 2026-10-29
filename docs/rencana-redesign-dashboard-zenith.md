@@ -270,3 +270,50 @@ agar dashboard yang sekarang tidak jatuh ke huruf sistem.
 | Typecheck, lint | Bersih |
 
 **Berikutnya: Tahap 2** (kerangka).
+
+### Tahap 2 — Kerangka (29 Oktober 2026)
+
+**Tema dan huruf:**
+
+- **Tema:** [DashboardLayout.tsx](../src/client/layouts/DashboardLayout.tsx) memanggil
+  `useDashboardTheme()`. Skrip di `index.html` memasang `theme-dashboard` (dan `dark` bila
+  dipilih) untuk `/dashboard` sebelum React dimuat, dengan kunci terpisah dari tema portal.
+  Toaster mengikuti tema.
+- **Huruf:** `--font-sans` kini Geist. `@font-face` Roundo, preload-nya di `index.html`, dan berkas
+  `public/fonts/roundo` dihapus (D2).
+- **Teks redup:** `--muted-foreground` terang digelapkan ke `oklch(0.52)` (setara `#6b6b6b` lama),
+  agar ≥5:1 di putih dan di permukaan `muted` (tab, kbd). Nilai Zenith (0.556) hanya 4,3:1 di
+  permukaan muted.
+
+**Kerangka** ([components/dashboard](../src/client/components/dashboard)):
+
+| Bagian | Isi |
+| --- | --- |
+| Sidebar | Merek di kotak gelap ("Lahairoi / SISTEM GEREJA"); grup berlabel kapital kecil yang bisa dilipat; butir 36 px; saat diciutkan ke ikon, label diganti garis pemisah dan tooltip; tombol bulat di tepi (desktop); status ciut diingat (`gmit-lahairoi:sidebar`); kartu pengguna (avatar, nama, peran, tombol keluar) dan "Lihat portal publik" di bawah; di bawah 1024 px menjadi sheet |
+| Topbar | Lengket dan buram, tinggi 64 px: tombol menu (di bawah 1024 px), kolom pencarian dengan `Ctrl K`/`⌘K`, tombol "Buat" sesuai peran, tombol tema, avatar dengan menu (nama, email, lencana peran, portal, keluar) |
+| Aksi "Buat" | Hanya aksi yang punya alamat: jadwal ibadah baru (Admin, Pendeta), konten portal baru (Admin), renungan baru (Pendeta), impor data jemaat (Admin). Bendahara dan Majelis tanpa tombol. Aksi berupa dialog di dalam halaman ditambahkan saat modulnya dirombak |
+| Palet Ctrl+K | Halaman sesuai peran, aksi "Buat", dan "Cari anggota jemaat/KK" (ke `?q=`); combobox + listbox dengan panah, Enter, Esc |
+| Breadcrumb | Pindah dari topbar ke atas judul halaman (Zenith), tidak tampil di Ringkasan |
+
+**Pemeriksaan:**
+
+| Uji | Hasil |
+| --- | --- |
+| Kerangka 4 peran (1440 px) | Admin 6 grup/16 butir, Bendahara 2/6, Pendeta 5/11, Majelis 4/10; tombol "Buat" hanya Admin dan Pendeta; Geist termuat; header 64 px; tanpa gulir menyamping |
+| Ctrl+K | Terbuka dengan fokus di kolom; "transaksi" → Transaksi Kas, Enter membuka `/dashboard/finance/transactions`; "Yosua" → "Cari anggota jemaat", panah memilih, Enter membuka `/dashboard/members?q=Yosua` (12 baris) |
+| Menu "Buat" (Admin) | Jadwal ibadah baru, Konten portal baru, Impor data jemaat |
+| Sidebar ciut | Diingat setelah muat ulang |
+| Tema gelap | `theme-dashboard dark` sudah terpasang sebelum React (tanpa kedip); isi halaman lama ikut token |
+| Cetak saat tema gelap | Latar putih, teks gelap, sidebar tersembunyi |
+| Pindah ke portal | Kelas bertukar ke `theme-portal`; tema portal tidak terpengaruh |
+| Ponsel 390 px | Tombol menu membuka sheet; tanpa gulir menyamping |
+| Inspector `--app` (via proxy sesi Admin) | Ringkasan 0 FAIL/0 WARN, Anggota 0/0, Transaksi 0 FAIL, Pos Kas & RAPBJ 0 FAIL (WARN angka rata kiri dan teks dekat tepi di ponsel: isi halaman, Tahap 5) |
+| Typecheck, lint | Bersih |
+
+**Catatan inspector:** `inspect.mjs` selalu membaca `.taste-skill/direction.json` (arah portal)
+di folder kerja lebih dulu, sehingga di dashboard ia salah melapor `font-not-dealt` (Plus Jakarta
+Sans + Inter). Untuk dashboard, jalankan dari folder yang berisi salinan arah aplikasi
+(`.taste-skill/app/direction.json`) sebagai `.taste-skill/direction.json`. Arah aplikasi itu
+memang memilih Geist sejak awal.
+
+**Berikutnya: Tahap 3** (Ringkasan).

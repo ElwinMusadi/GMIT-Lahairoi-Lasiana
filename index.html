@@ -8,8 +8,6 @@
       name="description"
       content="Portal GMIT Jemaat Lahairoi Tuak Sabu Lasiana, Kupang: jadwal ibadah, warta jemaat, renungan, dan persembahan."
     />
-    <link rel="preload" href="/fonts/roundo/roundo-400.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/fonts/roundo/roundo-500.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -19,17 +17,17 @@
     <meta name="theme-color" content="#ffffff" />
     <title>GMIT Lahairoi Tuak Sabu Lasiana</title>
     <script>
-      // Pasang tema portal sebelum React dimuat agar warna tidak berkedip. Tema gelap
-      // hanya bila pengunjung memilihnya (lib/portal-theme.ts); dashboard selalu terang.
-      if (!location.pathname.startsWith('/dashboard')) {
-        document.documentElement.classList.add('theme-portal')
-        try {
-          if (localStorage.getItem('gmit-lahairoi:tema-portal') === 'dark') {
-            document.documentElement.classList.add('dark')
-            document.querySelector('meta[name="theme-color"]').content = '#0a1215'
-          }
-        } catch (e) {}
-      }
+      // Pasang tema portal atau dashboard sebelum React dimuat agar warna tidak berkedip.
+      // Tema gelap hanya bila pengunjung memilihnya (lib/portal-theme.ts,
+      // lib/dashboard-theme.ts); masing-masing punya pilihan sendiri.
+      var dashboard = location.pathname.startsWith('/dashboard')
+      document.documentElement.classList.add(dashboard ? 'theme-dashboard' : 'theme-portal')
+      try {
+        if (localStorage.getItem(dashboard ? 'gmit-lahairoi:tema-dashboard' : 'gmit-lahairoi:tema-portal') === 'dark') {
+          document.documentElement.classList.add('dark')
+          document.querySelector('meta[name="theme-color"]').content = dashboard ? '#030303' : '#0a1215'
+        }
+      } catch (e) {}
       // Foto gereja di hero (dan panel login) diminta sejak awal, sebelum bundle selesai
       // dimuat. Galeri memakai foto dokumentasi terbaru; halaman baca artikel tanpa hero.
       var path = location.pathname

@@ -22,7 +22,7 @@ Proyek ini berbentuk **full-stack dalam satu paket**. `@cloudflare/vite-plugin` 
 ├── .taste-skill/               # Arah desain hasil skill design-taste-frontend (portal & app)
 ├── docs/prd.md                 # Product Requirements Document
 ├── migrations/                 # Migrasi SQL Cloudflare D1 (urut bernomor)
-├── public/                     # Aset statis (favicon, font Roundo)
+├── public/                     # Aset statis (favicon, foto gereja)
 ├── scripts/                    # Skrip Node: seed dan reset database lokal
 ├── src/
 │   ├── client/                 # SPA React
@@ -1027,7 +1027,7 @@ Salin `database_id` dari output ke blok `[[d1_databases]]` di `wrangler.toml`, l
 npx shadcn@latest add dialog table select
 ```
 
-Komponen akan ditulis ke `src/client/components/ui/`. Preset yang dipakai: `radix-nova` (Radix UI, ikon Lucide); font diganti Roundo lewat token. Beberapa komponen sudah disesuaikan untuk proyek ini dan perlu dicek ulang bila ditimpa CLI: breakpoint sidebar di `lg` (1024px), overlay sheet tanpa blur, dan teks aksesibilitas berbahasa Indonesia.
+Komponen akan ditulis ke `src/client/components/ui/`. Preset yang dipakai: `radix-nova` (Radix UI, ikon Lucide); font `font-sans` adalah Geist (`@fontsource-variable/geist`, dimuat oleh `lib/dashboard-theme.ts`). Beberapa komponen sudah disesuaikan untuk proyek ini dan perlu dicek ulang bila ditimpa CLI: breakpoint sidebar di `lg` (1024px), overlay sheet tanpa blur, dan teks aksesibilitas berbahasa Indonesia.
 
 ## Endpoint yang tersedia saat ini
 

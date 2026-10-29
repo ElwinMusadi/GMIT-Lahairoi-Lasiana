@@ -2,8 +2,10 @@ import {
   Archive,
   BookOpen,
   CalendarDays,
+  CalendarPlus,
   ChartColumn,
   Droplets,
+  FilePlus,
   FileText,
   HandCoins,
   History,
@@ -11,6 +13,8 @@ import {
   LayoutGrid,
   MapPin,
   Package,
+  PenLine,
+  Upload,
   UserCog,
   Users,
   WalletCards,
@@ -272,4 +276,29 @@ export function modulesForRole(role: UserRole): ModuleGroup[] {
 
 export function dashboardPath(item: Pick<ModuleItem, 'path'>): string {
   return item.path ? `/dashboard/${item.path}` : '/dashboard'
+}
+
+// Aksi "Buat" di topbar dan palet Ctrl+K: hanya aksi yang punya alamat sendiri. Aksi tambah
+// yang berupa dialog di dalam halaman ditambahkan saat modulnya dirombak.
+export type QuickAction = {
+  title: string
+  to: string
+  icon: LucideIcon
+  roles: readonly UserRole[]
+}
+
+const quickActions: QuickAction[] = [
+  {
+    title: 'Jadwal ibadah baru',
+    to: '/dashboard/worships/new',
+    icon: CalendarPlus,
+    roles: ['ADMIN', 'PASTOR'],
+  },
+  { title: 'Konten portal baru', to: '/dashboard/contents/new', icon: FilePlus, roles: ['ADMIN'] },
+  { title: 'Renungan baru', to: '/dashboard/renungan/new', icon: PenLine, roles: ['PASTOR'] },
+  { title: 'Impor data jemaat', to: '/dashboard/members/import', icon: Upload, roles: ['ADMIN'] },
+]
+
+export function quickActionsForRole(role: UserRole): QuickAction[] {
+  return quickActions.filter((action) => action.roles.includes(role))
 }
