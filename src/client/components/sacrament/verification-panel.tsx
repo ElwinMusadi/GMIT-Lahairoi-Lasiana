@@ -279,7 +279,7 @@ export function VerificationPanel({
       )}
 
       {showMembers && (
-        <div className="grid gap-4 border-t border-rule pt-5">
+        <div className="grid gap-4 border-t pt-5">
           <p className="text-[0.8125rem] text-muted-foreground">
             Tautkan ke data jemaat agar status{' '}
             {marriage ? 'nikah kedua mempelai' : application.type === 'SIDI' ? 'sidi' : 'baptis'}{' '}

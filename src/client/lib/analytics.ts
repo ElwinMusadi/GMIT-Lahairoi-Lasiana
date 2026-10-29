@@ -76,6 +76,32 @@ export function labelStep(count: number, plotWidth: number, labelWidth: number) 
   return Math.max(1, Math.ceil((count * labelWidth) / plotWidth))
 }
 
+// Kurva halus melalui titik-titik (x naik) yang tidak melampaui nilai di antara dua titik,
+// sama dengan d3.curveMonotoneX (metode Steffen): garis tren bergaya Zenith tanpa puncak palsu.
+export function monotonePath(points: readonly (readonly [number, number])[]): string {
+  const n = points.length
+  if (n < 3) return points.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x},${y}`).join(' ')
+  const h = points.slice(1).map(([x], i) => x - points[i][0])
+  const s = points.slice(1).map(([, y], i) => (y - points[i][1]) / h[i])
+  const t = new Array<number>(n)
+  for (let i = 1; i < n - 1; i++) {
+    const p = (s[i - 1] * h[i] + s[i] * h[i - 1]) / (h[i - 1] + h[i])
+    t[i] =
+      (Math.sign(s[i - 1]) + Math.sign(s[i])) *
+        Math.min(Math.abs(s[i - 1]), Math.abs(s[i]), 0.5 * Math.abs(p)) || 0
+  }
+  t[0] = (3 * s[0] - t[1]) / 2
+  t[n - 1] = (3 * s[n - 2] - t[n - 2]) / 2
+  let d = `M${points[0][0]},${points[0][1]}`
+  for (let i = 0; i < n - 1; i++) {
+    const [x0, y0] = points[i]
+    const [x1, y1] = points[i + 1]
+    const third = h[i] / 3
+    d += ` C${x0 + third},${y0 + third * t[i]} ${x1 - third},${y1 - third * t[i + 1]} ${x1},${y1}`
+  }
+  return d
+}
+
 // Kolom dari garis dasar: ujung data membulat 4px, alas persegi.
 export function columnPath(x: number, y: number, width: number, height: number): string {
   const r = Math.min(4, width / 2, height)

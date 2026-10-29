@@ -1,12 +1,12 @@
-import { useState, type KeyboardEvent } from 'react'
+import { useId, useState, type KeyboardEvent } from 'react'
 import type { AnalyticsAttendanceWeek, WorshipCategory } from '@shared/types'
-import { MONTH_SHORT, labelStep, niceTicks, useElementWidth } from '@/lib/analytics'
+import { MONTH_SHORT, labelStep, monotonePath, niceTicks, useElementWidth } from '@/lib/analytics'
 import { formatShortDay } from '@/lib/finance'
 import { ChartTooltip, TooltipRow } from './chart-parts'
 
-// Tren rata-rata kehadiran per ibadah dari minggu ke minggu untuk satu jenis ibadah.
-// Minggu tanpa data memutus garis (bukan nol); titik yang berdiri sendiri digambar
-// sebagai titik.
+// Tren rata-rata kehadiran per ibadah dari minggu ke minggu untuk satu jenis ibadah, sebagai
+// kurva halus dengan isian bergradasi (Zenith). Minggu tanpa data memutus garis (bukan nol);
+// titik yang berdiri sendiri digambar sebagai titik.
 export const ATTENDANCE_COLOR = 'var(--brand)'
 
 const PLOT = 190
@@ -24,6 +24,7 @@ export function AttendanceChart({
 }) {
   const [ref, width] = useElementWidth<HTMLDivElement>()
   const [active, setActive] = useState<number | null>(null)
+  const gradient = useId()
 
   const values = weeks.map((week) => week.by_category[category].average)
   const max = Math.max(0, ...values.map((value) => value ?? 0))
@@ -36,18 +37,19 @@ export function AttendanceChart({
   const y = (value: number) => TOP + PLOT - (value / top) * PLOT
   const hasData = values.some((value) => value !== null)
 
-  // Garis terputus di minggu tanpa data.
-  const segments: string[] = []
+  // Garis terputus di minggu tanpa data; tiap ruas punya isian sampai garis dasar.
+  const segments: { line: string; area: string }[] = []
   const lonely: number[] = []
   let run: number[] = []
   const flush = () => {
     if (run.length === 1) lonely.push(run[0])
     if (run.length > 1) {
-      segments.push(
-        run
-          .map((index, i) => `${i === 0 ? 'M' : 'L'}${x(index)},${y(values[index] ?? 0)}`)
-          .join(' '),
-      )
+      const line = monotonePath(run.map((index) => [x(index), y(values[index] ?? 0)] as const))
+      const base = y(0)
+      segments.push({
+        line,
+        area: `${line} L${x(run.at(-1) ?? 0)},${base} L${x(run[0])},${base} Z`,
+      })
     }
     run = []
   }
@@ -110,6 +112,12 @@ export function AttendanceChart({
             setActive(Math.max(0, Math.min(weeks.length - 1, index)))
           }}
         >
+          <defs>
+            <linearGradient id={gradient} x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0" stopColor={ATTENDANCE_COLOR} stopOpacity="0.18" />
+              <stop offset="1" stopColor={ATTENDANCE_COLOR} stopOpacity="0" />
+            </linearGradient>
+          </defs>
           {ticks.map((tick) => (
             <g key={tick}>
               <line
@@ -119,6 +127,7 @@ export function AttendanceChart({
                 y2={y(tick)}
                 stroke={tick === 0 ? 'var(--input)' : 'var(--border)'}
                 strokeWidth={1}
+                strokeDasharray={tick === 0 ? undefined : '4 4'}
                 shapeRendering="crispEdges"
               />
               <text
@@ -157,10 +166,13 @@ export function AttendanceChart({
               shapeRendering="crispEdges"
             />
           )}
-          {segments.map((d, index) => (
+          {segments.map((segment, index) => (
+            <path key={`isi-${index}`} d={segment.area} fill={`url(#${gradient})`} />
+          ))}
+          {segments.map((segment, index) => (
             <path
               key={index}
-              d={d}
+              d={segment.line}
               fill="none"
               stroke={ATTENDANCE_COLOR}
               strokeWidth={2}

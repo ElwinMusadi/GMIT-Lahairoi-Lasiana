@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
-import { ArrowLeft, Trash2 } from 'lucide-react'
+import { Trash2 } from 'lucide-react'
 import { Link, useBlocker, useNavigate, useParams, useSearchParams } from 'react-router'
 import { toast } from 'sonner'
 import type { FieldErrors } from '@shared/accounts'
@@ -35,12 +35,16 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { UploadField } from '@/components/upload-field'
+import { PageHeader } from '@/components/zenith/page-header'
+import { Panel } from '@/components/zenith/panel'
+import { Segmented } from '@/components/zenith/segmented'
+import { StatusBadge } from '@/components/zenith/status-badge'
 import { ApiError, api } from '@/lib/api'
 import {
   CATEGORY_CONFIG,
   CATEGORY_ORDER,
   STATUS_LABELS,
-  STATUS_PILL,
+  STATUS_TONE,
   apiFailure,
   contentsBase,
   fromWitaInputs,
@@ -72,20 +76,32 @@ export default function ContentEditorPage() {
     me.role === 'PASTOR' ? 'DEVOTIONAL' : CATEGORY_ORDER.includes(requested) ? requested : 'NEWS'
 
   if (id && !existing.data && !saved) {
+    const pastor = me.role === 'PASTOR'
     return (
-      <div className="grid gap-4">
-        <BackLink base={base} category={newCategory} pastor={me.role === 'PASTOR'} />
-        {existing.error ? (
-          <p className="text-sm text-muted-foreground">
-            Konten tidak dapat dimuat: {existing.error}{' '}
-            <button type="button" onClick={existing.reload} className="font-medium underline">
-              Coba lagi
-            </button>
-          </p>
-        ) : (
-          <div className="grid gap-3" aria-hidden="true">
-            <Skeleton className="h-8 w-72" />
-            <Skeleton className="h-96 w-full max-w-4xl" />
+      <div className="grid gap-6">
+        <PageHeader
+          back={backLink(base, newCategory, pastor)}
+          title={pastor ? 'Ubah renungan' : 'Ubah konten'}
+          description={
+            existing.error ? (
+              <>
+                Konten tidak dapat dimuat: {existing.error}{' '}
+                <button type="button" onClick={existing.reload} className="font-medium underline">
+                  Coba lagi
+                </button>
+              </>
+            ) : (
+              <span className="inline-block h-4 w-72 max-w-full animate-pulse rounded-md bg-muted align-middle" />
+            )
+          }
+        />
+        {!existing.error && (
+          <div
+            className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]"
+            aria-hidden="true"
+          >
+            <Skeleton className="h-96 rounded-xl" />
+            <Skeleton className="h-64 rounded-xl" />
           </div>
         )}
       </div>
@@ -104,24 +120,12 @@ export default function ContentEditorPage() {
   )
 }
 
-function BackLink({
-  base,
-  category,
-  pastor,
-}: {
-  base: string
-  category: ContentCategory
-  pastor: boolean
-}) {
-  return (
-    <Link
-      to={pastor ? base : `${base}?category=${category}`}
-      className="inline-flex w-fit items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
-    >
-      <ArrowLeft className="size-4" aria-hidden="true" />
-      {pastor ? 'Renungan Saya' : `Warta & Konten · ${CATEGORY_CONFIG[category].tab}`}
-    </Link>
-  )
+// Tombol kembali di kepala halaman: ke daftar kategori yang sama (Admin) atau Renungan Saya.
+function backLink(base: string, category: ContentCategory, pastor: boolean) {
+  return {
+    to: pastor ? base : `${base}?category=${category}`,
+    label: pastor ? 'Renungan Saya' : `Warta & Konten · ${CATEGORY_CONFIG[category].tab}`,
+  }
 }
 
 type FormState = {
@@ -340,35 +344,33 @@ function ContentForm({
 
   return (
     <form noValidate onSubmit={handleSubmit} className="grid gap-6">
-      <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
-        <div className="grid gap-1.5">
-          <BackLink base={base} category={state.category} pastor={isPastor} />
-          <h1 className="text-2xl font-semibold tracking-[-0.02em]">{heading}</h1>
-          <StatusLine content={content} dirty={dirty} />
-        </div>
-        <div className="flex gap-2">
-          <Button asChild variant="outline" size="lg">
-            <Link to={listHref}>Batal</Link>
-          </Button>
-          <Button type="submit" size="lg" disabled={submitting || uploading}>
-            {submitting ? 'Menyimpan…' : uploading ? 'Menunggu unggahan…' : submitLabel}
-          </Button>
-        </div>
-      </header>
+      {/* Tombol Simpan di kepala halaman tetap tombol kirim form ini. */}
+      <PageHeader
+        back={backLink(base, state.category, isPastor)}
+        title={heading}
+        description={<StatusLine content={content} dirty={dirty} />}
+        actions={
+          <>
+            <Button asChild variant="outline" size="lg">
+              <Link to={listHref}>Batal</Link>
+            </Button>
+            <Button type="submit" size="lg" disabled={submitting || uploading}>
+              {submitting ? 'Menyimpan…' : uploading ? 'Menunggu unggahan…' : submitLabel}
+            </Button>
+          </>
+        }
+      />
 
       <div role="alert" aria-live="assertive" className="empty:hidden">
         {formError && (
-          <p className="rounded-lg border border-destructive/40 bg-negative-soft px-4 py-3 text-sm text-negative-ink">
+          <p className="rounded-xl border border-destructive/40 bg-negative-soft px-4 py-3 text-sm text-negative-ink">
             {formError}
           </p>
         )}
       </div>
 
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
-        <section
-          aria-label={`Rincian ${config.noun}`}
-          className="grid min-w-0 gap-5 rounded-lg border bg-card p-5 sm:p-6"
-        >
+        <Panel title={`Rincian ${config.noun}`} contentClassName="grid gap-5">
           {state.category === 'PAYMENT_INFO' ? (
             <PaymentFields
               state={state}
@@ -494,12 +496,14 @@ function ContentForm({
               )}
             </>
           )}
-        </section>
+        </Panel>
 
-        <aside className="grid gap-5 rounded-lg border bg-card p-5">
+        {/* Kolom samping lengket di bawah topbar: penerbitan tetap terjangkau saat isi yang
+            panjang digulir. */}
+        <aside className="grid content-start gap-5 rounded-xl bg-card p-5 text-card-foreground ring-1 ring-foreground/10 lg:sticky lg:top-24">
           <PublishFields state={state} errors={errors} set={set} future={future} />
           {!isPastor && (
-            <div className="grid gap-2 border-t border-rule pt-5">
+            <div className="grid gap-2 border-t pt-5">
               <Label htmlFor="category">Kategori</Label>
               <select
                 id="category"
@@ -515,7 +519,7 @@ function ContentForm({
               </select>
             </div>
           )}
-          <div className="grid gap-2 border-t border-rule pt-5">
+          <div className="grid gap-2 border-t pt-5">
             <Label htmlFor="slug">Alamat</Label>
             <Input
               id="slug"
@@ -536,7 +540,7 @@ function ContentForm({
             <FieldError id="slug-error" messages={errors.slug} />
           </div>
           {content && (
-            <div className="grid gap-3 border-t border-rule pt-5 text-[0.8125rem] text-muted-foreground">
+            <div className="grid gap-3 border-t pt-5 text-[0.8125rem] text-muted-foreground">
               <p>
                 Ditulis {content.author_name ?? 'akun terhapus'} · dibuat{' '}
                 {formatDate(content.created_at)}, diubah {formatDate(content.updated_at)}{' '}
@@ -815,32 +819,20 @@ function BodyEditor({
     .filter(Boolean)
   return (
     <div className="grid gap-2">
-      <div className="flex items-end justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <Label htmlFor="content_body">
           {label}
           {!required && <span className="font-normal text-muted-foreground"> (opsional)</span>}
         </Label>
-        <div role="group" aria-label="Mode editor" className="flex rounded-md border p-0.5 text-xs">
-          {[
-            { value: false, label: 'Tulis' },
-            { value: true, label: 'Pratinjau' },
-          ].map((mode) => (
-            <button
-              key={mode.label}
-              type="button"
-              aria-pressed={preview === mode.value}
-              onClick={() => setPreview(mode.value)}
-              className={cn(
-                'rounded px-2.5 py-1',
-                preview === mode.value
-                  ? 'bg-primary font-medium text-primary-foreground'
-                  : 'text-muted-foreground hover:text-foreground',
-              )}
-            >
-              {mode.label}
-            </button>
-          ))}
-        </div>
+        <Segmented
+          label="Mode editor"
+          value={preview ? 'preview' : 'write'}
+          onChange={(mode) => setPreview(mode === 'preview')}
+          options={[
+            { value: 'write', label: 'Tulis' },
+            { value: 'preview', label: 'Pratinjau' },
+          ]}
+        />
       </div>
       {preview ? (
         <div className="min-h-64 rounded-lg border bg-background px-4 py-3 text-[0.9375rem] leading-relaxed">
@@ -876,16 +868,14 @@ function BodyEditor({
   )
 }
 
+// Baris di bawah judul. Hanya frasa (span) karena dirender di dalam <p> PageHeader.
 function StatusLine({ content, dirty }: { content: ContentItem | null; dirty: boolean }) {
   const parts: ReactNode[] = []
   if (content) {
     parts.push(
-      <span
-        key="status"
-        className={cn('rounded-full px-2 py-0.5 text-xs font-medium', STATUS_PILL[content.status])}
-      >
+      <StatusBadge key="status" tone={STATUS_TONE[content.status]}>
         {STATUS_LABELS[content.status]}
-      </span>,
+      </StatusBadge>,
     )
     if (content.published_at && content.status !== 'DRAFT') {
       parts.push(
@@ -897,14 +887,14 @@ function StatusLine({ content, dirty }: { content: ContentItem | null; dirty: bo
   }
   if (dirty && content) parts.push('Ada perubahan yang belum disimpan')
   return (
-    <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground tabular-nums">
+    <span className="flex flex-wrap items-center gap-x-2 gap-y-1 tabular-nums">
       {parts.map((part, index) => (
         <span key={index} className="inline-flex items-center gap-2">
           {index > 0 && <span aria-hidden="true">·</span>}
           {part}
         </span>
       ))}
-    </p>
+    </span>
   )
 }
 

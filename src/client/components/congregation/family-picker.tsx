@@ -82,7 +82,7 @@ export function FamilyPicker({
           <li className="px-3 py-2.5 text-muted-foreground">Memuat KK…</li>
         )}
         {families.map((family) => (
-          <li key={family.id} className="border-t border-rule first:border-t-0">
+          <li key={family.id} className="border-t first:border-t-0">
             <button
               type="button"
               onClick={() => {

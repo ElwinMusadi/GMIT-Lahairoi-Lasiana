@@ -72,7 +72,84 @@ Catatan status:
 - Redesign portal (12 commit, merge `90e5a7a`, dan catatan merge `2396a6a`) sudah di-push ke
   `origin/main` pada 29 Oktober 2026.
 
-### Pekerjaan yang sedang berjalan: skala Portal Publik 90%
+### Pekerjaan yang sedang berjalan: redesign dashboard bergaya Zenith
+
+Dashboard pengurus (`/dashboard`) dirombak dengan tampilan Zenith Dashboard (shadcn/ui,
+DashboardPack). Pengguna punya lisensinya tetapi belum mengunduh source React-nya.
+
+- **Acuan:** penerapan gaya Zenith milik pengguna di proyek HRIS (`D:\Herd\HRIS`, Laravel + Blade +
+  Alpine.js) dan demo publik Zenith (hanya acuan tampilan; tidak ada rekonstruksi kode dengan REA).
+- **Cara kerja:** komponen React ditulis sendiri di atas shadcn/ui; logika, API, peran, dan cetakan
+  tidak berubah.
+- **Rencana dan keputusan D1–D10** (disetujui 29 Oktober 2026) ada di
+  [docs/rencana-redesign-dashboard-zenith.md](docs/rencana-redesign-dashboard-zenith.md).
+- **Branch:** `feat/redesign-dashboard-zenith`, di-merge `--no-ff` setelah semua tahap selesai (D10).
+- **Tahap 0 (persiapan):** acuan HRIS diinventaris; baseline dashboard per peran ada di
+  `.taste-skill/inspect-dashboard-baseline/` (tidak di-commit).
+- **Tahap 1 (fondasi) selesai.**
+  - Token `.theme-dashboard` terang/gelap (nama token shadcn yang sama, jadi halaman lama ikut).
+  - `lib/dashboard-theme.ts` dan Geist yang di-host sendiri.
+  - Komponen `components/zenith/`: `PageHeader`, `KpiCard`, `Sparkline`, `StatusBadge`,
+    `Segmented`, `Kbd`, ditambah `ui/table.tsx`.
+  - D7: tetap grafik SVG sendiri (Chart.js menambah gzip 67 KB).
+  - Dashboard sungguhan belum memakai tema baru.
+- **Tahap 2 (kerangka) selesai.**
+  - Dashboard kini memakai tema Zenith: `theme-dashboard` di `<html>`, skrip anti-kedip, dan tombol
+    tema terang/gelap.
+  - Sidebar berkelompok (grup bisa dilipat, ciut ke ikon diingat di perangkat, kartu pengguna
+    di bawah); topbar lengket dengan pencarian, tombol "Buat" sesuai peran, tema, dan avatar.
+  - Palet Ctrl+K: halaman, aksi "Buat", dan pencarian anggota jemaat atau KK.
+  - `font-sans` kini Geist; Roundo dicabut; `useLogout` pindah ke `lib/session.ts`.
+  - Inspector `--app` harus dijalankan dengan arah aplikasi (lihat rencana bagian 9, Tahap 2).
+- **Tahap 3 (Ringkasan) selesai.**
+  - Kartu KPI Zenith (grafik mini dan tren saldo/kehadiran), filter periode di kanan judul, kartu
+    `Panel`, donat komposisi jemaat, linimasa aktivitas (Admin), kurva kehadiran bergradasi.
+  - Urutan blok per peran (D8, perbaikan tertunda #3): Bendahara keuangan dulu; Pendeta/Majelis
+    jemaat lalu kehadiran; Admin jemaat, keuangan, lalu kehadiran + aktivitas.
+- **Tahap 4 (Jemaat) selesai.**
+  - Komponen tabel bersama `components/zenith/data-table.tsx` (kartu tabel, pencarian,
+    paginasi, pesan, kerangka), `person-avatar.tsx`, dan `stepper.tsx`; dipakai lagi di
+    Tahap 5–7.
+  - Anggota: status bersegmen dan filter di bilah alat. KK: deret rayon berupa kartu angka.
+    Rincian KK: Data KK berupa deret di atas tabel anggota. Impor: wizard tiga langkah.
+- **Tahap 5 (Keuangan) selesai.**
+  - Komponen baru `components/zenith/stat-strip.tsx` (deret angka dalam satu kartu).
+  - Transaksi Kas: deret jumlah, jenis bersegmen, filter di bilah alat, kolom Kuitansi.
+  - Pos Kas & RAPBJ: Pos Kas menjadi deret kartu saldo di atas tabel RAPBJ selebar halaman.
+  - Laporan: kendali bersegmen dan deret saldo di atas lembar; cetakan tidak berubah.
+  - Perbaikan tertunda #1 dan #2 selesai.
+- **Tahap 6 (Pelayanan) selesai.**
+  - Jadwal Ibadah: tampilan bersegmen, satu tabel berkelompok per tanggal. Editor memakai
+    `Panel`, kolom sampingnya lengket.
+  - Sakramen: antrean/Buku Induk bersegmen, lencana status di
+    `components/sacrament/status-badge.tsx`. Halaman cetak sertifikat hanya diganti
+    bingkainya; isi cetakan tetap.
+  - Arsip Surat: arah surat bersegmen, kolom Salinan. Inventaris: Katalog/Peminjaman dan
+    kondisi bersegmen; kondisi Baik tetap tanpa lencana.
+  - Dikerjakan tiga subagen paralel dengan pola dari Tahap 3–5, lalu ditinjau dan diuji di sini.
+- **Tahap 7 (Konten & Administrasi) selesai.**
+  - Warta & Konten / Renungan Saya: kategori dan status bersegmen; nada lencana di
+    `STATUS_TONE` (`lib/contents.ts`). Editor memakai `Panel` dengan kolom samping lengket.
+  - Akun Pengurus: status akun bersegmen, avatar, lencana peran netral. Log Aktivitas: filter di
+    bilah alat, satu tabel berkelompok per hari, ikon modul polos (`auditIcon` di
+    `lib/audit-format.ts`, dipakai juga linimasa Ringkasan).
+  - Dikerjakan dua subagen paralel, lalu ditinjau dan diuji di sini.
+- **Tahap 8 (Rapikan & QA) selesai.**
+  - Blok `:root` "achromatic ledger" dihapus; token dashboard terang kini `:root, .theme-dashboard`
+    (juga cadangan tanpa kelas tema). Portal mendapat `--radius: 0.5rem` sendiri, jadi tampilannya
+    tidak berubah (dibuktikan dengan perbandingan nilai token sebelum/sesudah). Token mati
+    `--field`, `--field-foreground`, dan `--warning` dihapus.
+  - Dihapus: `ui/badge.tsx`, `ui/tabs.tsx` (diganti `StatusBadge`/`Segmented`) dan `<Can>` (cukup
+    `useCan`). Halaman "Akses dibatasi" memakai judul setara `PageHeader`.
+  - Audit akhir 4 peran × semua halaman × 1440/768/390 px, tema gelap, cetak, Ctrl+K. Perbaikan:
+    baris keterangan Jemaat membungkus di bawah 1024 px; kolom angka Rayon dipersempit di ponsel;
+    `GroupHeaderRow` (data-table) agar judul hari di Jadwal Ibadah dan Log Aktivitas tidak membuat
+    kolom kosong di ponsel.
+  - README dan bagian Desain di berkas ini diperbarui.
+- **Berikutnya: Tahap 9 (Merge):** `git merge --no-ff feat/redesign-dashboard-zenith` ke `main`
+  (D10), lalu push bila diminta.
+
+### Selesai: skala Portal Publik 90%
 
 Portal desktop (≥1024 px dengan tetikus/trackpad) dibuat tampil 90%, seperti zoom browser 90%;
 ponsel, tablet, dan dashboard tetap 100%. Rencana dan keputusan S1–S4 ada di
@@ -243,10 +320,12 @@ dan empat peran. Laporannya ada di `.taste-skill/inspect-audit/` (tidak di-commi
   Semua ini ditangani oleh redesign.
 - **Dashboard:** 28 layar lolos pengukuran tanpa FAIL. Tiga perbaikan masih tertunda, dikerjakan
   setelah redesign portal:
-  1. **Pos Kas & RAPBJ (1280px):** nama mata anggaran terpotong ("P1 Persembah…").
-  2. **Transaksi Kas di ponsel:** nama Pos Kas dan mata anggaran terpotong di baris keterangan.
-  3. **Ringkasan untuk Bendahara:** blok keuangan baru terlihat setelah digulir; urutan blok
-     sebaiknya menyesuaikan peran.
+  1. ~~**Pos Kas & RAPBJ (1280px):** nama mata anggaran terpotong ("P1 Persembah…").~~ Selesai di
+     redesign Zenith Tahap 5: Pos Kas pindah ke deret kartu, tabel RAPBJ selebar halaman.
+  2. ~~**Transaksi Kas di ponsel:** nama Pos Kas dan mata anggaran terpotong di baris keterangan.~~
+     Selesai di Tahap 5: baris keterangan membungkus di bawah 1024 px.
+  3. ~~**Ringkasan untuk Bendahara:** blok keuangan baru terlihat setelah digulir.~~ Selesai di
+     redesign Zenith Tahap 3: urutan blok menyesuaikan peran.
 - **Identitas visual belum seragam:** portal biru tua dengan amber, halaman login biru tua dengan
   judul 118px, dan dashboard *achromatic* dengan crimson. Login ikut diselaraskan dalam redesign.
 
@@ -390,21 +469,39 @@ bersubmenu. Rencana, keputusan K1–K6, dan catatan per tahap ada di
 - Foto: satu foto gedung gereja (Keputusan K5) di `public/images/gereja-gmit-lahairoi-*.webp`
   (640/960/1254 px). Catatan gerak asli ada di [design/stitch/manifest.json](design/stitch/manifest.json).
 
-### Dashboard — gaya *achromatic ledger*
+### Dashboard — gaya Zenith
 
-- Arahnya di `.taste-skill/app/direction.json` (seed 442642274): chrome tanpa warna, dasar
-  `#f4f3f1`, tombol utama hampir hitam, dan crimson `--brand` `#b11226` hanya untuk data utama.
-- Huruf Roundo di-host sendiri (`public/fonts/roundo`).
-- Grafik dashboard dibuat sendiri dengan SVG, tanpa pustaka chart:
-  - komponennya di `src/client/components/analytics/`;
-  - palet crimson + abu `--chart-2` `#8a8a8a` sudah divalidasi dengan validator skill `dataviz`.
-- Token ada di `:root` [src/client/index.css](src/client/index.css). Selalu pakai token, jangan
-  kode warna langsung.
+Dashboard mengikuti Zenith Dashboard (template berlisensi milik pengguna), lewat penerapannya di
+proyek HRIS pengguna. Rencana, keputusan D1–D10, dan catatan per tahap ada di
+[docs/rencana-redesign-dashboard-zenith.md](docs/rencana-redesign-dashboard-zenith.md).
+
+- **Asal-usul:** komponen ditulis sendiri di atas shadcn/ui. Kode sumber Zenith tidak pernah
+  masuk repo, dan demo Zenith tidak direkonstruksi dengan REA; demo hanya acuan tampilan.
+- **Tampilan:** palet netral oklch, kanvas putih, tombol utama hitam, garis abu tipis. Crimson
+  `--brand` `#b11226` hanya untuk data (D3).
+- **Huruf:** Geist (`@fontsource-variable/geist`, OFL), di-host sendiri dan hanya dimuat bundel
+  dashboard.
+- **Tema:** terang + gelap ([src/client/lib/dashboard-theme.ts](src/client/lib/dashboard-theme.ts)),
+  kelas `theme-dashboard` di `<html>`. Gelap hanya di `@media screen`, jadi cetakan selalu terang.
+- **Token:** `:root, .theme-dashboard` dan `.theme-dashboard.dark` di
+  [src/client/index.css](src/client/index.css). `:root` sekaligus cadangan saat `<html>` tanpa
+  kelas tema (mis. halaman eror). Selalu pakai token, jangan kode warna langsung.
+- **Komponen** di `src/client/components/zenith/`: `PageHeader`, `KpiCard`, `Panel`, `Donut`,
+  `Segmented`, `StatusBadge`, `StatStrip`, `data-table` (`TableCard`, `SearchField`,
+  `TablePagination`, `TableMessage`, `SkeletonRows`, `GroupHeaderRow`), `PersonAvatar`, `Stepper`,
+  `Sparkline`, `Kbd`.
+  Tabel memakai `ui/table`. Lencana status per modul memetakan nada di `lib/*` (mis. `STATUS_TONE`
+  di `lib/contents.ts`), bukan kelas warna sendiri.
+- **Grafik** dibuat sendiri dengan SVG di `src/client/components/analytics/`; palet crimson + abu
+  `--chart-2` `#8a8a8a` divalidasi dengan validator skill `dataviz` untuk kedua tema.
+- **Inspector `--app`** membaca `.taste-skill/app/direction.json` (arah dashboard sebelumnya,
+  "achromatic ledger") sebagai salinan `.taste-skill/direction.json` di folder kerja lain. Berkas
+  itu kini hanya masukan inspector (huruf Geist, aturan layar aplikasi), bukan arah tampilan.
 
 ### Referensi lain
 
 `design/stitch/01`–`07` berisi rancangan Stitch untuk modul dashboard. Rancangan ini **tidak
-diikuti**: dashboard memakai gaya achromatic ledger. Simpan hanya sebagai referensi isi.
+diikuti**: dashboard memakai gaya Zenith. Simpan hanya sebagai referensi isi.
 
 ---
 
@@ -553,9 +650,11 @@ Sebelum deploy pertama:
 | [README.md](README.md) | Dokumentasi teknis lengkap per modul + daftar endpoint |
 | [docs/prd.md](docs/prd.md) | PRD: fitur, kriteria penerimaan, model data, alur pengguna |
 | [docs/rencana-redesign-portal-kage.md](docs/rencana-redesign-portal-kage.md) | Rencana implementasi redesign portal |
+| [docs/rencana-redesign-dashboard-zenith.md](docs/rencana-redesign-dashboard-zenith.md) | Rencana, keputusan D1–D10, dan catatan per tahap redesign dashboard Zenith |
+| [src/client/components/zenith/](src/client/components/zenith) | Komponen dashboard bergaya Zenith |
 | [src/client/router.tsx](src/client/router.tsx) | Semua rute |
 | [src/client/lib/navigation.ts](src/client/lib/navigation.ts) | Tautan portal, menu dashboard per peran |
-| [src/client/index.css](src/client/index.css) | Token tema dashboard (`:root`) dan portal (`.theme-portal`) |
+| [src/client/index.css](src/client/index.css) | Token tema dashboard (`:root, .theme-dashboard`, `.theme-dashboard.dark`) dan portal (`.theme-portal`, `.theme-portal.dark`) |
 | [src/worker/index.ts](src/worker/index.ts) | Pendaftaran semua route API |
 | [src/shared/types.ts](src/shared/types.ts) | Tipe data bersama |
 | [design/stitch/manifest.json](design/stitch/manifest.json) | Daftar rancangan Stitch + catatan gerak portal kage |

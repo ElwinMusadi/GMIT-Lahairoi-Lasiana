@@ -1,13 +1,16 @@
 import {
   CATEGORICAL_GROUPS,
   CATEGORICAL_GROUP_LABELS,
+  GENDERS,
+  GENDER_LABELS,
   type AnalyticsDemographics,
 } from '@shared/types'
+import { Donut } from '@/components/zenith/donut'
 import { formatShare } from '@/lib/analytics'
 import { cn } from '@/lib/utils'
 
-// Grafik demografi jemaat (keadaan hari ini): jiwa per rayon, kelompok kategorial, dan
-// cakupan sakramen. Setiap nilai tertulis di samping batangnya, sehingga tidak perlu
+// Grafik demografi jemaat (keadaan hari ini): komposisi jenis kelamin, jiwa per rayon,
+// kelompok kategorial, dan cakupan sakramen. Setiap nilai tertulis di samping batangnya, sehingga tidak perlu
 // tooltip untuk membacanya.
 
 type Bar = { key: string; label: string; value: number; detail?: string; muted?: boolean }
@@ -94,7 +97,24 @@ export function CategoricalBars({
   )
 }
 
-// Meter cakupan: isian = rasio sebenarnya terhadap jumlah anggota aktif.
+// Donat jenis kelamin dengan seri 1 dan 2 dari palet grafik (urutan tetap).
+export function GenderComposition({ genders }: { genders: AnalyticsDemographics['by_gender'] }) {
+  return (
+    <Donut
+      caption="Komposisi jemaat menurut jenis kelamin"
+      totalLabel="jiwa"
+      slices={GENDERS.map((gender, index) => ({
+        key: gender,
+        label: GENDER_LABELS[gender],
+        value: genders[gender],
+        color: `var(--chart-${index + 1})`,
+      }))}
+    />
+  )
+}
+
+// Meter cakupan: isian = rasio sebenarnya terhadap jumlah anggota aktif, bertumpuk satu
+// per baris.
 export function SacramentCoverage({
   sacraments,
 }: {
@@ -115,7 +135,7 @@ export function SacramentCoverage({
     },
   ]
   return (
-    <div className="grid gap-x-10 gap-y-3 @lg:grid-cols-2">
+    <div className="grid gap-4">
       {rows.map((row) => (
         <div key={row.key} className="grid gap-1.5">
           <div className="flex items-baseline justify-between gap-3 text-sm">
@@ -146,7 +166,7 @@ export function SacramentCoverage({
           </div>
         </div>
       ))}
-      <p className="text-[0.8125rem] text-muted-foreground @lg:col-span-2">
+      <p className="text-[0.8125rem] text-muted-foreground">
         {sacraments.married.toLocaleString('id-ID')} jiwa berstatus menikah.
       </p>
     </div>

@@ -13,7 +13,7 @@ import { monthLabel } from '@/lib/finance'
 import { ChartTooltip, TooltipRow } from './chart-parts'
 
 // Kas masuk (warna utama) dan kas keluar (abu-abu pembanding) per bulan, sebagai
-// kolom berpasangan pada satu sumbu Rupiah.
+// kolom berpasangan pada satu sumbu Rupiah, dengan garis bantu putus-putus (Zenith).
 export const INCOME_COLOR = 'var(--brand)'
 export const EXPENSE_COLOR = 'var(--chart-2)'
 
@@ -91,6 +91,7 @@ export function CashFlowChart({ months }: { months: AnalyticsCashMonth[] }) {
                 y2={y(tick)}
                 stroke={tick === 0 ? 'var(--input)' : 'var(--border)'}
                 strokeWidth={1}
+                strokeDasharray={tick === 0 ? undefined : '4 4'}
                 shapeRendering="crispEdges"
               />
               <text

@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { useState } from 'react'
 import { EllipsisVertical, House, Pencil, Plus, Trash2, Users } from 'lucide-react'
 import { Link } from 'react-router'
 import { toast } from 'sonner'
@@ -13,7 +13,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Skeleton } from '@/components/ui/skeleton'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { SkeletonRows, TableCard, TableMessage } from '@/components/zenith/data-table'
+import { PageHeader } from '@/components/zenith/page-header'
 import { api } from '@/lib/api'
 import { useApiQuery } from '@/lib/use-api-query'
 import { cn } from '@/lib/utils'
@@ -54,66 +63,66 @@ export default function RayonsPage() {
 
   return (
     <div className="grid gap-6">
-      <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
-        <div className="grid gap-1">
-          <h1 className="text-2xl font-semibold tracking-[-0.02em]">Rayon</h1>
-          {rayons.data ? (
-            <p className="text-sm text-muted-foreground tabular-nums">
+      <PageHeader
+        title="Rayon"
+        description={
+          rayons.data ? (
+            <span className="tabular-nums">
               {rows.length} rayon pelayanan · {totalFamilies.toLocaleString('id-ID')} KK ·{' '}
               {totalMembers.toLocaleString('id-ID')} jiwa aktif
-            </p>
+            </span>
           ) : (
-            <Skeleton className="h-5 w-64" />
-          )}
-        </div>
-        <Button size="lg" onClick={() => setForm({})}>
-          <Plus data-icon="inline-start" />
-          Tambah rayon
-        </Button>
-      </header>
+            <span className="inline-block h-4 w-64 max-w-full animate-pulse rounded-md bg-muted align-middle" />
+          )
+        }
+        actions={
+          <Button size="lg" onClick={() => setForm({})}>
+            <Plus data-icon="inline-start" />
+            Tambah rayon
+          </Button>
+        }
+      />
 
-      <div className="rounded-lg border bg-card">
-        <table className="w-full table-fixed text-sm">
+      <TableCard aria-label="Rayon pelayanan">
+        <Table className="table-fixed">
           <caption className="sr-only">Rayon pelayanan</caption>
-          <thead>
-            <tr className="text-left text-xs text-muted-foreground">
-              <th scope="col" className="h-10 pr-4 pl-4 font-normal">
-                Rayon
-              </th>
-              <th scope="col" className="w-20 pr-4 text-right font-normal sm:w-24">
-                KK
-              </th>
-              <th scope="col" className="w-20 pr-4 text-right font-normal sm:w-28">
-                Jiwa aktif
-              </th>
-              <th scope="col" className="w-14 pr-2">
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              {/* Di ponsel kolom angka dipersempit agar keterangan rayon tidak terjepit. */}
+              <TableHead>Rayon</TableHead>
+              <TableHead className="w-14 text-right sm:w-24">KK</TableHead>
+              <TableHead className="w-16 text-right sm:w-28">
+                Jiwa<span className="max-sm:sr-only"> aktif</span>
+              </TableHead>
+              <TableHead className="w-12 sm:w-14">
                 <span className="sr-only">Tindakan</span>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {rayons.error && !rayons.data && (
-              <MessageRow>
+              <TableMessage colSpan={4}>
                 Data rayon tidak dapat dimuat: {rayons.error}{' '}
                 <button type="button" onClick={rayons.reload} className="font-medium underline">
                   Coba lagi
                 </button>
-              </MessageRow>
+              </TableMessage>
             )}
-            {!rayons.data &&
-              !rayons.error &&
-              Array.from({ length: 5 }, (_, index) => <SkeletonRow key={index} />)}
+            {!rayons.data && !rayons.error && (
+              <SkeletonRows rows={5} avatar={false} cells={['', '', '', '']} />
+            )}
             {rows.map((rayon) => (
               <RayonRow
                 key={rayon.id}
                 rayon={rayon}
+                share={totalMembers > 0 ? (rayon.member_count ?? 0) / totalMembers : 0}
                 onEdit={() => setForm({ rayon })}
                 onDelete={() => confirmDelete(rayon)}
               />
             ))}
-          </tbody>
-        </table>
-      </div>
+          </TableBody>
+        </Table>
+      </TableCard>
 
       <RayonFormDialog
         open={form !== null}
@@ -128,10 +137,13 @@ export default function RayonsPage() {
 
 function RayonRow({
   rayon,
+  share,
   onEdit,
   onDelete,
 }: {
   rayon: RayonListItem
+  // Porsi jiwa aktif rayon ini dari seluruh jemaat (0–1), untuk garis porsi di bawah nama.
+  share: number
   onEdit: () => void
   onDelete: () => void
 }) {
@@ -145,33 +157,33 @@ function RayonRow({
     .join(' · ')
 
   return (
-    <tr className="border-t border-rule align-top">
-      <td className="py-3 pr-4 pl-4">
+    <TableRow>
+      <TableCell className="py-2.5">
         <Link
           to={`/dashboard/families?rayon_id=${rayon.id}`}
           className="font-medium underline-offset-4 hover:underline"
         >
           {rayon.name}
         </Link>
-        <p className="mt-0.5 truncate text-[0.8125rem] text-muted-foreground">{details}</p>
-      </td>
-      <td
-        className={cn(
-          'py-3 pr-4 text-right tabular-nums',
-          families === 0 && 'text-muted-foreground',
-        )}
+        <p className="mt-0.5 text-[0.8125rem] text-muted-foreground lg:truncate">{details}</p>
+        {/* Porsi jiwa: garis tipis abu-abu, tanpa lintasan (sama dengan saldo per Pos Kas). */}
+        <div aria-hidden="true" className="mt-1.5 h-0.5 max-w-64">
+          {share > 0 && (
+            <div className="h-0.5 rounded-full bg-chart-2" style={{ width: `${share * 100}%` }} />
+          )}
+        </div>
+      </TableCell>
+      <TableCell
+        className={cn('text-right tabular-nums', families === 0 && 'text-muted-foreground')}
       >
         {families.toLocaleString('id-ID')}
-      </td>
-      <td
-        className={cn(
-          'py-3 pr-4 text-right tabular-nums',
-          members === 0 && 'text-muted-foreground',
-        )}
+      </TableCell>
+      <TableCell
+        className={cn('text-right tabular-nums', members === 0 && 'text-muted-foreground')}
       >
         {members.toLocaleString('id-ID')}
-      </td>
-      <td className="py-2 pr-2 text-right">
+      </TableCell>
+      <TableCell className="py-1.5 pr-2 pl-0 text-right">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="size-10 sm:size-8">
@@ -215,35 +227,7 @@ function RayonRow({
             )}
           </DropdownMenuContent>
         </DropdownMenu>
-      </td>
-    </tr>
-  )
-}
-
-function MessageRow({ children }: { children: ReactNode }) {
-  return (
-    <tr className="border-t border-rule">
-      <td colSpan={4} className="px-4 py-6 text-muted-foreground">
-        {children}
-      </td>
-    </tr>
-  )
-}
-
-function SkeletonRow() {
-  return (
-    <tr className="border-t border-rule" aria-hidden="true">
-      <td className="py-3 pr-4 pl-4">
-        <Skeleton className="h-5 w-28" />
-        <Skeleton className="mt-1.5 h-4 w-48" />
-      </td>
-      <td className="py-3 pr-4">
-        <Skeleton className="ml-auto h-5 w-8" />
-      </td>
-      <td className="py-3 pr-4">
-        <Skeleton className="ml-auto h-5 w-10" />
-      </td>
-      <td />
-    </tr>
+      </TableCell>
+    </TableRow>
   )
 }

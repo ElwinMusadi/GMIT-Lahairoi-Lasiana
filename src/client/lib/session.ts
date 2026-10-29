@@ -1,4 +1,5 @@
 import { createContext, useContext } from 'react'
+import { useNavigate } from 'react-router'
 import type { LoginRequest, SessionUser, UserRole } from '@shared/types'
 
 // Sesi pengurus. Token sesi ada di cookie HttpOnly yang dikelola server; frontend
@@ -26,6 +27,15 @@ export function useCurrentUser(): SessionUser {
   const { user } = useSession()
   if (!user) throw new Error('useCurrentUser dipakai di luar <RequireAuth>')
   return user
+}
+
+// Keluar lalu kembali ke halaman masuk (menu pengguna dan kartu pengguna di sidebar).
+export function useLogout(): () => void {
+  const { logout } = useSession()
+  const navigate = useNavigate()
+  return () => {
+    void logout().finally(() => navigate('/login', { replace: true }))
+  }
 }
 
 // Apakah pengguna yang sedang masuk memegang salah satu peran ini. Hanya untuk

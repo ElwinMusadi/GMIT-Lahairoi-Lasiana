@@ -4,31 +4,10 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Roundo oleh Indian Type Foundry (Fontshare, ITF Free Font License), di-host sendiri. */
-@font-face {
-  font-family: "Roundo";
-  src: url("/fonts/roundo/roundo-400.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Roundo";
-  src: url("/fonts/roundo/roundo-500.woff2") format("woff2");
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Roundo";
-  src: url("/fonts/roundo/roundo-600.woff2") format("woff2");
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-
 @theme inline {
-  --font-sans: "Roundo", ui-sans-serif, system-ui, sans-serif;
+  /* Geist (OFL) di-host sendiri; dimuat oleh lib/dashboard-theme.ts. Portal memakai huruf
+     sendiri (font-site-*), jadi utilitas ini praktis hanya untuk dashboard. */
+  --font-sans: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
   --font-heading: var(--font-sans);
 
   /* Portal Publik rancangan kage (design/stitch/10-portal-publik-kage). Warna yang berganti
@@ -73,8 +52,6 @@
   --color-ring: var(--ring);
   --color-brand: var(--brand);
   --color-brand-foreground: var(--brand-foreground);
-  --color-field: var(--field);
-  --color-field-foreground: var(--field-foreground);
   --color-rule: var(--rule);
   --color-positive: var(--positive);
   --color-positive-soft: var(--positive-soft);
@@ -105,57 +82,119 @@
 }
 
 /*
- * Dashboard: gaya "achromatic ledger" (.taste-skill/app/direction.json).
- * Chrome tanpa warna; dasar batu karang Kupang menggantikan abu-abu generik;
- * crimson mengkudu hanya untuk elemen data utama.
+ * Dashboard pengurus bergaya Zenith (docs/rencana-redesign-dashboard-zenith.md), tema terang.
+ * Palet netral oklch tanpa kroma seperti Zenith dan penerapannya di HRIS: kanvas putih, tombol
+ * utama hitam, garis abu tipis. Crimson GMIT hanya untuk data (D3). Dipasang di <html> oleh
+ * lib/dashboard-theme.ts (kelas theme-dashboard), sehingga isi Radix di <body> ikut.
+ * Sekaligus nilai dasar :root saat <html> tanpa kelas tema (mis. halaman eror setelah layout
+ * dilepas); .theme-portal di bawah menimpanya untuk portal.
  */
-:root {
-  --radius: 0.5rem;
-  --background: #f4f3f1;
-  --foreground: #0a0a0a;
-  --card: #ffffff;
-  --card-foreground: #0a0a0a;
-  --popover: #ffffff;
-  --popover-foreground: #0a0a0a;
-  --primary: #141414;
-  --primary-foreground: #ffffff;
-  --secondary: #e5e5e5;
-  --secondary-foreground: #0a0a0a;
-  --muted: #ebe9e6;
-  --muted-foreground: #6b6b6b;
-  --accent: #e8e6e2;
-  --accent-foreground: #0a0a0a;
-  --destructive: #c4242a;
-  --border: #e4e2de;
-  --rule: #f0efec;
-  --input: #d4d2ce;
-  --ring: #8a8a8a;
+:root,
+.theme-dashboard {
+  --radius: 0.625rem;
+  --font-dashboard: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  /* Sedikit lebih gelap dari Zenith (0.556): ≥5:1 di putih dan di permukaan muted (tab, kbd). */
+  --muted-foreground: oklch(0.52 0 0);
+  --accent: oklch(0.965 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --rule: oklch(0.945 0 0);
+  --input: oklch(0.87 0 0);
+  --ring: oklch(0.708 0 0);
   --brand: #b11226;
   --brand-foreground: #ffffff;
-  --field: #0a0a0a;
-  --field-foreground: #efefef;
   --positive: #2e7d32;
   --positive-soft: #dcfae5;
   --positive-ink: #04250e;
   --negative-soft: #ffedea;
   --negative-ink: #831c1e;
-  --warning: #92400e;
   --warning-soft: #fffbeb;
   --warning-border: #fde68a;
   --warning-ink: #92400e;
+  /* Seri grafik: crimson + abu tervalidasi (dataviz), lalu abu-abu pembanding. */
   --chart-1: #b11226;
   --chart-2: #8a8a8a;
   --chart-3: #141414;
   --chart-4: #b5b3af;
   --chart-5: #3d3d3d;
-  --sidebar: #f4f3f1;
-  --sidebar-foreground: #0a0a0a;
-  --sidebar-primary: #141414;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #e8e6e2;
-  --sidebar-accent-foreground: #0a0a0a;
-  --sidebar-border: #e4e2de;
-  --sidebar-ring: #8a8a8a;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.955 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+  color-scheme: light;
+}
+
+/*
+ * Dashboard, tema gelap: hanya bila pengurus memilihnya dan hanya di layar (@media screen),
+ * sehingga cetakan laporan dan sertifikat selalu terang. Crimson + abu grafik divalidasi ulang
+ * untuk kanvas gelap (#e5484d + #8a8a8a: ΔE buta warna 9,1, kontras ≥3:1).
+ */
+@media screen {
+  .theme-dashboard.dark {
+    --background: oklch(0.1 0 0);
+    --foreground: oklch(0.985 0 0);
+    --card: oklch(0.165 0 0);
+    --card-foreground: oklch(0.985 0 0);
+    --popover: oklch(0.165 0 0);
+    --popover-foreground: oklch(0.985 0 0);
+    --primary: oklch(0.922 0 0);
+    --primary-foreground: oklch(0.205 0 0);
+    --secondary: oklch(0.235 0 0);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.21 0 0);
+    --muted-foreground: oklch(0.708 0 0);
+    --accent: oklch(0.235 0 0);
+    --accent-foreground: oklch(0.985 0 0);
+    --destructive: oklch(0.704 0.191 22.216);
+    --border: oklch(0.28 0 0);
+    --rule: oklch(0.24 0 0);
+    --input: oklch(0.34 0 0);
+    --ring: oklch(0.556 0 0);
+    --brand: #e5484d;
+    /* Teks gelap di atas crimson terang: 5,1:1 (putih hanya 3,9:1 untuk lencana 12 px). */
+    --brand-foreground: oklch(0.145 0 0);
+    --positive: #34c38f;
+    --positive-soft: color-mix(in oklab, #34c38f 16%, transparent);
+    --positive-ink: #86efac;
+    --negative-soft: color-mix(in oklab, #f0685f 16%, transparent);
+    --negative-ink: #fca5a5;
+    --warning-soft: color-mix(in oklab, #f0b44c 12%, transparent);
+    --warning-border: color-mix(in oklab, #f0b44c 35%, transparent);
+    --warning-ink: #fcd34d;
+    --chart-1: #e5484d;
+    --chart-2: #8a8a8a;
+    --chart-3: #ededed;
+    --chart-4: #525252;
+    --chart-5: #a3a3a3;
+    --sidebar: oklch(0.125 0 0);
+    --sidebar-foreground: oklch(0.985 0 0);
+    --sidebar-primary: oklch(0.922 0 0);
+    --sidebar-primary-foreground: oklch(0.205 0 0);
+    --sidebar-accent: oklch(0.21 0 0);
+    --sidebar-accent-foreground: oklch(0.985 0 0);
+    --sidebar-border: oklch(0.28 0 0);
+    --sidebar-ring: oklch(0.556 0 0);
+    color-scheme: dark;
+  }
+}
+.theme-dashboard body {
+  font-family: var(--font-dashboard);
 }
 
 /*
@@ -166,6 +205,7 @@
  * kage (2,5:1) terlalu pucat untuk penanda fokus di kanvas terang.
  */
 .theme-portal {
+  --radius: 0.5rem;
   --background: #ffffff;
   --foreground: #111113;
   --card: #ffffff;
@@ -186,8 +226,6 @@
   --ring: #c2620a;
   --brand: #111113;
   --brand-foreground: #ffffff;
-  --field: #111113;
-  --field-foreground: #ffffff;
 
   /* Jarak header dan isi hero dari tepi layar; panel hero berjarak 12–16 px dari tepi,
      sisanya bantalan di dalam panel. Header dan hero memakai nilai yang sama agar sejajar. */
@@ -245,8 +283,6 @@
   --ring: #f08a2b;
   --brand: #f2f2ee;
   --brand-foreground: #111113;
-  --field: #f2f2ee;
-  --field-foreground: #111113;
 
   --site-canvas: #0a1215;
   --site-paper: #111b1f;

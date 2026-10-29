@@ -1,8 +1,6 @@
-import { ChevronsUpDown, Globe, LogOut } from 'lucide-react'
-import { Link, useNavigate } from 'react-router'
+import { Globe, LogOut } from 'lucide-react'
+import { Link } from 'react-router'
 import { ROLE_LABELS } from '@shared/types'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,49 +9,36 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { useCurrentUser, useSession } from '@/lib/session'
+import { PersonAvatar } from '@/components/zenith/person-avatar'
+import { StatusBadge } from '@/components/zenith/status-badge'
+import { useCurrentUser, useLogout } from '@/lib/session'
 
-// Warna identitas pucat per orang (bukan data): hue stabil dari nama, tanpa ungu/nila.
-const PERSON_HUES = [12, 35, 95, 150, 190, 205]
-
-function personTint(name: string) {
-  const hash = [...name].reduce((sum, char) => (sum * 31 + char.charCodeAt(0)) >>> 0, 7)
-  const hue = PERSON_HUES[hash % PERSON_HUES.length]
-  return { backgroundColor: `hsl(${hue} 55% 90%)`, color: `hsl(${hue} 45% 24%)` }
+// Avatar inisial pengurus yang sedang masuk (topbar dan kartu pengguna di sidebar).
+export function UserAvatar({ className }: { className?: string }) {
+  const user = useCurrentUser()
+  return <PersonAvatar name={user.name} className={className} />
 }
 
-function initials(name: string) {
-  const words = name.replace(/^(Pdt|Pnt|Dkn)\.\s*/i, '').split(/\s+/).filter(Boolean)
-  return ((words[0]?.[0] ?? '') + (words[1]?.[0] ?? '')).toUpperCase()
-}
-
+// Menu pengguna di topbar (gaya Zenith: hanya avatar); nama dan peran ada di dalamnya.
 export function UserMenu() {
   const user = useCurrentUser()
-  const { logout } = useSession()
-  const navigate = useNavigate()
+  const logout = useLogout()
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-10 gap-2.5 px-1.5 sm:pr-2.5">
-          <Avatar className="size-8">
-            <AvatarFallback style={personTint(user.name)} className="text-xs font-semibold">
-              {initials(user.name)}
-            </AvatarFallback>
-          </Avatar>
-          <span className="hidden min-w-0 text-left leading-tight sm:grid">
-            <span className="truncate text-sm font-medium">{user.name}</span>
-            <span className="text-xs text-muted-foreground">{ROLE_LABELS[user.role]}</span>
-          </span>
-          <ChevronsUpDown className="hidden size-4 text-muted-foreground sm:block" />
-        </Button>
+      <DropdownMenuTrigger
+        aria-label={`Menu pengguna: ${user.name}`}
+        className="ml-1 grid place-items-center rounded-full ring-offset-2 ring-offset-background outline-none hover:ring-2 hover:ring-border focus-visible:ring-3 focus-visible:ring-ring/50"
+      >
+        <UserAvatar />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-64">
-        <DropdownMenuLabel className="grid gap-0.5 font-normal">
+        <DropdownMenuLabel className="grid gap-1 font-normal">
           <span className="text-sm font-medium text-foreground">{user.name}</span>
-          <span className="text-xs text-muted-foreground">
-            {ROLE_LABELS[user.role]} · {user.email ?? user.username}
+          <span className="truncate text-xs text-muted-foreground">
+            {user.email ?? user.username}
           </span>
+          <StatusBadge className="mt-1 w-fit">{ROLE_LABELS[user.role]}</StatusBadge>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
@@ -63,11 +48,7 @@ export function UserMenu() {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onSelect={() => {
-            void logout().finally(() => navigate('/login', { replace: true }))
-          }}
-        >
+        <DropdownMenuItem variant="destructive" onSelect={logout}>
           <LogOut />
           Keluar
         </DropdownMenuItem>

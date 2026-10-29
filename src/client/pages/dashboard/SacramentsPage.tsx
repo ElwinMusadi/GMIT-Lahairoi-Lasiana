@@ -1,5 +1,5 @@
 import { useRef, useState, type ReactNode } from 'react'
-import { FileText, Printer, Search } from 'lucide-react'
+import { Printer } from 'lucide-react'
 import { Link } from 'react-router'
 import {
   SACRAMENT_STATUSES,
@@ -11,30 +11,50 @@ import {
   type SacramentStatus,
   type SacramentType,
 } from '@shared/types'
+import { SacramentStatusBadge } from '@/components/sacrament/status-badge'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Skeleton } from '@/components/ui/skeleton'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import {
+  SearchField,
+  SkeletonRows,
+  TableCard,
+  TableMessage,
+  TablePagination,
+  selectClass,
+} from '@/components/zenith/data-table'
+import { PageHeader } from '@/components/zenith/page-header'
+import { PersonAvatar } from '@/components/zenith/person-avatar'
+import { Segmented } from '@/components/zenith/segmented'
 import { formatLongDate } from '@/lib/finance'
 import { formatDate } from '@/lib/format'
-import { STATUS_PILL, STATUS_SHORT, TYPE_SHORT } from '@/lib/sacrament-admin'
+import { STATUS_SHORT, TYPE_SHORT } from '@/lib/sacrament-admin'
 import { useApiQuery } from '@/lib/use-api-query'
 import { useUrlFilters } from '@/lib/use-url-filters'
 import { cn } from '@/lib/utils'
 
 const PER_PAGE = 50
 
-const controlClass =
-  'h-9 w-full rounded-lg border border-input bg-card px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50'
-
 // Status antrean: semua kecuali Selesai (Selesai = buku induk).
 const QUEUE_STATUSES = SACRAMENT_STATUSES.filter((status) => status !== 'COMPLETED')
 
 type View = 'queue' | 'register'
 
+const VIEWS: { value: View; label: string }[] = [
+  { value: 'queue', label: 'Antrean verifikasi' },
+  { value: 'register', label: 'Buku Induk' },
+]
+
 // Layanan Sakramen (PRD: Verifikasi & Antrean Layanan Pastoral, Register Buku Induk).
 // Antrean pendaftar dari portal, terlama dulu; Buku Induk berisi pendaftaran Selesai
-// per jenis sakramen beserta nomor registernya. Filter disimpan di URL.
+// per jenis sakramen beserta nomor registernya. Filter disimpan di URL. Pola Zenith:
+// tampilan di kepala halaman, status atau jenis bersegmen di bilah alat tabel.
 export default function SacramentsPage() {
   const { params, update } = useUrlFilters()
   const view: View = params.get('view') === 'register' ? 'register' : 'queue'
@@ -73,8 +93,7 @@ export default function SacramentsPage() {
   const activeCount = counts
     ? QUEUE_STATUSES.reduce((sum, value) => sum + counts[value], 0)
     : undefined
-  const first = total === 0 ? 0 : (page - 1) * PER_PAGE + 1
-  const last = Math.min(page * PER_PAGE, total)
+  const unit = view === 'register' ? 'catatan' : 'pendaftaran'
 
   function handleSearch(value: string) {
     setSearch(value)
@@ -88,201 +107,133 @@ export default function SacramentsPage() {
     update({ ...changes, q: '' })
   }
 
+  // Pesan selebar tabel: galat atau daftar kosong. Null bila baris (atau kerangka) tampil.
+  const message: ReactNode = list.error ? (
+    <>
+      Data tidak dapat dimuat: {list.error}{' '}
+      <button type="button" onClick={list.reload} className="font-medium underline">
+        Coba lagi
+      </button>
+    </>
+  ) : result && items.length === 0 ? (
+    q ? (
+      <>
+        Tidak ada yang cocok dengan “{q}”.{' '}
+        <button type="button" className="font-medium underline" onClick={() => clearSearch()}>
+          Hapus pencarian
+        </button>
+      </>
+    ) : view === 'register' ? (
+      `Buku Induk ${TYPE_SHORT[registerType]} masih kosong. Pendaftaran yang diselesaikan tercatat di sini beserta nomor registernya.`
+    ) : status ? (
+      `Tidak ada pendaftaran berstatus ${SACRAMENT_STATUS_LABELS[status].toLowerCase()}.`
+    ) : (
+      'Antrean kosong. Pendaftaran baru dari portal (/layanan-sakramen) muncul di sini.'
+    )
+  ) : null
+
+  const tableProps = { items, loading: list.loading, ready: Boolean(result), message }
+
   return (
     <div className="grid gap-6">
-      <header className="grid gap-1">
-        <h1 className="text-2xl font-semibold tracking-[-0.02em]">Layanan Sakramen</h1>
-        {overall.data ? (
-          <Summary counts={overall.data.counts} />
-        ) : (
-          <Skeleton className="h-5 w-96 max-w-full" />
-        )}
-      </header>
+      <PageHeader
+        title="Layanan Sakramen"
+        description={
+          overall.data ? (
+            <Summary counts={overall.data.counts} />
+          ) : (
+            <span className="inline-block h-4 w-96 max-w-full animate-pulse rounded-md bg-muted align-middle" />
+          )
+        }
+        actions={
+          <Segmented
+            label="Tampilan"
+            value={view}
+            onChange={(value) =>
+              clearSearch({ view: value === 'register' ? 'register' : '', status: '' })
+            }
+            options={VIEWS}
+          />
+        }
+      />
 
-      <nav aria-label="Tampilan" className="border-b">
-        <ul className="flex gap-1">
-          {(
-            [
-              ['queue', 'Antrean verifikasi'],
-              ['register', 'Buku Induk'],
-            ] as const
-          ).map(([value, label]) => (
-            <li key={value}>
-              <button
-                type="button"
-                aria-pressed={view === value}
-                onClick={() =>
-                  clearSearch({ view: value === 'register' ? 'register' : '', status: '' })
+      <TableCard
+        aria-label={view === 'register' ? 'Buku induk sakramen' : 'Antrean pendaftaran sakramen'}
+        toolbar={
+          <>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              {view === 'queue' ? (
+                <Segmented
+                  label="Status pendaftaran"
+                  value={status || 'ALL'}
+                  onChange={(value) =>
+                    update({ status: value === 'ALL' ? '' : value.toLowerCase() })
+                  }
+                  options={[
+                    { value: 'ALL', label: 'Semua aktif', count: activeCount },
+                    ...QUEUE_STATUSES.map((value) => ({
+                      value,
+                      label: STATUS_SHORT[value],
+                      count: counts?.[value],
+                    })),
+                  ]}
+                />
+              ) : (
+                <Segmented
+                  label="Jenis buku induk"
+                  value={registerType}
+                  onChange={(value) => update({ type: value.toLowerCase() })}
+                  options={SACRAMENT_TYPES.map((value) => ({ value, label: TYPE_SHORT[value] }))}
+                />
+              )}
+              <p className="text-sm text-muted-foreground tabular-nums" aria-live="polite">
+                {result ? `${total.toLocaleString('id-ID')} ${unit}` : ''}
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <SearchField
+                value={search}
+                onChange={handleSearch}
+                label="Cari pendaftaran"
+                placeholder={
+                  view === 'register'
+                    ? 'Cari nama atau nomor register'
+                    : 'Cari nama, kode, atau nomor HP'
                 }
-                className={cn(
-                  '-mb-px border-b-2 px-3 pt-1 pb-2.5 text-sm outline-offset-[-2px]',
-                  view === value
-                    ? 'border-foreground font-medium text-foreground'
-                    : 'border-transparent text-muted-foreground hover:text-foreground',
-                )}
-              >
-                {label}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </nav>
-
-      <div className="grid gap-3">
-        {view === 'queue' ? (
-          <div
-            role="group"
-            aria-label="Status pendaftaran"
-            className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none]"
-          >
-            <StatusChip
-              active={!status}
-              label="Semua aktif"
-              count={activeCount}
-              onClick={() => update({ status: '' })}
-            />
-            {QUEUE_STATUSES.map((value) => (
-              <StatusChip
-                key={value}
-                active={status === value}
-                label={SACRAMENT_STATUS_LABELS[value]}
-                count={counts?.[value]}
-                onClick={() => update({ status: value.toLowerCase() })}
               />
-            ))}
-          </div>
-        ) : (
-          <div
-            role="group"
-            aria-label="Jenis buku induk"
-            className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none]"
-          >
-            {SACRAMENT_TYPES.map((value) => (
-              <StatusChip
-                key={value}
-                active={registerType === value}
-                label={`Buku Induk ${TYPE_SHORT[value]}`}
-                onClick={() => update({ type: value.toLowerCase() })}
-              />
-            ))}
-          </div>
-        )}
-        <div className="flex flex-wrap items-end gap-3">
-          {view === 'queue' && (
-            <div className="grid w-full gap-1.5 sm:w-56">
-              <Label htmlFor="filter-jenis" className="text-xs font-normal text-muted-foreground">
-                Jenis layanan
-              </Label>
-              <select
-                id="filter-jenis"
-                value={type}
-                onChange={(event) => update({ type: event.target.value.toLowerCase() })}
-                className={controlClass}
-              >
-                <option value="">Semua layanan</option>
-                {SACRAMENT_TYPES.map((value) => (
-                  <option key={value} value={value}>
-                    {SACRAMENT_TYPE_LABELS[value]}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-          <div className="relative w-full sm:w-80">
-            <Search
-              aria-hidden="true"
-              className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
-            />
-            <Input
-              type="search"
-              value={search}
-              onChange={(event) => handleSearch(event.target.value)}
-              placeholder={
-                view === 'register'
-                  ? 'Cari nama atau nomor register'
-                  : 'Cari nama, kode, atau nomor HP'
-              }
-              aria-label="Cari pendaftaran"
-              className={cn(controlClass, 'pl-9')}
-            />
-          </div>
-          <p className="ml-auto text-sm text-muted-foreground tabular-nums" aria-live="polite">
-            {result
-              ? `${total.toLocaleString('id-ID')} ${view === 'register' ? 'catatan' : 'pendaftaran'}`
-              : ''}
-          </p>
-        </div>
-      </div>
-
-      <div className="rounded-lg border bg-card">
-        {list.error ? (
-          <Message>
-            Data tidak dapat dimuat: {list.error}{' '}
-            <button type="button" onClick={list.reload} className="font-medium underline">
-              Coba lagi
-            </button>
-          </Message>
-        ) : !result ? (
-          <div className="grid gap-3 p-4" aria-hidden="true">
-            {Array.from({ length: 5 }, (_, index) => (
-              <Skeleton key={index} className="h-12 w-full" />
-            ))}
-          </div>
-        ) : items.length === 0 ? (
-          <Message>
-            {q ? (
-              <>
-                Tidak ada yang cocok dengan “{q}”.{' '}
-                <button
-                  type="button"
-                  className="font-medium underline"
-                  onClick={() => clearSearch()}
+              {view === 'queue' && (
+                <select
+                  aria-label="Jenis layanan"
+                  value={type}
+                  onChange={(event) => update({ type: event.target.value.toLowerCase() })}
+                  className={cn(selectClass, 'w-full sm:w-56')}
                 >
-                  Hapus pencarian
-                </button>
-              </>
-            ) : view === 'register' ? (
-              `Buku Induk ${TYPE_SHORT[registerType]} masih kosong. Pendaftaran yang diselesaikan tercatat di sini beserta nomor registernya.`
-            ) : status ? (
-              `Tidak ada pendaftaran berstatus ${SACRAMENT_STATUS_LABELS[status].toLowerCase()}.`
-            ) : (
-              'Antrean kosong. Pendaftaran baru dari portal (/layanan-sakramen) muncul di sini.'
-            )}
-          </Message>
-        ) : view === 'register' ? (
-          <RegisterTable items={items} loading={list.loading} />
-        ) : (
-          <QueueTable items={items} loading={list.loading} />
-        )}
-
-        {result && total > PER_PAGE && (
-          <nav
-            aria-label="Halaman daftar"
-            className="flex flex-wrap items-center justify-between gap-3 border-t border-rule px-4 py-3"
-          >
-            <p className="text-sm text-muted-foreground tabular-nums">
-              {first.toLocaleString('id-ID')}–{last.toLocaleString('id-ID')} dari{' '}
-              {total.toLocaleString('id-ID')}
-            </p>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                disabled={page <= 1}
-                onClick={() => update({ page: String(page - 1) })}
-              >
-                Sebelumnya
-              </Button>
-              <Button
-                variant="outline"
-                disabled={last >= total}
-                onClick={() => update({ page: String(page + 1) })}
-              >
-                Berikutnya
-              </Button>
+                  <option value="">Semua layanan</option>
+                  {SACRAMENT_TYPES.map((value) => (
+                    <option key={value} value={value}>
+                      {SACRAMENT_TYPE_LABELS[value]}
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
-          </nav>
-        )}
-      </div>
+          </>
+        }
+        footer={
+          result && (
+            <TablePagination
+              label="Halaman daftar"
+              page={page}
+              perPage={PER_PAGE}
+              total={total}
+              unit={unit}
+              onPage={(next) => update({ page: String(next) })}
+            />
+          )
+        }
+      >
+        {view === 'register' ? <RegisterTable {...tableProps} /> : <QueueTable {...tableProps} />}
+      </TableCard>
     </div>
   )
 }
@@ -300,62 +251,13 @@ function Summary({ counts }: { counts: Record<SacramentStatus, number> }) {
     `${counts.COMPLETED.toLocaleString('id-ID')} tercatat di buku induk`,
   ].filter(Boolean)
   return (
-    <p className="text-sm text-muted-foreground tabular-nums">
+    <span className="tabular-nums">
       {parts.map((part, index) => (
         <span key={index}>
           {index > 0 && ' · '}
           {part}
         </span>
       ))}
-    </p>
-  )
-}
-
-function StatusChip({
-  active,
-  label,
-  count,
-  onClick,
-}: {
-  active: boolean
-  label: string
-  count?: number
-  onClick: () => void
-}) {
-  return (
-    <button
-      type="button"
-      aria-pressed={active}
-      onClick={onClick}
-      className={cn(
-        'inline-flex h-9 flex-none items-center gap-2 rounded-lg border px-3 text-sm whitespace-nowrap',
-        active
-          ? 'border-foreground bg-foreground text-background'
-          : 'border-input bg-card text-muted-foreground hover:text-foreground',
-      )}
-    >
-      {label}
-      {count !== undefined && (
-        <span
-          className={cn('tabular-nums', active ? 'text-background/70' : 'text-muted-foreground')}
-        >
-          {count.toLocaleString('id-ID')}
-        </span>
-      )}
-    </button>
-  )
-}
-
-function StatusPill({ status }: { status: SacramentStatus }) {
-  return (
-    <span
-      className={cn(
-        'inline-flex flex-none rounded-full px-2 py-0.5 text-xs font-medium whitespace-nowrap',
-        STATUS_PILL[status],
-      )}
-      title={SACRAMENT_STATUS_LABELS[status]}
-    >
-      {STATUS_SHORT[status]}
     </span>
   )
 }
@@ -373,157 +275,194 @@ function nextSchedule(
   return null
 }
 
-function QueueTable({ items, loading }: { items: SacramentListItem[]; loading: boolean }) {
+type TableProps = {
+  items: SacramentListItem[]
+  loading: boolean
+  // Data pertama sudah tiba; sebelum itu tampil baris kerangka.
+  ready: boolean
+  message: ReactNode
+}
+
+// Isi badan tabel: pesan, kerangka, atau baris data.
+function Rows({
+  columns,
+  skeleton,
+  avatar = true,
+  ready,
+  message,
+  children,
+}: {
+  columns: number
+  skeleton: string[]
+  // Buku induk diawali nomor register, bukan nama berpotret.
+  avatar?: boolean
+  ready: boolean
+  message: ReactNode
+  children: ReactNode
+}) {
+  if (message) return <TableMessage colSpan={columns}>{message}</TableMessage>
+  if (!ready) return <SkeletonRows rows={8} cells={skeleton} avatar={avatar} />
+  return children
+}
+
+// Sel nama: avatar, nama ke rincian, dan baris keterangan. Nama membungkus di bawah 1024 px
+// agar nama dua mempelai terbaca utuh di ponsel.
+function NameCell({ item, children }: { item: SacramentListItem; children: ReactNode }) {
   return (
-    <table
-      className={cn('w-full table-fixed text-sm', loading && 'opacity-60')}
-      aria-busy={loading}
-    >
+    <div className="flex min-w-0 items-start gap-3">
+      <PersonAvatar name={item.applicant_name} className="mt-0.5" />
+      <div className="min-w-0 flex-1">
+        <Link
+          to={`/dashboard/sacraments/${item.id}`}
+          className="block font-medium break-words underline-offset-4 hover:underline lg:truncate"
+        >
+          {item.applicant_name}
+        </Link>
+        {children}
+      </div>
+    </div>
+  )
+}
+
+const QUEUE_SKELETON = [
+  '',
+  'hidden md:table-cell',
+  'hidden lg:table-cell',
+  'hidden sm:table-cell',
+  'hidden sm:table-cell',
+]
+
+function QueueTable({ items, loading, ready, message }: TableProps) {
+  return (
+    <Table className="table-fixed" aria-busy={loading}>
       <caption className="sr-only">Antrean pendaftaran sakramen</caption>
-      <thead>
-        <tr className="text-left text-xs text-muted-foreground">
-          <th scope="col" className="h-10 pr-4 pl-4 font-normal">
-            Pendaftar
-          </th>
-          <th scope="col" className="hidden w-32 pr-4 font-normal md:table-cell">
-            Masuk
-          </th>
-          <th scope="col" className="hidden w-44 pr-4 font-normal lg:table-cell">
-            Jadwal
-          </th>
-          <th scope="col" className="hidden w-20 pr-4 text-right font-normal sm:table-cell">
-            Berkas
-          </th>
-          <th scope="col" className="w-36 pr-4 font-normal sm:w-44">
-            Status
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        {items.map((item) => {
-          const schedule = nextSchedule(item)
-          return (
-            <tr key={item.id} className="border-t border-rule align-top">
-              <td className="py-3 pr-4 pl-4">
-                <Link
-                  to={`/dashboard/sacraments/${item.id}`}
-                  className="block truncate font-medium underline-offset-4 hover:underline"
-                >
-                  {item.applicant_name}
-                </Link>
-                <p className="mt-0.5 truncate text-[0.8125rem] text-muted-foreground">
-                  <span className="font-mono">{item.registration_code}</span> ·{' '}
-                  {SACRAMENT_TYPE_LABELS[item.type]}
-                  <span className="md:hidden"> · masuk {formatDate(item.created_at)}</span>
-                </p>
-              </td>
-              <td className="hidden py-3 pr-4 whitespace-nowrap tabular-nums md:table-cell">
-                {formatDate(item.created_at)}
-              </td>
-              <td className="hidden py-3 pr-4 lg:table-cell">
-                {schedule ? (
-                  <>
-                    <span className="block tabular-nums">{formatLongDate(schedule.date)}</span>
-                    <span className="text-[0.8125rem] text-muted-foreground">
-                      {schedule.label}
-                      {schedule.time && ` · ${schedule.time.replace(':', '.')}`}
-                    </span>
-                  </>
-                ) : (
-                  <span className="text-muted-foreground">—</span>
-                )}
-              </td>
-              <td className="hidden py-3 pr-4 text-right tabular-nums sm:table-cell">
-                {item.document_count}
-              </td>
-              <td className="py-3 pr-4">
-                <StatusPill status={item.status} />
-              </td>
-            </tr>
-          )
-        })}
-      </tbody>
-    </table>
+      <TableHeader>
+        <TableRow className="hover:bg-transparent">
+          <TableHead>Pendaftar</TableHead>
+          <TableHead className="hidden w-32 md:table-cell">Masuk</TableHead>
+          <TableHead className="hidden w-44 lg:table-cell">Jadwal</TableHead>
+          <TableHead className="hidden w-20 text-right sm:table-cell">Berkas</TableHead>
+          <TableHead className="hidden w-40 sm:table-cell">Status</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody className={cn('transition-opacity', loading && ready && 'opacity-60')}>
+        <Rows columns={5} skeleton={QUEUE_SKELETON} ready={ready} message={message}>
+          {items.map((item) => {
+            const schedule = nextSchedule(item)
+            return (
+              <TableRow key={item.id} className="[&>td]:align-top">
+                <TableCell>
+                  <NameCell item={item}>
+                    <p className="mt-0.5 text-[0.8125rem] text-muted-foreground lg:truncate">
+                      <span className="font-mono">{item.registration_code}</span> ·{' '}
+                      {SACRAMENT_TYPE_LABELS[item.type]}
+                      <span className="md:hidden"> · masuk {formatDate(item.created_at)}</span>
+                    </p>
+                    {/* Di ponsel kolom status disembunyikan; lencananya pindah ke bawah nama. */}
+                    <SacramentStatusBadge status={item.status} short className="mt-1.5 sm:hidden" />
+                  </NameCell>
+                </TableCell>
+                <TableCell className="hidden whitespace-nowrap tabular-nums md:table-cell">
+                  {formatDate(item.created_at)}
+                </TableCell>
+                <TableCell className="hidden lg:table-cell">
+                  {schedule ? (
+                    <>
+                      <span className="block tabular-nums">{formatLongDate(schedule.date)}</span>
+                      <span className="text-[0.8125rem] text-muted-foreground">
+                        {schedule.label}
+                        {schedule.time && ` · ${schedule.time.replace(':', '.')}`}
+                      </span>
+                    </>
+                  ) : (
+                    <span className="text-muted-foreground">—</span>
+                  )}
+                </TableCell>
+                <TableCell className="hidden text-right tabular-nums sm:table-cell">
+                  {item.document_count}
+                </TableCell>
+                <TableCell className="hidden sm:table-cell">
+                  <SacramentStatusBadge status={item.status} short />
+                </TableCell>
+              </TableRow>
+            )
+          })}
+        </Rows>
+      </TableBody>
+    </Table>
   )
 }
 
-function RegisterTable({ items, loading }: { items: SacramentListItem[]; loading: boolean }) {
+const REGISTER_SKELETON = [
+  'hidden sm:table-cell',
+  '',
+  'hidden md:table-cell',
+  'hidden lg:table-cell',
+  '',
+]
+
+function RegisterTable({ items, loading, ready, message }: TableProps) {
   return (
-    <table
-      className={cn('w-full table-fixed text-sm', loading && 'opacity-60')}
-      aria-busy={loading}
-    >
+    <Table className="table-fixed" aria-busy={loading}>
       <caption className="sr-only">Buku induk sakramen</caption>
-      <thead>
-        <tr className="text-left text-xs text-muted-foreground">
-          <th scope="col" className="hidden h-10 w-44 pl-4 font-normal sm:table-cell">
-            Nomor register
-          </th>
-          <th scope="col" className="h-10 pr-4 pl-4 font-normal sm:pl-4">
-            Nama
-          </th>
-          <th scope="col" className="hidden w-40 pr-4 font-normal md:table-cell">
-            Tanggal pelaksanaan
-          </th>
-          <th scope="col" className="hidden w-52 pr-4 font-normal lg:table-cell">
-            Pendeta
-          </th>
-          <th scope="col" className="w-28 pr-4 text-right font-normal">
+      <TableHeader>
+        <TableRow className="hover:bg-transparent">
+          <TableHead className="hidden w-44 sm:table-cell">Nomor register</TableHead>
+          <TableHead>Nama</TableHead>
+          <TableHead className="hidden w-40 md:table-cell">Tanggal pelaksanaan</TableHead>
+          <TableHead className="hidden w-52 lg:table-cell">Pendeta</TableHead>
+          <TableHead className="w-14 sm:w-28">
             <span className="sr-only">Cetak</span>
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        {items.map((item) => {
-          const members = [item.member_name, item.partner_name].filter(Boolean).join(' & ')
-          return (
-            <tr key={item.id} className="border-t border-rule align-top">
-              <td className="hidden py-3 pl-4 font-mono text-[0.8125rem] sm:table-cell">
-                {item.certificate_number}
-              </td>
-              <td className="py-3 pr-4 pl-4">
-                <Link
-                  to={`/dashboard/sacraments/${item.id}`}
-                  className="block truncate font-medium underline-offset-4 hover:underline"
-                >
-                  {item.applicant_name}
-                </Link>
-                <p className="mt-0.5 truncate text-[0.8125rem] text-muted-foreground">
-                  <span className="font-mono sm:hidden">{item.certificate_number} · </span>
-                  <span className="md:hidden">
-                    {item.scheduled_date && formatLongDate(item.scheduled_date)} ·{' '}
-                  </span>
-                  {members ? `Data jemaat: ${members}` : 'Tidak tertaut ke data jemaat'}
-                </p>
-              </td>
-              <td className="hidden py-3 pr-4 whitespace-nowrap tabular-nums md:table-cell">
-                {item.scheduled_date ? formatLongDate(item.scheduled_date) : '—'}
-              </td>
-              <td className="hidden truncate py-3 pr-4 lg:table-cell">
-                {item.officiating_pastor ?? '—'}
-              </td>
-              <td className="py-2 pr-4 text-right">
-                <Button asChild variant="outline" size="sm">
-                  <Link to={`/dashboard/sacraments/${item.id}/cetak`}>
-                    <Printer data-icon="inline-start" />
-                    Cetak
-                    <span className="sr-only"> sertifikat {item.applicant_name}</span>
-                  </Link>
-                </Button>
-              </td>
-            </tr>
-          )
-        })}
-      </tbody>
-    </table>
-  )
-}
-
-function Message({ children }: { children: ReactNode }) {
-  return (
-    <p className="flex items-start gap-2 px-4 py-6 text-sm text-muted-foreground">
-      <FileText className="mt-0.5 size-4 flex-none" aria-hidden="true" />
-      <span>{children}</span>
-    </p>
+          </TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody className={cn('transition-opacity', loading && ready && 'opacity-60')}>
+        <Rows
+          columns={5}
+          skeleton={REGISTER_SKELETON}
+          avatar={false}
+          ready={ready}
+          message={message}
+        >
+          {items.map((item) => {
+            const members = [item.member_name, item.partner_name].filter(Boolean).join(' & ')
+            return (
+              <TableRow key={item.id} className="[&>td]:align-top">
+                <TableCell className="hidden font-mono text-[0.8125rem] sm:table-cell">
+                  {item.certificate_number}
+                </TableCell>
+                <TableCell>
+                  <NameCell item={item}>
+                    <p className="mt-0.5 text-[0.8125rem] text-muted-foreground lg:truncate">
+                      <span className="font-mono sm:hidden">{item.certificate_number} · </span>
+                      <span className="md:hidden">
+                        {item.scheduled_date && formatLongDate(item.scheduled_date)} ·{' '}
+                      </span>
+                      {members ? `Data jemaat: ${members}` : 'Tidak tertaut ke data jemaat'}
+                    </p>
+                  </NameCell>
+                </TableCell>
+                <TableCell className="hidden whitespace-nowrap tabular-nums md:table-cell">
+                  {item.scheduled_date ? formatLongDate(item.scheduled_date) : '—'}
+                </TableCell>
+                <TableCell className="hidden truncate lg:table-cell">
+                  {item.officiating_pastor ?? '—'}
+                </TableCell>
+                <TableCell className="py-2 pr-2 pl-0 text-right sm:pr-4">
+                  <Button asChild variant="outline" size="sm">
+                    <Link to={`/dashboard/sacraments/${item.id}/cetak`}>
+                      <Printer data-icon="inline-start" />
+                      {/* Di ponsel cukup ikon, agar kolom nama tetap lebar. */}
+                      <span className="hidden sm:inline">Cetak</span>
+                      <span className="sr-only"> sertifikat {item.applicant_name}</span>
+                    </Link>
+                  </Button>
+                </TableCell>
+              </TableRow>
+            )
+          })}
+        </Rows>
+      </TableBody>
+    </Table>
   )
 }

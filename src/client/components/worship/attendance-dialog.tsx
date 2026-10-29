@@ -151,12 +151,9 @@ function AttendanceForm({
         )}
       </div>
 
-      <div
-        className="flex items-baseline justify-between gap-3 border-t border-rule pt-4"
-        aria-live="polite"
-      >
+      <div className="flex items-baseline justify-between gap-3 border-t pt-4" aria-live="polite">
         <span className="text-sm text-muted-foreground">Total kehadiran</span>
-        <span className="text-2xl font-semibold tabular-nums">
+        <span className="text-2xl font-bold tracking-tight tabular-nums">
           {filled.length > 0 ? total.toLocaleString('id-ID') : '—'}
         </span>
       </div>

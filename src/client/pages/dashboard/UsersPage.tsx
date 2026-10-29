@@ -1,13 +1,13 @@
-import { useState, type ReactNode } from 'react'
+import { useState } from 'react'
 import {
   EllipsisVertical,
   History,
   KeyRound,
   Pencil,
   Plus,
-  Search,
   UserCheck,
   UserX,
+  X,
 } from 'lucide-react'
 import { Link } from 'react-router'
 import { toast } from 'sonner'
@@ -38,26 +38,47 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Input } from '@/components/ui/input'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 import { AccountFormDialog } from '@/components/users/account-form-dialog'
 import {
   TemporaryPasswordDialog,
   type IssuedPassword,
 } from '@/components/users/temporary-password-dialog'
+import {
+  SearchField,
+  SkeletonRows,
+  TableCard,
+  TableMessage,
+  selectClass,
+} from '@/components/zenith/data-table'
+import { PageHeader } from '@/components/zenith/page-header'
+import { PersonAvatar } from '@/components/zenith/person-avatar'
+import { Segmented } from '@/components/zenith/segmented'
+import { StatusBadge } from '@/components/zenith/status-badge'
 import { api, errorMessage } from '@/lib/api'
 import { formatRecent } from '@/lib/format'
 import { useCurrentUser } from '@/lib/session'
 import { useApiQuery } from '@/lib/use-api-query'
+import { cn } from '@/lib/utils'
 
 type StatusTab = 'active' | 'inactive' | 'all'
 type Confirmation = { kind: 'deactivate' | 'reset'; user: UserListItem }
 
-const controlClass =
-  'h-9 rounded-lg border border-input bg-card text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50'
+const STATUS_TABS: { value: StatusTab; label: string }[] = [
+  { value: 'active', label: 'Aktif' },
+  { value: 'inactive', label: 'Nonaktif' },
+  { value: 'all', label: 'Semua' },
+]
 
 // Manajemen Akun Pengurus (khusus Admin; dijaga <RequireRole> di router dan oleh API).
+// Tabel bergaya Zenith: status akun bersegmen, pencarian dan saringan peran di bilah alat.
 export default function UsersPage() {
   const me = useCurrentUser()
   const users = useApiQuery<ApiList<UserListItem>>('/users')
@@ -89,6 +110,11 @@ export default function UsersPage() {
           value?.toLowerCase().includes(term),
         ),
     )
+
+  function clearSearch() {
+    setSearch('')
+    setRoleFilter('')
+  }
 
   function handleSaved(result: UserMutationResponse) {
     const created = !form?.user
@@ -148,149 +174,138 @@ export default function UsersPage() {
 
   return (
     <div className="grid gap-6">
-      <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
-        <div className="grid gap-1">
-          <h1 className="text-2xl font-semibold tracking-[-0.02em]">Akun Pengurus</h1>
-          {users.data ? (
-            <p className="text-sm text-muted-foreground">
+      <PageHeader
+        title="Akun Pengurus"
+        description={
+          users.data ? (
+            <span className="tabular-nums">
               {counts.active} akun aktif
               {neverLoggedIn > 0
                 ? ` · ${neverLoggedIn} belum pernah masuk sejak akunnya dibuat`
                 : ' · semuanya sudah pernah masuk'}
-            </p>
+            </span>
           ) : (
-            <Skeleton className="h-5 w-64" />
-          )}
-        </div>
-        <Button size="lg" onClick={() => setForm({})}>
-          <Plus data-icon="inline-start" />
-          Tambah pengurus
-        </Button>
-      </header>
+            <span className="inline-block h-4 w-72 max-w-full animate-pulse rounded-md bg-muted align-middle" />
+          )
+        }
+        actions={
+          <Button size="lg" onClick={() => setForm({})}>
+            <Plus data-icon="inline-start" />
+            Tambah pengurus
+          </Button>
+        }
+      />
 
-      <Tabs value={tab} onValueChange={(value) => setTab(value as StatusTab)} className="gap-4">
-        <TabsList
-          variant="line"
-          aria-label="Status akun"
-          className="h-auto w-full justify-start gap-6 rounded-none border-b p-0"
-        >
-          {(['active', 'inactive', 'all'] as const).map((value) => (
-            <TabsTrigger
-              key={value}
-              value={value}
-              className="flex-none px-0 pb-2.5 after:bottom-[-1px]"
-            >
-              {value === 'active' ? 'Aktif' : value === 'inactive' ? 'Nonaktif' : 'Semua'}
-              <span className="text-muted-foreground tabular-nums">
-                {users.data ? counts[value] : ''}
-              </span>
-            </TabsTrigger>
-          ))}
-        </TabsList>
-
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="relative w-full sm:w-72">
-            <Search
-              aria-hidden="true"
-              className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
-            />
-            <Input
-              type="search"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Cari nama, email, username, rayon"
-              aria-label="Cari akun"
-              className={`${controlClass} pl-9`}
-            />
-          </div>
-          <select
-            value={roleFilter}
-            onChange={(event) => setRoleFilter(event.target.value as UserRole | '')}
-            aria-label="Saring peran"
-            className={`${controlClass} px-3`}
-          >
-            <option value="">Semua peran</option>
-            {USER_ROLES.map((role) => (
-              <option key={role} value={role}>
-                {ROLE_LABELS[role]}
-              </option>
-            ))}
-          </select>
-          <p className="ml-auto text-sm text-muted-foreground tabular-nums" aria-live="polite">
-            {users.data ? `${rows.length} akun` : ''}
-          </p>
-        </div>
-
-        <TabsContent value={tab}>
-          <div className="rounded-lg border bg-card">
-            <table className="w-full table-fixed text-sm">
-              <thead>
-                <tr className="text-left text-xs text-muted-foreground">
-                  <th scope="col" className="h-10 pr-4 pl-4 font-normal">
-                    Nama
-                  </th>
-                  <th scope="col" className="hidden w-44 pr-4 font-normal sm:table-cell">
-                    Peran
-                  </th>
-                  <th scope="col" className="hidden w-40 pr-4 text-right font-normal sm:table-cell">
-                    Masuk terakhir
-                  </th>
-                  <th scope="col" className="w-14 pr-2">
-                    <span className="sr-only">Tindakan</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.error && !users.data && (
-                  <MessageRow>
-                    Daftar akun tidak dapat dimuat: {users.error}{' '}
-                    <button type="button" onClick={users.reload} className="font-medium underline">
-                      Coba lagi
-                    </button>
-                  </MessageRow>
-                )}
-                {!users.data &&
-                  !users.error &&
-                  Array.from({ length: 4 }, (_, index) => <SkeletonRow key={index} />)}
-                {users.data && rows.length === 0 && (
-                  <MessageRow>
-                    {term || roleFilter ? (
-                      <>
-                        Tidak ada akun yang cocok dengan pencarian ini.{' '}
-                        <button
-                          type="button"
-                          className="font-medium underline"
-                          onClick={() => {
-                            setSearch('')
-                            setRoleFilter('')
-                          }}
-                        >
-                          Hapus pencarian
-                        </button>
-                      </>
-                    ) : tab === 'inactive' ? (
-                      'Belum ada akun yang dinonaktifkan.'
-                    ) : (
-                      'Belum ada akun.'
-                    )}
-                  </MessageRow>
-                )}
-                {rows.map((user) => (
-                  <UserRow
-                    key={user.id}
-                    user={user}
-                    isSelf={user.id === me.id}
-                    onEdit={() => setForm({ user })}
-                    onResetPassword={() => setConfirmation({ kind: 'reset', user })}
-                    onDeactivate={() => setConfirmation({ kind: 'deactivate', user })}
-                    onReactivate={() => void setActive(user, true)}
-                  />
+      <TableCard
+        aria-label="Daftar akun pengurus"
+        toolbar={
+          <>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <Segmented
+                label="Status akun"
+                value={tab}
+                onChange={setTab}
+                options={STATUS_TABS.map((option) => ({
+                  ...option,
+                  count: users.data ? counts[option.value] : undefined,
+                }))}
+              />
+              <p className="text-sm text-muted-foreground tabular-nums" aria-live="polite">
+                {users.data ? `${rows.length} akun` : ''}
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <SearchField
+                value={search}
+                onChange={setSearch}
+                label="Cari akun"
+                placeholder="Cari nama, email, username, rayon"
+              />
+              <select
+                value={roleFilter}
+                onChange={(event) => setRoleFilter(event.target.value as UserRole | '')}
+                aria-label="Saring peran"
+                className={cn(selectClass, 'w-full sm:w-auto')}
+              >
+                <option value="">Semua peran</option>
+                {USER_ROLES.map((role) => (
+                  <option key={role} value={role}>
+                    {ROLE_LABELS[role]}
+                  </option>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        </TabsContent>
-      </Tabs>
+              </select>
+              {(term || roleFilter) && (
+                <Button variant="ghost" size="lg" onClick={clearSearch}>
+                  <X data-icon="inline-start" />
+                  Hapus filter
+                </Button>
+              )}
+            </div>
+          </>
+        }
+      >
+        <Table className="table-fixed" aria-busy={users.loading}>
+          <caption className="sr-only">
+            Akun pengurus,{' '}
+            {tab === 'all' ? 'semua status' : tab === 'active' ? 'aktif' : 'nonaktif'}
+          </caption>
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead>Nama</TableHead>
+              <TableHead className="hidden w-44 sm:table-cell">Peran</TableHead>
+              <TableHead className="hidden w-40 text-right sm:table-cell">Masuk terakhir</TableHead>
+              <TableHead className="w-14">
+                <span className="sr-only">Tindakan</span>
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody
+            className={cn('transition-opacity', users.loading && users.data && 'opacity-60')}
+          >
+            {users.error && !users.data && (
+              <TableMessage colSpan={4}>
+                Daftar akun tidak dapat dimuat: {users.error}{' '}
+                <button type="button" onClick={users.reload} className="font-medium underline">
+                  Coba lagi
+                </button>
+              </TableMessage>
+            )}
+            {!users.data && !users.error && (
+              <SkeletonRows
+                rows={4}
+                cells={['', 'hidden sm:table-cell', 'hidden sm:table-cell', '']}
+              />
+            )}
+            {users.data && rows.length === 0 && (
+              <TableMessage colSpan={4}>
+                {term || roleFilter ? (
+                  <>
+                    Tidak ada akun yang cocok dengan pencarian ini.{' '}
+                    <button type="button" className="font-medium underline" onClick={clearSearch}>
+                      Hapus pencarian
+                    </button>
+                  </>
+                ) : tab === 'inactive' ? (
+                  'Belum ada akun yang dinonaktifkan.'
+                ) : (
+                  'Belum ada akun.'
+                )}
+              </TableMessage>
+            )}
+            {rows.map((user) => (
+              <UserRow
+                key={user.id}
+                user={user}
+                isSelf={user.id === me.id}
+                onEdit={() => setForm({ user })}
+                onResetPassword={() => setConfirmation({ kind: 'reset', user })}
+                onDeactivate={() => setConfirmation({ kind: 'deactivate', user })}
+                onReactivate={() => void setActive(user, true)}
+              />
+            ))}
+          </TableBody>
+        </Table>
+      </TableCard>
 
       <AccountFormDialog
         open={form !== null}
@@ -369,35 +384,52 @@ function UserRow({
   const lastLogin = user.last_login_at ? formatRecent(user.last_login_at) : 'Belum pernah'
 
   return (
-    <tr className="border-t border-rule align-top">
-      <td className="py-3 pr-4 pl-4">
-        <div className="flex min-w-0 items-center gap-2">
-          <span className="truncate font-medium">{user.name}</span>
-          {isSelf && <span className="flex-none text-xs text-muted-foreground">(Anda)</span>}
-          {!user.is_active && (
-            <span className="flex-none rounded-full bg-secondary px-2 py-0.5 text-xs font-medium whitespace-nowrap text-secondary-foreground">
-              Nonaktif
-            </span>
-          )}
+    <TableRow>
+      <TableCell className="py-2.5">
+        <div className="flex min-w-0 items-center gap-3">
+          <PersonAvatar name={user.name} muted={!user.is_active} />
+          <div className="min-w-0">
+            {/* Di bawah lg nama dan lencana membungkus, tidak dipotong. */}
+            <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 lg:flex-nowrap">
+              <span
+                className={cn(
+                  'min-w-0 font-medium break-words lg:truncate',
+                  !user.is_active && 'text-muted-foreground',
+                )}
+              >
+                {user.name}
+              </span>
+              {isSelf && (
+                <span className="flex-none text-[0.8125rem] text-muted-foreground">(Anda)</span>
+              )}
+              {!user.is_active && <StatusBadge className="flex-none">Nonaktif</StatusBadge>}
+            </div>
+            <p className="mt-0.5 text-[0.8125rem] break-words text-muted-foreground lg:truncate">
+              {/* Di ponsel kolom Peran dan Masuk terakhir disembunyikan; isinya pindah ke sini. */}
+              <span className="sm:hidden">
+                {ROLE_LABELS[user.role]}
+                {user.rayon_name && ` · ${user.rayon_name}`} · masuk terakhir{' '}
+                {lastLogin.toLowerCase()}
+                <br />
+              </span>
+              {identities}
+            </p>
+          </div>
         </div>
-        <p className="mt-0.5 text-[0.8125rem] text-muted-foreground sm:truncate">
-          <span className="sm:hidden">
-            {ROLE_LABELS[user.role]}
-            {user.rayon_name && ` · ${user.rayon_name}`} · masuk terakhir {lastLogin.toLowerCase()}
-            <br />
-          </span>
-          {identities}
-        </p>
-      </td>
+      </TableCell>
       {/* Rayon hanya berlaku untuk Majelis, jadi ikut di kolom peran. */}
-      <td className="hidden py-3 pr-4 text-muted-foreground sm:table-cell">
-        {ROLE_LABELS[user.role]}
-        {user.rayon_name && ` · ${user.rayon_name}`}
-      </td>
-      <td className="hidden py-3 pr-4 text-right text-muted-foreground tabular-nums sm:table-cell">
+      <TableCell className="hidden sm:table-cell">
+        <StatusBadge>{ROLE_LABELS[user.role]}</StatusBadge>
+        {user.rayon_name && (
+          <p className="mt-1 text-[0.8125rem] break-words text-muted-foreground">
+            {user.rayon_name}
+          </p>
+        )}
+      </TableCell>
+      <TableCell className="hidden text-right text-muted-foreground tabular-nums sm:table-cell">
         {lastLogin}
-      </td>
-      <td className="py-2 pr-2 text-right">
+      </TableCell>
+      <TableCell className="py-1.5 pr-2 pl-0 text-right">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="size-10 sm:size-8">
@@ -433,7 +465,7 @@ function UserRow({
                 <UserX className="mt-0.5" />
                 <span className="grid">
                   Nonaktifkan akun
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-[0.8125rem] text-muted-foreground">
                     Tidak bisa untuk akun sendiri
                   </span>
                 </span>
@@ -446,35 +478,7 @@ function UserRow({
             )}
           </DropdownMenuContent>
         </DropdownMenu>
-      </td>
-    </tr>
-  )
-}
-
-function MessageRow({ children }: { children: ReactNode }) {
-  return (
-    <tr className="border-t border-rule">
-      <td colSpan={4} className="px-4 py-6 text-muted-foreground">
-        {children}
-      </td>
-    </tr>
-  )
-}
-
-function SkeletonRow() {
-  return (
-    <tr className="border-t border-rule" aria-hidden="true">
-      <td className="py-3 pr-4 pl-4">
-        <Skeleton className="h-5 w-40" />
-        <Skeleton className="mt-1.5 h-4 w-56" />
-      </td>
-      <td className="hidden py-3 pr-4 sm:table-cell">
-        <Skeleton className="h-5 w-20" />
-      </td>
-      <td className="hidden py-3 pr-4 sm:table-cell">
-        <Skeleton className="ml-auto h-5 w-28" />
-      </td>
-      <td />
-    </tr>
+      </TableCell>
+    </TableRow>
   )
 }
