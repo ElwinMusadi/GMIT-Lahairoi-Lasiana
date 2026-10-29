@@ -23,7 +23,9 @@ export function PhotoFilterPill({
       onClick={onClick}
       className={cn(
         'inline-flex h-11 flex-none items-center gap-2 rounded-full px-4 text-sm font-semibold transition-colors outline-none focus-visible:ring-3 focus-visible:ring-site-accent',
-        active ? 'bg-white text-site-panel' : 'bg-white/[0.12] text-white hover:bg-white/20',
+        active
+          ? 'bg-white text-site-panel'
+          : 'bg-white/[0.12] text-white hover:bg-white/20 glass:glass-frost',
       )}
     >
       {children}
@@ -82,7 +84,7 @@ export function SearchField({
         className={cn(
           'h-11 w-full rounded-full border pr-4 pl-11 text-base outline-none focus-visible:ring-3',
           onPhoto
-            ? 'border-white/50 bg-white/[0.12] text-white [color-scheme:dark] placeholder:text-white/75 focus-visible:ring-site-accent'
+            ? 'border-white/50 bg-white/[0.12] text-white [color-scheme:dark] placeholder:text-white/75 focus-visible:ring-site-accent glass:glass-blur'
             : 'border-site-muted bg-site-canvas text-site-ink placeholder:text-site-muted focus-visible:ring-ring',
         )}
       />

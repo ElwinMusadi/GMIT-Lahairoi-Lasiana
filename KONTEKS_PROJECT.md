@@ -489,8 +489,10 @@ bersubmenu. Rencana, keputusan K1–K6, dan catatan per tahap ada di
   "Pengaturan tampilan portal".
   - Panel kaca buram di atas latar warna senja Pantai Lasiana (`site-aurora`).
   - Kelas `portal-glass` di `<html>`; komponen memakai varian `glass:` dan utilitas
-    `glass-card`, `glass-slab`, `glass-bar`, `glass-bar-behind`, `glass-panel`, `glass-photo`,
-    `glass-blur`.
+    `glass-card`, `glass-slab`, `glass-bar`, `glass-bar-behind`, `glass-panel`, `glass-frost`
+    (kaca di atas foto: kartu, pil, dan saringan hero), `glass-blur`.
+  - Tepi dan bayangan kaca diisi lewat variabel bayangan Tailwind (`--tw-inset-ring-shadow`,
+    `--tw-shadow`), bukan `box-shadow` langsung, agar cincin fokus keyboard tetap tampil.
   - Tema bawaan dijaga tetap identik: perbandingan gaya terhitung di 9 halaman, 2 lebar layar,
     terang dan gelap menghasilkan 0 perbedaan.
   - Jebakan: elemen ber-`backdrop-filter` menjadi akar latar bagi isinya. Bilah yang memuat

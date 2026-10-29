@@ -188,7 +188,8 @@ Admin memilih tema Portal Publik di **Pengaturan > Tampilan** ([AppearanceSettin
   - Kontras teks tetap ≥4,5:1 di titik warna terpekat latar. Pengunjung yang meminta kurangi transparansi (`prefers-reduced-transparency`) mendapat permukaan padat.
 - **Cara kerja:**
   - [lib/portal-theme.ts](src/client/lib/portal-theme.ts) memasang kelas `portal-glass` di `<html>`.
-  - Komponen portal menulis perlakuan kacanya lewat varian `glass:` (mis. `glass:glass-card`, `glass:glass-panel`), dengan utilitas dan token `--site-glass-*` di [index.css](src/client/index.css). Tanpa kelas itu varian tidak menghasilkan apa pun, jadi tema bawaan tidak berubah.
+  - Komponen portal menulis perlakuan kacanya lewat varian `glass:` (mis. `glass:glass-card`, `glass:glass-panel`, `glass:glass-frost` untuk unsur tembus pandang di atas foto hero), dengan utilitas dan token `--site-glass-*` di [index.css](src/client/index.css). Tanpa kelas itu varian tidak menghasilkan apa pun, jadi tema bawaan tidak berubah.
+  - Utilitas kaca mengisi tepi dan bayangannya lewat variabel bayangan Tailwind (`--tw-inset-ring-shadow`, `--tw-shadow`), bukan `box-shadow` langsung, agar cincin fokus `focus-visible:ring-*` tetap tampil.
   - Unsur yang memuat menu tarik-turun memakai `glass-bar-behind` (kaca di `::before`). Elemen ber-`backdrop-filter` menjadi akar latar bagi isinya, sehingga menu di dalamnya tidak bisa memburamkan halaman.
 - **Tanpa kedip:**
   - Tema terakhir disimpan di perangkat, dan skrip di `index.html` memasangnya sebelum React dimuat.

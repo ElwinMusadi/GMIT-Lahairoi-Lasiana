@@ -386,20 +386,29 @@
 }
 
 /* Permukaan kaca. Dipakai hanya lewat varian glass: (mis. glass:glass-card), sehingga di
-   tema bawaan kelas ini tidak menghasilkan apa pun. */
+   tema bawaan kelas ini tidak menghasilkan apa pun. Tepi kaca dan bayangannya diisi lewat
+   variabel bayangan Tailwind (--tw-inset-ring-shadow, --tw-shadow), bukan box-shadow langsung,
+   agar cincin fokus (focus-visible:ring-*) tetap tampil di atasnya. */
+@utility glass-shadow {
+  box-shadow:
+    var(--tw-inset-shadow, 0 0 #0000), var(--tw-inset-ring-shadow, 0 0 #0000),
+    var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000),
+    var(--tw-shadow, 0 0 #0000);
+}
 /* Kartu dan bilah terang: putih tembus pandang, tepi terang 1 px, bayangan lembut. */
 @utility glass-card {
+  @apply glass-shadow;
   background-color: var(--site-glass-card);
   -webkit-backdrop-filter: var(--site-glass-filter);
   backdrop-filter: var(--site-glass-filter);
-  box-shadow:
-    inset 0 0 0 1px var(--site-glass-edge),
-    var(--site-glass-shadow);
+  --tw-inset-ring-shadow: inset 0 0 0 1px var(--site-glass-edge);
+  --tw-shadow: var(--site-glass-shadow);
 }
 /* Seksi berlatar putih tulang menjadi lempeng kaca lebar; tanpa blur karena latarnya polos. */
 @utility glass-slab {
+  @apply glass-shadow;
   background-color: var(--site-glass-slab);
-  box-shadow: inset 0 0 0 1px var(--site-glass-edge);
+  --tw-inset-ring-shadow: inset 0 0 0 1px var(--site-glass-edge);
 }
 /* Header dan menu yang melayang di atas isi halaman: lebih pekat agar teks sekunder tetap
    ≥4,5:1 di atas latar apa pun (panel gelap, foto terang). Tepinya tetap border-site-rule,
@@ -428,28 +437,29 @@
     backdrop-filter: var(--site-glass-filter);
   }
 }
-/* Hanya buram, untuk unsur yang sudah tembus pandang (mis. pil kaca di atas foto). */
+/* Hanya buram, untuk unsur tembus pandang yang sudah bertepi (mis. pil kaca, kolom cari). */
 @utility glass-blur {
   -webkit-backdrop-filter: var(--site-glass-filter);
   backdrop-filter: var(--site-glass-filter);
 }
+/* Kaca di atas foto (kartu, pil, dan saringan di hero): buram dengan tepi terang. Latarnya
+   tetap putih tembus pandang milik unsur itu sendiri, jadi efek hover-nya tidak berubah. */
+@utility glass-frost {
+  @apply glass-shadow;
+  -webkit-backdrop-filter: var(--site-glass-filter);
+  backdrop-filter: var(--site-glass-filter);
+  --tw-inset-ring-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.22);
+}
 /* Panel gelap (papan jadwal, warta, persembahan): kaca berasap, teks putih tetap di atas
    permukaan gelap. Tepi tema gelap diganti tepi kaca. */
 @utility glass-panel {
+  @apply glass-shadow;
   background-color: var(--site-glass-panel);
   border-color: transparent;
   -webkit-backdrop-filter: var(--site-glass-filter);
   backdrop-filter: var(--site-glass-filter);
-  box-shadow:
-    inset 0 0 0 1px var(--site-glass-panel-edge),
-    var(--site-glass-shadow);
-}
-/* Kaca di atas foto (kartu di hero dan band foto). */
-@utility glass-photo {
-  background-color: rgb(255 255 255 / 0.12);
-  -webkit-backdrop-filter: var(--site-glass-filter);
-  backdrop-filter: var(--site-glass-filter);
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.22);
+  --tw-inset-ring-shadow: inset 0 0 0 1px var(--site-glass-panel-edge);
+  --tw-shadow: var(--site-glass-shadow);
 }
 
 /* Toast portal: sonner memasang 13 px (tombol 12 px) sendiri; ikut lantai teks kecil. */

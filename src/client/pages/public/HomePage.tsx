@@ -140,7 +140,7 @@ function HomeHero({
           </nav>
         </div>
         {loading ? (
-          <div className="h-44 animate-pulse rounded-3xl bg-white/10" />
+          <div className="h-44 animate-pulse rounded-3xl bg-white/10 glass:glass-frost" />
         ) : (
           sunday?.theme && home && <ThemeCard worship={sunday} today={home.today} />
         )}
@@ -194,7 +194,7 @@ function QuickAction({
     'grid min-h-16 content-center gap-0.5 rounded-2xl px-3.5 py-3 text-left md:px-4 transition-colors outline-none focus-visible:ring-3 focus-visible:ring-site-accent',
     primary
       ? 'bg-white text-site-panel hover:bg-site-paper'
-      : 'bg-white/[0.12] text-white hover:bg-white/20 glass:glass-blur',
+      : 'bg-white/[0.12] text-white hover:bg-white/20 glass:glass-frost',
   )
   const body = (
     <>
@@ -234,7 +234,7 @@ function ThemeCard({ worship, today }: { worship: PublicWorshipItem; today: stri
     <article
       aria-labelledby="judul-tema"
       aria-describedby="label-tema"
-      className="grid gap-3 rounded-3xl bg-white/[0.12] p-5 md:p-6 glass:glass-photo"
+      className="grid gap-3 rounded-3xl bg-white/[0.12] p-5 md:p-6 glass:glass-frost"
     >
       <h2 id="judul-tema" className="font-site-serif text-[28px] leading-tight font-normal italic">
         “{worship.theme}”

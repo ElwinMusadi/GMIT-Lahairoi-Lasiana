@@ -99,7 +99,7 @@ export default function ProfilePage() {
             <Link
               key={href}
               to={href}
-              className="inline-flex h-11 items-center rounded-full bg-white/[0.12] px-4 text-sm font-semibold text-white transition-colors outline-none hover:bg-white/20 focus-visible:ring-3 focus-visible:ring-site-accent"
+              className="inline-flex h-11 items-center rounded-full bg-white/[0.12] px-4 text-sm font-semibold text-white transition-colors outline-none hover:bg-white/20 focus-visible:ring-3 focus-visible:ring-site-accent glass:glass-frost"
             >
               {label}
             </Link>
