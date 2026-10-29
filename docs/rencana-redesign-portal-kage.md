@@ -1554,3 +1554,13 @@ sebelum redesign dan bukan bagian portal.
 - Pesan ukuran berkas membulatkan ke MB: berkas 10 MB lebih beberapa byte tertulis "Ukuran berkas
   10 MB, maksimal 10 MB." (bawaan 08).
 - Bug API `LIKE` 50 byte dan perbaikan dashboard, seperti yang sudah disepakati.
+
+### Tahap 11 — Merge (29 Oktober 2026)
+
+- `git merge --no-ff feat/redesign-portal-kage` di `main` menjadi merge commit `90e5a7a`
+  (Keputusan K6). Riwayat 12 commit tahap tetap terbaca di cabang kedua merge itu.
+- `main` belum bergerak sejak branch dibuat, jadi merge tanpa konflik. Pohon `main` sesudah
+  merge identik dengan ujung branch yang sudah diuji di Tahap 10.
+- Di `main`: typecheck dan lint bersih, build lolos dengan bundel yang sama
+  (`index-D5tq9XRQ.js`, 391,37 KB, gzip 122,31 KB).
+- Belum di-push.

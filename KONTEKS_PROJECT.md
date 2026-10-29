@@ -57,6 +57,7 @@ sedang berjalan: penyempurnaan UI/UX, dimulai dari redesign Portal Publik.
 | Buku Agenda Surat masuk/keluar | 2 | Selesai | `c1f84d8` |
 | Inventaris: katalog aset & peminjaman | 3 | Selesai | `6c926b4`, `841e79c` |
 | Dashboard Eksekutif: API agregasi + UI + widget ulang tahun | 3 | Selesai | `cdf6930`, `f88480c` |
+| Redesign Portal Publik bergaya kage (rancangan 10), isi 08 tetap | – | Selesai | `90e5a7a` (merge) |
 
 Catatan status:
 
@@ -65,16 +66,19 @@ Catatan status:
 - **Belum pernah di-deploy ke Cloudflare.** `database_id` di [wrangler.toml](wrangler.toml)
   masih dikomentari. Langkah sebelum deploy pertama ada di README bagian "Menyiapkan database di
   Cloudflare".
-- Riwayat `main` berisi 32 commit (lihat bagian 13). Branch lokal lama `chore/design-skills`
-  dan `docs/stitch-portal-smooth-scroll` sudah tergabung ke `main` dan tidak di-push.
+- Riwayat `main` ada di bagian 13. Branch lokal lama `chore/design-skills`,
+  `docs/stitch-portal-smooth-scroll`, dan `feat/redesign-portal-kage` sudah tergabung ke `main`
+  dan tidak di-push.
+- **`main` belum di-push** sejak redesign portal: 12 commit redesign, merge `90e5a7a`, dan
+  catatan merge sesudahnya. Push hanya bila diminta.
 
-### Pekerjaan yang sedang berjalan
+### Redesign Portal Publik (selesai, 29 Oktober 2026)
 
-**Redesign Portal Publik** di branch `feat/redesign-portal-kage`. Tujuannya memakai tampilan
-dan interaksi rancangan [design/stitch/10-portal-publik-kage.html](design/stitch/10-portal-publik-kage.html)
-dengan seluruh informasi portal 08 yang berjalan sekarang. Rencana lengkapnya ada di
-[docs/rencana-redesign-portal-kage.md](docs/rencana-redesign-portal-kage.md). Branch ini
-di-merge ke `main` setelah semua tahap selesai.
+**Redesign Portal Publik** dikerjakan di branch `feat/redesign-portal-kage`. Tujuannya memakai
+tampilan dan interaksi rancangan [design/stitch/10-portal-publik-kage.html](design/stitch/10-portal-publik-kage.html)
+dengan seluruh informasi portal 08. Rencana lengkapnya ada di
+[docs/rencana-redesign-portal-kage.md](docs/rencana-redesign-portal-kage.md). Branch ini sudah
+di-merge ke `main` lewat merge commit `90e5a7a`.
 
 Keputusan yang sudah dikonfirmasi pengguna (28 Oktober 2026):
 
@@ -173,8 +177,14 @@ Progres tahap:
     keyboard dan submenu, pembaca layar dasar, kedua tema, kurangi gerak, 60 fps (median 16,7 ms),
     Lighthouse ponsel (aksesibilitas 100), dan bundel utama 391,4 KB (gzip 122,3 KB).
   - Daftar periksa isi 08 tercentang semua. Hal di luar lingkup dicatat di rencana bagian 11.
-- **Berikutnya: Tahap 11 (Merge):** `git merge --no-ff feat/redesign-portal-kage` ke `main`
-  (Keputusan K6); push hanya bila diminta.
+- **Tahap 11 (Merge) selesai.** `git merge --no-ff` menjadi merge commit `90e5a7a` di `main`
+  (Keputusan K6). Pohon `main` identik dengan ujung branch yang diuji; typecheck, lint, dan build
+  lolos dengan bundel yang sama. Belum di-push.
+- **Usulan berikutnya** (belum dimulai):
+  - perbaikan bug API `LIKE` 50 byte di bawah;
+  - perbaikan dashboard yang ditunda sampai redesign selesai;
+  - hal di luar lingkup redesign yang dicatat di rencana bagian 11 (`robots.txt`, 401
+    `/api/auth/me` di portal, kode dashboard di bundel utama).
 
 **Bug API yang ditemukan di Tahap 0** (belum diperbaiki, diusulkan sebagai commit terpisah):
 
@@ -554,3 +564,16 @@ Sebelum deploy pertama:
 | `841e79c` | 2026-10-28 | feat(inventaris): halaman katalog inventaris dan peminjaman barang |
 | `cdf6930` | 2026-10-28 | feat(analitik): API agregasi dashboard eksekutif |
 | `f88480c` | 2026-10-28 | feat(dashboard): dashboard eksekutif dan widget ulang tahun di /dashboard |
+| `238c4cf` | 2026-10-28 | docs: rencana redesign portal kage dan konteks proyek |
+| `ed6e4ab` | 2026-10-28 | docs: catatan Tahap 0 redesign portal (data uji dan baseline 08) |
+| `987b4c8` | 2026-10-28 | feat(portal): fondasi redesign kage, token terang/gelap dan primitif |
+| `d933913` | 2026-10-29 | feat(portal): lapisan gerak Lenis, parallax, reveal, dan float |
+| `587102e` | 2026-10-29 | feat(portal): kerangka kage, header bernavigasi bergrup dan footer foto |
+| `eb019e4` | 2026-10-29 | feat(portal): Beranda kage dengan seluruh isi Beranda 08 |
+| `095ad49` | 2026-10-29 | feat(portal): Jadwal Ibadah dan Warta Jemaat bergaya kage |
+| `bb884af` | 2026-10-29 | feat(portal): Renungan dan Berita bergaya kage, daftar dan halaman baca |
+| `cfa5b04` | 2026-10-29 | feat(portal): Galeri dan Profil bergaya kage, jangkar halaman diperbaiki |
+| `6ae0f8f` | 2026-10-29 | feat(portal): Persembahan dan Layanan Sakramen bergaya kage |
+| `0cebfd8` | 2026-10-29 | feat(portal): 404, halaman eror, dan login bergaya kage |
+| `8030acd` | 2026-10-29 | chore(portal): rapikan sisa 08 dan QA akhir redesign kage |
+| `90e5a7a` | 2026-10-29 | Merge branch 'feat/redesign-portal-kage': redesign Portal Publik bergaya kage |
