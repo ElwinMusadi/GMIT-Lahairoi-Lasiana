@@ -193,6 +193,9 @@
      sisanya bantalan di dalam panel. Header dan hero memakai nilai yang sama agar sejajar. */
   --site-inset: 32px;
   --site-hero-gap: 12px;
+  /* Jarak header dari atas layar, lebih rapat daripada jarak tepi kiri/kanan (rancangan kage:
+     sama dengan --site-inset). */
+  --site-header-top: 24px;
 
   /* Skala portal (docs/rencana-skala-portal-90.md). Zoom ikut mengecilkan svh/vh, jadi
      tinggi relatif layar di portal ditulis calc(<tinggi> / var(--site-zoom, 1)) agar hero,
@@ -259,11 +262,13 @@
   .theme-portal {
     --site-inset: 48px;
     --site-hero-gap: 16px;
+    --site-header-top: 32px;
   }
 }
 @media (width >= 80rem) {
   .theme-portal {
     --site-inset: 64px;
+    --site-header-top: 40px;
   }
 }
 /* Desktop dengan tetikus/trackpad: seluruh portal tampil 90%, seperti zoom browser 90%.
@@ -284,10 +289,10 @@ html.theme-portal [data-sonner-toast][data-styled='true'] [data-button] {
 }
 
 /* Bantalan isi panel hero: tepi kiri isi sejajar dengan pil header, dan bagian atasnya
-   memberi ruang untuk header (44 px) yang melayang di atas foto. */
+   memberi ruang untuk header (44 px) yang melayang di atas foto, ditambah 40 px. */
 .site-hero-pad {
   --pad: calc(var(--site-inset) - var(--site-hero-gap));
-  padding: calc(var(--pad) + 84px) var(--pad) var(--pad);
+  padding: calc(var(--site-header-top) - var(--site-hero-gap) + 84px) var(--pad) var(--pad);
 }
 
 /* Scrim foto hero (manifest 75/45/85) dan band (60 %), teal sangat gelap yang nyaris

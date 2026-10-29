@@ -25,7 +25,7 @@ export default function PublicLayout() {
       <main
         id="konten"
         tabIndex={-1}
-        className="flex-1 outline-none [&:not(:has([data-hero]))]:pt-[calc(var(--site-inset)_+_68px)]"
+        className="flex-1 outline-none [&:not(:has([data-hero]))]:pt-[calc(var(--site-header-top)_+_68px)]"
       >
         <Outlet />
       </main>

@@ -350,3 +350,22 @@ portal di jendela Safari selebar ≥1024 px, lalu periksa:
 
 Bila poin 3–5 meleset (posisi berhenti terlalu tinggi/rendah ±10%, atau foto bercelah), catat
 halaman dan tangkapan layarnya; perbaikannya memakai pendekatan cadangan R1.
+
+### Penyesuaian sesudahnya — jarak atas header (29 Oktober 2026)
+
+Permintaan pengguna: navigasi terlalu jauh dari tepi atas halaman.
+
+- **Masalah:** jarak atas header memakai `--site-inset` (32 / 48 / 64 px), token yang sama dengan
+  jarak tepi kiri/kanan, mengikuti rancangan kage.
+- **Perbaikan:** token baru `--site-header-top` (24 / 32 / 40 px) di
+  [index.css](../src/client/index.css) untuk header, menu ponsel, header login, ruang atas halaman
+  tanpa hero, dan bantalan atas isi hero. Jarak tepi kiri/kanan tidak berubah. Isi hero ikut naik
+  sejauh yang sama, sehingga jarak navigasi ke judul hero tetap.
+
+| Lebar | Pil dari atas layar | Tepi kiri | Header saat digulir |
+| --- | --- | --- | --- |
+| Desktop 1440 (zoom 0,9) | 58 → 36 px | 58 px (tetap) | 11 px (tetap) |
+| Tablet 768 | 48 → 32 px | 48 px (tetap) | 12 px (tetap) |
+| Ponsel 390 | 32 → 24 px | 32 px (tetap) | 12 px (tetap) |
+
+Login (36 / 32 / 24 px) dan menu ponsel (24 px) sejajar dengan header.

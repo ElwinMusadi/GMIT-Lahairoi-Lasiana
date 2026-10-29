@@ -32,7 +32,7 @@ export function SiteHeader() {
   return (
     <header
       data-scrolled={scrolled || undefined}
-      className="pointer-events-none fixed inset-x-0 top-0 z-40 px-(--site-inset) pt-(--site-inset) transition-transform duration-300 ease-out data-scrolled:-translate-y-[calc(var(--site-inset)_-_12px)] motion-reduce:transition-none"
+      className="pointer-events-none fixed inset-x-0 top-0 z-40 px-(--site-inset) pt-(--site-header-top) transition-transform duration-300 ease-out data-scrolled:-translate-y-[calc(var(--site-header-top)_-_12px)] motion-reduce:transition-none"
     >
       <div className="flex items-center justify-between gap-2 *:pointer-events-auto">
         <BrandPill />
@@ -95,7 +95,7 @@ function MobileMenu({ scrolled }: { scrolled: boolean }) {
         <div
           className={cn(
             'flex items-center justify-between gap-3 px-(--site-inset)',
-            scrolled ? 'pt-3' : 'pt-(--site-inset)',
+            scrolled ? 'pt-3' : 'pt-(--site-header-top)',
           )}
         >
           <BrandPill onClick={close} />
