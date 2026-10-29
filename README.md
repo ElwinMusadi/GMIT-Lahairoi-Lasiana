@@ -877,18 +877,25 @@ curl -b cookies.txt "http://localhost:5173/api/analytics/dashboard?year=2026&mon
 
 **Di dashboard** (`/dashboard`, [OverviewPage.tsx](src/client/pages/dashboard/OverviewPage.tsx), komponen di [src/client/components/analytics](src/client/components/analytics)):
 
-- **Header**:
-  - status sistem (API dan D1);
-  - waktu data diperbarui;
-  - tombol muat ulang.
-- **4 metrik**:
+- **Judul halaman**:
+  - salam sesuai jam WITA dan tanggal hari ini;
+  - status sistem (API dan D1), waktu data diperbarui, dan tombol muat ulang;
+  - filter periode di kanan (tahun anggaran, bulan awal s.d. akhir), yang berlaku untuk keuangan dan kehadiran. Bulan setelah bulan berjalan tidak bisa dipilih untuk tahun ini.
+- **4 kartu KPI** (keadaan hari ini), dengan ikon dan tautan ke modulnya bila peran itu bisa membukanya:
   - Total jiwa;
-  - Total KK;
-  - Saldo kas total;
-  - Kehadiran Minggu terakhir, dengan selisihnya dari Minggu sebelumnya.
+  - Kartu Keluarga;
+  - Saldo kas, dengan perubahan dari akhir bulan lalu dan grafik mini saldo akhir tiap bulan;
+  - Kehadiran Minggu, dengan perubahan dari Minggu sebelumnya dan grafik mini kehadiran tiap Minggu.
 
-  Di ponsel keempatnya menjadi daftar: label di kiri, angka di kanan.
+  Grafik mini dan perubahan saldo diambil dari data periode, jadi hanya tampil bila periodenya memuat hari ini (bawaan).
+- **Urutan blok menyesuaikan peran**:
+  - Bendahara: keuangan, kehadiran, lalu jemaat;
+  - Pendeta dan Majelis: jemaat, kehadiran, lalu keuangan;
+  - Admin: jemaat, keuangan, lalu kehadiran dengan aktivitas terbaru di sampingnya.
+
+  Kartu KPI pertama tiap peran menjadi angka utama (crimson).
 - **Jemaat** (keadaan hari ini):
+  - donat komposisi laki-laki dan perempuan, dengan jumlah dan persentase di legenda;
   - batang jiwa per rayon, dengan jumlah KK;
   - kelompok kategorial, dengan persentasenya;
   - meter cakupan baptis dan sidi.
@@ -898,12 +905,13 @@ curl -b cookies.txt "http://localhost:5173/api/analytics/dashboard?year=2026&mon
   - tombol **Salin untuk warta**, yang menyalin daftar siap tempel.
 
   Widget ini tidak tampil untuk Bendahara.
-- **Keuangan & kehadiran**: satu baris filter (tahun anggaran, bulan awal s.d. akhir) berlaku untuk semua blok di bawahnya. Bulan setelah bulan berjalan tidak bisa dipilih untuk tahun ini.
+- **Keuangan dan kehadiran** (mengikuti filter periode):
   - **Kas masuk dan keluar per bulan**: kolom berpasangan. Kas masuk memakai warna utama (crimson), kas keluar abu-abu pembanding. Legendanya ikut membawa total periode dan selisih. Di bawahnya ada realisasi RAPBJ, dengan garis tegak untuk bagian tahun yang sudah berjalan.
   - **Saldo per Pos Kas**: saldo pada akhir periode, porsinya, serta kas masuk dan keluar per Pos Kas di periode itu.
   - **Tren kehadiran ibadah**:
     - garis rata-rata kehadiran per ibadah per minggu (Minggu s.d. Sabtu) untuk satu jenis ibadah (bawaannya Kebaktian Minggu);
-    - minggu tanpa data memutus garis, tidak dihitung nol.
+    - kurva halus dengan isian bergradasi; minggu tanpa data memutus garis, tidak dihitung nol.
+- **Aktivitas terbaru** (Admin): linimasa lima aktivitas terakhir dengan ikon modulnya.
 - **Grafik**:
   - Arahkan kursor, atau fokuskan grafik lalu tekan panah kiri/kanan, Home, atau End, untuk melihat tooltip tiap bulan atau minggu.
   - Tombol **Tabel** menampilkan angka yang sama sebagai tabel.

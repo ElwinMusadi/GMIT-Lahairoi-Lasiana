@@ -1,9 +1,10 @@
-import { useId, useState, type ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { BarChart3, Table2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Panel } from '@/components/zenith/panel'
 import { cn } from '@/lib/utils'
 
-// Kartu grafik Dashboard Eksekutif: judul, keterangan, kendali, dan tombol untuk
+// Kartu grafik Ringkasan (gaya Zenith): judul, keterangan, kendali, dan tombol untuk
 // beralih ke tampilan tabel (padanan aksesibel setiap grafik).
 export function ChartCard({
   title,
@@ -30,53 +31,39 @@ export function ChartCard({
   children: ReactNode
 }) {
   const [asTable, setAsTable] = useState(false)
-  const headingId = useId()
   return (
-    <section
-      aria-labelledby={headingId}
-      aria-busy={busy}
-      className={cn(
-        '@container grid min-w-0 content-start gap-4 rounded-lg border bg-card p-5',
-        className,
-      )}
+    <Panel
+      title={title}
+      description={meta}
+      busy={busy}
+      className={className}
+      contentClassName="grid content-start gap-4"
+      action={
+        (controls || table) && (
+          <>
+            {controls}
+            {table && (
+              <Button
+                variant="outline"
+                aria-pressed={asTable}
+                onClick={() => setAsTable((value) => !value)}
+              >
+                {asTable ? (
+                  <BarChart3 data-icon="inline-start" />
+                ) : (
+                  <Table2 data-icon="inline-start" />
+                )}
+                {asTable ? 'Grafik' : 'Tabel'}
+              </Button>
+            )}
+          </>
+        )
+      }
     >
-      <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-3">
-        <div className="grid min-w-0 gap-0.5">
-          <h2 id={headingId} className="text-base font-semibold">
-            {title}
-          </h2>
-          {meta && <div className="text-[0.8125rem] text-muted-foreground">{meta}</div>}
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          {controls}
-          {table && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="-mr-2 text-muted-foreground"
-              aria-pressed={asTable}
-              onClick={() => setAsTable((value) => !value)}
-            >
-              {asTable ? (
-                <BarChart3 data-icon="inline-start" />
-              ) : (
-                <Table2 data-icon="inline-start" />
-              )}
-              {asTable ? 'Grafik' : 'Tabel'}
-            </Button>
-          )}
-        </div>
-      </div>
       {legend}
-      <div className={cn('min-w-0 transition-opacity', busy && 'opacity-60')}>
-        {asTable && table ? table : children}
-      </div>
-      {footer && (
-        <div className={cn('border-t border-rule pt-4 transition-opacity', busy && 'opacity-60')}>
-          {footer}
-        </div>
-      )}
-    </section>
+      <div className="min-w-0">{asTable && table ? table : children}</div>
+      {footer && <div className="border-t pt-4">{footer}</div>}
+    </Panel>
   )
 }
 

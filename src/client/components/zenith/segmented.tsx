@@ -33,7 +33,7 @@ export function Segmented<T extends string>({
           type="button"
           aria-pressed={option.value === value}
           onClick={() => onChange(option.value)}
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-md px-3 py-1 font-medium whitespace-nowrap text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50 aria-pressed:bg-card aria-pressed:text-foreground aria-pressed:shadow-xs"
+          className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md px-3 py-1 font-medium whitespace-nowrap text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50 aria-pressed:bg-card aria-pressed:text-foreground aria-pressed:shadow-xs"
         >
           {option.label}
           {option.count !== undefined && (

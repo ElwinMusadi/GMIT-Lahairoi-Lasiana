@@ -317,3 +317,67 @@ Sans + Inter). Untuk dashboard, jalankan dari folder yang berisi salinan arah ap
 memang memilih Geist sejak awal.
 
 **Berikutnya: Tahap 3** (Ringkasan).
+
+### Tahap 3 — Ringkasan (29 Oktober 2026)
+
+[OverviewPage.tsx](../src/client/pages/dashboard/OverviewPage.tsx) ditulis ulang dengan pola
+dashboard Zenith/HRIS. API dan datanya tidak berubah.
+
+**Tata letak:**
+
+- **Judul halaman:**
+  - salam sesuai jam WITA, nama, dan tanggal;
+  - baris meta: status sistem, waktu pembaruan, tombol muat ulang;
+  - filter periode (tahun, bulan s.d. bulan) di kanan. Di ponsel filter ini menjadi dua baris:
+    "Periode [tahun]", lalu rentang bulan selebar layar.
+- **Kartu KPI** (`KpiCard`):
+  - empat kartu keadaan hari ini, dengan ikon dan tautan ke modul bila peran itu bisa membukanya
+    (`canOpenModule`);
+  - saldo kas: perubahan dari akhir bulan lalu dan grafik mini saldo akhir tiap bulan, dihitung
+    mundur dari saldo akhir periode;
+  - kehadiran Minggu: perubahan dari Minggu sebelumnya dan grafik mini total tiap Minggu;
+  - grafik mini hanya tampil bila periodenya memuat hari ini, karena KPI selalu keadaan hari ini;
+  - label dan ikon sebaris, sedangkan angka memakai seluruh lebar kartu dan mengecil lewat
+    `clamp(…cqi…)`, sehingga "Rp138.650.000" tidak terpotong di empat kolom 1280 px (24 px);
+  - kartu bertautan tanpa grafik mini diberi baris "Lihat rincian".
+- **Kartu widget** (`Panel` baru, di atas `Card` shadcn): judul, keterangan, aksi di kanan
+  ("Lihat semua ↗", kendali grafik). Aksi tetap sebaris dengan judul selama muat.
+- **Jemaat:**
+  - donat komposisi laki-laki/perempuan (`Donut` baru: celah 2 px, sorot potongan atau baris
+    legenda, angka dan persen di legenda);
+  - cakupan sakramen bertumpuk;
+  - jiwa per rayon dan kelompok kategorial.
+- **Ulang tahun:** tab memakai `Segmented`; lencana "Hari ini" memakai `StatusBadge` brand.
+- **Grafik:**
+  - garis bantu putus-putus;
+  - kehadiran berupa kurva halus monoton (metode Steffen, seperti `d3.curveMonotoneX`) dengan isian
+    bergradasi.
+- **Aktivitas terbaru** (Admin): linimasa di samping grafik kehadiran, dengan ikon modul polos dan
+  garis penghubung.
+
+**Urutan per peran (D8, perbaikan tertunda #3):**
+
+| Peran | KPI (yang pertama crimson) | Blok |
+| --- | --- | --- |
+| Admin | Jiwa, KK, Saldo, Kehadiran | Jemaat + ulang tahun, Keuangan, Kehadiran + aktivitas |
+| Bendahara | Saldo, Kehadiran, Jiwa, KK | Keuangan, Kehadiran, Jemaat (tanpa ulang tahun) |
+| Pendeta, Majelis | Jiwa, KK, Kehadiran, Saldo | Jemaat + ulang tahun, Kehadiran, Keuangan |
+
+**Tema gelap:** `--brand-foreground` gelap diganti teks hampir hitam (5,1:1 di `#e5484d`; teks putih
+hanya 3,9:1 untuk lencana 12 px).
+
+**Pemeriksaan:**
+
+| Uji | Hasil |
+| --- | --- |
+| 4 peran, 1440 px | Urutan KPI dan blok sesuai tabel di atas. Tautan KPI sesuai hak akses (Bendahara: hanya Saldo). Padding kartu 20 px. Tanpa gulir menyamping |
+| 1280 px | Angka KPI 24 px, tidak terpotong |
+| 768 dan 390 px (Admin, Bendahara) | Tanpa gulir menyamping; filter periode dua baris; legenda donat turun ke bawah donat |
+| Tema gelap | Kartu, grafik, dan donat mengikuti token; lencana "Hari ini" teks gelap |
+| Interaksi | Tombol Tabel (10 baris, `aria-pressed`); panah kiri di grafik kehadiran; tab ulang tahun bulan ini (30 baris); sorot donat ("86 Perempuan") |
+| Periode lampau (2025) dan kosong (2021) | KPI tetap, grafik mini hilang; grafik kosong dengan pesan |
+| Galat API dan muat lambat | Pesan + "Coba lagi"; kerangka seukuran isi |
+| Inspector `--app` (Admin) | 0 FAIL, 0 WARN. Sempat 1 WARN `icon-tiles` (ikon berkotak berulang di aktivitas); diganti ikon polos dengan garis linimasa. Kotak ikon KPI dipertahankan sebagai ciri Zenith |
+| Typecheck, lint | Bersih |
+
+**Berikutnya: Tahap 4** (Jemaat).

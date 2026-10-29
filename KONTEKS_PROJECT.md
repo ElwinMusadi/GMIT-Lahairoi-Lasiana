@@ -101,8 +101,12 @@ DashboardPack). Pengguna punya lisensinya tetapi belum mengunduh source React-ny
   - Palet Ctrl+K: halaman, aksi "Buat", dan pencarian anggota jemaat atau KK.
   - `font-sans` kini Geist; Roundo dicabut; `useLogout` pindah ke `lib/session.ts`.
   - Inspector `--app` harus dijalankan dengan arah aplikasi (lihat rencana bagian 9, Tahap 2).
-- **Berikutnya: Tahap 3 (Ringkasan):** kartu KPI, grafik bergaya Zenith, widget, dan urutan blok
-  per peran (D8).
+- **Tahap 3 (Ringkasan) selesai.**
+  - Kartu KPI Zenith (grafik mini dan tren saldo/kehadiran), filter periode di kanan judul, kartu
+    `Panel`, donat komposisi jemaat, linimasa aktivitas (Admin), kurva kehadiran bergradasi.
+  - Urutan blok per peran (D8, perbaikan tertunda #3): Bendahara keuangan dulu; Pendeta/Majelis
+    jemaat lalu kehadiran; Admin jemaat, keuangan, lalu kehadiran + aktivitas.
+- **Berikutnya: Tahap 4 (Jemaat):** Anggota, KK + rincian, Rayon, Impor (wizard).
 
 ### Selesai: skala Portal Publik 90%
 
@@ -277,8 +281,8 @@ dan empat peran. Laporannya ada di `.taste-skill/inspect-audit/` (tidak di-commi
   setelah redesign portal:
   1. **Pos Kas & RAPBJ (1280px):** nama mata anggaran terpotong ("P1 Persembah…").
   2. **Transaksi Kas di ponsel:** nama Pos Kas dan mata anggaran terpotong di baris keterangan.
-  3. **Ringkasan untuk Bendahara:** blok keuangan baru terlihat setelah digulir; urutan blok
-     sebaiknya menyesuaikan peran.
+  3. ~~**Ringkasan untuk Bendahara:** blok keuangan baru terlihat setelah digulir.~~ Selesai di
+     redesign Zenith Tahap 3: urutan blok menyesuaikan peran.
 - **Identitas visual belum seragam:** portal biru tua dengan amber, halaman login biru tua dengan
   judul 118px, dan dashboard *achromatic* dengan crimson. Login ikut diselaraskan dalam redesign.
 

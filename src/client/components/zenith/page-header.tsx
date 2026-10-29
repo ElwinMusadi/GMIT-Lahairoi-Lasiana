@@ -8,12 +8,14 @@ import { cn } from '@/lib/utils'
 export function PageHeader({
   title,
   description,
+  meta,
   actions,
   back,
   className,
 }: {
   title: ReactNode
   description?: ReactNode
+  meta?: ReactNode
   actions?: ReactNode
   back?: { to: string; label: string }
   className?: string
@@ -35,6 +37,11 @@ export function PageHeader({
           <h1 className="truncate text-2xl font-bold tracking-tight">{title}</h1>
         </div>
         {description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}
+        {meta && (
+          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+            {meta}
+          </div>
+        )}
       </div>
       {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
     </div>

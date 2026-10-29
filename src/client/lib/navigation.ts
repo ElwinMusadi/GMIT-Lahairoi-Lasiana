@@ -274,6 +274,11 @@ export function modulesForRole(role: UserRole): ModuleGroup[] {
     .filter((group) => group.items.length > 0)
 }
 
+// Apakah peran ini melihat modul tersebut di menu (mis. untuk tautan kartu di Ringkasan).
+export function canOpenModule(role: UserRole, path: string): boolean {
+  return allModules.some((item) => item.path === path && item.roles.includes(role))
+}
+
 export function dashboardPath(item: Pick<ModuleItem, 'path'>): string {
   return item.path ? `/dashboard/${item.path}` : '/dashboard'
 }
