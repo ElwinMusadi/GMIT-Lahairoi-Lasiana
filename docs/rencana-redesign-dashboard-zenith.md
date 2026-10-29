@@ -1,7 +1,8 @@
 # Rencana Redesign Dashboard Pengurus (Zenith)
 
-Disusun 29 Oktober 2026. Status: **disetujui** 29 Oktober 2026 (keputusan D1–D10 di bagian 7).
-Dikerjakan di branch `feat/redesign-dashboard-zenith`. Acuan utamanya penerapan Zenith milik
+Disusun 29 Oktober 2026. Status: **selesai** 29 Oktober 2026 (keputusan D1–D10 di bagian 7).
+Dikerjakan di branch `feat/redesign-dashboard-zenith`, di-merge ke `main` lewat merge commit
+`c7855e8`. Acuan utamanya penerapan Zenith milik
 pengguna di proyek HRIS (bagian 2.4).
 
 ## 1. Tujuan
@@ -657,3 +658,11 @@ asal-usul gaya Zenith, Warta & Konten, Akun Pengurus) dan `KONTEKS_PROJECT.md` (
 berkas penting).
 
 **Berikutnya: Tahap 9** (Merge, D10).
+
+### Tahap 9 — Merge (29 Oktober 2026)
+
+- `git merge --no-ff feat/redesign-dashboard-zenith` menjadi merge commit `c7855e8` di `main`
+  (D10). `main` tidak punya commit baru sejak branch dibuat, jadi tanpa konflik.
+- Pohon `main` identik dengan ujung branch (`bfac603`) yang diuji di Tahap 8. Typecheck, lint, dan
+  build di `main` lolos dengan berkas bundel yang sama (`index` 394,22 KB, gzip 123,11 KB).
+- 9 commit redesign, merge, dan catatan ini di-push ke `origin/main` pada 29 Oktober 2026.

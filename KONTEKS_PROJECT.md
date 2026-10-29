@@ -35,8 +35,9 @@ Lahai-roi menjadi tanda merek (`src/client/components/brand/well.tsx`).
 
 ## 2. Status saat ini
 
-**Semua fitur PRD Fase 1–3 sudah dibangun, diuji, di-commit, dan di-push ke `main`.** Tahap yang
-sedang berjalan: penyempurnaan UI/UX, dimulai dari redesign Portal Publik.
+**Semua fitur PRD Fase 1–3 sudah dibangun, diuji, di-commit, dan di-push ke `main`.** Tahap
+penyempurnaan UI/UX: redesign Portal Publik (kage) dan dashboard pengurus (Zenith) sudah selesai
+dan tergabung di `main`.
 
 | Modul (PRD) | Fase | Status | Commit utama |
 | --- | --- | --- | --- |
@@ -58,6 +59,7 @@ sedang berjalan: penyempurnaan UI/UX, dimulai dari redesign Portal Publik.
 | Inventaris: katalog aset & peminjaman | 3 | Selesai | `6c926b4`, `841e79c` |
 | Dashboard Eksekutif: API agregasi + UI + widget ulang tahun | 3 | Selesai | `cdf6930`, `f88480c` |
 | Redesign Portal Publik bergaya kage (rancangan 10), isi 08 tetap | – | Selesai | `90e5a7a` (merge) |
+| Redesign dashboard pengurus bergaya Zenith, logika dan API tetap | – | Selesai | `c7855e8` (merge) |
 
 Catatan status:
 
@@ -67,12 +69,14 @@ Catatan status:
   masih dikomentari. Langkah sebelum deploy pertama ada di README bagian "Menyiapkan database di
   Cloudflare".
 - Riwayat `main` ada di bagian 13. Branch lokal lama `chore/design-skills`,
-  `docs/stitch-portal-smooth-scroll`, dan `feat/redesign-portal-kage` sudah tergabung ke `main`
-  dan tidak di-push.
+  `docs/stitch-portal-smooth-scroll`, `feat/redesign-portal-kage`, dan
+  `feat/redesign-dashboard-zenith` sudah tergabung ke `main` dan tidak di-push.
 - Redesign portal (12 commit, merge `90e5a7a`, dan catatan merge `2396a6a`) sudah di-push ke
   `origin/main` pada 29 Oktober 2026.
+- Redesign dashboard (9 commit, merge `c7855e8`, dan catatan merge sesudahnya) sudah di-push ke
+  `origin/main` pada 29 Oktober 2026.
 
-### Pekerjaan yang sedang berjalan: redesign dashboard bergaya Zenith
+### Redesign dashboard bergaya Zenith (selesai, 29 Oktober 2026)
 
 Dashboard pengurus (`/dashboard`) dirombak dengan tampilan Zenith Dashboard (shadcn/ui,
 DashboardPack). Pengguna punya lisensinya tetapi belum mengunduh source React-nya.
@@ -83,7 +87,8 @@ DashboardPack). Pengguna punya lisensinya tetapi belum mengunduh source React-ny
   tidak berubah.
 - **Rencana dan keputusan D1–D10** (disetujui 29 Oktober 2026) ada di
   [docs/rencana-redesign-dashboard-zenith.md](docs/rencana-redesign-dashboard-zenith.md).
-- **Branch:** `feat/redesign-dashboard-zenith`, di-merge `--no-ff` setelah semua tahap selesai (D10).
+- **Branch:** `feat/redesign-dashboard-zenith`, sudah di-merge `--no-ff` ke `main` lewat merge
+  commit `c7855e8` (D10).
 - **Tahap 0 (persiapan):** acuan HRIS diinventaris; baseline dashboard per peran ada di
   `.taste-skill/inspect-dashboard-baseline/` (tidak di-commit).
 - **Tahap 1 (fondasi) selesai.**
@@ -146,8 +151,15 @@ DashboardPack). Pengguna punya lisensinya tetapi belum mengunduh source React-ny
     `GroupHeaderRow` (data-table) agar judul hari di Jadwal Ibadah dan Log Aktivitas tidak membuat
     kolom kosong di ponsel.
   - README dan bagian Desain di berkas ini diperbarui.
-- **Berikutnya: Tahap 9 (Merge):** `git merge --no-ff feat/redesign-dashboard-zenith` ke `main`
-  (D10), lalu push bila diminta.
+- **Tahap 9 (Merge) selesai.** `git merge --no-ff` menjadi merge commit `c7855e8` di `main`
+  (D10), tanpa konflik. Pohon `main` identik dengan ujung branch yang diuji; typecheck, lint, dan
+  build lolos dengan bundel yang sama. Di-push ke `origin/main` bersama catatan merge.
+- **Usulan berikutnya** (belum dimulai):
+  - perbaikan bug API `LIKE` 50 byte (bagian redesign portal di bawah);
+  - `robots.txt`, 401 `/api/auth/me` di konsol portal, dan kode dashboard di bundel utama
+    (`session-provider` dimuat statis oleh `main.tsx`);
+  - kotak centang kriteria penerimaan di `docs/prd.md`;
+  - deploy pertama ke Cloudflare.
 
 ### Selesai: skala Portal Publik 90%
 
@@ -293,7 +305,8 @@ Progres tahap:
   lolos dengan bundel yang sama. Sudah di-push ke `origin/main`.
 - **Usulan berikutnya** (belum dimulai):
   - perbaikan bug API `LIKE` 50 byte di bawah;
-  - perbaikan dashboard yang ditunda sampai redesign selesai;
+  - perbaikan dashboard yang ditunda sampai redesign selesai (selesai di redesign Zenith,
+    Tahap 3 dan 5);
   - hal di luar lingkup redesign yang dicatat di rencana bagian 11 (`robots.txt`, 401
     `/api/auth/me` di portal, kode dashboard di bundel utama).
 
@@ -710,3 +723,20 @@ Sebelum deploy pertama:
 | `0cebfd8` | 2026-10-29 | feat(portal): 404, halaman eror, dan login bergaya kage |
 | `8030acd` | 2026-10-29 | chore(portal): rapikan sisa 08 dan QA akhir redesign kage |
 | `90e5a7a` | 2026-10-29 | Merge branch 'feat/redesign-portal-kage': redesign Portal Publik bergaya kage |
+| `2396a6a` | 2026-10-29 | docs: catat merge redesign Portal Publik kage |
+| `14449e0` | 2026-10-29 | docs: catat redesign Portal Publik sudah di-push |
+| `56008be` | 2026-10-29 | feat(portal): skala Portal Publik 90% di desktop |
+| `3349aa1` | 2026-10-29 | feat(portal): lantai teks 13 px untuk skala 90% |
+| `f2b4ed5` | 2026-10-29 | docs: QA dan dokumentasi skala Portal Publik 90% |
+| `3eada99` | 2026-10-29 | docs: catat skala Portal Publik 90% sudah di-push |
+| `5c16a38` | 2026-10-29 | feat(portal): rapatkan jarak navigasi dari atas halaman |
+| `6caf0de` | 2026-10-29 | docs: rencana redesign dashboard bergaya Zenith (Tahap 0) |
+| `d6cc46e` | 2026-10-29 | feat(dashboard): fondasi tema Zenith (Tahap 1) |
+| `3301a50` | 2026-10-29 | feat(dashboard): kerangka bergaya Zenith (Tahap 2) |
+| `2cc976b` | 2026-10-29 | feat(dashboard): Ringkasan bergaya Zenith (Tahap 3) |
+| `97b744e` | 2026-10-29 | feat(dashboard): modul Jemaat bergaya Zenith (Tahap 4) |
+| `7b75061` | 2026-10-29 | feat(dashboard): modul Keuangan bergaya Zenith (Tahap 5) |
+| `f88296b` | 2026-10-29 | feat(dashboard): modul Pelayanan bergaya Zenith (Tahap 6) |
+| `59103b2` | 2026-10-29 | feat(dashboard): modul Konten & Administrasi bergaya Zenith (Tahap 7) |
+| `bfac603` | 2026-10-29 | chore(dashboard): rapikan sisa gaya lama dan audit akhir (Tahap 8) |
+| `c7855e8` | 2026-10-29 | Merge branch 'feat/redesign-dashboard-zenith': redesign dashboard bergaya Zenith |
