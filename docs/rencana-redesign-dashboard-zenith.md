@@ -554,3 +554,52 @@ diuji di sini.
 | Typecheck, lint, prettier | Bersih |
 
 **Berikutnya: Tahap 7** (Konten & Administrasi).
+
+### Tahap 7 — Konten & Administrasi (29 Oktober 2026)
+
+**Cara kerja:** dua subagen paralel dengan berkas yang tidak bersinggungan:
+
+1. Warta & Konten + editor (sekaligus Renungan Saya);
+2. Akun Pengurus + Log Aktivitas + `ModulePage`.
+
+Hasilnya ditinjau, dirapikan, dan diuji di sini.
+
+**Halaman:**
+
+- **Warta & Konten** (Admin) dan **Renungan Saya** (Pendeta, tanpa kategori):
+  - kategori (enam, bergulir di tempat di ponsel) dan status (Semua, Draf, Terjadwal, Terbit)
+    bersegmen;
+  - tabel dengan gambar kecil, lencana status, dan sakelar terbit lama.
+  - `STATUS_PILL` di `lib/contents.ts` diganti `STATUS_TONE`: Draf netral, Terjadwal gelap
+    ("diproses"), Terbit hijau.
+- **Editor konten:**
+  - `PageHeader` dengan tombol kembali dan lencana status;
+  - Batal dan Simpan di judul;
+  - satu `Panel` rincian (urutan kolom per kategori tetap);
+  - kolom samping lengket;
+  - Tulis/Pratinjau bersegmen.
+- **Akun Pengurus:**
+  - status akun bersegmen beserta jumlah;
+  - pencarian dan peran di bilah alat;
+  - avatar (abu-abu bila nonaktif);
+  - lencana peran netral untuk semua peran, sama dengan menu pengguna.
+- **Log Aktivitas:**
+  - rentang tanggal, aksi, jenis data, dan pengguna di bilah alat (dilipat di ponsel);
+  - satu tabel berkelompok per hari;
+  - ikon modul polos dan lencana "Gagal"/"Ditolak" merah.
+  - Pemetaan ikon kini satu fungsi `auditIcon` di `lib/audit-format.ts`, dipakai juga linimasa
+    Aktivitas terbaru di Ringkasan.
+- **`ModulePage` / halaman tidak ditemukan:** memakai `PageHeader`.
+
+**Pemeriksaan:**
+
+| Uji | Hasil |
+| --- | --- |
+| Admin (1440 px) | Warta 18 baris, lencana Terjadwal/Terbit/Draf; editor warta (ubah dan baru); Akun 4 baris, lencana peran netral; Log 50 aktivitas berkelompok per hari, saringan lewat URL (`?entity_type=families`) tetap berlaku |
+| Pendeta | Renungan Saya tanpa segmen kategori; editor renungan (ubah dan tulis baru) |
+| 768 dan 390 px | Tanpa gulir menyamping, tanpa teks terpotong, isi bilah alat tetap di dalam kartu |
+| Tema gelap | Konten, Akun, dan Log mengikuti token |
+| Inspector `--app` | Warta & Konten, Akun, Log, dan Renungan: 0 FAIL, 0 WARN. Editor warta dan renungan: 0 FAIL, 1 WARN `ragged-row` (form panjang dengan kolom samping lengket, sama dengan editor jadwal) |
+| Typecheck, lint, prettier | Bersih |
+
+**Berikutnya: Tahap 8** (Rapikan & QA).

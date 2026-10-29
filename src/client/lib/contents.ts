@@ -1,6 +1,7 @@
 import type { UploadFolder } from '@shared/uploads'
 import type { ContentCategory, ContentStatus, UserRole } from '@shared/types'
 import type { UploadKind } from '@/components/upload-field'
+import type { StatusTone } from '@/components/zenith/status-badge'
 import { ApiError, errorMessage } from '@/lib/api'
 
 // Tampilan CMS konten Portal Publik: sebutan per kategori, field yang dipakai, dan
@@ -125,10 +126,12 @@ export const STATUS_LABELS: Record<ContentStatus, string> = {
   PUBLISHED: 'Terbit',
 }
 
-export const STATUS_PILL: Record<ContentStatus, string> = {
-  DRAFT: 'bg-secondary text-secondary-foreground',
-  SCHEDULED: 'bg-warning-soft text-warning-ink',
-  PUBLISHED: 'bg-positive-soft text-positive-ink',
+// Nada lencana status: Draf netral, Terjadwal "diproses" (terbit sendiri pada waktunya,
+// tidak perlu tindakan), Terbit hijau.
+export const STATUS_TONE: Record<ContentStatus, StatusTone> = {
+  DRAFT: 'neutral',
+  SCHEDULED: 'info',
+  PUBLISHED: 'success',
 }
 
 // Admin mengelola semua kategori di /dashboard/contents; Pendeta menulis renungannya di

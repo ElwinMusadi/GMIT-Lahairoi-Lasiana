@@ -1,39 +1,11 @@
-import { History, LogIn, LogOut, ShieldAlert, type LucideIcon } from 'lucide-react'
 import type { ApiPage, AuditLogItem } from '@shared/types'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Panel, PanelLink } from '@/components/zenith/panel'
 import { StatusBadge } from '@/components/zenith/status-badge'
-import { describeAudit } from '@/lib/audit-format'
+import { auditIcon, describeAudit } from '@/lib/audit-format'
 import { formatRecent } from '@/lib/format'
-import { allModules } from '@/lib/navigation'
 import { useApiQuery } from '@/lib/use-api-query'
 import { cn } from '@/lib/utils'
-
-// Tabel audit → modul dashboard, untuk ikon tiap aktivitas (sama dengan ikon di sidebar).
-const ENTITY_MODULE: Record<string, string> = {
-  users: 'users',
-  rayons: 'rayons',
-  families: 'families',
-  members: 'members',
-  finance_funds: 'finance/budgets',
-  finance_budgets: 'finance/budgets',
-  finance_transactions: 'finance/transactions',
-  public_contents: 'contents',
-  worship_schedules: 'worships',
-  worship_servants: 'worships',
-  sacrament_applications: 'sacraments',
-  mail_archives: 'mails',
-  assets: 'assets',
-  asset_loans: 'assets',
-}
-
-function activityIcon(item: AuditLogItem): LucideIcon {
-  if (item.action === 'LOGIN') return LogIn
-  if (item.action === 'LOGOUT') return LogOut
-  if (item.action.startsWith('LOGIN_')) return ShieldAlert
-  const path = ENTITY_MODULE[item.entity_type]
-  return allModules.find((module) => module.path === path)?.icon ?? History
-}
 
 // Khusus Admin: linimasa lima aktivitas terakhir (Zenith "Recent activity"), dengan tautan
 // ke Log Aktivitas lengkap. Ikonnya mengikuti ikon modul di sidebar.
@@ -76,7 +48,7 @@ export function RecentActivity({ className }: { className?: string }) {
         <ol>
           {logs.data.data.map((item) => {
             const { summary, flag } = describeAudit(item)
-            const Icon = activityIcon(item)
+            const Icon = auditIcon(item)
             return (
               // Linimasa: ikon polos di rel kiri, disambung garis tipis ke aktivitas berikutnya.
               <li

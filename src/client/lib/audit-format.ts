@@ -1,3 +1,4 @@
+import { History, LogIn, LogOut, ShieldAlert, type LucideIcon } from 'lucide-react'
 import { formatRupiah } from '@shared/finance'
 import {
   ASSET_CONDITION_LABELS,
@@ -19,6 +20,7 @@ import {
   type AuditLogItem,
 } from '@shared/types'
 import { formatDate, formatTime } from './format'
+import { allModules } from './navigation'
 
 // Menerjemahkan baris audit_logs menjadi kalimat untuk Log Aktivitas, mis.
 // "Menonaktifkan akun Yohanis Dimu" dengan rincian "Peran: Majelis → Pendeta".
@@ -316,4 +318,31 @@ function formatValue(entity: string, field: string, value: unknown): string {
   if (field.endsWith('_date') && typeof value === 'string') return formatDate(value)
   if (typeof value === 'boolean') return value ? 'Ya' : 'Tidak'
   return String(value)
+}
+
+// Tabel audit → modul dashboard, untuk ikon tiap aktivitas (ikon yang sama dengan sidebar), di
+// Log Aktivitas dan linimasa Aktivitas terbaru di Ringkasan.
+const ENTITY_MODULE: Record<string, string> = {
+  users: 'users',
+  rayons: 'rayons',
+  families: 'families',
+  members: 'members',
+  finance_funds: 'finance/budgets',
+  finance_budgets: 'finance/budgets',
+  finance_transactions: 'finance/transactions',
+  public_contents: 'contents',
+  worship_schedules: 'worships',
+  worship_servants: 'worships',
+  sacrament_applications: 'sacraments',
+  mail_archives: 'mails',
+  assets: 'assets',
+  asset_loans: 'assets',
+}
+
+export function auditIcon(item: AuditLogItem): LucideIcon {
+  if (item.action === 'LOGIN') return LogIn
+  if (item.action === 'LOGOUT') return LogOut
+  if (item.action.startsWith('LOGIN_')) return ShieldAlert
+  const path = ENTITY_MODULE[item.entity_type]
+  return allModules.find((module) => module.path === path)?.icon ?? History
 }

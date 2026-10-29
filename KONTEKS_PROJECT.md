@@ -127,8 +127,15 @@ DashboardPack). Pengguna punya lisensinya tetapi belum mengunduh source React-ny
   - Arsip Surat: arah surat bersegmen, kolom Salinan. Inventaris: Katalog/Peminjaman dan
     kondisi bersegmen; kondisi Baik tetap tanpa lencana.
   - Dikerjakan tiga subagen paralel dengan pola dari Tahap 3–5, lalu ditinjau dan diuji di sini.
-- **Berikutnya: Tahap 7 (Konten & Administrasi):** Warta & Konten + editor, Renungan Saya,
-  Akun Pengurus, Log Aktivitas.
+- **Tahap 7 (Konten & Administrasi) selesai.**
+  - Warta & Konten / Renungan Saya: kategori dan status bersegmen; nada lencana di
+    `STATUS_TONE` (`lib/contents.ts`). Editor memakai `Panel` dengan kolom samping lengket.
+  - Akun Pengurus: status akun bersegmen, avatar, lencana peran netral. Log Aktivitas: filter di
+    bilah alat, satu tabel berkelompok per hari, ikon modul polos (`auditIcon` di
+    `lib/audit-format.ts`, dipakai juga linimasa Ringkasan).
+  - Dikerjakan dua subagen paralel, lalu ditinjau dan diuji di sini.
+- **Berikutnya: Tahap 8 (Rapikan & QA):** hapus token `:root` ledger dan komponen lama yang tak
+  terpakai, audit akhir semua modul, README & KONTEKS.
 
 ### Selesai: skala Portal Publik 90%
 

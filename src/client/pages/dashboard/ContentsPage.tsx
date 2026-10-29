@@ -1,5 +1,5 @@
 import { useRef, useState, type ReactNode } from 'react'
-import { EllipsisVertical, FileText, Pencil, Plus, Search, Trash2 } from 'lucide-react'
+import { EllipsisVertical, FileText, Pencil, Plus, Trash2, X } from 'lucide-react'
 import { Link } from 'react-router'
 import { toast } from 'sonner'
 import { witaToday } from '@shared/dates'
@@ -13,14 +13,30 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Input } from '@/components/ui/input'
-import { Skeleton } from '@/components/ui/skeleton'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import {
+  SearchField,
+  SkeletonRows,
+  TableCard,
+  TableMessage,
+  TablePagination,
+} from '@/components/zenith/data-table'
+import { PageHeader } from '@/components/zenith/page-header'
+import { Segmented } from '@/components/zenith/segmented'
+import { StatusBadge } from '@/components/zenith/status-badge'
 import { api } from '@/lib/api'
 import {
   CATEGORY_CONFIG,
   CATEGORY_ORDER,
   STATUS_LABELS,
-  STATUS_PILL,
+  STATUS_TONE,
   apiFailure,
   contentsBase,
   toWitaInputs,
@@ -33,11 +49,17 @@ import { cn } from '@/lib/utils'
 
 const PER_PAGE = 30
 
-const controlClass =
-  'h-9 rounded-lg border border-input bg-card text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50'
+// Saringan status di URL (huruf kecil); "ALL" hanya nilai segmen, di URL berarti kosong.
+const STATUS_FILTERS = [
+  { value: 'ALL', label: 'Semua' },
+  { value: 'draft', label: STATUS_LABELS.DRAFT },
+  { value: 'scheduled', label: STATUS_LABELS.SCHEDULED },
+  { value: 'published', label: STATUS_LABELS.PUBLISHED },
+]
 
 // CMS konten Portal Publik. Admin mengelola keenam kategori; Pendeta memakai halaman
-// yang sama sebagai "Renungan Saya" (hanya renungan miliknya, dibatasi API).
+// yang sama sebagai "Renungan Saya" (hanya renungan miliknya, dibatasi API). Tabel
+// bergaya Zenith: kategori bersegmen (Admin), status, dan pencarian di bilah alat.
 export default function ContentsPage() {
   const me = useCurrentUser()
   const isPastor = me.role === 'PASTOR'
@@ -148,18 +170,28 @@ export default function ContentsPage() {
   const result = list.data
   const items = result?.data ?? []
   const total = result?.meta.total ?? 0
-  const first = total === 0 ? 0 : (page - 1) * PER_PAGE + 1
-  const last = Math.min(page * PER_PAGE, total)
   const filtered = Boolean(status || q)
   const addHref = `${base}/new${isPastor ? '' : `?category=${category}`}`
 
+  const count = (
+    <p className="text-sm text-muted-foreground tabular-nums" aria-live="polite">
+      {result ? `${total.toLocaleString('id-ID')} ${config.noun}` : ''}
+    </p>
+  )
+  const statusControl = (
+    <Segmented
+      label="Status konten"
+      value={status || 'ALL'}
+      onChange={(value) => update({ status: value === 'ALL' ? '' : value })}
+      options={STATUS_FILTERS}
+    />
+  )
+
   return (
     <div className="grid gap-6">
-      <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
-        <div className="grid gap-1">
-          <h1 className="text-2xl font-semibold tracking-[-0.02em]">
-            {isPastor ? 'Renungan Saya' : 'Warta & Konten'}
-          </h1>
+      <PageHeader
+        title={isPastor ? 'Renungan Saya' : 'Warta & Konten'}
+        description={
           <Finding
             today={today}
             lastWarta={isPastor ? undefined : (lastWarta.data?.data[0] ?? null)}
@@ -169,162 +201,139 @@ export default function ContentsPage() {
             loading={!lastDevotional.data || !drafts.data || (!isPastor && !lastWarta.data)}
             onShowDrafts={() => clearSearch({ status: 'draft' })}
           />
-        </div>
-        <Button asChild size="lg">
-          <Link to={addHref}>
-            <Plus data-icon="inline-start" />
-            {config.addLabel}
-          </Link>
-        </Button>
-      </header>
+        }
+        actions={
+          <Button asChild size="lg">
+            <Link to={addHref}>
+              <Plus data-icon="inline-start" />
+              {config.addLabel}
+            </Link>
+          </Button>
+        }
+      />
 
-      {!isPastor && (
-        <CategoryTabs
-          selected={category}
-          onSelect={(next) => clearSearch({ category: next, status: '' })}
-        />
-      )}
-
-      <div className="grid gap-3">
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="relative w-full sm:w-72">
-            <Search
-              aria-hidden="true"
-              className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
-            />
-            <Input
-              type="search"
-              value={search}
-              onChange={(event) => handleSearch(event.target.value)}
-              placeholder="Cari judul atau ringkasan"
-              aria-label={`Cari ${config.noun}`}
-              className={cn(controlClass, 'pl-9')}
-            />
-          </div>
-          <select
-            value={status}
-            onChange={(event) => update({ status: event.target.value })}
-            aria-label="Status"
-            className={cn(controlClass, 'px-3')}
-          >
-            <option value="">Semua status</option>
-            <option value="draft">Draf</option>
-            <option value="scheduled">Terjadwal</option>
-            <option value="published">Terbit</option>
-          </select>
-          <p className="ml-auto text-sm text-muted-foreground tabular-nums" aria-live="polite">
-            {result ? `${total.toLocaleString('id-ID')} ${config.noun}` : ''}
-          </p>
-        </div>
-
-        <div className="rounded-lg border bg-card">
-          <table className="w-full table-fixed text-sm" aria-busy={list.loading}>
-            <caption className="sr-only">{config.tab}</caption>
-            <thead>
-              <tr className="text-left text-xs text-muted-foreground">
-                <th scope="col" className="h-10 w-16 pl-4 font-normal">
-                  <span className="sr-only">Gambar atau berkas</span>
-                </th>
-                <th scope="col" className="pr-4 font-normal">
-                  Judul
-                </th>
-                <th scope="col" className="hidden w-44 pr-4 font-normal md:table-cell">
-                  Status
-                </th>
-                <th scope="col" className="w-20 pr-2 text-center font-normal">
-                  Terbit
-                </th>
-                <th scope="col" className="w-12 pr-2">
-                  <span className="sr-only">Tindakan</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody className={cn('transition-opacity', list.loading && result && 'opacity-60')}>
-              {list.error && (
-                <MessageRow>
-                  Konten tidak dapat dimuat: {list.error}{' '}
-                  <button type="button" onClick={list.reload} className="font-medium underline">
-                    Coba lagi
-                  </button>
-                </MessageRow>
+      <TableCard
+        aria-label={isPastor ? 'Daftar renungan saya' : 'Daftar konten portal'}
+        toolbar={
+          <>
+            {/* Admin: kategori menjadi segmen utama (bergulir di tempat bila sempit), status
+                pindah ke samping pencarian. Pendeta hanya punya Renungan, jadi status di atas. */}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              {isPastor ? (
+                statusControl
+              ) : (
+                <Segmented
+                  label="Kategori konten"
+                  value={category}
+                  onChange={(next) => clearSearch({ category: next, status: '' })}
+                  options={CATEGORY_ORDER.map((value) => ({
+                    value,
+                    label: CATEGORY_CONFIG[value].tab,
+                  }))}
+                />
               )}
-              {!result &&
-                !list.error &&
-                Array.from({ length: 6 }, (_, index) => <SkeletonRow key={index} />)}
-              {result && !list.error && items.length === 0 && (
-                <MessageRow>
-                  {q ? (
-                    <>
-                      Tidak ada {config.noun} yang cocok dengan “{q}”.{' '}
-                      <button
-                        type="button"
-                        className="font-medium underline"
-                        onClick={() => clearSearch()}
-                      >
-                        Hapus pencarian
-                      </button>
-                    </>
-                  ) : filtered ? (
-                    `Tidak ada ${config.noun} dengan status ini.`
-                  ) : (
-                    <>
-                      {config.empty}{' '}
-                      <Link to={addHref} className="font-medium text-foreground underline">
-                        {config.addLabel}
-                      </Link>
-                    </>
-                  )}
-                </MessageRow>
+              {count}
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <SearchField
+                value={search}
+                onChange={handleSearch}
+                label={`Cari ${config.noun}`}
+                placeholder="Cari judul atau ringkasan"
+              />
+              {!isPastor && statusControl}
+              {filtered && (
+                <Button variant="ghost" size="lg" onClick={() => clearSearch({ status: '' })}>
+                  <X data-icon="inline-start" />
+                  Hapus filter
+                </Button>
               )}
-              {!list.error &&
-                items.map((item) => (
-                  <ContentRow
-                    key={item.id}
-                    item={item}
-                    href={`${base}/${item.id}`}
-                    pending={pending === item.id}
-                    onToggle={() => void togglePublished(item)}
-                    onDelete={() => confirmDelete(item)}
-                  />
-                ))}
-            </tbody>
-          </table>
-
-          {result && total > PER_PAGE && (
-            <nav
-              aria-label="Halaman daftar konten"
-              className="flex flex-wrap items-center justify-between gap-3 border-t border-rule px-4 py-3"
-            >
-              <p className="text-sm text-muted-foreground tabular-nums">
-                {first.toLocaleString('id-ID')}–{last.toLocaleString('id-ID')} dari{' '}
-                {total.toLocaleString('id-ID')}
-              </p>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  disabled={page <= 1}
-                  onClick={() => update({ page: String(page - 1) })}
-                >
-                  Sebelumnya
-                </Button>
-                <Button
-                  variant="outline"
-                  disabled={last >= total}
-                  onClick={() => update({ page: String(page + 1) })}
-                >
-                  Berikutnya
-                </Button>
-              </div>
-            </nav>
-          )}
-        </div>
-      </div>
+            </div>
+          </>
+        }
+        footer={
+          result && (
+            <TablePagination
+              label="Halaman daftar konten"
+              page={page}
+              perPage={PER_PAGE}
+              total={total}
+              unit={config.noun}
+              onPage={(next) => update({ page: String(next) })}
+            />
+          )
+        }
+      >
+        <Table className="table-fixed" aria-busy={list.loading}>
+          <caption className="sr-only">{config.tab}</caption>
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead>Judul</TableHead>
+              <TableHead className="hidden w-44 md:table-cell">Status</TableHead>
+              <TableHead className="w-20 text-center">Terbit</TableHead>
+              <TableHead className="w-14">
+                <span className="sr-only">Tindakan</span>
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody className={cn('transition-opacity', list.loading && result && 'opacity-60')}>
+            {list.error && (
+              <TableMessage colSpan={4}>
+                Konten tidak dapat dimuat: {list.error}{' '}
+                <button type="button" onClick={list.reload} className="font-medium underline">
+                  Coba lagi
+                </button>
+              </TableMessage>
+            )}
+            {!result && !list.error && (
+              <SkeletonRows cells={['', 'hidden md:table-cell', '', '']} />
+            )}
+            {result && !list.error && items.length === 0 && (
+              <TableMessage colSpan={4}>
+                {q ? (
+                  <>
+                    Tidak ada {config.noun} yang cocok dengan “{q}”.{' '}
+                    <button
+                      type="button"
+                      className="font-medium underline"
+                      onClick={() => clearSearch()}
+                    >
+                      Hapus pencarian
+                    </button>
+                  </>
+                ) : filtered ? (
+                  `Tidak ada ${config.noun} dengan status ini.`
+                ) : (
+                  <>
+                    {config.empty}{' '}
+                    <Link to={addHref} className="font-medium text-foreground underline">
+                      {config.addLabel}
+                    </Link>
+                  </>
+                )}
+              </TableMessage>
+            )}
+            {!list.error &&
+              items.map((item) => (
+                <ContentRow
+                  key={item.id}
+                  item={item}
+                  href={`${base}/${item.id}`}
+                  pending={pending === item.id}
+                  onToggle={() => void togglePublished(item)}
+                  onDelete={() => confirmDelete(item)}
+                />
+              ))}
+          </TableBody>
+        </Table>
+      </TableCard>
 
       <ConfirmDialog confirmation={confirmation} onClose={() => setConfirmation(null)} />
     </div>
   )
 }
 
+// Temuan di bawah judul. Isinya frasa (span/tombol) karena dirender di dalam <p> PageHeader.
 function Finding({
   today,
   lastWarta,
@@ -344,7 +353,11 @@ function Finding({
   loading: boolean
   onShowDrafts: () => void
 }) {
-  if (loading) return <Skeleton className="h-5 w-80 max-w-full" />
+  if (loading) {
+    return (
+      <span className="inline-block h-4 w-72 max-w-full animate-pulse rounded-md bg-muted align-middle" />
+    )
+  }
   const devotionalToday =
     lastDevotional?.published_at && toWitaInputs(lastDevotional.published_at).date === today
   const parts: ReactNode[] = []
@@ -385,69 +398,14 @@ function Finding({
     )
   }
   return (
-    <p className="text-sm text-muted-foreground tabular-nums">
+    <span className="tabular-nums">
       {parts.map((part, index) => (
         <span key={index}>
           {index > 0 && ' · '}
           {part}
         </span>
       ))}
-    </p>
-  )
-}
-
-// Enam kategori sebagai tab; di ponsel menjadi satu pilihan.
-function CategoryTabs({
-  selected,
-  onSelect,
-}: {
-  selected: ContentCategory
-  onSelect: (category: ContentCategory) => void
-}) {
-  return (
-    <>
-      <div className="grid gap-1.5 md:hidden">
-        <label htmlFor="pilih-kategori" className="text-xs text-muted-foreground">
-          Kategori
-        </label>
-        <select
-          id="pilih-kategori"
-          value={selected}
-          onChange={(event) => onSelect(event.target.value as ContentCategory)}
-          className="h-10 w-full rounded-lg border border-input bg-card px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-        >
-          {CATEGORY_ORDER.map((category) => (
-            <option key={category} value={category}>
-              {CATEGORY_CONFIG[category].tab}
-            </option>
-          ))}
-        </select>
-      </div>
-      <nav aria-label="Kategori konten" className="hidden border-b md:block">
-        <ul className="flex gap-1">
-          {CATEGORY_ORDER.map((category) => {
-            const active = category === selected
-            return (
-              <li key={category}>
-                <button
-                  type="button"
-                  aria-pressed={active}
-                  onClick={() => onSelect(category)}
-                  className={cn(
-                    '-mb-px border-b-2 px-3 pt-1 pb-2.5 text-sm outline-offset-[-2px]',
-                    active
-                      ? 'border-foreground font-medium text-foreground'
-                      : 'border-transparent text-muted-foreground hover:text-foreground',
-                  )}
-                >
-                  {CATEGORY_CONFIG[category].tab}
-                </button>
-              </li>
-            )
-          })}
-        </ul>
-      </nav>
-    </>
+    </span>
   )
 }
 
@@ -467,49 +425,48 @@ function ContentRow({
   const details = rowDetails(item)
   const when = item.published_at ?? item.updated_at
   return (
-    <tr className="border-t border-rule align-top">
-      <td className="py-3 pl-4">
-        <RowVisual item={item} />
-      </td>
-      <td className="py-3 pr-4">
-        <Link
-          to={href}
-          className="line-clamp-2 font-medium underline-offset-4 hover:underline sm:line-clamp-1"
-        >
-          {item.title}
-        </Link>
-        <p className="mt-0.5 truncate text-[0.8125rem] text-muted-foreground">
-          <span className="md:hidden">
-            {STATUS_LABELS[item.status]}
-            {item.status !== 'DRAFT' && item.published_at && ` ${formatDate(item.published_at)}`}
-            {details && ' · '}
-          </span>
-          {details}
-        </p>
-      </td>
-      <td className="hidden py-3 pr-4 md:table-cell">
-        <span
-          className={cn(
-            'inline-block rounded-full px-2 py-0.5 text-xs font-medium',
-            STATUS_PILL[item.status],
-          )}
-        >
-          {STATUS_LABELS[item.status]}
-        </span>
+    <TableRow className="[&>td]:align-top">
+      <TableCell>
+        <div className="flex min-w-0 items-start gap-3">
+          <RowVisual item={item} />
+          <div className="min-w-0 flex-1">
+            {/* Judul membungkus di layar sempit; baru dipotong satu baris di layar lebar. */}
+            <Link
+              to={href}
+              className="block font-medium break-words underline-offset-4 hover:underline lg:truncate"
+            >
+              {item.title}
+            </Link>
+            <p className="mt-0.5 line-clamp-2 text-[0.8125rem] break-words text-muted-foreground lg:line-clamp-1">
+              {/* Kolom Status tersembunyi di layar sempit; isinya pindah ke baris ini. */}
+              <span className="md:hidden">
+                {STATUS_LABELS[item.status]}
+                {item.status !== 'DRAFT' &&
+                  item.published_at &&
+                  ` ${formatDate(item.published_at)}`}
+                {details && ' · '}
+              </span>
+              {details}
+            </p>
+          </div>
+        </div>
+      </TableCell>
+      <TableCell className="hidden md:table-cell">
+        <StatusBadge tone={STATUS_TONE[item.status]}>{STATUS_LABELS[item.status]}</StatusBadge>
         <p className="mt-1 text-[0.8125rem] text-muted-foreground tabular-nums">
           {item.status === 'DRAFT' ? 'Diubah ' : ''}
           {formatDate(when)}, {formatTime(when)}
         </p>
-      </td>
-      <td className="py-2.5 pr-2 text-center">
+      </TableCell>
+      <TableCell className="text-center">
         <PublishSwitch
           checked={item.is_published}
           disabled={pending}
           label={`Terbitkan “${item.title}”`}
           onToggle={onToggle}
         />
-      </td>
-      <td className="py-2 pr-2 text-right">
+      </TableCell>
+      <TableCell className="py-1.5 pr-2 pl-0 text-right">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="size-10 sm:size-8">
@@ -539,8 +496,8 @@ function ContentRow({
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      </td>
-    </tr>
+      </TableCell>
+    </TableRow>
   )
 }
 
@@ -573,14 +530,14 @@ function RowVisual({ item }: { item: ContentListItem }) {
         src={item.thumbnail_url}
         alt=""
         loading="lazy"
-        className="size-10 rounded-md border bg-muted object-cover"
+        className="size-10 flex-none rounded-md border bg-muted object-cover"
       />
     )
   }
   return (
     <span
       aria-hidden="true"
-      className="flex size-10 items-center justify-center rounded-md border border-dashed text-muted-foreground"
+      className="flex size-10 flex-none items-center justify-center rounded-md border border-dashed text-muted-foreground"
     >
       <FileText className="size-4" />
     </span>
@@ -619,36 +576,5 @@ function PublishSwitch({
         )}
       />
     </button>
-  )
-}
-
-function MessageRow({ children }: { children: ReactNode }) {
-  return (
-    <tr className="border-t border-rule">
-      <td colSpan={5} className="px-4 py-6 text-muted-foreground">
-        {children}
-      </td>
-    </tr>
-  )
-}
-
-function SkeletonRow() {
-  return (
-    <tr className="border-t border-rule" aria-hidden="true">
-      <td className="py-3 pl-4">
-        <Skeleton className="size-10" />
-      </td>
-      <td className="py-3 pr-4">
-        <Skeleton className="h-5 w-64 max-w-full" />
-        <Skeleton className="mt-1.5 h-4 w-40 max-w-full" />
-      </td>
-      <td className="hidden py-3 pr-4 md:table-cell">
-        <Skeleton className="h-5 w-20" />
-      </td>
-      <td className="py-3 pr-2">
-        <Skeleton className="mx-auto h-6 w-10 rounded-full" />
-      </td>
-      <td />
-    </tr>
   )
 }
