@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import type { ApiErrorBody, AuthResponse } from '../../shared/types'
+import type { ApiErrorBody, AuthResponse, SessionResponse } from '../../shared/types'
 import { recordAudit } from '../lib/audit'
 import { verifyPassword } from '../lib/password'
 import {
@@ -12,7 +12,7 @@ import {
   toSessionUser,
   type UserRow,
 } from '../lib/session'
-import { requireAuth } from '../middleware/auth'
+import { authenticate } from '../middleware/auth'
 import type { AppEnv } from '../types'
 
 // Penguncian: setelah 5 kali gagal untuk satu email/username dalam 15 menit,
@@ -129,6 +129,13 @@ auth.post('/logout', async (c) => {
   return c.body(null, 204)
 })
 
-auth.get('/me', requireAuth, (c) => c.json<AuthResponse>({ user: c.get('user') }))
+// Publik: tanpa sesi yang sah jawabannya `{ user: null }`, bukan 401. Aplikasi memanggilnya di
+// setiap halaman, termasuk portal, dan 401 di sana tercatat browser sebagai galat konsol.
+// Sesi yang kedaluwarsa atau akun nonaktif tetap menghapus cookie-nya (lihat authenticate()).
+auth.get('/me', async (c) => {
+  const result = await authenticate(c)
+  c.header('Cache-Control', 'no-store')
+  return c.json<SessionResponse>({ user: result.ok ? result.user : null })
+})
 
 export default auth

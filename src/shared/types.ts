@@ -1025,10 +1025,15 @@ export type LoginRequest = {
   password: string
 }
 
-// Respons POST /api/auth/login dan GET /api/auth/me. Token sesi dikirim lewat
-// cookie HttpOnly, tidak pernah di body, agar tidak bisa dibaca JavaScript.
+// Respons POST /api/auth/login. Token sesi dikirim lewat cookie HttpOnly, tidak pernah di
+// body, agar tidak bisa dibaca JavaScript.
 export type AuthResponse = {
   user: SessionUser
+}
+
+// Respons GET /api/auth/me: `null` bila belum masuk, sesinya berakhir, atau akunnya nonaktif.
+export type SessionResponse = {
+  user: SessionUser | null
 }
 
 // Timestamp dari API selalu ISO 8601 UTC (mis. "2026-10-28T03:15:00Z").

@@ -86,7 +86,7 @@ Catatan status:
   - Rencana, keputusan J1–J9, catatan per tahap, dan hasil QA ada di
     [docs/rencana-redesign-jadwal-ibadah.md](docs/rencana-redesign-jadwal-ibadah.md).
   - Kontras teks hero Beranda di atas foto, yang ditemukan saat QA, ikut diperbaiki di branch
-    ini. Tindak lanjut yang tersisa: `401 /api/auth/me` di konsol portal.
+    ini. Galat `401 /api/auth/me` di konsol portal diperbaiki sesudahnya (lihat bagian 10).
 
 ### Redesign dashboard bergaya Zenith (selesai, 29 Oktober 2026)
 
@@ -168,8 +168,8 @@ DashboardPack). Pengguna punya lisensinya tetapi belum mengunduh source React-ny
   build lolos dengan bundel yang sama. Di-push ke `origin/main` bersama catatan merge.
 - **Usulan berikutnya** (belum dimulai):
   - perbaikan bug API `LIKE` 50 byte (bagian redesign portal di bawah);
-  - `robots.txt`, 401 `/api/auth/me` di konsol portal, dan kode dashboard di bundel utama
-    (`session-provider` dimuat statis oleh `main.tsx`);
+  - `robots.txt` dan kode dashboard di bundel utama (`session-provider` dimuat statis oleh
+    `main.tsx`); 401 `/api/auth/me` di konsol portal sudah diperbaiki (30 Oktober 2026);
   - kotak centang kriteria penerimaan di `docs/prd.md`;
   - deploy pertama ke Cloudflare.
 
@@ -319,8 +319,8 @@ Progres tahap:
   - perbaikan bug API `LIKE` 50 byte di bawah;
   - perbaikan dashboard yang ditunda sampai redesign selesai (selesai di redesign Zenith,
     Tahap 3 dan 5);
-  - hal di luar lingkup redesign yang dicatat di rencana bagian 11 (`robots.txt`, 401
-    `/api/auth/me` di portal, kode dashboard di bundel utama).
+  - hal di luar lingkup redesign yang dicatat di rencana bagian 11 (`robots.txt`, kode
+    dashboard di bundel utama; 401 `/api/auth/me` di portal sudah diperbaiki).
 
 **Bug API yang ditemukan di Tahap 0** (belum diperbaiki, diusulkan sebagai commit terpisah):
 
@@ -690,6 +690,10 @@ Sebelum deploy pertama:
   - minggu dihitung Minggu–Sabtu (`date(x, '-6 days', 'weekday 0')`);
   - ulang tahun 29 Februari dirayakan 28 Februari di tahun non-kabisat.
 - **Respons `/api/public/*`** memakai `Cache-Control: public, max-age=60`.
+- **`GET /api/auth/me` publik** (30 Oktober 2026): tanpa sesi yang sah menjawab
+  `200 { user: null }`, bukan `401`, karena `SessionProvider` di `main.tsx` memanggilnya di setiap
+  halaman portal dan browser mencatat 401 sebagai galat konsol (Lighthouse "Praktik terbaik" 96 →
+  100). Endpoint terproteksi lain tetap `401`. Respons `no-store`.
 
 ---
 
