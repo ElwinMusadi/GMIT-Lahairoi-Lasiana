@@ -84,8 +84,8 @@ Catatan status:
   `origin/main` pada 30 Oktober 2026.
 - Kalender Jadwal Ibadah (8 commit Tahap 1–7 dan perbaikan kontras hero Beranda, merge
   `2930738` pada 30 Oktober 2026) sudah di-push ke `origin/main` pada 30 Oktober 2026.
-- Perbaikan `GET /api/auth/me` tanpa 401 (merge `fabef90` pada 30 Oktober 2026) **belum
-  di-push**.
+- Perbaikan `GET /api/auth/me` tanpa 401 (merge `fabef90` pada 30 Oktober 2026) sudah di-push
+  ke `origin/main` pada 30 Oktober 2026.
   - Rencana, keputusan J1–J9, catatan per tahap, dan hasil QA ada di
     [docs/rencana-redesign-jadwal-ibadah.md](docs/rencana-redesign-jadwal-ibadah.md).
   - Kontras teks hero Beranda di atas foto, yang ditemukan saat QA, ikut diperbaiki di branch
@@ -819,3 +819,4 @@ Sebelum deploy pertama:
 | `1836b91` | 2026-10-30 | docs: catat tema Glassmorphism dan kalender Jadwal Ibadah sudah di-push |
 | `bb29aea` | 2026-10-30 | fix(auth): GET /api/auth/me tanpa 401 untuk pengunjung tanpa sesi |
 | `fabef90` | 2026-10-30 | Merge branch 'fix/auth-me-tanpa-401': /api/auth/me tanpa 401 |
+| `6826514` | 2026-10-30 | docs: catat merge perbaikan /api/auth/me |
