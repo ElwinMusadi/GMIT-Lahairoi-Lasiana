@@ -1,6 +1,8 @@
 import { ChevronRight, FileText, MapPin } from 'lucide-react'
 import { WORSHIP_CATEGORY_LABELS, type PublicWorshipItem } from '@shared/types'
+import { Highlight } from '@/components/portal/schedule/highlight'
 import { KIND_BORDER, KIND_DOT, clock, kindLabel } from '@/components/portal/schedule/kinds'
+import { hiddenMatches, matchesTerms } from '@/lib/schedule-calendar'
 import { cn } from '@/lib/utils'
 
 // Jadwal dalam bentuk ringkas untuk kalender Jadwal Ibadah. Seluruh kartu atau baris adalah
@@ -64,10 +66,20 @@ export function WeekCard({ worship, onOpen, past = false }: Props) {
 }
 
 // Baris Agenda: jam | judul, jenis/rayon, tempat, Pelayan Firman dan Liturgos | tata ibadah.
-export function AgendaRow({ worship, onOpen, past = false }: Props) {
+// Di hasil pencarian (`terms`), kata yang cocok ditandai, dan kolom lain yang cocok (petugas
+// lain, tema, bacaan) ditampilkan agar jelas mengapa jadwal itu muncul.
+export function AgendaRow({
+  worship,
+  onOpen,
+  past = false,
+  terms,
+}: Props & { terms?: readonly string[] }) {
   const preacher = preacherOf(worship)
   const liturgist = worship.servants.find((servant) => servant.role === 'LITURGIST')?.name
   const time = clock(worship.worship_time)
+  const extras = terms?.length ? hiddenMatches(worship, terms) : []
+  // Liturgos disembunyikan di ponsel, kecuali dialah yang dicari.
+  const liturgistMatches = Boolean(terms?.length && liturgist && matchesTerms(liturgist, terms))
   return (
     <button
       type="button"
@@ -87,7 +99,7 @@ export function AgendaRow({ worship, onOpen, past = false }: Props) {
             past ? 'text-site-muted' : 'text-site-ink',
           )}
         >
-          {worship.title}
+          <Highlight text={worship.title} terms={terms} />
           {past && <span className="sr-only"> (sudah lewat)</span>}
         </span>
         <span className="flex flex-wrap items-center gap-x-3 gap-y-1 text-(length:--site-text-xs) text-site-muted">
@@ -96,12 +108,14 @@ export function AgendaRow({ worship, onOpen, past = false }: Props) {
               aria-hidden="true"
               className={cn('size-2 flex-none rounded-full', KIND_DOT[worship.category])}
             />
-            {kindLabel(worship)}
+            <Highlight text={kindLabel(worship)} terms={terms} />
           </span>
           {worship.location && (
             <span className="inline-flex min-w-0 items-center gap-1">
               <MapPin className="size-3.5 flex-none" aria-hidden="true" />
-              <span className="min-w-0">{worship.location}</span>
+              <span className="min-w-0">
+                <Highlight text={worship.location} terms={terms} />
+              </span>
             </span>
           )}
         </span>
@@ -110,16 +124,28 @@ export function AgendaRow({ worship, onOpen, past = false }: Props) {
             {preacher && (
               <>
                 <span className="text-site-muted">Pelayan Firman </span>
-                <span className="font-semibold text-site-ink">{preacher}</span>
+                <span className="font-semibold text-site-ink">
+                  <Highlight text={preacher} terms={terms} />
+                </span>
               </>
             )}
             {liturgist && (
-              <span className="max-sm:hidden">
+              <span className={cn(!liturgistMatches && 'max-sm:hidden')}>
                 {preacher && <span aria-hidden="true"> · </span>}
                 <span className="text-site-muted">Liturgos </span>
-                {liturgist}
+                <Highlight text={liturgist} terms={terms} />
               </span>
             )}
+          </span>
+        )}
+        {extras.length > 0 && (
+          <span className="grid gap-0.5 text-sm text-site-ink/85">
+            {extras.map((extra, index) => (
+              <span key={index}>
+                <span className="text-site-muted">{extra.label} </span>
+                <Highlight text={extra.value} terms={terms} />
+              </span>
+            ))}
           </span>
         )}
       </span>

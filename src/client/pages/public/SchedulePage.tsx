@@ -4,11 +4,11 @@ import type { ApiList, ApiPage, PublicWorshipItem, RayonListItem } from '@shared
 import { HeroPanel } from '@/components/portal/kage/hero-panel'
 import { SearchField } from '@/components/portal/kage/list-controls'
 import { PillButton } from '@/components/portal/kage/pill'
-import { ScheduleBoard } from '@/components/portal/kage/schedule-board'
 import { LoadError } from '@/components/portal/kage/site-section'
 import { TwoToneHeading } from '@/components/portal/kage/two-tone-heading'
 import { AgendaList, WeekStrip } from '@/components/portal/schedule/agenda-list'
 import { MiniMonth } from '@/components/portal/schedule/mini-month'
+import { MonthDots, MonthGrid } from '@/components/portal/schedule/month-grid'
 import {
   ActiveFilters,
   ClearFilters,
@@ -17,8 +17,9 @@ import {
   RayonFilter,
 } from '@/components/portal/schedule/schedule-filters'
 import { ScheduleToolbar } from '@/components/portal/schedule/schedule-toolbar'
+import { SearchResults } from '@/components/portal/schedule/search-results'
 import { WeekTable } from '@/components/portal/schedule/week-table'
-import { worshipWhen } from '@/lib/portal'
+import { dayLabel, worshipWhen } from '@/lib/portal'
 import { scrollToElement } from '@/lib/portal-motion'
 import {
   activeFilterCount,
@@ -37,9 +38,9 @@ const PERIOD_TITLE = 'judul-periode'
 
 // Kalender Jadwal Ibadah (docs/rencana-redesign-jadwal-ibadah.md): hero ringkas dengan ibadah
 // berikutnya, lalu panel kalender berisi kalender mini dan saringan (sisi kiri, atau lembar
-// "Saring" di bawah 1280 px), bilah alat, dan tampilan Pekan atau Agenda. Keadaan halaman
-// tersimpan di URL. Tampilan Bulan dan hasil cari masih memakai papan daftar sementara
-// (Tahap 5).
+// "Saring" di bawah 1280 px), bilah alat, dan tampilan Pekan, Agenda, atau Bulan. Selama kata
+// cari terisi, kalender diganti hasil pencarian jadwal mendatang. Keadaan halaman tersimpan di
+// URL.
 export default function SchedulePage() {
   const calendar = useScheduleCalendar()
   const { state, update, today } = calendar
@@ -50,11 +51,16 @@ export default function SchedulePage() {
   const [jumpTo, setJumpTo] = useState<string | null>(null)
   const clearJump = useCallback(() => setJumpTo(null), [])
   const openWorship = (worship: PublicWorshipItem) => update({ openId: worship.id }, { push: true })
-  const nextWeek = shiftAnchor('agenda', state.anchor, 1)
-  function goNextWeek() {
-    update({ anchor: nextWeek })
+  const nextAnchor = shiftAnchor(view, state.anchor, 1)
+  function goNext() {
+    update({ anchor: nextAnchor })
     const panel = document.getElementById('kalender')
     if (panel) scrollToElement(panel)
+  }
+  // Dari Pekan atau Bulan: buka Agenda pekan itu dan gulir ke harinya.
+  function openDay(date: string) {
+    update({ view: 'agenda', anchor: date })
+    setJumpTo(date)
   }
   const rayons = useApiQuery<ApiList<RayonListItem>>('/rayons')
   const rayonList = rayons.data?.data ?? []
@@ -63,10 +69,10 @@ export default function SchedulePage() {
   const next = nextWorship(upcoming.data?.data ?? [], today, now)
 
   const filtering = activeFilterCount(state) > 0
-  const shown = calendar.visible.length
+  const shown = calendar.periodShown
   const summary = calendar.searching
     ? calendar.search.data
-      ? `${calendar.search.data.meta.total} jadwal mendatang untuk “${state.query}”`
+      ? `${calendar.search.data.meta.total - calendar.searchHidden} jadwal mendatang untuk “${state.query}”`
       : `Mencari “${state.query}”…`
     : !calendar.period.data
       ? 'Memuat jadwal…'
@@ -91,7 +97,8 @@ export default function SchedulePage() {
       today={today}
       view={view}
       days={calendar.days}
-      onSelect={(date) => update({ anchor: date })}
+      // Memilih tanggal juga keluar dari hasil pencarian.
+      onSelect={(date) => update({ anchor: date, query: '' })}
       onMonth={(direction) => update({ anchor: addMonths(state.anchor, direction) })}
     />
   )
@@ -105,25 +112,30 @@ export default function SchedulePage() {
     />
   )
 
-  // Pekan dan Agenda.
   const period = calendar.period
+  const unit = view === 'bulan' ? 'bulan' : 'pekan'
+  const nextButton = (className?: string) => (
+    <NextPeriodButton
+      label={`${view === 'bulan' ? 'Bulan' : 'Pekan'} berikutnya: ${periodLabel(view, nextAnchor)}`}
+      onClick={goNext}
+      className={className}
+    />
+  )
+  // Ponsel, tampilan Bulan: ibadah tanggal yang dipilih di kisi bertitik.
+  const dayList = calendar.visible.filter((worship) => worship.worship_date === state.anchor)
   const periodContent =
     period.error && !period.data ? (
       <LoadError message="Jadwal tidak dapat dimuat." onRetry={period.reload} />
     ) : !period.data ? (
       <PeriodSkeleton view={view} />
-    ) : calendar.visible.length === 0 ? (
+    ) : shown === 0 ? (
       <div className="grid justify-items-start gap-2 rounded-2xl border border-dashed border-site-rule p-5 md:p-6">
         <p className="text-base text-site-ink">
           {filtering
-            ? 'Tidak ada ibadah yang cocok dengan saringan di pekan ini.'
-            : 'Belum ada ibadah yang diumumkan untuk pekan ini.'}
+            ? `Tidak ada ibadah yang cocok dengan saringan di ${unit} ini.`
+            : `Belum ada ibadah yang diumumkan untuk ${unit} ini.`}
         </p>
-        {filtering ? (
-          <ClearFilters onChange={update} className="h-11 px-0" />
-        ) : (
-          <NextWeekButton label={periodLabel('agenda', nextWeek)} onClick={goNextWeek} />
-        )}
+        {filtering ? <ClearFilters onChange={update} className="h-11 px-0" /> : nextButton()}
       </div>
     ) : view === 'pekan' ? (
       <WeekTable
@@ -131,11 +143,37 @@ export default function SchedulePage() {
         worships={calendar.visible}
         today={today}
         onOpen={openWorship}
-        onDay={(date) => {
-          update({ view: 'agenda' })
-          setJumpTo(date)
-        }}
+        onDay={openDay}
       />
+    ) : view === 'bulan' ? (
+      <>
+        <div className="max-md:hidden">
+          <MonthGrid
+            anchor={state.anchor}
+            dates={calendar.dates}
+            worships={calendar.visible}
+            today={today}
+            onOpen={openWorship}
+            onDay={openDay}
+          />
+        </div>
+        <div className="grid gap-4 md:hidden">
+          <MonthDots
+            anchor={state.anchor}
+            dates={calendar.dates}
+            today={today}
+            days={calendar.days}
+            onSelect={(date) => update({ anchor: date })}
+          />
+          {dayList.length > 0 ? (
+            <AgendaList worships={dayList} today={today} onOpen={openWorship} />
+          ) : (
+            <p className="border-t border-site-rule px-2 pt-3 text-sm text-site-muted">
+              {dayLabel(state.anchor, today)}: tidak ada ibadah.
+            </p>
+          )}
+        </div>
+      </>
     ) : (
       <>
         <AgendaList
@@ -145,35 +183,9 @@ export default function SchedulePage() {
           jumpTo={jumpTo}
           onJumped={clearJump}
         />
-        <NextWeekButton
-          label={periodLabel('agenda', nextWeek)}
-          onClick={goNextWeek}
-          className="mt-6"
-        />
+        {nextButton('mt-6')}
       </>
     )
-
-  // Tahap 5 menggantikan papan sementara untuk tampilan Bulan dan hasil cari.
-  const board = calendar.searching ? calendar.search : calendar.period
-  const worships = calendar.searching ? (calendar.search.data?.data ?? []) : calendar.visible
-  const status =
-    board.error && !board.data ? (
-      <LoadError message="Jadwal tidak dapat dimuat." onRetry={board.reload} onDark />
-    ) : !board.data ? (
-      <div aria-hidden="true" className="grid gap-6">
-        {Array.from({ length: 4 }, (_, index) => (
-          <div key={index} className="h-20 animate-pulse rounded-xl bg-white/[0.06]" />
-        ))}
-      </div>
-    ) : worships.length === 0 ? (
-      <p className="text-base text-white/80">
-        {calendar.searching
-          ? 'Tidak ada jadwal mendatang yang cocok.'
-          : filtering
-            ? 'Tidak ada ibadah yang cocok dengan saringan di periode ini.'
-            : 'Belum ada ibadah di periode ini.'}
-      </p>
-    ) : undefined
 
   return (
     <>
@@ -237,17 +249,36 @@ export default function SchedulePage() {
           </aside>
 
           <div className="min-w-0 rounded-[22px] bg-site-canvas p-3 sm:p-5 md:p-6 glass:glass-card">
-            <ScheduleToolbar
-              view={view}
-              anchor={state.anchor}
-              today={today}
-              titleId={PERIOD_TITLE}
-              onShift={(direction) =>
-                update({ anchor: shiftAnchor(view, state.anchor, direction) })
-              }
-              onToday={() => update({ anchor: today })}
-              onView={(view) => update({ view })}
-            />
+            {calendar.searching ? (
+              // Selama mencari, navigasi periode tidak berlaku.
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <h2
+                  id={PERIOD_TITLE}
+                  className="font-site-display text-lg font-bold tracking-tight text-site-ink md:text-xl"
+                >
+                  Hasil pencarian
+                </h2>
+                <button
+                  type="button"
+                  onClick={() => update({ query: '' })}
+                  className="inline-flex min-h-11 items-center rounded-full border border-site-rule px-4 text-sm font-semibold text-site-ink transition-colors outline-none hover:border-site-ink focus-visible:ring-3 focus-visible:ring-ring md:min-h-9"
+                >
+                  Kembali ke kalender
+                </button>
+              </div>
+            ) : (
+              <ScheduleToolbar
+                view={view}
+                anchor={state.anchor}
+                today={today}
+                titleId={PERIOD_TITLE}
+                onShift={(direction) =>
+                  update({ anchor: shiftAnchor(view, state.anchor, direction) })
+                }
+                onToday={() => update({ anchor: today })}
+                onView={(view) => update({ view })}
+              />
+            )}
             <div className="mt-4 flex items-center gap-2 xl:hidden">
               {search('min-w-0 flex-1 sm:w-auto')}
               <FilterSheet
@@ -278,19 +309,19 @@ export default function SchedulePage() {
               />
             )}
 
-            {calendar.searching || view === 'bulan' ? (
-              <div
-                aria-busy={board.loading}
-                className={cn(
-                  'mt-4 transition-opacity',
-                  board.loading && board.data && 'opacity-60',
-                )}
-              >
-                <ScheduleBoard
-                  worships={worships}
+            {calendar.searching ? (
+              <div aria-busy={calendar.search.loading} className="mt-4">
+                <SearchResults
+                  query={state.query}
+                  results={calendar.search}
+                  worships={calendar.searchResults}
+                  hidden={calendar.searchHidden}
+                  limit={calendar.searchLimit}
                   today={today}
-                  status={status}
-                  className="shadow-none"
+                  onOpen={openWorship}
+                  onMore={calendar.loadMoreResults}
+                  onClear={() => update({ query: '' })}
+                  onClearFilters={() => update({ kinds: [], rayonId: null })}
                 />
               </div>
             ) : (
@@ -311,7 +342,7 @@ export default function SchedulePage() {
   )
 }
 
-function NextWeekButton({
+function NextPeriodButton({
   label,
   onClick,
   className,
@@ -329,25 +360,37 @@ function NextWeekButton({
         className,
       )}
     >
-      Pekan berikutnya: {label}
+      {label}
       <ArrowRight className="size-4" aria-hidden="true" />
     </button>
   )
 }
 
-// Kerangka memuat seukuran tampilannya: kisi tujuh kolom untuk Pekan, baris untuk Agenda.
+// Kerangka memuat seukuran tampilannya: kisi tujuh kolom untuk Pekan dan Bulan, baris untuk
+// Agenda.
 function PeriodSkeleton({ view }: { view: CalendarView }) {
+  const count = view === 'pekan' ? 24 : view === 'bulan' ? 42 : 5
   return (
     <div
       aria-hidden="true"
-      className={cn('grid gap-2', view === 'pekan' && 'grid-cols-[3rem_repeat(7,1fr)]')}
+      className={cn(
+        'grid gap-2',
+        view === 'pekan' && 'grid-cols-[3rem_repeat(7,1fr)]',
+        view === 'bulan' && 'grid-cols-7',
+      )}
     >
-      {Array.from({ length: view === 'pekan' ? 24 : 5 }, (_, index) => (
+      {Array.from({ length: count }, (_, index) => (
         <div
           key={index}
           className={cn(
             'animate-pulse rounded-lg bg-site-ink/[0.06]',
-            view === 'pekan' ? (index % 8 === 0 ? 'h-6' : 'h-20') : 'h-16',
+            view === 'pekan'
+              ? index % 8 === 0
+                ? 'h-6'
+                : 'h-20'
+              : view === 'bulan'
+                ? 'h-12 md:h-24'
+                : 'h-16',
           )}
         />
       ))}

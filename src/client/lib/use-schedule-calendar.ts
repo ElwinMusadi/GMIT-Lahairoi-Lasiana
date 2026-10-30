@@ -12,6 +12,7 @@ import {
   parseCalendarParams,
   periodDates,
   rayonCounts,
+  sameMonth,
   type CalendarContext,
   type CalendarState,
 } from '@/lib/schedule-calendar'
@@ -28,7 +29,10 @@ const AGENDA_FIRST_QUERY = '(max-width: 1023px)'
 const NO_WEEK_QUERY = '(max-width: 767px)'
 // Satu kisi bulan (42 hari) sekali minta; batas mode rentang API.
 const RANGE_PER_PAGE = 300
+// Hasil pencarian: 50 jadwal terdekat, "Muat lebih banyak" sampai 100 (batas API di luar mode
+// rentang). Pencarian nama pelayan jarang melebihinya; selebihnya diminta mempersempit kata cari.
 export const SEARCH_PER_PAGE = 50
+export const SEARCH_MAX_RESULTS = 100
 
 function useMedia(query: string) {
   return useSyncExternalStore(
@@ -61,16 +65,22 @@ export function useScheduleCalendar() {
     to: range.to,
     per_page: RANGE_PER_PAGE,
   })
-  // Pencarian menembus periode: seluruh jadwal mendatang (keputusan J4).
+  // Pencarian menembus periode: seluruh jadwal mendatang (keputusan J4). Batasnya kembali ke 50
+  // setiap kata cari berganti.
+  const [more, setMore] = useState({ query: '', limit: SEARCH_PER_PAGE })
+  const searchLimit = more.query === state.query ? more.limit : SEARCH_PER_PAGE
   const search = useApiQuery<ApiPage<PublicWorshipItem>>(searching ? '/public/worships' : null, {
     q: state.query,
-    per_page: SEARCH_PER_PAGE,
+    per_page: searchLimit,
   })
 
   const loaded = period.data?.data ?? []
   const filtered = filterWorships(loaded, state)
   const dates = periodDates(state.view, state.anchor)
-  const inPeriod = inDates(loaded, dates)
+  // Hitungan Bulan hanya tanggal di bulan itu; kisi juga memuat tanggal bulan tetangga.
+  const counted =
+    state.view === 'bulan' ? dates.filter((date) => sameMonth(date, state.anchor)) : dates
+  const inPeriod = inDates(loaded, counted)
 
   // Rincian dari data yang sudah dimuat; bila tidak ada (tautan langsung ke jadwal di luar
   // periode), diminta sendiri.
@@ -110,9 +120,22 @@ export function useScheduleCalendar() {
     dates,
     period,
     search,
-    // Jadwal periode aktif yang lolos saringan, untuk tampilan Pekan, Agenda, dan Bulan.
+    // Hasil pencarian yang dimuat, dengan saringan jenis dan rayon yang sama; `searchHidden`
+    // menghitung yang tersembunyi oleh saringan.
+    searchResults: filterWorships(search.data?.data ?? [], state),
+    searchHidden:
+      (search.data?.data.length ?? 0) - filterWorships(search.data?.data ?? [], state).length,
+    searchLimit,
+    loadMoreResults: () =>
+      setMore({
+        query: state.query,
+        limit: Math.min(searchLimit + SEARCH_PER_PAGE, SEARCH_MAX_RESULTS),
+      }),
+    // Jadwal periode aktif yang lolos saringan, untuk tampilan Pekan, Agenda, dan Bulan (seluruh
+    // kisi, termasuk tanggal bulan tetangga).
     visible: inDates(filtered, dates),
-    // Seluruh jadwal periode aktif sebelum disaring.
+    // Jumlah jadwal periode (Bulan: bulan itu saja) sesudah dan sebelum disaring.
+    periodShown: inDates(filtered, counted).length,
     periodTotal: inPeriod.length,
     // Titik kalender mini: seluruh kisi bulan, mengikuti saringan.
     days: daySummary(filtered),

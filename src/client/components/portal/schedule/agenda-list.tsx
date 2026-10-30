@@ -15,14 +15,17 @@ export function AgendaList({
   worships,
   today,
   onOpen,
-  jumpTo,
+  jumpTo = null,
   onJumped,
+  terms,
 }: {
   worships: PublicWorshipItem[]
   today: string
   onOpen: (worship: PublicWorshipItem) => void
-  jumpTo: string | null
-  onJumped: () => void
+  jumpTo?: string | null
+  onJumped?: () => void
+  // Hasil pencarian: kata yang cocok ditandai.
+  terms?: readonly string[]
 }) {
   const days = [...groupByDate(worships)]
 
@@ -30,7 +33,7 @@ export function AgendaList({
     if (!jumpTo) return
     const day = document.getElementById(`hari-${jumpTo}`)
     if (day) scrollToElement(day)
-    onJumped()
+    onJumped?.()
   }, [jumpTo, onJumped])
 
   return (
@@ -54,7 +57,7 @@ export function AgendaList({
           <ul className="grid divide-y divide-site-rule">
             {list.map((worship) => (
               <li key={worship.id}>
-                <AgendaRow worship={worship} onOpen={onOpen} past={date < today} />
+                <AgendaRow worship={worship} onOpen={onOpen} past={date < today} terms={terms} />
               </li>
             ))}
           </ul>

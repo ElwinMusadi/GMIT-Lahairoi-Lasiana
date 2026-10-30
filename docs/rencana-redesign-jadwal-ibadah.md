@@ -2,8 +2,8 @@
 
 Disusun 30 Oktober 2026. Status: **disetujui** 30 Oktober 2026 (keputusan J1–J9 semua sesuai
 usulan, bagian 8; J1 disesuaikan di Tahap 4). Tahap 0–4 (persiapan, API, lapisan data klien,
-kerangka, tampilan Pekan dan Agenda) selesai di branch `feat/kalender-jadwal-ibadah`
-(bagian 10).
+kerangka, tampilan Pekan/Agenda, tampilan Bulan dan hasil pencarian) selesai di branch
+`feat/kalender-jadwal-ibadah` (bagian 10).
 
 ## 1. Tujuan
 
@@ -704,3 +704,61 @@ Firman (dua terakhir mulai 1024 px).
   - tampilan bawaan di 390/834/1024/1440 px.
 - Tangkapan layar 390/768/834/1024/1280/1440 px, Bawaan dan Glassmorphism, terang dan gelap.
 - Uji unit 60/60, typecheck dan lint lolos.
+
+### Tahap 5 — Tampilan Bulan dan hasil pencarian (30 Oktober 2026)
+
+**Bulan, mulai 768 px** (`month-grid.tsx`, `MonthGrid`): `<table>` 6×7 dengan judul kolom hari.
+
+- Tiap tanggal memuat sampai 3 label (2 bila ada "+N lainnya").
+  - Label berisi jam dan judul; ibadah rayon disebut nama rayonnya.
+  - Di bawah 1024 px cukup nama rayon ("18.00 Golgota"), dan kata "Rayon" tetap dibaca pembaca
+    layar.
+  - Jam memakai angka biasa (bukan mono) agar label tablet lebih lega.
+- Nomor tanggal dan "+N lainnya" membuka Agenda pekan itu dan menggulir ke harinya.
+- Hari ini dilingkari, tanggal bulan tetangga redup, kolom Minggu bernuansa, dan jadwal yang lewat
+  ditandai seperti di Pekan.
+
+**Bulan di ponsel** (`MonthDots`): kisi bertitik.
+
+- Mengetuk tanggal memilihnya, dan ibadah tanggal itu tampil di bawah kisi, atau "…: tidak ada
+  ibadah".
+- Mengetuk tanggal bulan tetangga berpindah bulan.
+
+**Hitungan Bulan** (ringkasan dan jumlah di saringan) hanya untuk tanggal di bulan itu
+(`periodShown`, `periodTotal`). Kisinya memuat tanggal bulan tetangga, yang semula ikut terhitung
+(63, seharusnya 45 untuk November 2026).
+
+**Hasil pencarian** (`search-results.tsx`) menggantikan kalender selama `cari` terisi:
+
+- **Tampilan.**
+  - Bilah alat periode diganti judul "Hasil pencarian" dan "Kembali ke kalender".
+  - Daftar per hari memakai Agenda, dengan kata yang cocok ditandai (`<mark>`).
+- **Kolom yang cocok tetapi tidak tampil di baris ikut ditampilkan**: petugas lain ("Pemusik
+  Sdr. Yohanis Bire"), tema, dan bacaan. Liturgos tetap tampil di ponsel bila dialah yang dicari.
+- **Saringan jenis dan rayon berlaku pada hasil yang dimuat**, dan jumlah yang tersembunyi
+  disebut, dengan "Hapus saringan".
+- **Jumlah hasil.** 50 hasil terdekat; "Muat lebih banyak (N lagi)" sampai 100. Di atas itu muncul
+  "Menampilkan 100 jadwal terdekat dari N. Tambahkan kata cari untuk mempersempit."
+- **Memilih tanggal di kalender mini** juga keluar dari pencarian.
+- **Fungsi murni baru:** `searchTerms`, `highlightParts` (bagian bertumpuk digabung),
+  `matchesTerms`, dan `hiddenMatches`.
+
+**Pemeriksaan:**
+
+- **Uji unit 69/69.**
+- **Uji interaksi Bulan:**
+  - ringkasan November = 45;
+  - klik tanggal dan label;
+  - "+N lainnya" dengan data yang digandakan;
+  - ponsel: pilih tanggal, tanggal kosong, dan tanggal bulan berikutnya.
+- **Uji interaksi pencarian:**
+  - mengetik di sisi kiri: URL berubah setelah jeda, dan kata yang cocok ditandai;
+  - cari + saringan jenis, dengan jumlah yang tersembunyi;
+  - "ibadah" 50 → 58 lewat "Muat lebih banyak";
+  - batas 100, diuji dengan total yang dipalsukan lewat penyadapan;
+  - cari tanpa hasil;
+  - "Kembali ke kalender", dan keluar lewat kalender mini.
+- **Regresi.** Uji interaksi Tahap 4 diulang dan semuanya tetap lolos.
+- **Tangkapan layar** Bulan di 390/834/1440 px dan pencarian di desktop dan ponsel; Bawaan dan
+  Glassmorphism, terang dan gelap.
+- Typecheck dan lint lolos.

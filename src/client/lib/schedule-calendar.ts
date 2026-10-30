@@ -1,5 +1,10 @@
 import { isCalendarDate } from '@shared/dates'
-import { WORSHIP_CATEGORIES, type PublicWorshipItem, type WorshipCategory } from '@shared/types'
+import {
+  SERVANT_ROLE_LABELS,
+  WORSHIP_CATEGORIES,
+  type PublicWorshipItem,
+  type WorshipCategory,
+} from '@shared/types'
 import { addDays } from '@/lib/portal'
 
 // Kalender Jadwal Ibadah di Portal (docs/rencana-redesign-jadwal-ibadah.md): hitungan
@@ -287,4 +292,68 @@ export function nextWorship<T extends Worship>(
 // Jumlah kelompok saringan yang aktif (jenis, rayon), untuk angka di tombol "Saring".
 export function activeFilterCount(state: Pick<CalendarState, 'kinds' | 'rayonId'>) {
   return (state.kinds.length > 0 ? 1 : 0) + (state.rayonId !== null ? 1 : 0)
+}
+
+// ---------- Pencarian
+
+// Kata cari seperti di API (searchWords): dipecah per spasi, maks. 5 kata, huruf kecil.
+export function searchTerms(query: string) {
+  return query.trim().toLowerCase().split(/\s+/).filter(Boolean).slice(0, 5)
+}
+
+// Potongan teks dengan tanda bagian yang cocok dengan salah satu kata cari, untuk ditebalkan
+// di hasil pencarian. Bagian yang bertumpuk digabung.
+export function highlightParts(text: string, terms: readonly string[]) {
+  const lower = text.toLowerCase()
+  const ranges: [number, number][] = []
+  for (const term of terms) {
+    for (let at = lower.indexOf(term); at !== -1; at = lower.indexOf(term, at + term.length)) {
+      ranges.push([at, at + term.length])
+    }
+  }
+  ranges.sort((a, b) => a[0] - b[0])
+  const merged: [number, number][] = []
+  for (const range of ranges) {
+    const last = merged[merged.length - 1]
+    if (last && range[0] <= last[1]) last[1] = Math.max(last[1], range[1])
+    else merged.push([...range])
+  }
+  const parts: { text: string; match: boolean }[] = []
+  let cursor = 0
+  for (const [start, end] of merged) {
+    if (start > cursor) parts.push({ text: text.slice(cursor, start), match: false })
+    parts.push({ text: text.slice(start, end), match: true })
+    cursor = end
+  }
+  if (cursor < text.length) parts.push({ text: text.slice(cursor), match: false })
+  return parts
+}
+
+export function matchesTerms(text: string | null, terms: readonly string[]) {
+  const lower = text?.toLowerCase() ?? ''
+  return terms.some((term) => lower.includes(term))
+}
+
+// Kolom yang cocok dengan kata cari tetapi tidak tampil di baris Agenda (baris itu hanya memuat
+// Pelayan Firman dan Liturgos pertama), mis. "Pemusik: Sdr. Yohanis Bire" atau tema. Ditampilkan
+// di hasil pencarian agar jelas mengapa jadwal itu muncul.
+export function hiddenMatches(
+  worship: Pick<PublicWorshipItem, 'servants' | 'theme' | 'bible_reading'>,
+  terms: readonly string[],
+) {
+  const shown = new Set(
+    (['PREACHER', 'LITURGIST'] as const)
+      .map((role) => worship.servants.find((servant) => servant.role === role))
+      .filter(Boolean),
+  )
+  const matches: { label: string; value: string }[] = worship.servants
+    .filter((servant) => !shown.has(servant) && matchesTerms(servant.name, terms))
+    .map((servant) => ({ label: SERVANT_ROLE_LABELS[servant.role], value: servant.name }))
+  if (worship.theme && matchesTerms(worship.theme, terms)) {
+    matches.push({ label: 'Tema', value: worship.theme })
+  }
+  if (worship.bible_reading && matchesTerms(worship.bible_reading, terms)) {
+    matches.push({ label: 'Bacaan', value: worship.bible_reading })
+  }
+  return matches
 }
