@@ -3,8 +3,8 @@
 Disusun 30 Oktober 2026. Status: **disetujui** 30 Oktober 2026 (keputusan J1–J9 semua sesuai
 usulan, bagian 8; J1 disesuaikan di Tahap 4). **Selesai:** Tahap 0–7 (persiapan, API, lapisan
 data klien, kerangka, tampilan Pekan/Agenda, tampilan Bulan dan hasil pencarian, panel rincian, QA
-penuh dan dokumentasi) di branch `feat/kalender-jadwal-ibadah` (bagian 10), menunggu merge ke
-`main`.
+penuh dan dokumentasi) di branch `feat/kalender-jadwal-ibadah` (bagian 10), di-merge ke `main`
+sebagai `2930738` pada 30 Oktober 2026.
 
 ## 1. Tujuan
 

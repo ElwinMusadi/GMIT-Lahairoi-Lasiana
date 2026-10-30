@@ -36,8 +36,8 @@ Lahai-roi menjadi tanda merek (`src/client/components/brand/well.tsx`).
 ## 2. Status saat ini
 
 **Semua fitur PRD Fase 1–3 sudah dibangun, diuji, di-commit, dan di-push ke `main`.** Tahap
-penyempurnaan UI/UX: redesign Portal Publik (kage) dan dashboard pengurus (Zenith) sudah selesai
-dan tergabung di `main`.
+penyempurnaan UI/UX: redesign Portal Publik (kage), dashboard pengurus (Zenith), tema
+Glassmorphism, dan kalender Jadwal Ibadah sudah selesai dan tergabung di `main`.
 
 | Modul (PRD) | Fase | Status | Commit utama |
 | --- | --- | --- | --- |
@@ -61,7 +61,7 @@ dan tergabung di `main`.
 | Redesign Portal Publik bergaya kage (rancangan 10), isi 08 tetap | – | Selesai | `90e5a7a` (merge) |
 | Redesign dashboard pengurus bergaya Zenith, logika dan API tetap | – | Selesai | `c7855e8` (merge) |
 | Pengaturan > Tampilan: tema Portal Publik Bawaan atau Glassmorphism | – | Selesai | `48c6415` (merge) |
-| Kalender Jadwal Ibadah di Portal: Agenda/Pekan/Bulan, cari, saringan, rincian | – | Selesai, belum di-merge | branch `feat/kalender-jadwal-ibadah` |
+| Kalender Jadwal Ibadah di Portal: Agenda/Pekan/Bulan, cari, saringan, rincian | – | Selesai | `2930738` (merge) |
 
 Catatan status:
 
@@ -72,16 +72,16 @@ Catatan status:
   Cloudflare".
 - Riwayat `main` ada di bagian 13. Branch lokal lama `chore/design-skills`,
   `docs/stitch-portal-smooth-scroll`, `feat/redesign-portal-kage`,
-  `feat/redesign-dashboard-zenith`, `chore/data-demo-lokal`, dan
-  `feat/tema-portal-glassmorphism` sudah tergabung ke `main` dan tidak di-push.
+  `feat/redesign-dashboard-zenith`, `chore/data-demo-lokal`, `feat/tema-portal-glassmorphism`,
+  dan `feat/kalender-jadwal-ibadah` sudah tergabung ke `main` dan tidak di-push.
 - Redesign portal (12 commit, merge `90e5a7a`, dan catatan merge `2396a6a`) sudah di-push ke
   `origin/main` pada 29 Oktober 2026.
 - Redesign dashboard (9 commit, merge `c7855e8`, dan catatan merge sesudahnya) sudah di-push ke
   `origin/main` pada 29 Oktober 2026.
 - Data demo lokal (merge `4b59ebb`) sudah di-push ke `origin/main` pada 29 Oktober 2026.
 - Tema portal Glassmorphism (2 commit, merge `48c6415` pada 30 Oktober 2026) **belum di-push**.
-- **Kalender Jadwal Ibadah** selesai di branch `feat/kalender-jadwal-ibadah` (Tahap 0–7, 30
-  Oktober 2026) dan menunggu persetujuan merge ke `main`; belum di-push.
+- Kalender Jadwal Ibadah (8 commit Tahap 1–7 dan perbaikan kontras hero Beranda, merge
+  `2930738` pada 30 Oktober 2026) **belum di-push**.
   - Rencana, keputusan J1–J9, catatan per tahap, dan hasil QA ada di
     [docs/rencana-redesign-jadwal-ibadah.md](docs/rencana-redesign-jadwal-ibadah.md).
   - Kontras teks hero Beranda di atas foto, yang ditemukan saat QA, ikut diperbaiki di branch
@@ -797,3 +797,13 @@ Sebelum deploy pertama:
 | `d1a3dfe` | 2026-10-30 | feat: pilihan tema Portal Publik Bawaan atau Glassmorphism |
 | `bbf7d95` | 2026-10-30 | fix(portal): kaca di semua unsur hero dan cincin fokus di permukaan kaca |
 | `48c6415` | 2026-10-30 | Merge branch 'feat/tema-portal-glassmorphism': pilihan tema Portal Publik |
+| `0c56522` | 2026-10-30 | docs: catat merge tema Glassmorphism dan rencana kalender Jadwal Ibadah |
+| `5d40240` | 2026-10-30 | feat(api): pencarian, mode rentang, dan rincian jadwal publik (Tahap 1) |
+| `1eef3a0` | 2026-10-30 | feat(portal): lapisan data kalender Jadwal Ibadah (Tahap 2) |
+| `9893b76` | 2026-10-30 | feat(portal): kerangka kalender Jadwal Ibadah (Tahap 3) |
+| `f85d810` | 2026-10-30 | feat(portal): tampilan Pekan dan Agenda kalender Jadwal Ibadah (Tahap 4) |
+| `0dcbf48` | 2026-10-30 | feat(portal): tampilan Bulan dan hasil pencarian kalender Jadwal Ibadah (Tahap 5) |
+| `d8e4e06` | 2026-10-30 | feat(portal): panel rincian jadwal di kalender Jadwal Ibadah (Tahap 6) |
+| `75d886d` | 2026-10-30 | fix(portal): QA penuh dan dokumentasi kalender Jadwal Ibadah (Tahap 7) |
+| `91840c6` | 2026-10-30 | fix(portal): kontras teks hero Beranda di atas foto |
+| `2930738` | 2026-10-30 | Merge branch 'feat/kalender-jadwal-ibadah': kalender Jadwal Ibadah Portal |
