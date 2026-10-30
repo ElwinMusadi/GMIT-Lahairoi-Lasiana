@@ -1,6 +1,12 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { Link, Navigate, useLocation } from 'react-router'
-import { ROLE_LABELS, type AuthResponse, type SessionUser, type UserRole } from '@shared/types'
+import {
+  ROLE_LABELS,
+  type AuthResponse,
+  type SessionResponse,
+  type SessionUser,
+  type UserRole,
+} from '@shared/types'
 import { WellMark } from '@/components/brand/well'
 import { api, configureApi } from '@/lib/api'
 import {
@@ -24,8 +30,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
     const controller = new AbortController()
     api
-      .get<AuthResponse>('/auth/me', { auth: false, signal: controller.signal })
-      .then(({ user }) => setState({ status: 'authenticated', user }))
+      .get<SessionResponse>('/auth/me', { auth: false, signal: controller.signal })
+      .then(({ user }) => setState(user ? { status: 'authenticated', user } : ANONYMOUS))
       .catch(() => {
         if (!controller.signal.aborted) setState(ANONYMOUS)
       })

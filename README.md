@@ -229,6 +229,7 @@ Pengurus (Admin, Bendahara, Pendeta, Majelis) masuk di `/login` dengan **email a
 - Token sesi tidak pernah dikirim di body respons; database hanya menyimpan hash SHA-256-nya.
 - Sesi berlaku 12 jam sejak aktivitas terakhir, dan diperpanjang otomatis bila sisanya di bawah 6 jam.
 - Klien non-browser bisa memakai header `Authorization: Bearer <token>`.
+- `GET /api/auth/me` dipanggil di setiap halaman (juga portal) untuk mengetahui siapa yang masuk. Tanpa sesi yang sah jawabannya `200 { "user": null }`, bukan `401`, agar konsol browser pengunjung portal bersih. Sesi kedaluwarsa atau akun nonaktif tetap menghapus cookie-nya. Respons ini `Cache-Control: no-store`.
 
 Sesi opaque di D1 dipilih ketimbang JWT supaya **logout dan penonaktifan akun berlaku seketika**.
 
@@ -1115,7 +1116,7 @@ Komponen akan ditulis ke `src/client/components/ui/`. Preset yang dipakai: `radi
 | DELETE | `/api/rayons/:id`  | Admin       | Hapus rayon yang belum dipakai data apa pun          |
 | POST   | `/api/auth/login`  | Publik      | Masuk; mengirim cookie sesi dan profil pengguna      |
 | POST   | `/api/auth/logout` | Publik      | Keluar; menghapus sesi dan cookie                    |
-| GET    | `/api/auth/me`     | Login       | Profil pengguna yang sedang masuk                    |
+| GET    | `/api/auth/me`     | Publik      | Profil pengguna yang sedang masuk, atau `null`       |
 | GET    | `/api/users`       | Admin       | Daftar akun pengurus (+ waktu login terakhir)        |
 | POST   | `/api/users`       | Admin       | Tambah akun pengurus                                 |
 | PATCH  | `/api/users/:id`   | Admin       | Ubah data, peran/rayon, status aktif, atau kata sandi |

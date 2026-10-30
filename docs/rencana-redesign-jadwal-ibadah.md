@@ -909,4 +909,6 @@ gelap × 390/768/1440 px × Agenda, Pekan (mulai 768 px), Bulan, dan hasil cari.
 
   Hasilnya, semua teks hero ≥5,38:1 di tema Bawaan dan Glassmorphism, terang dan gelap, pada
   390/768/1440 px. Halaman portal lain tanpa perubahan gaya.
-- `401 /api/auth/me` di konsol portal (belum dikerjakan).
+- **`401 /api/auth/me` di konsol portal** (diperbaiki di branch `fix/auth-me-tanpa-401`):
+  `GET /api/auth/me` kini menjawab `200 { user: null }` tanpa sesi yang sah. Konsol portal bersih,
+  dan Lighthouse "Praktik terbaik" 100 di Beranda, Jadwal, dan Masuk.

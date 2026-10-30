@@ -1555,7 +1555,8 @@ sebelum redesign dan bukan bagian portal.
 **Di luar lingkup redesign (dicatat, belum dikerjakan):**
 
 - `GET /api/auth/me` mengembalikan 401 di setiap halaman portal (pemeriksaan sesi bawaan 08),
-  sehingga konsol mencatat galat dan Lighthouse "Praktik terbaik" 96.
+  sehingga konsol mencatat galat dan Lighthouse "Praktik terbaik" 96. **Diperbaiki 30 Oktober
+  2026:** tanpa sesi yang sah endpoint ini kini menjawab `200 { user: null }`.
 - Belum ada `robots.txt` (SEO 92). Isinya keputusan pengurus: halaman mana yang boleh diindeks.
 - `session-provider` dimuat langsung oleh `main.tsx`, sehingga sebagian kode dashboard ikut di
   bundel utama ("unused JavaScript" ±57–75 KiB).
