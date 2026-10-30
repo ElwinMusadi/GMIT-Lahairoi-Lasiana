@@ -79,9 +79,10 @@ Catatan status:
 - Redesign dashboard (9 commit, merge `c7855e8`, dan catatan merge sesudahnya) sudah di-push ke
   `origin/main` pada 29 Oktober 2026.
 - Data demo lokal (merge `4b59ebb`) sudah di-push ke `origin/main` pada 29 Oktober 2026.
-- Tema portal Glassmorphism (2 commit, merge `48c6415` pada 30 Oktober 2026) **belum di-push**.
+- Tema portal Glassmorphism (2 commit, merge `48c6415` pada 30 Oktober 2026) sudah di-push ke
+  `origin/main` pada 30 Oktober 2026.
 - Kalender Jadwal Ibadah (8 commit Tahap 1–7 dan perbaikan kontras hero Beranda, merge
-  `2930738` pada 30 Oktober 2026) **belum di-push**.
+  `2930738` pada 30 Oktober 2026) sudah di-push ke `origin/main` pada 30 Oktober 2026.
   - Rencana, keputusan J1–J9, catatan per tahap, dan hasil QA ada di
     [docs/rencana-redesign-jadwal-ibadah.md](docs/rencana-redesign-jadwal-ibadah.md).
   - Kontras teks hero Beranda di atas foto, yang ditemukan saat QA, ikut diperbaiki di branch
@@ -807,3 +808,4 @@ Sebelum deploy pertama:
 | `75d886d` | 2026-10-30 | fix(portal): QA penuh dan dokumentasi kalender Jadwal Ibadah (Tahap 7) |
 | `91840c6` | 2026-10-30 | fix(portal): kontras teks hero Beranda di atas foto |
 | `2930738` | 2026-10-30 | Merge branch 'feat/kalender-jadwal-ibadah': kalender Jadwal Ibadah Portal |
+| `00e5e41` | 2026-10-30 | docs: catat merge kalender Jadwal Ibadah |
