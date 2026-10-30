@@ -1,8 +1,10 @@
 # Rencana Implementasi: Kalender Jadwal Ibadah (Portal Publik)
 
 Disusun 30 Oktober 2026. Status: **disetujui** 30 Oktober 2026 (keputusan J1–J9 semua sesuai
-usulan, bagian 8). Tahap 0 selesai kecuali data uji hari padat. Prasyaratnya terpenuhi: branch
-`feat/tema-portal-glassmorphism` sudah di-merge ke `main` (`48c6415`).
+usulan, bagian 8; J1 disesuaikan di Tahap 4). **Selesai:** Tahap 0–7 (persiapan, API, lapisan
+data klien, kerangka, tampilan Pekan/Agenda, tampilan Bulan dan hasil pencarian, panel rincian, QA
+penuh dan dokumentasi) di branch `feat/kalender-jadwal-ibadah` (bagian 10), menunggu merge ke
+`main`.
 
 ## 1. Tujuan
 
@@ -317,6 +319,7 @@ Bentuk respons tetap `ApiPage<PublicWorshipItem>`, jadi Beranda tidak terpengaru
 | Berkas | Isi |
 | --- | --- |
 | `src/client/lib/schedule-calendar.ts` (baru) | Hitungan tanggal WITA (awal pekan Senin, kisi bulan 6×7, rentang per tampilan), baca/tulis URL, saringan di browser, hitungan per jenis/rayon/hari, baris jam pekan, pengelompokan per hari |
+| `src/client/lib/use-schedule-calendar.ts` (baru) | Hook halaman: keadaan dari URL, data kisi bulan, pencarian, rincian per id, `update()` |
 | `src/client/components/portal/schedule/` (baru) | `calendar-panel.tsx` (bingkai, bilah alat), `mini-month.tsx`, `schedule-filters.tsx` (+ lembar ponsel), `week-table.tsx`, `month-grid.tsx`, `agenda-list.tsx`, `week-strip.tsx`, `worship-card.tsx`, `worship-detail.tsx` |
 | `src/client/pages/public/SchedulePage.tsx` | Disusun ulang dari komponen di atas |
 | `src/client/components/portal/kage/hero-panel.tsx` | Ukuran baru `compact` (±240 px desktop, ±200 px ponsel) |
@@ -414,7 +417,7 @@ Bentuk respons tetap `ApiPage<PublicWorshipItem>`, jadi Beranda tidak terpengaru
 
 | # | Keputusan | Usulan |
 | --- | --- | --- |
-| J1 | Tampilan bawaan | Pekan di desktop/tablet, Agenda di ponsel |
+| J1 | Tampilan bawaan | Pekan di desktop/tablet, Agenda di ponsel. Disesuaikan di Tahap 4: Pekan bawaan mulai 1024 px; di tablet tegak Agenda bawaan, Pekan tetap bisa dipilih |
 | J2 | Hero | Dipadatkan (±240 px) dengan kalimat "Berikutnya: …"; saringan pindah ke panel kalender |
 | J3 | Arti saringan rayon | Hanya menyaring ibadah rayon; ibadah seluruh jemaat tetap tampil |
 | J4 | Cakupan cari | Judul, tempat, tema, bacaan, nama rayon, dan nama semua petugas; hanya jadwal mendatang |
@@ -477,3 +480,433 @@ diakhiri tangkapan layar dan menunggu persetujuan sebelum commit.
 
 **Sisa Tahap 0.** Data uji hari padat (6–8 ibadah per hari, pola Natal) disiapkan di database uji
 scratch pada awal Tahap 1, bukan di database lokal pengguna.
+
+### Tahap 1 — API (30 Oktober 2026)
+
+Dikerjakan di branch `feat/kalender-jadwal-ibadah` dari `main` (`0c56522`). Rinciannya ada di
+README bagian "Konten Portal Publik (CMS)".
+
+- **Pencarian `q`** di `GET /api/public/worships`.
+  - Setiap kata harus cocok di salah satu kolom: judul, sebutan jenis, tempat, tema, bacaan,
+    nama rayon, atau nama petugas.
+  - Sebutan jenis ikut dicari agar "rayon golgota" dan "kebaktian" menemukan jadwalnya: judul ibadah
+    rayon sendiri tidak memuat kata "rayon" ("Ibadah Rumah Tangga").
+  - Pencocokan memakai `instr(lower(kolom), kata)`, bukan `LIKE`: tidak terkena batas pola 50 byte
+    D1, dan `%`/`_` dibaca harfiah. Kotak cari lain masih memakai `containsPattern` (usulan
+    terpisah, bagian 4.6).
+- **Mode rentang.** `from` + `to` paling lama 42 hari boleh `per_page` sampai 300.
+  - `readPaging` mendapat batas opsional; rute lain tetap maks. 100.
+- **`GET /api/public/worships/:id`** (`PublicWorshipResponse`).
+  - Bentuknya sama persis dengan item daftar, termasuk jadwal yang sudah lewat.
+  - `404` untuk jadwal internal dan id yang salah.
+  - Pengurutan petugas dipakai bersama dengan daftar (`sortServants`).
+- **Data uji** di D1 scratch `kalender-test`, bukan database lokal pengguna:
+  - 10 jadwal sekitar hari ini dengan petugas yang dicari;
+  - satu rapat internal dan satu jadwal tanpa jam;
+  - hari padat Natal: 7 ibadah pada 24 Desember dan 4 pada 25 Desember;
+  - 126 ibadah dalam rentang 42 hari (1 Februari–14 Maret 2027) untuk mode rentang.
+
+  Ini sekaligus menutup sisa Tahap 0.
+- **Uji API: 48/48 lolos.**
+  - Regresi saringan, paging, dan cache.
+  - Pencarian per kolom, termasuk kata 60 karakter tanpa `500` serta `%` dan `_` harfiah.
+  - Batas mode rentang: 42 hari lolos, 43 hari ditolak, `per_page` 301 ditolak.
+  - Hari padat urut jam.
+  - Rincian per id dan `404`.
+- **Regresi lain.** Batas 100 per halaman tetap di `/api/public/contents`, Beranda normal, halaman
+  Jadwal lama tetap jalan. Typecheck dan lint lolos.
+
+### Tahap 2 — Lapisan data klien (30 Oktober 2026)
+
+**[src/client/lib/schedule-calendar.ts](../src/client/lib/schedule-calendar.ts)**: fungsi murni
+tanpa React. Semua tanggal YYYY-MM-DD (WITA) dihitung di UTC, jadi zona waktu perangkat tidak
+menggeser hari.
+
+- **Tanggal.**
+  - Awal pekan Senin, tanggal sepekan, kisi bulan 6×7.
+  - Geser periode: ±7 hari, atau ke hari pertama bulan sebelum/berikutnya.
+  - Label periode: "2–8 November 2026", "26 Oktober–1 November 2026",
+    "28 Desember 2026–3 Januari 2027", dan "November 2026".
+- **Data dimuat per kisi bulan** (`loadRange`, 42 hari, di dalam batas mode rentang API).
+  - Pekan jangkar selalu berada di dalam kisi bulannya; ini diperiksa untuk setiap hari
+    2026–2028.
+  - Akibatnya, berpindah pekan di bulan yang sama atau berganti tampilan tidak memuat ulang data.
+  - Kalender mini di sisi kiri mendapat titiknya dari data yang sama.
+- **URL** (`parseCalendarParams`, `calendarParams`): parameter `tampilan`, `tanggal`, `jenis`,
+  `rayon`, `cari`, `jadwal`.
+  - Nilai yang tidak sah memakai bawaan.
+  - Keempat jenis sekaligus berarti tanpa saringan.
+  - Nilai bawaan tidak ditulis, jadi tautan tanpa `tanggal` selalu berarti "pekan ini" bagi
+    penerimanya.
+  - Tautan lama `?jenis=rayon&rayon=2` tetap terbaca; `page` dari daftar lama dibuang.
+- **Saringan dan hitungan.**
+  - Jenis (pilih banyak) dan rayon dengan arti J3: ibadah tanpa rayon selalu ikut.
+  - Hitungan per jenis mengabaikan saringan jenis tetapi mengikuti rayon. Hitungan per rayon
+    hanya menghitung ibadah yang terikat rayon dan mengikuti saringan jenis.
+  - Pengelompokan per tanggal, ringkasan titik per hari, dan baris jam Pekan (jadwal tanpa jam di
+    baris terakhir).
+
+**[src/client/lib/use-schedule-calendar.ts](../src/client/lib/use-schedule-calendar.ts)**: keadaan
+dari URL, dengan bawaan Agenda di bawah 768 px dan Pekan di atasnya.
+
+- **Data.**
+  - Kisi bulan dimuat dengan `per_page` 300.
+  - Pencarian (`q`, 50 per halaman) hanya saat `cari` terisi.
+  - Rincian per id hanya bila jadwalnya tidak ada di data yang sudah dimuat.
+- **`update()`.**
+  - Dibangun dari URL saat ini.
+  - Periode dan saringan memakai `replace`; membuka rincian memakai `push`.
+  - Hook ini baru dipakai halaman di Tahap 3.
+
+**Uji unit: 55/55 lolos** di empat zona waktu yang benar-benar aktif (Asia/Makassar,
+America/Los_Angeles, Pacific/Kiritimati, UTC).
+
+- Uji dibundel esbuild dengan `tsconfig.app.json`, karena proyek belum punya test runner.
+- Isinya:
+  - awal pekan, termasuk pergantian tahun;
+  - kisi bulan, termasuk bulan yang mulai hari Minggu;
+  - geser bulan dari tanggal 31;
+  - label lintas bulan dan tahun;
+  - URL bolak-balik di desktop dan ponsel, tautan lama;
+  - saringan J3 dan hitungan.
+- Typecheck dan lint lolos.
+
+### Tahap 3 — Kerangka (30 Oktober 2026)
+
+**Hero ringkas** (`HeroPanel size="compact"`, setinggi isinya, isinya sejajar pil header):
+
+- Judul satu baris "Jadwal Ibadah *jemaat.*". Kata "mendatang" diganti karena kalender juga
+  membuka jadwal yang sudah lewat (J5).
+- Tombol "Berikutnya: …" (`nextWorship`; ibadah hari ini yang jamnya lewat dilewati) memindahkan
+  kalender ke tanggalnya dan mengisi `jadwal=` untuk panel rincian Tahap 6.
+- Tinggi: desktop ±278 px (sebelumnya 436 px). Ponsel 376 px (sebelumnya 627 px); di ponsel
+  kalimat pengantar dipendekkan menjadi "Semua waktu dalam WITA."
+
+**Panel kalender** selebar hero: lempeng `bg-site-paper` (kaca: `glass-slab`) berisi dua kartu
+(`bg-site-canvas`, kaca: `glass-card`).
+
+**Sisi kiri** (19rem, dari 1024 px):
+
+- **Kalender mini** (`mini-month.tsx`):
+  - titik warna per jenis, hari ini dilingkari, pekan aktif disorot;
+  - label tanggal lengkap untuk pembaca layar, mis. "Jumat, 6 November 2026, 1 ibadah";
+  - panah, Home/End, dan PageUp/PageDown memindahkan fokus (roving tabindex); Enter memilih.
+- **Kolom cari.** Placeholder dipendekkan menjadi "Cari pelayan, tempat…" agar tidak terpotong;
+  label aksesibelnya menyebut semua kolom yang dicari.
+- **Saringan** (`schedule-filters.tsx`):
+  - jenis: kotak centang pilih banyak dengan jumlah di periode, dan centang terakhir dikunci;
+  - rayon: pilihan tunggal dengan catatan "Ibadah seluruh jemaat tetap tampil";
+  - "Hapus saringan".
+
+**Bilah alat** (`schedule-toolbar.tsx`):
+
+- Desktop dan tablet: satu baris ‹ › Hari ini, label, lalu pilihan tampilan.
+- Ponsel: baris "‹ 26 Okt–1 Nov 2026 ›", lalu baris Hari ini dan Agenda/Bulan.
+  - Label pendek dibuat dengan `periodLabel(…, true)`, dan pembaca layar tetap mendengar label
+    lengkap.
+  - Percobaan pertama memakai satu grid tiga kolom; label terpotong karena kolom kanan ikut
+    melebar mengikuti pilihan tampilan.
+
+**Di bawah 1024 px:**
+
+- Kolom cari dan tombol "Saring" (dengan angka saringan aktif) membuka lembar bawah berisi kalender
+  mini dan saringan, ditutup tombol "Tampilkan N ibadah".
+- **Chip saringan aktif:** satu chip per kelompok, dan melepasnya selalu memperluas hasil.
+  - Jenis disebut yang tampil bila paling banyak dua ("Ibadah Rayon & Ibadah Kategorial"); selain
+    itu yang disembunyikan ("Tanpa Ibadah Kategorial").
+  - Versi pertama memakai satu chip per jenis, sehingga melepas chip malah mempersempit hasil.
+
+**Ringkasan hasil** (`aria-live`): "10 ibadah", "4 dari 10 ibadah", dan "N jadwal mendatang untuk
+‘…’" saat mencari.
+
+**Sementara.** Area tampilan masih memakai papan daftar lama (`ScheduleBoard`) untuk jadwal
+periode atau hasil cari; diganti di Tahap 4–5.
+
+**Token warna jenis ibadah** `--site-kind-*` (terang/gelap) ada di `.theme-portal`, dengan utilitas
+`bg-site-kind-*`/`border-site-kind-*` (`components/portal/schedule/kinds.ts`).
+
+**Pemeriksaan:**
+
+- **Uji unit 60/60**, ditambah label pendek, `nextWorship`, dan `activeFilterCount`.
+- **Uji interaksi** di Chrome headless, data demo lokal:
+  - lembar Saring ponsel: saringan, URL, chip, dan "Hapus saringan";
+  - tautan lama `?jenis=rayon&rayon=2&page=3`;
+  - centang dan rayon di desktop;
+  - pekan berikutnya, tampilan Bulan, dan Hari ini;
+  - kalender mini: panah, Enter, PageDown.
+- **Tangkapan layar** 390/834/1440 px untuk tema Bawaan dan Glassmorphism × terang dan gelap.
+- **Halaman portal lain** tetap sama dengan tema bawaan.
+  - Perbedaan di Beranda dan daftar Renungan hanya tinggi seksi, karena renungan demo 30 Oktober
+    terbit pukul 05.00 WITA, setelah pengukuran awal; bukan dari kode.
+- Typecheck dan lint lolos.
+
+### Tahap 4 — Tampilan Pekan dan Agenda (30 Oktober 2026)
+
+**Pekan** (`week-table.tsx`): `<table>` dengan `<caption>`, judul kolom hari (Sen–Min, nama hari
+lengkap untuk pembaca layar), dan judul baris jam.
+
+- Baris hanya untuk jam yang dipakai pekan itu, ditambah "Jam menyusul" di akhir bila ada.
+- Kolom Minggu bernuansa, dan hari ini ditandai di judulnya.
+- Sel lebih dari 3 jadwal menampilkan 2 kartu dan "+N lainnya", yang membuka Agenda dan menggulir
+  ke hari itu.
+- **Satu pekan muat satu layar** di 1440×900, diukur pada tiga pekan data demo: tabel 316–673 px,
+  kartu kalender 825 px.
+
+**Kartu ringkas** (`worship-card.tsx`): garis warna jenis, judul, jenis, tempat, dan Pelayan
+Firman (dua terakhir mulai 1024 px).
+
+- Ibadah rayon semuanya berjudul "Ibadah Rumah Tangga", jadi **nama rayon menjadi baris utama**
+  ("Rayon Golgota") dan judulnya di baris kedua.
+
+**Agenda** (`agenda-list.tsx`): daftar per hari (hari kosong dilewati).
+
+- Baris ringkas: jam mono, judul, titik warna + jenis/rayon, tempat, Pelayan Firman dan Liturgos
+  (Liturgos mulai 640 px), serta ikon bila ada tata ibadah.
+- **Pita pekan** di ponsel: tujuh hari bertitik warna; mengetuk hari menggulir Agenda ke hari itu
+  (`scrollToElement`, menghormati Lenis dan `scroll-margin`).
+
+**Mengetuk jadwal** mengisi `?jadwal=` dengan `push`; panel rinciannya menyusul di Tahap 6.
+
+**Keadaan:**
+
+- **Memuat:** kerangka seukuran tampilan (kisi 7 kolom untuk Pekan, baris untuk Agenda).
+- **Gagal:** "Jadwal tidak dapat dimuat. Coba lagi".
+- **Pekan kosong:** "Belum ada ibadah yang diumumkan untuk pekan ini." dengan tombol "Pekan
+  berikutnya: …".
+- **Saringan tanpa hasil:** pesan dan "Hapus saringan".
+
+**Penyesuaian dari rencana:**
+
+- **J1 (tampilan bawaan).** Di tablet tegak (768–1023 px) tujuh kolom hanya ±85 px, sehingga nama
+  seperti "Kapernaum" patah di tengah kata.
+  - Agenda kini bawaan di bawah 1024 px, dan Pekan tetap bisa dipilih mulai 768 px.
+  - Di bawah 768 px Pekan tidak tersedia, dan tautan `?tampilan=pekan` dibuka sebagai Agenda.
+- **Sisi kiri mulai 1280 px** (rencana: 1024 px). Dengan sisi kiri di 1024 px, kartu Pekan justru
+  paling sempit (77 px); tanpa sisi kiri menjadi 118 px. Di bawah 1280 px kalender mini dan
+  saringan ada di lembar "Saring".
+- **Agenda tidak menambah pekan di bawahnya** (rencana 4.2). Tombol "Pekan berikutnya: …" di akhir
+  daftar memindahkan periode dan menggulir kembali ke atas panel.
+  - Daftar tetap pendek, sejalan dengan tujuan halaman.
+  - Pekan di luar kisi bulan tidak perlu dimuat terpisah.
+- **Penanda jadwal yang sudah lewat** tidak memakai `opacity` 60% (kontras teks sekunder turun di
+  bawah 4,5:1). Gantinya judul berwarna sekunder dan kartu tanpa latar; pembaca layar mendengar
+  "(sudah lewat)".
+- **Pita pekan tidak menempel di atas** saat digulir: di ponsel area atas sudah dipakai pil header
+  yang melayang.
+
+**Pemeriksaan:**
+
+- **Uji interaksi:**
+  - klik kartu menambah riwayat;
+  - "+N lainnya" diuji dengan data yang digandakan lewat penyadapan;
+  - pekan kosong, saringan nol, kerangka memuat, dan gagal muat;
+  - `?tampilan=pekan` di ponsel;
+  - pita pekan dan "Pekan berikutnya";
+  - tampilan bawaan di 390/834/1024/1440 px.
+- Tangkapan layar 390/768/834/1024/1280/1440 px, Bawaan dan Glassmorphism, terang dan gelap.
+- Uji unit 60/60, typecheck dan lint lolos.
+
+### Tahap 5 — Tampilan Bulan dan hasil pencarian (30 Oktober 2026)
+
+**Bulan, mulai 768 px** (`month-grid.tsx`, `MonthGrid`): `<table>` 6×7 dengan judul kolom hari.
+
+- Tiap tanggal memuat sampai 3 label (2 bila ada "+N lainnya").
+  - Label berisi jam dan judul; ibadah rayon disebut nama rayonnya.
+  - Di bawah 1024 px cukup nama rayon ("18.00 Golgota"), dan kata "Rayon" tetap dibaca pembaca
+    layar.
+  - Jam memakai angka biasa (bukan mono) agar label tablet lebih lega.
+- Nomor tanggal dan "+N lainnya" membuka Agenda pekan itu dan menggulir ke harinya.
+- Hari ini dilingkari, tanggal bulan tetangga redup, kolom Minggu bernuansa, dan jadwal yang lewat
+  ditandai seperti di Pekan.
+
+**Bulan di ponsel** (`MonthDots`): kisi bertitik.
+
+- Mengetuk tanggal memilihnya, dan ibadah tanggal itu tampil di bawah kisi, atau "…: tidak ada
+  ibadah".
+- Mengetuk tanggal bulan tetangga berpindah bulan.
+
+**Hitungan Bulan** (ringkasan dan jumlah di saringan) hanya untuk tanggal di bulan itu
+(`periodShown`, `periodTotal`). Kisinya memuat tanggal bulan tetangga, yang semula ikut terhitung
+(63, seharusnya 45 untuk November 2026).
+
+**Hasil pencarian** (`search-results.tsx`) menggantikan kalender selama `cari` terisi:
+
+- **Tampilan.**
+  - Bilah alat periode diganti judul "Hasil pencarian" dan "Kembali ke kalender".
+  - Daftar per hari memakai Agenda, dengan kata yang cocok ditandai (`<mark>`).
+- **Kolom yang cocok tetapi tidak tampil di baris ikut ditampilkan**: petugas lain ("Pemusik
+  Sdr. Yohanis Bire"), tema, dan bacaan. Liturgos tetap tampil di ponsel bila dialah yang dicari.
+- **Saringan jenis dan rayon berlaku pada hasil yang dimuat**, dan jumlah yang tersembunyi
+  disebut, dengan "Hapus saringan".
+- **Jumlah hasil.** 50 hasil terdekat; "Muat lebih banyak (N lagi)" sampai 100. Di atas itu muncul
+  "Menampilkan 100 jadwal terdekat dari N. Tambahkan kata cari untuk mempersempit."
+- **Memilih tanggal di kalender mini** juga keluar dari pencarian.
+- **Fungsi murni baru:** `searchTerms`, `highlightParts` (bagian bertumpuk digabung),
+  `matchesTerms`, dan `hiddenMatches`.
+
+**Pemeriksaan:**
+
+- **Uji unit 69/69.**
+- **Uji interaksi Bulan:**
+  - ringkasan November = 45;
+  - klik tanggal dan label;
+  - "+N lainnya" dengan data yang digandakan;
+  - ponsel: pilih tanggal, tanggal kosong, dan tanggal bulan berikutnya.
+- **Uji interaksi pencarian:**
+  - mengetik di sisi kiri: URL berubah setelah jeda, dan kata yang cocok ditandai;
+  - cari + saringan jenis, dengan jumlah yang tersembunyi;
+  - "ibadah" 50 → 58 lewat "Muat lebih banyak";
+  - batas 100, diuji dengan total yang dipalsukan lewat penyadapan;
+  - cari tanpa hasil;
+  - "Kembali ke kalender", dan keluar lewat kalender mini.
+- **Regresi.** Uji interaksi Tahap 4 diulang dan semuanya tetap lolos.
+- **Tangkapan layar** Bulan di 390/834/1440 px dan pencarian di desktop dan ponsel; Bawaan dan
+  Glassmorphism, terang dan gelap.
+- Typecheck dan lint lolos.
+
+### Tahap 6 — Panel rincian (30 Oktober 2026)
+
+**`worship-detail.tsx`** (Radix Dialog lewat `ui/sheet`): panel kanan 24rem mulai 768 px, lembar
+bawah di ponsel; berlatar kaca di tema Glassmorphism.
+
+- **Isi:**
+  - chip jenis/rayon dan judul (`SheetTitle`);
+  - "Besok · Sabtu, 31 Oktober 2026 · 17.00 WITA" (`SheetDescription`), dengan "Sudah
+    berlangsung" untuk jadwal lampau;
+  - tempat, tema (serif miring), dan bacaan;
+  - seluruh petugas dikelompokkan per peran, urut tata ibadah ("Petugas belum diumumkan" bila
+    kosong).
+- **Aksi:**
+  - "Unduh tata ibadah (PDF)" bila ada.
+  - **Salin tautan** dan **Bagikan.** Tautannya `/jadwal?tanggal=…&jadwal=…`, jadi kalender di
+    belakang panel ikut menampilkan pekan jadwal itu.
+  - Bagikan memakai Web Share API. Bila tidak tersedia, jatuh ke salin tautan; bila dibatalkan
+    pengguna, tidak menyalin.
+- **Keadaan:**
+  - memuat: kerangka di dalam panel;
+  - gagal (404 atau koneksi): "Jadwal tidak dapat dibuka" dengan pesan galatnya.
+
+**Buka dan tutup lewat URL:**
+
+- Mengetuk jadwal (dan "Berikutnya" di hero) memakai `push`.
+- Menutup rincian yang dibuka dari halaman kembali satu langkah di riwayat (`navigate(-1)`), jadi
+  Esc, tombol ×, dan tombol Kembali browser/ponsel sama hasilnya.
+- Rincian yang dibuka dari tautan langsung cukup dilepas dari URL (`replace`), sehingga pengunjung
+  tidak keluar dari portal.
+- **Fokus:** elemen pembuka disimpan saat membuka, dan fokus dikembalikan ke sana saat menutup
+  (`onCloseAutoFocus`). Tanpa ini fokus jatuh ke tautan "Lewati ke konten", karena penutupan
+  menunggu perubahan URL.
+
+**Pemeriksaan** (Chrome headless, data demo lokal):
+
+- **Membuka dan menutup:**
+  - klik kartu: panel kanan dan riwayat +1;
+  - Esc menutup dan fokus kembali ke kartu;
+  - tombol Kembali browser menutup;
+  - Enter pada kartu membuka, dengan fokus di dalam panel.
+- **Tautan langsung:**
+  - jadwal 20 Desember tanpa `tanggal` (di luar periode tampil) terbuka;
+  - menutupnya tetap di `/jadwal` dengan riwayat sama;
+  - id 999999 memberi pesan.
+- **Salin dan bagikan:**
+  - salin tautan menghasilkan alamat yang benar dan notifikasi;
+  - Bagikan tanpa Web Share menyalin, dan Bagikan yang dibatalkan tidak menyalin.
+  - Clipboard Chrome headless menolak tanpa fokus jendela, jadi `writeText` dicegat untuk uji ini.
+- **Lainnya:**
+  - "Berikutnya" di hero membuka rincian ibadah hari ini pukul 18.00;
+  - ponsel: lembar bawah, dan Kembali menutup.
+- **Regresi.** Uji interaksi Tahap 4–5 diulang dan tetap lolos.
+- **Tangkapan layar** desktop terang, ponsel terang, dan desktop kaca gelap.
+- Typecheck dan lint lolos.
+
+### Tahap 7 — QA penuh dan dokumentasi (30 Oktober 2026)
+
+Semua pemeriksaan memakai build produksi di Worker uji (D1 scratch berisi hari padat Natal), kecuali
+uji interaksi yang memakai server Vite dan data demo lokal.
+
+**Lighthouse aksesibilitas.** Diuji pada Pekan, Bulan, hasil cari, dan rincian di desktop, serta
+Agenda dan Bulan di ponsel.
+
+- Temuan yang diperbaiki:
+  - urutan judul: judul kalender mini `h3` → `h2`;
+  - ukuran sasaran: label di kisi Bulan setinggi minimal 28 px;
+  - nama tombol pita pekan tidak memuat teks yang tampak: keterangan hari pindah ke
+    `aria-describedby`.
+- Hasil: 100 di keenam keadaan.
+- Praktik terbaik 96, hanya karena `401 /api/auth/me` di konsol. Galat ini sudah ada sebelum
+  kalender dan muncul di semua halaman portal.
+
+**Inspector `design-taste-frontend`** (1440, 768, 390 px).
+
+- Diperbaiki:
+  - garis pemisah antarhari di Agenda dibuang; jarak antarhari menjadi pemisahnya;
+  - isi sisi kiri `p-6`, sejajar dengan bilah alat;
+  - kalimat hero 18 px;
+  - di ponsel hero punya kalimat penjelas sendiri ("Seluruh ibadah jemaat dalam satu kalender.
+    Semua waktu dalam WITA."), jadi judulnya tidak tinggal nama saja.
+- Dipertahankan:
+  - `few-pictures` (K5, satu foto gereja);
+  - `mixed-font-headline` (judul dua nada kage);
+  - `no-footage`;
+  - `off-centre` 47/73 px di 1440 dan 768 px.
+- `off-centre` adalah artefak pengukuran:
+  - Inspector mengambil persentil 98 tepi kanan semua kotak teks. Kolom kanan halaman ini adalah
+    tabel Pekan, yang teksnya rata kiri di dalam sel.
+  - Tepi sebenarnya simetris: panel kalender 14/14 px (1440) dan 16/16 px (768), kartu utama
+    28/28 px (768). Sisi kiri dan bilah alat sama-sama 47 px dari tepi.
+
+**Matriks tema.** 44 keadaan dengan kurangi gerak aktif: Bawaan dan Glassmorphism × terang dan
+gelap × 390/768/1440 px × Agenda, Pekan (mulai 768 px), Bulan, dan hasil cari.
+
+- axe-core (WCAG 2.2 A/AA): 0 pelanggaran sesudah perbaikan, dan tidak ada gulir ke samping.
+- Temuan: tanggal bulan tetangga di kalender mini (`text-site-muted/70`) hanya 2,92:1 (terang) dan
+  4,24:1 (gelap). Tanggal itu tombol yang bisa diklik, jadi sekarang `text-site-muted` penuh.
+- Di tema Kaca, axe tidak bisa menilai kontras di atas latar tembus pandang, jadi kontras diukur dari
+  piksel:
+  - teks dibuat transparan lalu layar ditangkap;
+  - warna teks dipadukan dengan setiap piksel latar di kotak teksnya;
+  - yang dinilai persentil 5, yaitu bagian latar yang paling buruk.
+- Pengukuran piksel mencakup 28 keadaan (terang dan gelap × tiga lebar × semua tampilan dan panel
+  rincian).
+  - Temuan: label oranye "Berikutnya:" di pil hero hanya 2,9–3,2:1 di bagian foto paling terang,
+    di kedua tema.
+  - Perbaikan: label menjadi putih, dan aksen oranye pindah ke titik di depannya.
+  - Sesudahnya 0 gagal.
+
+**Keyboard dan pembaca layar.**
+
+- Jalur Tab diperiksa di 1440 px (Bawaan dan Kaca) dan 390 px. Urutannya: tautan lewati, header,
+  pil hero, sisi kiri, bilah alat, kartu jadwal, lalu footer.
+  - Sisi kiri: navigasi bulan, satu tanggal dengan roving tabindex, cari, dan kotak centang.
+  - Setiap tujuan punya cincin fokus yang tampak.
+- Esc dan kembalinya fokus (Tahap 6) diuji ulang.
+- Pembaca layar dasar: nama dan peran diperiksa lewat axe dan Lighthouse. Jumlah hasil diumumkan
+  lewat `aria-live`.
+
+**Regresi:**
+
+- uji API 48/48;
+- uji unit 69/69 di zona waktu Asia/Makassar, America/Los_Angeles, Pacific/Kiritimati, dan UTC;
+- uji interaksi Tahap 4–6 lolos;
+- gaya terhitung delapan halaman portal lain (tema bawaan, 1440 dan 390 px) dibanding potret sebelum
+  kalender: 0 perbedaan, kecuali derau sub-piksel lebar teks ±1 px di Beranda 390 px;
+- typecheck dan lint lolos.
+
+**Tindak lanjut di luar kalender:**
+
+- **Hero Beranda** (diperbaiki di commit terpisah sesudah Tahap 7). Diukur dengan cara piksel yang
+  sama di seluruh tinggi hero, ada teks di bawah 4,5:1 pada bagian foto paling terang:
+  - label "Pengumuman terkini:" oranye 1,55–2,96:1, dan judul pengumumannya yang putih pun hanya
+    3,96:1 di ponsel (tema Bawaan), karena scrim di tengah hero hanya 0,55;
+  - tanggal Kebaktian Minggu oranye 3,4–4,2:1, catatan tautan cepat `text-white/75` 3,95–4,49:1,
+    kalimat penjelas 4,06–4,16:1, dan kutipan Kejadian 4,33:1 di 768 px.
+
+  Perbaikannya:
+  - scrim khusus hero Beranda (`site-hero-scrim-full`, 0,75 → 0,62 → 0,82 → 0,90), sehingga foto
+    di bagian atas tetap terlihat;
+  - label oranye menjadi putih dengan titik aksen;
+  - catatan tautan cepat `white/85`, dan kutipan Kejadian `white/90`.
+
+  Hasilnya, semua teks hero ≥5,38:1 di tema Bawaan dan Glassmorphism, terang dan gelap, pada
+  390/768/1440 px. Halaman portal lain tanpa perubahan gaya.
+- `401 /api/auth/me` di konsol portal (belum dikerjakan).

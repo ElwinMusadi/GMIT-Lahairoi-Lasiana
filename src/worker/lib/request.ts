@@ -43,15 +43,20 @@ export function positiveInt(text: string | undefined): number | null {
 export const DEFAULT_PER_PAGE = 50
 export const MAX_PER_PAGE = 100
 
-// Query page dan per_page. Nilai yang salah dicatat di `details`.
-export function readPaging(query: Record<string, string>, details: FieldErrors) {
+// Query page dan per_page. Nilai yang salah dicatat di `details`. `max` lebih besar hanya
+// untuk daftar yang ukurannya sudah dibatasi hal lain (mis. rentang tanggal kalender).
+export function readPaging(
+  query: Record<string, string>,
+  details: FieldErrors,
+  max = MAX_PER_PAGE,
+) {
   const page = query.page === undefined ? 1 : positiveInt(query.page)
   if (page === null) details.page = ['Halaman harus bilangan bulat mulai dari 1.']
   const perPage = query.per_page === undefined ? DEFAULT_PER_PAGE : positiveInt(query.per_page)
-  if (perPage === null || perPage > MAX_PER_PAGE) {
-    details.per_page = [`Jumlah per halaman antara 1 dan ${MAX_PER_PAGE}.`]
+  if (perPage === null || perPage > max) {
+    details.per_page = [`Jumlah per halaman antara 1 dan ${max}.`]
   }
-  return { page: page ?? 1, perPage: Math.min(perPage ?? DEFAULT_PER_PAGE, MAX_PER_PAGE) }
+  return { page: page ?? 1, perPage: Math.min(perPage ?? DEFAULT_PER_PAGE, max) }
 }
 
 // Menyusun klausa WHERE dengan parameter bernomor (?1, ?2, ...).

@@ -466,6 +466,9 @@ export type PublicWorshipItem = PublicWorship & {
   servants: { role: ServantRole; name: string }[]
 }
 
+// GET /api/public/worships/:id: satu jadwal publik, untuk tautan langsung ke rinciannya.
+export type PublicWorshipResponse = { worship: PublicWorshipItem }
+
 // Orang yang sama juga bertugas di ibadah lain pada tanggal dan jam yang sama.
 export type WorshipServantConflict = {
   worship_id: number

@@ -5,6 +5,7 @@ import {
   CONTENT_CATEGORIES,
   SERVANT_ROLES,
   WORSHIP_CATEGORIES,
+  WORSHIP_CATEGORY_LABELS,
   type ApiErrorBody,
   type ApiPage,
   type PublicContent,
@@ -12,12 +13,14 @@ import {
   type PublicSettings,
   type PublicWorship,
   type PublicWorshipItem,
+  type PublicWorshipResponse,
 } from '../../shared/types'
 import { PUBLIC_VISIBLE, publicSelect, toPublicContent } from '../lib/contents'
 import { publicSettings, readSettings } from '../lib/settings'
 import {
   containsPattern,
   invalid,
+  MAX_PER_PAGE,
   positiveInt,
   readPaging,
   searchWords,
@@ -39,7 +42,10 @@ import type { AppEnv } from '../types'
 // GET /contents/:slug      satu konten lengkap
 // GET /worships            Papan Jadwal Ibadah: jadwal publik mulai `from` (bawaan hari
 //                          ini, WITA), beserta seluruh petugas; query opsional category,
-//                          rayon_id, from, to, page, per_page
+//                          rayon_id, from, to, q (judul, jenis, tempat, tema, bacaan,
+//                          rayon, nama petugas), page, per_page. Rentang from–to paling
+//                          lama 42 hari (kalender pekan/bulan) boleh per_page sampai 300.
+// GET /worships/:id        satu jadwal publik beserta petugasnya
 // GET /settings            pengaturan tampilan portal yang dipilih Admin (tema portal)
 const publicRoutes = new Hono<AppEnv>()
 
@@ -67,6 +73,33 @@ const WORSHIP_SELECT = `
   FROM worship_schedules w
   LEFT JOIN rayons r ON r.id = w.rayon_id`
 const WORSHIP_ORDER = 'ORDER BY w.worship_date, w.worship_time IS NULL, w.worship_time, w.id'
+
+// Kalender Jadwal Ibadah memuat satu periode utuh (kisi bulan: 6 pekan) dalam satu permintaan.
+const RANGE_MAX_DAYS = 42
+const RANGE_PER_PAGE_MAX = 300
+
+// Satu kata cari cocok bila muncul di salah satu kolom ini, termasuk sebutan jenis ibadah
+// ("rayon", "kebaktian") dan nama petugas. instr() dipakai sebagai ganti LIKE, yang di D1
+// dibatasi 50 byte; kata sudah dikecilkan di JavaScript.
+const WORSHIP_SEARCH = `(
+  instr(lower(w.title), ?) > 0
+  OR instr(CASE w.category ${Object.entries(WORSHIP_CATEGORY_LABELS)
+    .map(([code, label]) => `WHEN '${code}' THEN '${label.toLowerCase()}'`)
+    .join(' ')} END, ?) > 0
+  OR instr(lower(w.location), ?) > 0
+  OR instr(lower(w.theme), ?) > 0
+  OR instr(lower(w.bible_reading), ?) > 0
+  OR instr(lower((SELECT name FROM rayons WHERE id = w.rayon_id)), ?) > 0
+  OR EXISTS (SELECT 1 FROM worship_servants s
+             WHERE s.schedule_id = w.id AND instr(lower(s.servant_name), ?) > 0)
+)`
+
+const DAY_MS = 86_400_000
+
+// Urut seperti tata ibadah: Pelayan Firman, Liturgos, Majelis bertugas, dan seterusnya.
+function sortServants(servants: PublicWorshipItem['servants']) {
+  return servants.sort((a, b) => SERVANT_ROLES.indexOf(a.role) - SERVANT_ROLES.indexOf(b.role))
+}
 
 publicRoutes.get('/home', async (c) => {
   const db = c.env.DB
@@ -185,9 +218,19 @@ publicRoutes.get('/worships', async (c) => {
   const details: FieldErrors = {}
   const where = whereBuilder()
   where.addClause('w.is_public = 1')
-  const { page, perPage } = readPaging(query, details)
 
   const from = query.from ?? witaToday()
+  const rangeMode =
+    isCalendarDate(from) &&
+    query.to !== undefined &&
+    isCalendarDate(query.to) &&
+    query.to >= from &&
+    (Date.parse(query.to) - Date.parse(from)) / DAY_MS < RANGE_MAX_DAYS
+  const { page, perPage } = readPaging(
+    query,
+    details,
+    rangeMode ? RANGE_PER_PAGE_MAX : MAX_PER_PAGE,
+  )
   if (!isCalendarDate(from)) details.from = ['Tanggal awal harus YYYY-MM-DD.']
   else where.add('w.worship_date >= ?', from)
   if (query.to !== undefined) {
@@ -206,6 +249,11 @@ publicRoutes.get('/worships', async (c) => {
     const rayonId = positiveInt(query.rayon_id)
     if (rayonId === null) details.rayon_id = ['Rayon tidak valid.']
     else where.add('w.rayon_id = ?', rayonId)
+  }
+  if (query.q !== undefined) {
+    const words = searchWords(query.q)
+    if (words === null) details.q = ['Kata pencarian maksimal 100 karakter.']
+    for (const word of words ?? []) where.add(WORSHIP_SEARCH, word.toLowerCase())
   }
   if (Object.keys(details).length > 0) return invalid(c, 'Filter jadwal tidak valid.', details)
 
@@ -227,14 +275,35 @@ publicRoutes.get('/worships', async (c) => {
   type Row = Omit<PublicWorshipItem, 'servants'> & { servants_json: string }
   const data = (list.results as Row[]).map(({ servants_json, ...worship }) => ({
     ...worship,
-    // Urut seperti tata ibadah: Pelayan Firman, Liturgos, Majelis bertugas, dan seterusnya.
-    servants: (JSON.parse(servants_json) as PublicWorshipItem['servants']).sort(
-      (a, b) => SERVANT_ROLES.indexOf(a.role) - SERVANT_ROLES.indexOf(b.role),
-    ),
+    servants: sortServants(JSON.parse(servants_json) as PublicWorshipItem['servants']),
   }))
   return c.json<ApiPage<PublicWorshipItem>>({
     data,
     meta: { page, per_page: perPage, total: (total.results[0] as { n: number }).n },
+  })
+})
+
+publicRoutes.get('/worships/:id', async (c) => {
+  const notFound = () => c.json<ApiErrorBody>({ error: 'Jadwal tidak ditemukan.' }, 404)
+  const id = positiveInt(c.req.param('id'))
+  if (!id) return notFound()
+  const db = c.env.DB
+  const [worship, servants] = await db.batch([
+    db.prepare(`${WORSHIP_SELECT} WHERE w.is_public = 1 AND w.id = ?1`).bind(id),
+    db
+      .prepare(
+        `SELECT role, servant_name AS name FROM worship_servants
+         WHERE schedule_id = ?1 ORDER BY id`,
+      )
+      .bind(id),
+  ])
+  const row = worship.results[0] as Omit<PublicWorshipItem, 'servants'> | undefined
+  if (!row) return notFound()
+  return c.json<PublicWorshipResponse>({
+    worship: {
+      ...row,
+      servants: sortServants(servants.results as PublicWorshipItem['servants']),
+    },
   })
 })
 
