@@ -1,5 +1,6 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { ArrowRight } from 'lucide-react'
+import { useNavigate } from 'react-router'
 import type { ApiList, ApiPage, PublicWorshipItem, RayonListItem } from '@shared/types'
 import { HeroPanel } from '@/components/portal/kage/hero-panel'
 import { SearchField } from '@/components/portal/kage/list-controls'
@@ -19,6 +20,7 @@ import {
 import { ScheduleToolbar } from '@/components/portal/schedule/schedule-toolbar'
 import { SearchResults } from '@/components/portal/schedule/search-results'
 import { WeekTable } from '@/components/portal/schedule/week-table'
+import { WorshipDetail } from '@/components/portal/schedule/worship-detail'
 import { dayLabel, worshipWhen } from '@/lib/portal'
 import { scrollToElement } from '@/lib/portal-motion'
 import {
@@ -28,6 +30,7 @@ import {
   periodLabel,
   shiftAnchor,
   witaTime,
+  type CalendarState,
   type CalendarView,
 } from '@/lib/schedule-calendar'
 import { useApiQuery } from '@/lib/use-api-query'
@@ -50,7 +53,27 @@ export default function SchedulePage() {
   // Hari yang dituju Agenda (pita pekan, "+N lainnya" di Pekan); dikosongkan setelah digulir.
   const [jumpTo, setJumpTo] = useState<string | null>(null)
   const clearJump = useCallback(() => setJumpTo(null), [])
-  const openWorship = (worship: PublicWorshipItem) => update({ openId: worship.id }, { push: true })
+  // Rincian dibuka dengan push, sehingga tombol Kembali (juga di ponsel) menutupnya. Menutup
+  // rincian yang dibuka dari halaman ini kembali satu langkah di riwayat; rincian dari tautan
+  // langsung cukup dilepas dari URL agar pengunjung tidak keluar dari portal.
+  const navigate = useNavigate()
+  const pushedDetail = useRef(false)
+  const detailTrigger = useRef<HTMLElement | null>(null)
+  useEffect(() => {
+    if (state.openId === null) pushedDetail.current = false
+  }, [state.openId])
+  function openDetail(changes: Partial<CalendarState>) {
+    pushedDetail.current = true
+    detailTrigger.current = document.activeElement as HTMLElement | null
+    update(changes, { push: true })
+  }
+  const openWorship = (worship: PublicWorshipItem) => openDetail({ openId: worship.id })
+  function closeDetail() {
+    if (pushedDetail.current) {
+      pushedDetail.current = false
+      navigate(-1)
+    } else update({ openId: null })
+  }
   const nextAnchor = shiftAnchor(view, state.anchor, 1)
   function goNext() {
     update({ anchor: nextAnchor })
@@ -215,7 +238,7 @@ export default function SchedulePage() {
             <PillButton
               tone="glass"
               size="sm"
-              onClick={() => update({ anchor: next.worship_date, openId: next.id }, { push: true })}
+              onClick={() => openDetail({ anchor: next.worship_date, openId: next.id })}
               className="h-auto min-h-11 justify-start py-2 text-left text-sm whitespace-normal"
             >
               <span className="min-w-0">
@@ -338,6 +361,16 @@ export default function SchedulePage() {
           </div>
         </div>
       </section>
+
+      <WorshipDetail
+        worship={calendar.open}
+        open={state.openId !== null}
+        error={calendar.open ? null : calendar.detail.error}
+        today={today}
+        bottom={calendar.narrow}
+        onClose={closeDetail}
+        returnFocus={() => detailTrigger.current}
+      />
     </>
   )
 }

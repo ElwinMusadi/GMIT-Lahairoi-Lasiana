@@ -2,8 +2,8 @@
 
 Disusun 30 Oktober 2026. Status: **disetujui** 30 Oktober 2026 (keputusan J1–J9 semua sesuai
 usulan, bagian 8; J1 disesuaikan di Tahap 4). Tahap 0–4 (persiapan, API, lapisan data klien,
-kerangka, tampilan Pekan/Agenda, tampilan Bulan dan hasil pencarian) selesai di branch
-`feat/kalender-jadwal-ibadah` (bagian 10).
+kerangka, tampilan Pekan/Agenda, tampilan Bulan dan hasil pencarian, panel rincian) selesai di
+branch `feat/kalender-jadwal-ibadah` (bagian 10). Tersisa Tahap 7 (QA penuh dan dokumentasi).
 
 ## 1. Tujuan
 
@@ -761,4 +761,59 @@ Firman (dua terakhir mulai 1024 px).
 - **Regresi.** Uji interaksi Tahap 4 diulang dan semuanya tetap lolos.
 - **Tangkapan layar** Bulan di 390/834/1440 px dan pencarian di desktop dan ponsel; Bawaan dan
   Glassmorphism, terang dan gelap.
+- Typecheck dan lint lolos.
+
+### Tahap 6 — Panel rincian (30 Oktober 2026)
+
+**`worship-detail.tsx`** (Radix Dialog lewat `ui/sheet`): panel kanan 24rem mulai 768 px, lembar
+bawah di ponsel; berlatar kaca di tema Glassmorphism.
+
+- **Isi:**
+  - chip jenis/rayon dan judul (`SheetTitle`);
+  - "Besok · Sabtu, 31 Oktober 2026 · 17.00 WITA" (`SheetDescription`), dengan "Sudah
+    berlangsung" untuk jadwal lampau;
+  - tempat, tema (serif miring), dan bacaan;
+  - seluruh petugas dikelompokkan per peran, urut tata ibadah ("Petugas belum diumumkan" bila
+    kosong).
+- **Aksi:**
+  - "Unduh tata ibadah (PDF)" bila ada.
+  - **Salin tautan** dan **Bagikan.** Tautannya `/jadwal?tanggal=…&jadwal=…`, jadi kalender di
+    belakang panel ikut menampilkan pekan jadwal itu.
+  - Bagikan memakai Web Share API. Bila tidak tersedia, jatuh ke salin tautan; bila dibatalkan
+    pengguna, tidak menyalin.
+- **Keadaan:**
+  - memuat: kerangka di dalam panel;
+  - gagal (404 atau koneksi): "Jadwal tidak dapat dibuka" dengan pesan galatnya.
+
+**Buka dan tutup lewat URL:**
+
+- Mengetuk jadwal (dan "Berikutnya" di hero) memakai `push`.
+- Menutup rincian yang dibuka dari halaman kembali satu langkah di riwayat (`navigate(-1)`), jadi
+  Esc, tombol ×, dan tombol Kembali browser/ponsel sama hasilnya.
+- Rincian yang dibuka dari tautan langsung cukup dilepas dari URL (`replace`), sehingga pengunjung
+  tidak keluar dari portal.
+- **Fokus:** elemen pembuka disimpan saat membuka, dan fokus dikembalikan ke sana saat menutup
+  (`onCloseAutoFocus`). Tanpa ini fokus jatuh ke tautan "Lewati ke konten", karena penutupan
+  menunggu perubahan URL.
+
+**Pemeriksaan** (Chrome headless, data demo lokal):
+
+- **Membuka dan menutup:**
+  - klik kartu: panel kanan dan riwayat +1;
+  - Esc menutup dan fokus kembali ke kartu;
+  - tombol Kembali browser menutup;
+  - Enter pada kartu membuka, dengan fokus di dalam panel.
+- **Tautan langsung:**
+  - jadwal 20 Desember tanpa `tanggal` (di luar periode tampil) terbuka;
+  - menutupnya tetap di `/jadwal` dengan riwayat sama;
+  - id 999999 memberi pesan.
+- **Salin dan bagikan:**
+  - salin tautan menghasilkan alamat yang benar dan notifikasi;
+  - Bagikan tanpa Web Share menyalin, dan Bagikan yang dibatalkan tidak menyalin.
+  - Clipboard Chrome headless menolak tanpa fokus jendela, jadi `writeText` dicegat untuk uji ini.
+- **Lainnya:**
+  - "Berikutnya" di hero membuka rincian ibadah hari ini pukul 18.00;
+  - ponsel: lembar bawah, dan Kembali menutup.
+- **Regresi.** Uji interaksi Tahap 4–5 diulang dan tetap lolos.
+- **Tangkapan layar** desktop terang, ponsel terang, dan desktop kaca gelap.
 - Typecheck dan lint lolos.
