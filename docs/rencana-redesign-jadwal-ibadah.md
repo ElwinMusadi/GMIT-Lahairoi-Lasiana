@@ -892,11 +892,21 @@ gelap × 390/768/1440 px × Agenda, Pekan (mulai 768 px), Bulan, dan hasil cari.
   kalender: 0 perbedaan, kecuali derau sub-piksel lebar teks ±1 px di Beranda 390 px;
 - typecheck dan lint lolos.
 
-**Tindak lanjut di luar kalender** (tidak dikerjakan di branch ini):
+**Tindak lanjut di luar kalender:**
 
-- Hero Beranda, diukur dengan cara piksel yang sama, punya teks di bawah 4,5:1 pada bagian foto
-  paling terang:
-  - kalimat penjelas `text-white/85`: 4,07:1 di ponsel;
-  - label tautan cepat `text-white/75`: 3,9–4,3:1;
-  - tanggal Kebaktian Minggu berwarna oranye: 3,3–3,6:1.
-- `401 /api/auth/me` di konsol portal.
+- **Hero Beranda** (diperbaiki di commit terpisah sesudah Tahap 7). Diukur dengan cara piksel yang
+  sama di seluruh tinggi hero, ada teks di bawah 4,5:1 pada bagian foto paling terang:
+  - label "Pengumuman terkini:" oranye 1,55–2,96:1, dan judul pengumumannya yang putih pun hanya
+    3,96:1 di ponsel (tema Bawaan), karena scrim di tengah hero hanya 0,55;
+  - tanggal Kebaktian Minggu oranye 3,4–4,2:1, catatan tautan cepat `text-white/75` 3,95–4,49:1,
+    kalimat penjelas 4,06–4,16:1, dan kutipan Kejadian 4,33:1 di 768 px.
+
+  Perbaikannya:
+  - scrim khusus hero Beranda (`site-hero-scrim-full`, 0,75 → 0,62 → 0,82 → 0,90), sehingga foto
+    di bagian atas tetap terlihat;
+  - label oranye menjadi putih dengan titik aksen;
+  - catatan tautan cepat `white/85`, dan kutipan Kejadian `white/90`.
+
+  Hasilnya, semua teks hero ≥5,38:1 di tema Bawaan dan Glassmorphism, terang dan gelap, pada
+  390/768/1440 px. Halaman portal lain tanpa perubahan gaya.
+- `401 /api/auth/me` di konsol portal (belum dikerjakan).

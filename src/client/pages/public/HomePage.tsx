@@ -107,7 +107,7 @@ function HomeHero({
             lead="Allah yang hidup"
             accent="melihat kita."
           />
-          <p className="text-sm font-medium text-white/80">Kejadian 16:13–14</p>
+          <p className="text-sm font-medium text-white/90">Kejadian 16:13–14</p>
         </div>
       }
     >
@@ -168,12 +168,23 @@ function Notice({
       className="h-auto min-h-11 max-w-full justify-self-start py-2 text-sm whitespace-normal"
     >
       <span className="min-w-0 text-left">
-        <span className="font-semibold text-site-accent">
+        {/* Label putih: oranye aksen di atas foto hero di bawah 3:1; aksennya pindah ke titik. */}
+        <span className="font-semibold text-white">
+          <AccentDot />
           {news ? 'Pengumuman terkini:' : 'Warta terbaru:'}
         </span>{' '}
         <span className="font-medium">{item.title}</span>
       </span>
     </PillLink>
+  )
+}
+
+function AccentDot() {
+  return (
+    <span
+      aria-hidden="true"
+      className="mr-1.5 inline-block size-2 rounded-full bg-site-accent align-[0.05em]"
+    />
   )
 }
 
@@ -202,7 +213,7 @@ function QuickAction({
       <span
         className={cn(
           'text-(length:--site-text-xs)',
-          primary ? 'text-site-panel/70' : 'text-white/75',
+          primary ? 'text-site-panel/70' : 'text-white/85',
         )}
       >
         {note}
@@ -242,7 +253,8 @@ function ThemeCard({ worship, today }: { worship: PublicWorshipItem; today: stri
       <p id="label-tema" className="text-sm font-medium text-white/80">
         Tema kebaktian minggu ini{meta && ` · ${meta}`}
       </p>
-      <p className="font-site-mono text-(length:--site-text-xs) text-site-accent">
+      <p className="font-site-mono text-(length:--site-text-xs) text-white">
+        <AccentDot />
         {worshipWhen(worship.worship_date, worship.worship_time, today)}
       </p>
     </article>

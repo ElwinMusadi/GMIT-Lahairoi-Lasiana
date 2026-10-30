@@ -503,6 +503,18 @@ html.theme-portal [data-sonner-toast][data-styled='true'] [data-button] {
     rgb(8 18 21 / 0.88)
   );
 }
+/* Hero Beranda: isinya (kalimat, pengumuman, tautan cepat, tema Minggu) mengisi separuh bawah
+   di atas dinding gereja yang putih, jadi bagian tengah-bawah digelapkan lebih kuat agar teks
+   di atas pil kaca tetap ≥4,5:1. */
+.site-hero-scrim-full {
+  background: linear-gradient(
+    to bottom,
+    rgb(8 18 21 / 0.75),
+    rgb(8 18 21 / 0.62) 35%,
+    rgb(8 18 21 / 0.82) 60%,
+    rgb(8 18 21 / 0.9)
+  );
+}
 .site-band-scrim {
   background: rgb(8 18 21 / 0.62);
 }

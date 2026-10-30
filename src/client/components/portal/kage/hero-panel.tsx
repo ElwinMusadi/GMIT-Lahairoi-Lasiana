@@ -65,7 +65,12 @@ export function HeroPanel({
               style={{ objectPosition: photo.position ?? 'center 0%' }}
             />
           )}
-          <div className="site-hero-scrim absolute inset-0" />
+          <div
+            className={cn(
+              'site-hero-scrim absolute inset-0',
+              size === 'full' && 'site-hero-scrim-full',
+            )}
+          />
         </div>
         {size !== 'page' ? (
           // Beranda dan halaman alat: isi sejajar dengan pil header, selebar panel.

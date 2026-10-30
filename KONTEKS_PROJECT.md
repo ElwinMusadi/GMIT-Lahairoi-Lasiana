@@ -84,8 +84,8 @@ Catatan status:
   Oktober 2026) dan menunggu persetujuan merge ke `main`; belum di-push.
   - Rencana, keputusan J1–J9, catatan per tahap, dan hasil QA ada di
     [docs/rencana-redesign-jadwal-ibadah.md](docs/rencana-redesign-jadwal-ibadah.md).
-  - Tindak lanjut terpisah yang ditemukan saat QA: kontras teks hero Beranda di atas foto, dan
-    `401 /api/auth/me` di konsol portal.
+  - Kontras teks hero Beranda di atas foto, yang ditemukan saat QA, ikut diperbaiki di branch
+    ini. Tindak lanjut yang tersisa: `401 /api/auth/me` di konsol portal.
 
 ### Redesign dashboard bergaya Zenith (selesai, 29 Oktober 2026)
 
@@ -525,6 +525,9 @@ bersubmenu. Rencana, keputusan K1–K6, dan catatan per tahap ada di
     - rincian dibuka dengan `push` dan ditutup dengan `navigate(-1)`, kecuali dari tautan langsung
       (`replace`), agar tombol Kembali ponsel menutup lembar;
     - teks di atas foto hero diukur dari piksel, karena axe tidak bisa menilai latar gambar.
+- **Hero Beranda** memakai scrim sendiri (`site-hero-scrim-full`): bagian tengah-bawah lebih gelap
+  agar teks di atas pil kaca tetap ≥4,5:1 di depan dinding gereja yang putih. Label aksen di atas
+  foto berwarna putih dengan titik oranye, karena teks oranye di sana di bawah 3:1.
 
 ### Dashboard — gaya Zenith
 
