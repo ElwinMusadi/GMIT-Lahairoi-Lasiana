@@ -115,7 +115,7 @@ export function MonthGrid({ anchor, dates, worships, today, onOpen, onDay }: Pro
                         type="button"
                         onClick={() => onOpen(worship)}
                         className={cn(
-                          'flex min-w-0 items-baseline gap-1 rounded-md border-l-[3px] py-0.5 pr-1 pl-1.5 text-left text-(length:--site-text-xs) leading-snug transition-colors outline-none hover:bg-site-ink/[0.07] focus-visible:ring-3 focus-visible:ring-ring',
+                          'flex min-h-7 min-w-0 items-center gap-1 rounded-md border-l-[3px] py-0.5 pr-1 pl-1.5 text-left text-(length:--site-text-xs) leading-snug transition-colors outline-none hover:bg-site-ink/[0.07] focus-visible:ring-3 focus-visible:ring-ring',
                           KIND_BORDER[worship.category],
                           past
                             ? 'bg-transparent text-site-muted'

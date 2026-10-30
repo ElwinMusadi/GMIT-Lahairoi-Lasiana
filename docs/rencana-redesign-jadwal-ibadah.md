@@ -1,9 +1,10 @@
 # Rencana Implementasi: Kalender Jadwal Ibadah (Portal Publik)
 
 Disusun 30 Oktober 2026. Status: **disetujui** 30 Oktober 2026 (keputusan J1–J9 semua sesuai
-usulan, bagian 8; J1 disesuaikan di Tahap 4). Tahap 0–4 (persiapan, API, lapisan data klien,
-kerangka, tampilan Pekan/Agenda, tampilan Bulan dan hasil pencarian, panel rincian) selesai di
-branch `feat/kalender-jadwal-ibadah` (bagian 10). Tersisa Tahap 7 (QA penuh dan dokumentasi).
+usulan, bagian 8; J1 disesuaikan di Tahap 4). **Selesai:** Tahap 0–7 (persiapan, API, lapisan
+data klien, kerangka, tampilan Pekan/Agenda, tampilan Bulan dan hasil pencarian, panel rincian, QA
+penuh dan dokumentasi) di branch `feat/kalender-jadwal-ibadah` (bagian 10), menunggu merge ke
+`main`.
 
 ## 1. Tujuan
 
@@ -817,3 +818,85 @@ bawah di ponsel; berlatar kaca di tema Glassmorphism.
 - **Regresi.** Uji interaksi Tahap 4–5 diulang dan tetap lolos.
 - **Tangkapan layar** desktop terang, ponsel terang, dan desktop kaca gelap.
 - Typecheck dan lint lolos.
+
+### Tahap 7 — QA penuh dan dokumentasi (30 Oktober 2026)
+
+Semua pemeriksaan memakai build produksi di Worker uji (D1 scratch berisi hari padat Natal), kecuali
+uji interaksi yang memakai server Vite dan data demo lokal.
+
+**Lighthouse aksesibilitas.** Diuji pada Pekan, Bulan, hasil cari, dan rincian di desktop, serta
+Agenda dan Bulan di ponsel.
+
+- Temuan yang diperbaiki:
+  - urutan judul: judul kalender mini `h3` → `h2`;
+  - ukuran sasaran: label di kisi Bulan setinggi minimal 28 px;
+  - nama tombol pita pekan tidak memuat teks yang tampak: keterangan hari pindah ke
+    `aria-describedby`.
+- Hasil: 100 di keenam keadaan.
+- Praktik terbaik 96, hanya karena `401 /api/auth/me` di konsol. Galat ini sudah ada sebelum
+  kalender dan muncul di semua halaman portal.
+
+**Inspector `design-taste-frontend`** (1440, 768, 390 px).
+
+- Diperbaiki:
+  - garis pemisah antarhari di Agenda dibuang; jarak antarhari menjadi pemisahnya;
+  - isi sisi kiri `p-6`, sejajar dengan bilah alat;
+  - kalimat hero 18 px;
+  - di ponsel hero punya kalimat penjelas sendiri ("Seluruh ibadah jemaat dalam satu kalender.
+    Semua waktu dalam WITA."), jadi judulnya tidak tinggal nama saja.
+- Dipertahankan:
+  - `few-pictures` (K5, satu foto gereja);
+  - `mixed-font-headline` (judul dua nada kage);
+  - `no-footage`;
+  - `off-centre` 47/73 px di 1440 dan 768 px.
+- `off-centre` adalah artefak pengukuran:
+  - Inspector mengambil persentil 98 tepi kanan semua kotak teks. Kolom kanan halaman ini adalah
+    tabel Pekan, yang teksnya rata kiri di dalam sel.
+  - Tepi sebenarnya simetris: panel kalender 14/14 px (1440) dan 16/16 px (768), kartu utama
+    28/28 px (768). Sisi kiri dan bilah alat sama-sama 47 px dari tepi.
+
+**Matriks tema.** 44 keadaan dengan kurangi gerak aktif: Bawaan dan Glassmorphism × terang dan
+gelap × 390/768/1440 px × Agenda, Pekan (mulai 768 px), Bulan, dan hasil cari.
+
+- axe-core (WCAG 2.2 A/AA): 0 pelanggaran sesudah perbaikan, dan tidak ada gulir ke samping.
+- Temuan: tanggal bulan tetangga di kalender mini (`text-site-muted/70`) hanya 2,92:1 (terang) dan
+  4,24:1 (gelap). Tanggal itu tombol yang bisa diklik, jadi sekarang `text-site-muted` penuh.
+- Di tema Kaca, axe tidak bisa menilai kontras di atas latar tembus pandang, jadi kontras diukur dari
+  piksel:
+  - teks dibuat transparan lalu layar ditangkap;
+  - warna teks dipadukan dengan setiap piksel latar di kotak teksnya;
+  - yang dinilai persentil 5, yaitu bagian latar yang paling buruk.
+- Pengukuran piksel mencakup 28 keadaan (terang dan gelap × tiga lebar × semua tampilan dan panel
+  rincian).
+  - Temuan: label oranye "Berikutnya:" di pil hero hanya 2,9–3,2:1 di bagian foto paling terang,
+    di kedua tema.
+  - Perbaikan: label menjadi putih, dan aksen oranye pindah ke titik di depannya.
+  - Sesudahnya 0 gagal.
+
+**Keyboard dan pembaca layar.**
+
+- Jalur Tab diperiksa di 1440 px (Bawaan dan Kaca) dan 390 px. Urutannya: tautan lewati, header,
+  pil hero, sisi kiri, bilah alat, kartu jadwal, lalu footer.
+  - Sisi kiri: navigasi bulan, satu tanggal dengan roving tabindex, cari, dan kotak centang.
+  - Setiap tujuan punya cincin fokus yang tampak.
+- Esc dan kembalinya fokus (Tahap 6) diuji ulang.
+- Pembaca layar dasar: nama dan peran diperiksa lewat axe dan Lighthouse. Jumlah hasil diumumkan
+  lewat `aria-live`.
+
+**Regresi:**
+
+- uji API 48/48;
+- uji unit 69/69 di zona waktu Asia/Makassar, America/Los_Angeles, Pacific/Kiritimati, dan UTC;
+- uji interaksi Tahap 4–6 lolos;
+- gaya terhitung delapan halaman portal lain (tema bawaan, 1440 dan 390 px) dibanding potret sebelum
+  kalender: 0 perbedaan, kecuali derau sub-piksel lebar teks ±1 px di Beranda 390 px;
+- typecheck dan lint lolos.
+
+**Tindak lanjut di luar kalender** (tidak dikerjakan di branch ini):
+
+- Hero Beranda, diukur dengan cara piksel yang sama, punya teks di bawah 4,5:1 pada bagian foto
+  paling terang:
+  - kalimat penjelas `text-white/85`: 4,07:1 di ponsel;
+  - label tautan cepat `text-white/75`: 3,9–4,3:1;
+  - tanggal Kebaktian Minggu berwarna oranye: 3,3–3,6:1.
+- `401 /api/auth/me` di konsol portal.

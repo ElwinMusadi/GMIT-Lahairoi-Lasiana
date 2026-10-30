@@ -84,9 +84,9 @@ export function MiniMonth({ anchor, today, view, days, onSelect, onMonth, classN
   return (
     <div className={cn('grid gap-3', className)}>
       <div className="flex items-center justify-between gap-2">
-        <h3 id={titleId} className="font-site-display text-base font-bold text-site-ink">
+        <h2 id={titleId} className="font-site-display text-base font-bold text-site-ink">
           {periodLabel('bulan', anchor)}
-        </h3>
+        </h2>
         <div className="flex items-center gap-1">
           <MonthButton direction={-1} onMonth={onMonth} />
           <MonthButton direction={1} onMonth={onMonth} />
@@ -154,7 +154,7 @@ export function MiniMonth({ anchor, today, view, days, onSelect, onMonth, classN
                             isToday
                               ? 'bg-site-ink font-bold text-site-canvas'
                               : 'group-hover/day:bg-site-ink/10',
-                            !isToday && (outside ? 'text-site-muted/70' : 'text-site-ink'),
+                            !isToday && (outside ? 'text-site-muted' : 'text-site-ink'),
                           )}
                         >
                           {Number(date.slice(8))}

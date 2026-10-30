@@ -8,7 +8,8 @@ import { dayOfWeek, groupByDate } from '@/lib/schedule-calendar'
 import { cn } from '@/lib/utils'
 
 // Tampilan Agenda kalender Jadwal Ibadah: daftar per hari untuk satu pekan, baris ringkas.
-// Hari tanpa ibadah tidak ditampilkan. `jumpTo` menggulir ke hari tertentu (dari pita pekan
+// Hari tanpa ibadah tidak ditampilkan. Tanpa garis pemisah: baris setinggi ±100 px dan jarak
+// antarhari sudah memisahkan (aturan daftar di skill desain). `jumpTo` menggulir ke hari tertentu (dari pita pekan
 // atau "+N lainnya" di tampilan Pekan).
 
 export function AgendaList({
@@ -48,13 +49,13 @@ export function AgendaList({
           <h3
             id={`judul-hari-${date}`}
             className={cn(
-              'border-b border-site-rule px-2 pb-2 text-sm font-semibold',
+              'px-2 pb-1 text-sm font-semibold',
               date === today ? 'text-site-ink' : 'text-site-muted',
             )}
           >
             {dayLabel(date, today)}
           </h3>
-          <ul className="grid divide-y divide-site-rule">
+          <ul className="grid gap-1">
             {list.map((worship) => (
               <li key={worship.id}>
                 <AgendaRow worship={worship} onOpen={onOpen} past={date < today} terms={terms} />
@@ -97,13 +98,16 @@ export function WeekStrip({
         const isToday = date === today
         return (
           <li key={date}>
+            {/* Nama tombol = teks yang terlihat ("Sen 26"); keterangan lengkapnya terpisah. */}
+            <span id={`pita-${date}`} className="sr-only">
+              {dayName.format(Date.parse(date))},{' '}
+              {summary ? `${summary.count} ibadah` : 'tidak ada ibadah'}
+            </span>
             <button
               type="button"
               disabled={!summary}
               onClick={() => onDay(date)}
-              aria-label={`${dayName.format(Date.parse(date))}, ${
-                summary ? `${summary.count} ibadah` : 'tidak ada ibadah'
-              }`}
+              aria-describedby={`pita-${date}`}
               aria-current={isToday ? 'date' : undefined}
               className={cn(
                 'grid h-16 w-full place-items-center content-center gap-1 rounded-xl transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring disabled:opacity-45',

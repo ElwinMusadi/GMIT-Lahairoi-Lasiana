@@ -191,7 +191,7 @@ export default function SchedulePage() {
           {dayList.length > 0 ? (
             <AgendaList worships={dayList} today={today} onOpen={openWorship} />
           ) : (
-            <p className="border-t border-site-rule px-2 pt-3 text-sm text-site-muted">
+            <p className="px-2 pt-1 text-sm text-site-muted">
               {dayLabel(state.anchor, today)}: tidak ada ibadah.
             </p>
           )}
@@ -228,11 +228,14 @@ export default function SchedulePage() {
         }
       >
         <div className="mt-5 grid gap-4 md:flex md:flex-wrap md:items-center md:justify-between">
-          <p className="max-w-[58ch] text-base leading-relaxed text-white/85">
+          <p className="max-w-[58ch] text-lg leading-relaxed text-white/85">
             <span className="max-sm:hidden">
-              Kebaktian Minggu, ibadah rayon, ibadah kategorial, dan ibadah khusus.{' '}
+              Kebaktian Minggu, ibadah rayon, ibadah kategorial, dan ibadah khusus. Semua waktu
+              dalam WITA.
             </span>
-            Semua waktu dalam WITA.
+            <span className="sm:hidden">
+              Seluruh ibadah jemaat dalam satu kalender. Semua waktu dalam WITA.
+            </span>
           </p>
           {next && (
             <PillButton
@@ -242,7 +245,15 @@ export default function SchedulePage() {
               className="h-auto min-h-11 justify-start py-2 text-left text-sm whitespace-normal"
             >
               <span className="min-w-0">
-                <span className="font-semibold text-site-accent">Berikutnya:</span>{' '}
+                {/* Label putih: oranye aksen di atas foto hero hanya ±3:1 di bagian paling
+                    terang; aksennya pindah ke titik. */}
+                <span className="font-semibold text-white">
+                  <span
+                    aria-hidden="true"
+                    className="mr-1.5 inline-block size-2 rounded-full bg-site-accent align-[0.05em]"
+                  />
+                  Berikutnya:
+                </span>{' '}
                 <span className="font-medium">
                   {next.title}
                   {next.category === 'RAYON' && next.rayon_name && ` · Rayon ${next.rayon_name}`}
@@ -263,7 +274,7 @@ export default function SchedulePage() {
         <div className="grid gap-2 sm:gap-3 xl:grid-cols-[19rem_minmax(0,1fr)]">
           <aside
             aria-label="Kalender dan saringan"
-            className="hidden content-start gap-6 rounded-[22px] bg-site-canvas p-4 xl:grid glass:glass-card"
+            className="hidden content-start gap-6 rounded-[22px] bg-site-canvas p-6 xl:grid glass:glass-card"
           >
             {miniMonth}
             {search('sm:w-full')}

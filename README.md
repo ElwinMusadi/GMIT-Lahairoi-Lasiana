@@ -99,7 +99,7 @@ npm run db:seed:demo
 | `/`                  | `PublicLayout`    | Beranda: pengumuman terkini, hero, jadwal ibadah terdekat, renungan hari ini, unduh warta PDF, berita |
 | `/profil`            | `PublicLayout`    | Profil & Sejarah: sejarah, visi misi, 5 rayon pelayanan, Pendeta & Majelis (`/tentang` dialihkan ke sini) |
 | `/persembahan`       | `PublicLayout`    | Persembahan: gambar QRIS dan rekening per pos kas dengan tombol salin |
-| `/jadwal`            | `PublicLayout`    | Papan Jadwal Ibadah dengan saringan jenis ibadah (`?jenis=`) dan rayon (`?rayon=`) |
+| `/jadwal`            | `PublicLayout`    | Kalender Jadwal Ibadah: Agenda, Pekan, Bulan, pencarian, saringan jenis dan rayon, rincian jadwal; keadaannya di URL |
 | `/warta`             | `PublicLayout`    | Warta Jemaat: warta terbaru dengan pratinjau PDF, arsip yang bisa dicari, tombol unduh |
 | `/renungan`, `/renungan/:slug` | `PublicLayout` | Daftar Renungan Rohani dan halaman baca satu renungan |
 | `/berita`, `/berita/:slug` | `PublicLayout` | Daftar Berita & Pengumuman dan halaman baca satu berita |
@@ -617,8 +617,8 @@ Rute: [contents.ts](src/worker/routes/contents.ts) (CMS, perlu login) dan [publi
 **Halaman portal** ([src/client/pages/public](src/client/pages/public)), semuanya tanpa login dan responsif:
 
 - **Beranda** (`/`): hero foto gereja dengan makna nama Lahai-roi, nama gereja, pita pengumuman terkini, tema Kebaktian Minggu terdekat, dan empat tautan cepat (unduh warta PDF terbaru, jadwal, persembahan, profil). Di bawahnya papan jadwal ibadah terdekat dengan saringan jenis (`#jadwal`), renungan hari ini (dibaca utuh, tombol Bagikan; `#renungan`), warta dan berita & pengumuman (`#warta`), band tiga layanan jemaat, lima rayon, dokumentasi Galeri terbaru, rekening & QRIS persembahan, dan tanya-jawab pendaftaran sakramen.
-- **Jadwal Ibadah** (`/jadwal`): kalender jemaat, sedang dibangun bertahap ([rencana](docs/rencana-redesign-jadwal-ibadah.md)).
-  - Hero ringkas menyebut ibadah berikutnya.
+- **Jadwal Ibadah** (`/jadwal`): kalender jemaat ([rencana dan catatan desain](docs/rencana-redesign-jadwal-ibadah.md)).
+  - Hero ringkas dengan kalimat penjelas dan pil ibadah berikutnya (membuka rinciannya).
   - Sisi kiri (mulai 1280 px): kalender mini bertitik warna per jenis, kolom cari (nama pelayan, judul, tema, tempat; jadwal mendatang), dan saringan jenis ibadah (pilih banyak, dengan jumlah) serta rayon. Saringan rayon hanya menyaring ibadah rayon; ibadah seluruh jemaat tetap tampil.
   - Di bawah 1280 px kalender mini dan saringan ada di lembar "Saring", dengan chip saringan aktif.
   - Bilah alat: ‹ ›, Hari ini, label periode, dan pilihan tampilan Agenda/Pekan/Bulan.
@@ -630,6 +630,7 @@ Rute: [contents.ts](src/worker/routes/contents.ts) (CMS, perlu login) dan [publi
     - Tautan `?tanggal=…&jadwal=…` membuka rincian langsung, termasuk jadwal di luar periode yang tampil (lewat `GET /api/public/worships/:id`); id yang salah diberi pesan.
     - Rincian yang dibuka dari halaman ditutup dengan tombol Kembali (juga di ponsel) atau Esc; rincian dari tautan langsung ditutup tanpa keluar dari portal. Fokus kembali ke jadwal yang diketuk.
   - Keadaan tersimpan di URL (`tampilan`, `tanggal`, `jenis`, `rayon`, `cari`, `jadwal`), mis. `/jadwal?tampilan=bulan&tanggal=2026-12-01&rayon=2`. Tautan lama `/jadwal?jenis=rayon&rayon=2` tetap berlaku.
+  - Bisa dipakai penuh dengan papan ketik: kalender mini dengan panah, Home/End, dan PageUp/PageDown; jumlah hasil diumumkan pembaca layar. Tema Bawaan dan Glassmorphism, terang dan gelap, sama-sama lolos kontras WCAG AA.
 - **Warta Jemaat** (`/warta`): warta terbaru ditonjolkan dengan **Unduh PDF**, **Baca di tab baru**, dan pratinjau PDF di layar lebar (di ponsel cukup kedua tombol, karena peramban ponsel umumnya tidak menampilkan PDF dalam bingkai). Di bawahnya arsip warta dengan pencarian judul dan paging.
 - **Renungan** (`/renungan`) dan **Berita & Pengumuman** (`/berita`): artikel terbaru ditonjolkan, sisanya kartu dengan paging. Halaman baca (`/renungan/:slug`, `/berita/:slug`) menampilkan ayat atau ringkasan, penulis, isi, lampiran, tombol Bagikan, dan artikel lainnya. Alamat dengan kategori yang keliru dialihkan ke rute yang benar.
 - **Galeri Kegiatan** (`/media`): kartu foto; konten dengan tautan video bertanda "Video" dan memakai gambar pratinjau YouTube bila tak ada foto. Kartu dibuka dalam jendela galeri: video YouTube diputar di tempat (youtube-nocookie), tautan video lain dibuka di tab baru.
@@ -687,7 +688,7 @@ Rute: [worships.ts](src/worker/routes/worships.ts). Aturan data bersama ada di [
   - Ringkasan jumlah petugas yang bentrok tampil di atas daftar.
   - Aturannya sama dengan API (`sameServant`), sehingga peringatan di form cocok dengan hasil simpan.
   - Jadwal tetap bisa disimpan; setelah disimpan, notifikasi memuat kalimat peringatan dari API.
-- Jadwal publik yang berlampiran PDF tata ibadah tampil di Papan Jadwal portal (`/jadwal`) dengan tautan **Tata ibadah** yang mengunduh berkasnya.
+- Jadwal publik yang berlampiran PDF tata ibadah memuat tombol **Unduh tata ibadah (PDF)** di rincian jadwal kalender portal (`/jadwal`), dan tautan unduhan `tata-ibadah.pdf` di papan jadwal Beranda.
 - **Absensi** (dialog; Admin, Pendeta, Majelis) untuk ibadah hari ini atau sebelumnya: kotak Pria, Wanita, dan Anak/Pemuda, dengan **Total kehadiran** yang terhitung langsung saat diketik. Kotak kosong berarti belum dihitung, bukan nol.
 - Meninggalkan editor dengan perubahan yang belum disimpan meminta konfirmasi.
 

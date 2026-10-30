@@ -61,6 +61,7 @@ dan tergabung di `main`.
 | Redesign Portal Publik bergaya kage (rancangan 10), isi 08 tetap | – | Selesai | `90e5a7a` (merge) |
 | Redesign dashboard pengurus bergaya Zenith, logika dan API tetap | – | Selesai | `c7855e8` (merge) |
 | Pengaturan > Tampilan: tema Portal Publik Bawaan atau Glassmorphism | – | Selesai | `48c6415` (merge) |
+| Kalender Jadwal Ibadah di Portal: Agenda/Pekan/Bulan, cari, saringan, rincian | – | Selesai, belum di-merge | branch `feat/kalender-jadwal-ibadah` |
 
 Catatan status:
 
@@ -79,9 +80,12 @@ Catatan status:
   `origin/main` pada 29 Oktober 2026.
 - Data demo lokal (merge `4b59ebb`) sudah di-push ke `origin/main` pada 29 Oktober 2026.
 - Tema portal Glassmorphism (2 commit, merge `48c6415` pada 30 Oktober 2026) **belum di-push**.
-- **Berikutnya:** kalender Jadwal Ibadah di Portal. Rencana dan keputusan J1–J9 (disetujui 30
-  Oktober 2026) ada di [docs/rencana-redesign-jadwal-ibadah.md](docs/rencana-redesign-jadwal-ibadah.md).
-  Tahap 0 selesai kecuali data uji hari padat.
+- **Kalender Jadwal Ibadah** selesai di branch `feat/kalender-jadwal-ibadah` (Tahap 0–7, 30
+  Oktober 2026) dan menunggu persetujuan merge ke `main`; belum di-push.
+  - Rencana, keputusan J1–J9, catatan per tahap, dan hasil QA ada di
+    [docs/rencana-redesign-jadwal-ibadah.md](docs/rencana-redesign-jadwal-ibadah.md).
+  - Tindak lanjut terpisah yang ditemukan saat QA: kontras teks hero Beranda di atas foto, dan
+    `401 /api/auth/me` di konsol portal.
 
 ### Redesign dashboard bergaya Zenith (selesai, 29 Oktober 2026)
 
@@ -503,6 +507,24 @@ bersubmenu. Rencana, keputusan K1–K6, dan catatan per tahap ada di
     terang dan gelap menghasilkan 0 perbedaan.
   - Jebakan: elemen ber-`backdrop-filter` menjadi akar latar bagi isinya. Bilah yang memuat
     menu tarik-turun memakai `glass-bar-behind` (kaca di `::before`).
+- **Kalender Jadwal Ibadah** (`/jadwal`, 30 Oktober 2026). Uraian fitur ada di README; rencana dan
+  catatan per tahap ada di [docs/rencana-redesign-jadwal-ibadah.md](docs/rencana-redesign-jadwal-ibadah.md).
+  - Tampilan Agenda, Pekan, dan Bulan. Agenda bawaan di bawah 1024 px; Pekan tersedia mulai
+    768 px; sisi kiri (kalender mini, cari, saringan) mulai 1280 px, di bawahnya lembar "Saring".
+  - Keadaan halaman di URL (`tampilan`, `tanggal`, `jenis`, `rayon`, `cari`, `jadwal`). Data dimuat
+    per kisi bulan (42 hari, mode rentang API); saringan dihitung di browser.
+  - Warna jenis ibadah `--site-kind-*`: biru Kebaktian Minggu, hijau Rayon, kuning Kategorial,
+    magenta Khusus. Palet lolos validator `dataviz`; warna selalu didampingi label.
+  - Kode: fungsi murni tanggal WITA, URL, dan saringan di
+    [src/client/lib/schedule-calendar.ts](src/client/lib/schedule-calendar.ts); keadaan dan data di
+    [src/client/lib/use-schedule-calendar.ts](src/client/lib/use-schedule-calendar.ts); komponen di
+    `src/client/components/portal/schedule/`.
+  - Jebakan:
+    - tanggal dihitung sebagai teks `YYYY-MM-DD` dengan aritmetika UTC, bukan zona waktu
+      perangkat;
+    - rincian dibuka dengan `push` dan ditutup dengan `navigate(-1)`, kecuali dari tautan langsung
+      (`replace`), agar tombol Kembali ponsel menutup lembar;
+    - teks di atas foto hero diukur dari piksel, karena axe tidak bisa menilai latar gambar.
 
 ### Dashboard — gaya Zenith
 
@@ -618,8 +640,9 @@ Hasil pengujian terakhir:
 | API inventaris | 58/58 |
 | API analitik | 51/51 |
 | Inspector dashboard | 0 FAIL |
-| Inspector portal kage (13 halaman) | 6 halaman 0 FAIL; sisanya `few-pictures` (K5), ditambah `off-centre` di Jadwal 390 px dan `still-page` di halaman baca berita dan 404 |
+| Inspector portal kage (13 halaman) | 6 halaman 0 FAIL; sisanya `few-pictures` (K5), ditambah `still-page` di halaman baca berita dan 404. Jadwal sesudah kalender: `few-pictures` dan peringatan `off-centre` yang terbukti artefak pengukuran |
 | QA portal kage (Tahap 10) | Keadaan eror/memuat/kosong, keyboard, pembaca layar dasar, kedua tema, kurangi gerak, 60 fps, Lighthouse aksesibilitas 100 |
+| Kalender Jadwal Ibadah (Tahap 7) | API 48/48, unit 69/69 di 4 zona waktu, interaksi Tahap 4–6, Lighthouse aksesibilitas 100 (6 keadaan), axe 0 pelanggaran di 44 keadaan (2 tema × terang/gelap × 3 lebar), kontras kaca dari piksel 0 gagal, halaman lain 0 perbedaan gaya |
 
 ---
 
@@ -686,6 +709,8 @@ Sebelum deploy pertama:
 | [docs/prd.md](docs/prd.md) | PRD: fitur, kriteria penerimaan, model data, alur pengguna |
 | [docs/rencana-redesign-portal-kage.md](docs/rencana-redesign-portal-kage.md) | Rencana implementasi redesign portal |
 | [docs/rencana-redesign-dashboard-zenith.md](docs/rencana-redesign-dashboard-zenith.md) | Rencana, keputusan D1–D10, dan catatan per tahap redesign dashboard Zenith |
+| [docs/rencana-redesign-jadwal-ibadah.md](docs/rencana-redesign-jadwal-ibadah.md) | Rencana, keputusan J1–J9, catatan per tahap, dan hasil QA kalender Jadwal Ibadah |
+| [src/client/lib/schedule-calendar.ts](src/client/lib/schedule-calendar.ts) | Fungsi murni kalender Jadwal Ibadah: tanggal WITA, URL, saringan, hitungan, pencarian |
 | [src/client/components/zenith/](src/client/components/zenith) | Komponen dashboard bergaya Zenith |
 | [src/client/router.tsx](src/client/router.tsx) | Semua rute |
 | [src/client/lib/navigation.ts](src/client/lib/navigation.ts) | Tautan portal, menu dashboard per peran |
